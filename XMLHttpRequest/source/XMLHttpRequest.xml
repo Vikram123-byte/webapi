@@ -1,0 +1,362 @@
+<specification xmlns="http://berjon.com/ns/re-spec/" xmlns:rs="http://berjon.com/ns/re-spec/" version="1.0" xml:lang="en">
+ <!--
+  VERSION 2.0 (the one we implement)
+
+  * .onload
+  * .onprogress
+  * the XMLHttpRequest object implements the EventTarget object
+  * .ontimeout (Gorm wants it!)
+  * .onerror (error event...)
+  * does abort() trigger the error event
+  * ...
+ -->
+ <metadata>
+  <title>The XMLHttpRequest Object 1.0</title>
+  <styling type='W3C' status='EDMO'/>
+  <date year='2006' month='01' day='20'/>
+  <editors>
+   <person>
+    <name>Anne van Kesteren</name>
+    <email>annevk@opera.com</email>
+    <url>http://annevankesteren.nl/</url>
+    <company>Opera Software ASA</company>
+    <company-url>http://www.opera.com/</company-url>
+   </person>
+   <person>
+    <name>Dean Jackson</name>
+    <email>dino@w3.org</email>
+    <url>http://www.w3.org/People/Dean/</url>
+    <company>W3C</company>
+    <company-url>http://www.w3.org/</company-url>
+   </person>
+  </editors>
+  <versions>
+   <current></current>
+   <latest><!--http://www.w3.org/TR/XMLHttpRequest/--></latest>
+   <previous></previous>
+  </versions>
+ </metadata>
+ <section xml:id="abstract" type="w3c-abstract">
+  <title>Abstract</title>
+  <p>This specification defines the <code>XMLHttpRequest</code> object...</p>
+  <ednote><p>Dino has to fill this in.</p></ednote>
+ </section>
+ <section xml:id="sotd" type="w3c-sotd">
+  <title>Status of this Document</title>
+  <p><em>This section describes the status of this document at the time of its publication.
+   Other documents may supersede this document. A list of current W3C publications and the
+   latest revision of this technical report can be found in the 
+   <a href='http://www.w3.org/TR/'>W3C technical reports index</a> at http://www.w3.org/TR/.</em></p>
+  <p>This document is produced by the <a href='http://www.w3.org/2006/webapi'>Web API
+   <acronym title='Working Group'>WG</acronym></a> (part of the
+   <a href='http://www.w3.org/2006/rwc/Activity'>Rich Web Clients Activity</a>).
+   This document has no formal standing within the <acronym title='World Wide Web Consortium'>W3C</acronym>. 
+   Please send comments to <a href='mailto:public-webapi@w3.org'>public-webapi@w3.org</a>, 
+   the public email list for issues related to Web APIs.</p>
+  <p>The patent policy for this document is the 
+   <a href='http://www.w3.org/Consortium/Patent-Policy-20040205/'>5 February 2004 W3C Patent Policy</a>. 
+   Patent disclosures relevant to this specification may be found on the 
+   <a href='http://www.w3.org/2004/01/pp-impl/38482/status' rel='disclosure'>Web API Working Group's patent
+   disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes 
+   contains Essential Claim(s) with respect to this specification should disclose the information in
+   accordance with <a href='http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure'>section 6
+   of the W3C Patent Policy</a>.</p>
+  <p>Publication as an Editor's Draft does not imply endorsement by the W3C Membership.
+   This is a draft document and may be updated, replaced or obsoleted by other 
+   documents at any time. It is inappropriate to cite this document as other than
+   work in progress.</p>
+ </section>
+ <section xml:id="contents" type="toc">
+  <title>Table of contents</title>
+  <?respec-toc?>
+ </section>
+ <section xml:id="conformance">
+  <title>Conformance</title>
+  <p>The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD, SHOULD NOT,
+   RECOMMENDED, MAY, and OPTIONAL in this document are to be interpreted as described in
+   RFC 2119 [RFC2119].</p>
+ </section>
+ <section xml:id="xmlhttprequest">
+  <title>The <code>XMLHttpRequest</code> object</title>
+  <p>To allow scripts to programmatically connect back to their originating
+   server via HTTP, the following interface may be used.</p>
+  <pre class="idl">interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> {
+           attribute EventListener           onreadystatechange;<!--
+           attribute EventListener           onload;-->
+  readonly attribute int                     readyState;
+  void open(in DOMString method, in DOMString uri);
+  void open(in DOMString method, in DOMString uri, in boolean async);
+  void open(in DOMString method, in DOMString uri, in boolean async, in DOMString user);
+  void open(in DOMString method, in DOMString uri, in boolean async, in DOMString user, in DOMString password);
+  void setRequestHeader(in DOMString header, in DOMString value);
+  void send();
+  void send(in DOMString body);
+  void send(in Document body);
+  void abort();<!--
+   goes to 4, dispatches readystatechange, resets everything
+   (same as assigning new XMLHttpRequest() to the variable)
+   
+   misnomer again, should probably have been reset() ...
+  -->
+  DOMString getAllResponseHeaders();
+  DOMString getResponseHeader(in DOMString header);
+  readonly attribute DOMString               responseText;
+  readonly attribute Document                responseXML;<!-- must be null when other than 4 -->
+  readonly attribute int                     status;
+  readonly attribute DOMString               statusText;
+ };</pre>
+  <p><code><a href="#xmlhttprequest">XMLHttpRequest</a></code> objects MUST
+   also implement the <code>EventTarget</code> interface. [DOM3EVENTS]</p>
+  <p class="big-issue">OR NOT!</p>
+  <p>In ECMAScript, an instance of <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> can be
+   created using the <code>XMLHttpRequest()</code> constructor:</p>
+  <example>var r = new XMLHttpRequest();</example>
+  <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> interface
+   has the following members:</p>
+  <dl>
+   <dt><dfn xml:id="onreadystatechange">onreadystatechange</dfn></dt>
+   <dd>An event listener that is invoked along with any other appropriate
+    event listeners that are registered on this object when a
+    <code>readystatechange</code> event is fired on it.</dd>
+   <!--<dt><dfn xml:id="onload" title="XMLHttpRequest.onload">onload</dfn></dt>
+   <dd>An event listener that is invoked along with any other appropriate
+    event listeners that are registered on this object when a
+    <code>load</code> event is fired on it.</dd>-->
+   <dt><dfn id="readystate" title="XMLHttpRequest.readyState">readyState</dfn></dt>
+   <dd>
+    <p>The state of the object. The values have the following meanings:</p>
+    <dl>
+     <dt>0 Uninitialised</dt>
+     <dd>The initial value.</dd>
+     <dt>1 Open</dt>
+     <dd>The <code title="XMLHttpRequest.open">open()</code> method has been successfully
+      called.</dd>
+     <dt>2 Sent</dt>
+     <dd>The <code title="XMLHttpRequest.send">send()</code> method has been successfully called,
+      but no data has yet been received.</dd>
+     <dt>3 Receiving</dt>
+     <dd>Data is being received, but the data transfer is not yet complete.</dd>
+     <dt>4 Loaded</dt>
+     <dd>The data transfer has been completed.</dd>
+    </dl>
+     <p>A <code>readystatechange</code> event SHALL immediately be dispatched at
+      the object whenever the <code title="XMLHttpRequest.readyState">readyState</code>
+      attribute changes value. The
+      <code>readystatechange</code> event must never be dispatched by the UA if
+      the <code title="XMLHttpRequest.readyState">readyState</code> attribute did not change. The
+      <code>readystatechange</code> event has no default action.</p>
+     <!--<p>A <code>load</code> event SHALL immediately be dispatched at the object
+      when the <code>readyState</code> attribute changes to <span>4 Loaded</span>. The
+      <code>load</code> event MUST be dispatched after the <code>readystatechange</code> event.</p>-->
+    </dd>
+    <dt><dfn xml:id="openmethod" title="XMLHttpRequest.open">open(<var>method</var>, <var>uri</var>, [<var>async</var>, [<var>user</var>, [<var>password</var>]]])</dfn></dt>
+    <dd>Initialises the object by remembering the <var>method</var>,
+    <var>uri</var>, <var>async</var> (defaulting to true if
+    omitted), <var>user</var> (defaulting to null if omitted), and
+    <var>password</var> (defaulting to null if omitted) arguments,
+    setting the <code>readyState</code> attribute to 1 (Open), resetting
+    the <code>responseText</code>, <code>responseXML</code>, <code>status</code>, and
+    <code>statusText</code> attributes to their initial
+    values, and resetting the list of request headers.<!--
+    <p class="note">Internet Explorer 6 also resets the <code
+    title="XMLHttpRequest.onreadystatechange">onreadystatechange</code>
+    attribute to null after the <code>open()</code> method is called
+    if it is called when the <code
+    title="XMLHttpRequest.readyState">readyState</code> attribute has
+    the value 4 (Loaded).</p>
+-->
+    <p>The <var>uri</var> argument is resolved to an absolute URI
+     using the script context's <code>window.location.href</code> value as
+     the base.</p>
+    <!-- XXX is that correct? Mozilla used
+    window.document.baseURI, which is different. What does IE use? -->
+    <p>Same-origin security restrictions should apply.</p>
+    <p>If the URI given to this method contains a username and a password
+     (the latter potentially being the empty string), then these must be used
+     if the <var>user</var> and <var>password</var>
+     arguments are omitted. If the arguments are not omitted, they take
+     precedence, even if they are null.</p>
+   </dd>
+   <dt><dfn xml:id="setrequestheader">setRequestHeader(<var>header</var>, <var>value</var>)</dfn></dt>
+   <dd>
+    <p>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
+     1 (Open), raises an exception. If the <var>header</var> or <var title="">value</var>
+     arguments contain any U+000A LINE FEED or U+000D
+     CARRIAGE RETURN characters, or if the <var>header</var> argument
+     contains any U+0020 SPACE or U+003A COLON charecters, does nothing.
+     Otherwise, the request header <var title="">header</var> is set to <var title="">value</var>. If the request header <var title="">header</var>
+     had already been set, then the new <var title="">value</var> is
+     concatenated to the existing value after a comma and a space.</p>
+    <example>
+     <title>...</title> <!-- XXX -->
+     // The following script:
+     var r = new XMLHttpRequest;
+     r.open('get', 'demo.cgi');
+     r.setRequestHeader('X-Test', 'one');
+     r.setRequestHeader('X-Test', 'two');
+     r.send(null);
+     // ...would result in the following header being sent:
+     ...
+     X-Test: one, two
+     ...
+    </example>
+    <p>The list of request headers must be reset when the
+     <code><a href="#openmethod">open()</a></code>
+     method is called.</p>
+    <p>User agents must not set any headers other than the headers set by the
+     author using this method, with the following exceptions:</p>
+    <ul>
+     <li>UAs must set the <code>Host</code> header appropriately (see <code><a href="#openmethod">open()</a></code>)
+      and not allow it to be overridden.</li>
+     <li>UAs must set the <code>Authorization</code> header according to the
+      values passed to the <code><a href="#openmethod">open()</a></code> method (but must allow calls to
+      <code><a href="#setrequestheader">setRequestHeader()</a></code> to append values
+      to it).</li>
+     <li>UAs may set the <code>Accept-Charset</code> and
+      <code>Accept-Encoding</code> headers and must not allow them to be
+      overridden.</li>
+     <li>UAs may set the <code>If-Modified-Since</code>,
+      <code>If-None-Match</code>, <code>If-Range</code>, and
+      <code>Range</code> headers if the resource is cached and has not
+      expired (as allowed by HTTP), and must not allow those headers to be
+      overridden.</li>
+     <li>UAs must set the <code title="">Connection</code> and
+      <code>Keep-Alive</code> headers as described by the HTTP specification,
+      and must not allow those headers to be overridden.</li>
+     <li>UAs should set the proxy-related headers according to proxy settings
+      of the environment, and must not allow those headers to be overridden.</li>
+     <li>UAs may give the <code>User-Agent</code> header an initial value,
+      but must allow authors to append values to it.</li>
+     <li>UAs should set <code>Cookie</code> and <code>Cookie2</code> headers
+      appropriately for the given URI and given the user's current cookies,
+      and must allow authors to append values to these headers.</li>
+    </ul>
+    <p>In particular, UAs must not automatically set the
+     <code>Cache-Control</code> or <code>Pragma</code> headers to defeat
+     caching. <a href="#refsHTTP">[HTTP]</a></p>
+   </dd>
+   <dt><dfn id="senddata">send([<var>data</var>])</dfn></dt>
+   <dd>If the <code><a href="#readystate">readyState</a></code> attribute
+    has a value other than
+    1 (Open), raises an exception. Otherwise, sets the
+    <code><a href="#readystate">readyState</a></code> attribute to 2 (Sent) and sends
+    a request to <var>uri</var> using method <var>method</var>, authenticating using
+    <var title="">user</var> and
+    <var title="">password</var> as appropriate. If the <var>async</var> flag is set
+    to false, then the method does not
+    return until the request has completed. Otherwise, it returns
+    immediately. (See: <code><a href="#openmethod">open()</a></code>.)
+    <!-- async and firing readystatechange on readyState 3 -->
+    <p>If the <var>method</var> is <code>post</code> or
+     <code>put</code>, then the <var>data</var> passed to the
+     <code>send()</code> method is used for the entity body. If <var>data</var>
+     is a string, the data is encoded as UTF-8 for
+     transmission. If the <var>data</var> is a Document, then the
+     document is serialised using the encoding given by
+     <code><var>data</var>.xmlEncoding</code>, if specified, or UTF-8
+     otherwise. [DOM3CORE] If <var>data</var> is not a Document or a DOMString
+     it the host language MUST use the stringification mechanisms on the argument
+     that was passed.</p><!-- XXX, see above -->
+    <p>If the response is an HTTP redirect, then it should be transparently
+     followed (unless it violates security or infinite loop precautions). Any
+     other error (including a 401) must cause the object to use that error
+     page as the response.</p>
+    <!-- what about DNS errors? XXX -->
+    <p>Once the final HTTP status line has been received, the <code title="XMLHttpRequest.readyState"><a href="#readystate">readyState</a></code> attribute should be set to to 3
+     (Receiving). When the request has completed loading, the <code title="XMLHttpRequest.readyState"><a href="#readystate">readyState</a></code> attribute should be set to 4
+     (Loaded).</p>
+   </dd>
+   <dt><dfn xml:id="abort">abort</dfn></dt>
+   <dd>Calling this method MUST cancel any network activity for which the object is
+    responsible. The UA MUST then set <code><a href="#readystate">readyState</a></code>
+    to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
+    and reset the object.</dd>
+   <dt><dfn xml:id="getallresponseheaders">getAllResponseHeaders()</dfn></dt>
+   <dd>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
+    3 (Receiving) or 4 (Loaded), it MUST be null. Otherwise, it MUST represent all the HTTP
+    headers<!--
+     this is on purpose, 3 means that all headers are there!
+    -->, as a single string, with each header line separated by a
+    CR (U+000D) LF (U+000A) pair. The status line is not included.
+    <example>
+     <title>...</title>
+     // The following script:
+     var r = new XMLHttpRequest;
+     r.open('get', 'test.txt', false);
+     r.send();
+     alert(r.getAllResponseHeaders());
+     // ...should display a dialog with text similar to the following:
+     Date: Sun, 24 Oct 2004 04:58:38 GMT
+     Server: Apache/1.3.31 (Unix)
+     Keep-Alive: timeout=15, max=99
+     Connection: Keep-Alive
+     Transfer-Encoding: chunked
+     Content-Type: text/plain; charset=utf-8
+    </example>
+   </dd>
+   <dt><dfn id="getresponseheader">getResponseHeader(<var title="">header</var>)</dfn></dt>
+   <dd>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
+    3 (Receiving) or 4 (Loaded), returns an empty string. Otherwise, returns
+    the value of the given HTTP header in the data received so far for the
+    last request sent, as a single string. If more than one header of the
+    given name was received, then the values MUST be concatenated,
+    separated from each other by a comma and a space. If no headers of that
+    name were received, then returns the empty string. Header names must be
+    compared <span>case-insensitively</span><!--XXX xref --> to the method
+    argument (<var>header</var>).</dd><!-- phrase this better, perhaps using unicode characters -->
+   <dt><dfn id="responsetext" title="XMLHttpRequest.responseText">responseText</dfn></dt>
+   <dd>If the <code><a href="#readystate">readyState</a></code> attribute has
+    a value other than
+    3 (Receiving) or 4 (Loaded), returns an empty string. Otherwise, returns
+    the body of the data received so far, interpreted using the character
+    encoding specified in the response, or UTF-8 if no character encoding was
+    specified. Invalid bytes must be converted to U+FFFD REPLACEMENT
+    CHARACTER.</dd>
+    <!--
+     invalid bytes must be better defined
+     UTF-8 right for no encoding (perhaps ISO-8859-1, default for HTTP)
+     XXXXXXXX no related issue or action...
+    -->
+   <dt><dfn id="responsexml">responseXML</dfn></dt>
+   <dd>If the <code><a href="#readystate">readyState</a></code> attribute has
+    a value other than
+    4 (Loaded), returns null. Otherwise, if the <code>Content-Type</code>
+    header is either <code>text/xml</code>, <code>application/xml</code>, or
+    ends in <code>+xml</code>, returns an object that implements the Document
+    interface representing the parsed document. If the document was not an
+    XML document, or if the document could not be parsed (due to an XML
+    well-formedness error or unsupported character encoding, for instance),
+    returns null.</dd>
+   <!-- XXX we should return the error somewhere. IE
+   returns it in an attribute of responseXML.
+
+   We don't want to go there!
+   -->
+   <dt><dfn xml:id="status0">status</dfn></dt>
+   <dd>If the <code>status</code> attribute is not available it MUST raise an
+    exception. It must be available when <code>readyState</code> is
+    3 (Receiving) or 4 (Loaded). When available, it MUST represent the HTTP status
+    code (typically 200 for a sucessful connection).</dd><!--
+    <dd>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
+    3 (Receiving) or 4 (Loaded), raises an exception. Otherwise, returns the
+    HTTP status code (typically 200 for a successful connection).</dd>-->
+   <dt><dfn id="statustext">statusText</dfn></dt><!-- raises an exception if not available
+         must be available for 3 and 4
+         for status and statusText
+    -->
+   <dd>If the <code>statusText</code> attribute is not available it MUST raise an
+    exception. It must be available when <code>readyState</code> is
+    3 (Receiving) or 4 (Loaded). When available, it MUST represent the HTTP status text
+    sent by the server (appears after the status code).</dd>
+    <!--<dd>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
+    3 (Receiving) or 4 (Loaded), raises an exception. Otherwise, returns the
+    HTTP status text sent by the server after the status code.</dd>-->
+  </dl>
+  <p>If an exception is raised due to an attribute or method being used when
+   <code><a href="#readystate">readyState</a></code> has an inappropriate value, it
+   should be a <code>INVALID_STATE_ERR</code> DOM Exception.</p>
+  <p>HTTP requests sent from multiple different
+   <code><a href="#xmlhttprequest">XMLHttpRequest</a></code>
+   objects in succession should be pipelined into shared HTTP connections.</p>
+ </section>
+</specification>
