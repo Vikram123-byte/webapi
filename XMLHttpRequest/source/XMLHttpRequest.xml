@@ -82,7 +82,7 @@
   <p>To allow scripts to programmatically connect back to their originating
    server via HTTP, the following interface may be used.</p>
   <pre class="idl">interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> {
-           attribute EventListener           onreadystatechange;
+           attribute Function                onreadystatechange;
   readonly attribute int                     readyState;
   void open(in DOMString method, in DOMString uri);
   void open(in DOMString method, in DOMString uri, in boolean async);
@@ -257,14 +257,14 @@
    </dd>
    <dt><dfn xml:id="abort">abort</dfn></dt>
    <dd>Calling this method MUST cancel any network activity for which the object is
-    responsible. In addition, <code><a href="#readystate">readyState</a></code> MUST be set
-    to 4 (Loaded), the function defined in <code>onreadystatechange</code> MUST be called
-    and the object MUST be resetted.</dd>
+    responsible. In addition, UAs MUST then set <code><a href="#readystate">readyState</a></code>
+    to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
+    and reset the object.</dd>
    <dt><dfn xml:id="getallresponseheaders">getAllResponseHeaders()</dfn></dt>
    <dd>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
     3 (Receiving) or 4 (Loaded), it MUST be null. Otherwise, it MUST represent all the HTTP
     headers, as a single string, with each header line separated by a
-    CR (U+000D) LF (U+000A) pair. The status line is not included.
+    CR (U+000D) LF (U+000A) pair. The status line MUST not be included.
     <example>
      <title>...</title>
      // The following script:
