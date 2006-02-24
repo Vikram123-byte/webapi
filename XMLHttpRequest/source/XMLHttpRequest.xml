@@ -100,13 +100,10 @@
   DOMString getAllResponseHeaders();
   DOMString getResponseHeader(in DOMString header);
   readonly attribute DOMString               responseText;
-  readonly attribute Document                responseXML;<!-- must be null when other than 4 -->
+  readonly attribute Document                responseXML;
   readonly attribute int                     status;
   readonly attribute DOMString               statusText;
  };</pre>
-  <p><code><a href="#xmlhttprequest">XMLHttpRequest</a></code> objects MUST
-   also implement the <code>EventTarget</code> interface. [DOM3EVENTS]</p>
-  <p class="big-issue">OR NOT!</p>
   <p>In ECMAScript, an instance of <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> can be
    created using the <code>XMLHttpRequest()</code> constructor:</p>
   <example>var r = new XMLHttpRequest();</example>
@@ -114,7 +111,7 @@
    has the following members:</p>
   <dl>
    <dt><dfn xml:id="onreadystatechange">onreadystatechange</dfn></dt>
-   <dd>An attribute that represents a function that MUST invoked when
+   <dd>An attribute that represents a function that MUST be invoked when
     <code>readyState</code> changes value. The function may be called multiple
     times when <code>readyState</code> is 3 (Receiving).</dd>
    <dt><dfn xml:id="readystate">readyState</dfn></dt>
@@ -206,7 +203,7 @@
       <code>Range</code> headers if the resource is cached and has not
       expired (as allowed by HTTP), and must not allow those headers to be
       overridden.</li>
-     <li>UAs must set the <code title="">Connection</code> and
+     <li>UAs must set the <code>Connection</code> and
       <code>Keep-Alive</code> headers as described by the HTTP specification,
       and must not allow those headers to be overridden.</li>
      <li>UAs should set the proxy-related headers according to proxy settings
@@ -221,14 +218,14 @@
      <code>Cache-Control</code> or <code>Pragma</code> headers to defeat
      caching. <a href="#refsHTTP">[HTTP]</a></p>
    </dd>
-   <dt><dfn id="senddata">send([<var>data</var>])</dfn></dt>
+   <dt><dfn xml:id="senddata">send([<var>data</var>])</dfn></dt>
    <dd>If the <code><a href="#readystate">readyState</a></code> attribute
     has a value other than
     1 (Open), raises an exception. Otherwise, sets the
     <code><a href="#readystate">readyState</a></code> attribute to 2 (Sent) and sends
     a request to <var>uri</var> using method <var>method</var>, authenticating using
-    <var title="">user</var> and
-    <var title="">password</var> as appropriate. If the <var>async</var> flag is set
+    <var>user</var> and
+    <var>password</var> as appropriate. If the <var>async</var> flag is set
     to false, then the method does not
     return until the request has completed. Otherwise, it returns
     immediately. (See: <code><a href="#openmethod">open()</a></code>.)
@@ -248,15 +245,17 @@
      other error (including a 401) must cause the object to use that error
      page as the response.</p>
     <!-- what about DNS errors? XXX -->
-    <p>Once the final HTTP status line has been received, the <code title="XMLHttpRequest.readyState"><a href="#readystate">readyState</a></code> attribute should be set to to 3
-     (Receiving). When the request has completed loading, the <code title="XMLHttpRequest.readyState"><a href="#readystate">readyState</a></code> attribute should be set to 4
+    <p>Once the final HTTP status line has been received, the
+     <code><a href="#readystate">readyState</a></code> attribute should be set to to 3
+     (Receiving). When the request has completed loading, the
+     <code><a href="#readystate">readyState</a></code> attribute should be set to 4
      (Loaded).</p>
    </dd>
    <dt><dfn xml:id="abort">abort</dfn></dt>
    <dd>Calling this method MUST cancel any network activity for which the object is
-    responsible. The UA MUST then set <code><a href="#readystate">readyState</a></code>
-    to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
-    and reset the object.</dd>
+    responsible. In addition, <code><a href="#readystate">readyState</a></code> MUST be set
+    to 4 (Loaded), the function defined in <code>onreadystatechange</code> MUST be called
+    and the object MUST be resetted.</dd>
    <dt><dfn xml:id="getallresponseheaders">getAllResponseHeaders()</dfn></dt>
    <dd>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
     3 (Receiving) or 4 (Loaded), it MUST be null. Otherwise, it MUST represent all the HTTP
@@ -310,12 +309,7 @@
     interface representing the parsed document. If the document was not an
     XML document, or if the document could not be parsed (due to an XML
     well-formedness error or unsupported character encoding, for instance),
-    returns null.</dd>
-   <!-- XXX we should return the error somewhere. IE
-   returns it in an attribute of responseXML.
-
-   We don't want to go there!
-   -->
+    it MUST be null.</dd>
    <dt><dfn xml:id="status0">status</dfn></dt>
    <dd>If the <code>status</code> attribute is not available it MUST raise an
     exception. It must be available when <code>readyState</code> is
