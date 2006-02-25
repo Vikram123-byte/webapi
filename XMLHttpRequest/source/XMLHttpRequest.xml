@@ -134,44 +134,39 @@
     </dl>
    </dd>
    <dt><dfn xml:id="openmethod">open(<var>method</var>, <var>uri</var>, [<var>async</var>, [<var>user</var>, [<var>password</var>]]])</dfn></dt>
-   <dd>Initialises the object by remembering the <var>method</var>,
-    <var>uri</var>, <var>async</var> (defaulting to true if
-    omitted), <var>user</var> (defaulting to null if omitted), and
-    <var>password</var> (defaulting to null if omitted) arguments,
-    setting the <code>readyState</code> attribute to 1 (Open), resetting
-    the <code>responseText</code>, <code>responseXML</code>, <code>status</code>, and
-    <code>statusText</code> attributes to their initial
-    values, and resetting the list of request headers.<!--
-    <p class="note">Internet Explorer 6 also resets the <code
-    title="XMLHttpRequest.onreadystatechange">onreadystatechange</code>
-    attribute to null after the <code>open()</code> method is called
-    if it is called when the <code
-    title="XMLHttpRequest.readyState">readyState</code> attribute has
-    the value 4 (Loaded).</p>
-    
-    
-    we might have resolved this?
--->
+   <dd>
+    <p>Initialises the object by remembering the <var>method</var>,
+     <var>uri</var>, <var>async</var> (defaulting to true if
+     omitted), <var>user</var> (defaulting to null if omitted), and
+     <var>password</var> (defaulting to null if omitted) arguments,
+     setting the <code>readyState</code> attribute to 1 (Open), resetting
+     the <code>responseText</code>, <code>responseXML</code>, <code>status</code>, and
+     <code>statusText</code> attributes to their initial
+     values, and resetting the list of request headers.</p>
+    <p>If <code>open()</code> is called when <code>readyState</code> is
+     4 (Loaded) the entire object MUST be resetted.</p>
     <p>The <var>uri</var> argument is resolved to an absolute URI
      using the script context's <code>window.location.href</code> value as
-     the base.</p>
+     the base.</p><!-- ISSUE-29 -->
     <p>Same-origin security restrictions should apply.</p>
+    <!-- revisit with access-control -->
     <p>If the URI given to this method contains a username and a password
-     (the latter potentially being the empty string), then these must be used
+     (the latter potentially being the empty string), then these MUST be used
      if the <var>user</var> and <var>password</var>
      arguments are omitted. If the arguments are not omitted, they take
      precedence, even if they are null.</p>
    </dd>
    <dt><dfn xml:id="setrequestheader">setRequestHeader(<var>header</var>, <var>value</var>)</dfn></dt>
    <dd>
-    <p>If the <code><a href="#readystate">readyState</a></code> attribute has a value other than
-     1 (Open), raises an exception. If the <var>header</var> or <var>value</var>
-     arguments contain any U+000A LINE FEED or U+000D
+    <p>If the <code><a href="#readystate">readyState</a></code> attribute has a
+     value other than 1 (Open), raises an exception. If the <var>header</var> or
+     <var>value</var> arguments contain any U+000A LINE FEED or U+000D
      CARRIAGE RETURN characters, or if the <var>header</var> argument
      contains any U+0020 SPACE or U+003A COLON charecters, does nothing.
-     Otherwise, the request header <var>header</var> is set to <var>value</var>. If the request header <var>header</var>
-     had already been set, then the new <var>value</var> is
-     concatenated to the existing value after a comma and a space.</p>
+     Otherwise, the request header <var>header</var> is set to <var>value</var>.
+     If the request header <var>header</var> had already been set, then the new
+     <var>value</var> is concatenated to the existing value after a U+002C COMMA
+     and a U+0020 SPACE.</p>
     <example>
      <title>...</title> <!-- XXX -->
      // The following script:
@@ -191,16 +186,19 @@
     <p>User agents must not set any headers other than the headers set by the
      author using this method, with the following exceptions:</p>
     <ul>
-     <li>UAs must set the <code>Host</code> header appropriately (see <code><a href="#openmethod">open()</a></code>)
-      and not allow it to be overridden.</li>
-     <li>UAs must set the <code>Authorization</code> header according to the
-      values passed to the <code><a href="#openmethod">open()</a></code> method (but must allow calls to
+     <!-- this entire sections needs work, raise an issue? -->
+     <li>UAs MUST set the <code>Host</code> header appropriately (see
+      <code><a href="#openmethod">open()</a></code>) and not allow it to be
+      overridden.</li>
+     <li>UAs MUST set the <code>Authorization</code> header according to the
+      values passed to the <code><a href="#openmethod">open()</a></code> method
+      (but MUST allow calls to
       <code><a href="#setrequestheader">setRequestHeader()</a></code> to append values
       to it).</li>
-     <li>UAs may set the <code>Accept-Charset</code> and
+     <li>UAs MAY set the <code>Accept-Charset</code> and
       <code>Accept-Encoding</code> headers and must not allow them to be
       overridden.</li>
-     <li>UAs may set the <code>If-Modified-Since</code>,
+     <li>UAs MAY set the <code>If-Modified-Since</code>,
       <code>If-None-Match</code>, <code>If-Range</code>, and
       <code>Range</code> headers if the resource is cached and has not
       expired (as allowed by HTTP), and must not allow those headers to be
@@ -231,7 +229,7 @@
     to false, then the method does not
     return until the request has completed. Otherwise, it returns
     immediately. (See: <code><a href="#openmethod">open()</a></code>.)
-    <!-- async and firing onreadystatechange on readyState 3 -->
+    <!-- ISSUE-34 -->
     <p>If the <var>method</var> is <code>POST</code> or
      <code>PUT</code>, then the <var>data</var> passed to the
      <code>send()</code> method is used for the entity body. If <var>data</var>
@@ -301,11 +299,7 @@
     encoding specified in the response, or UTF-8 if no character encoding was
     specified. Invalid bytes must be converted to U+FFFD REPLACEMENT
     CHARACTER.</dd>
-    <!--
-     invalid bytes must be better defined
-     UTF-8 right for no encoding (perhaps ISO-8859-1, default for HTTP)
-     XXXXXXXX no related issue or action...
-    -->
+    <!-- ISSUE-31 -->
    <dt><dfn id="responsexml">responseXML</dfn></dt>
    <dd>If the <code><a href="#readystate">readyState</a></code> attribute has
     a value other than
