@@ -1,0 +1,197 @@
+=head1 NAME
+
+ReSpec - Specification publishing framework
+
+=head1 SYNOPSIS
+
+  respec your-spec.xml
+
+=head1 DESCRIPTION
+
+ReSpec is a specification publishing framework tailored to my own
+personal needs in writing my own specifications as well as in
+editing specifications within W3C working groups.
+
+I do not claim that it will be useful for others, but since it
+works for me you might wish to give it a run.
+
+The methods listed are mostly for those who wish to reuse this
+code in new contexts, or modify it. The best way of using ReSpec
+is through the respec executable that is part of this distribution.
+
+=head1 METHODS
+
+=over 4
+
+=item new
+
+Simple constructor, no parameters.
+
+=item loadSpec $specPath
+
+Loads the specification and initialises a number of related fields, also
+selecting the XSLT style sheet.
+
+=item loadConfig
+
+Loads the configuration, searching for it if it hasn't been set already,
+and parsing it.
+
+=item findConfig
+
+Returns the path to the configuration, searching for a file called respec.conf
+in the current dir, the spec's dir, the home dir, and /etc. Returns undef if
+none matches.
+
+=item parseConfig
+
+Parses the config that has been located and configures the ReSpec object
+accordingly.
+
+=item runPreProcessors
+
+Runs all the pre-processors that ReSpec knows about.
+
+=item runXSLT
+
+Performs the XSLT transformation.
+
+=item runPreProcessors
+
+Runs all the post-processors that ReSpec knows about.
+
+=back
+
+=head1 ACCESSORS
+
+Every accessor returns the current value when called plainly, and
+updates it when passed a parameter.
+
+=over 4
+
+=item baseDir
+
+The base directory in which the specification resides.
+
+=item sourceFile
+
+The root source file of the specification.
+
+=item doc
+
+The DOM Document representing the specification in its current state
+(note that it is modified in place by processors).
+
+=item xc
+
+The XPathContext that wraps the DOM Document, use this to run XPath
+queries.
+
+=item outputDoc
+
+The document returned by XSLT processing, this is modified in place
+by post-processors. This isn't a Document but rather an XPathContext, from
+which the document can be obtained.
+
+=item xsltPath
+
+The path to the XSLT style sheet that is used to process the specification.
+
+=item xslt
+
+The XSLT object with which the transformation will be done.
+
+=item format
+
+The output format that is desired, currently only XHTML is supported.
+
+=item configFile
+
+The path to the configuration file.
+
+=item outputFile
+
+The path to the output file, if specified.
+
+=back
+
+=head1 CONFIGURATION SYNTAX
+
+The configuration files are very simple, with one command per line, separated
+by white space from its parameter(s). White lines and lines starting with a
+'#' are ignored.
+
+Everything in the configuration is available as an accessor with the same
+name.
+
+=over 4
+
+=item Version 1.0
+
+Indicates the version of the configuration file. Defaults to 1.0 which is
+currently the only version. If the processor sees a version which it 
+doesn't understand it will stop all processing.
+
+=item Includes On/Off
+
+Process r:include elements. Defaults to On.
+
+=item BiblioReferences On/Off
+
+Generate bibliographic references. Defaults to On.
+
+=item RFC2119 On/Off
+
+Generate r:rfc2119 for uppercased RFC2119 keywords. Defaults to On.
+
+=item Abbreviations On/Off
+
+Adds abbreviation and acronym markup. Defaults to On.
+
+=item IncludeCSS On/Off
+
+Include CSS style sheets in the output instead of linking to it.
+Defaults to Off.
+
+=item RelaxNG On/Off
+
+Process RelaxNG schemata if present. Defaults to On.
+
+=item EBNF On/Off
+
+Process EBNF grammars if present. Defaults to On.
+
+=item OutputDependencies On/Off
+
+If on this will cause a variety of dependencies of the document to
+be copied over to the same directory that it is in. Currently this
+concerns CSS style sheets that are pointed to using the respec:
+scheme. Defaults to Off.
+
+=item Output [File|Dir] fileOrDirName
+
+Specifies where to store the output. If unspecified maps to the current
+directory (and the file name is changed to remove the trailing .xml and
+use .format instead). If the File/Dir option is not specified it is
+assumed to be a file.
+
+=back
+
+
+=head1 SEE ALSO
+
+Common alternatives include XMLSpec and XHTML+classes.
+
+=head1 AUTHOR
+
+Robin Berjon, E<lt>robin.berjon@gmail.comE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (C) 2005 by Robin Berjon
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.6 or,
+at your option, any later version of Perl 5 you may have available.
+
+=cut

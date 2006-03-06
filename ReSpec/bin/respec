@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+use ReSpec;
+
+my $spec = pop;
+die "The specification parameter is required.\n" unless -e $spec;
+my $conf;
+while (my $arg = shift @ARGV)  {
+    if ($arg eq '-c' or $arg eq '--config') {
+        $conf = shift @ARGV;
+    }
+    else {
+        die "Unknown argument flag '$arg'\n";
+    }
+}
+
+# hey ho, let's go!
+my $re = ReSpec->new;
+$re->configFile($conf) if defined $conf;
+$re->loadConfig;
+$re->loadSpec($spec);
+$re->runPreProcessors;
+$re->runXSLT;
+$re->runPostProcessors;
+
+$re->output;

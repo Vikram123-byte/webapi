@@ -1,0 +1,803 @@
+
+<specification xmlns='http://berjon.com/ns/re-spec/'
+               xmlns:rs='http://berjon.com/ns/re-spec/'
+               version='1.0'
+               xml:lang='en'>
+  <metadata>
+    <title>ReSpec Documentation 1.0</title>
+    <styling type='W3C' status='INF'/>
+    <editors>
+      <person>
+        <name>Robin Berjon</name>
+        <email>robin.berjon@expway.fr</email>
+        <url>http://berjon.com/</url>
+        <company>Expway</company>
+      </person>
+    </editors>
+  </metadata>
+  
+  <section xml:id='toc' type='toc'>
+    <title>Table of contents</title>
+    <?respec-toc?>
+  </section>
+  
+  <section xml:id='intro'>
+    <title>Introduction</title>
+    <p>
+      The goal of Re-Spec is to provide a convenient framework in which
+      to write specifications of various kinds but mostly orientated towards
+      the W3C style. It does not claim or intend to be a perfect specification
+      framework or better than other solutions such as XMLSpec [XMLSpec] or
+      XHTML+classes. Simply, it has been created to suit the needs of its
+      author, and perhaps those of like-minded individuals, assuming such
+      entities even exist. It does, however, have a much cooler name than 
+      any of the other options.
+    </p>
+
+    <p>
+      Please note that some parts of this document are loosely described
+      compared to what a proper specification would mandate. This is because
+      here we are merely <em>documenting</em> how the one and only implementation
+      of Re-Spec works, not <em>specifying</em> in order to make independent
+      interoperable implementations. If you are interested in implementing
+      Re-Spec differently from the current single implementation, please
+      contact the author and I will tighten up this document.
+    </p>
+
+    <section xml:id='features'>
+      <title>Key features</title>
+      <p>
+        A first pass at implementing the features below has been done
+        but a fair number remains. The latter are identified by @TODO
+        or @PARTIAL. The version of ReSpec documented here is 0.04.
+      </p>
+
+      <section xml:id='feat-split'>
+        <title>Splitting (@TODO)</title>
+        <p>
+          The tool should know how to create a multipage document by 
+          splitting on the root sections, naming the pages based on the
+          ID of that section, and know how to rewrite all the internal 
+          links so that they work (look for the ID, then its section 
+          ancestors, and point to that).
+        </p>
+      </section>
+
+      <section xml:id='feat-relink'>
+        <title>Relinking (@TODO)</title>
+        <p>
+          The links in the spec should only ever point to IDs, so that 
+          the XSLT can decide which extension to use.
+        </p>
+      </section>
+
+      <section xml:id='feat-style'>
+        <title>Multi-styling</title>
+        <p>
+          Through the use of a sensible base stylesheet, it ought to be
+          possible to produce new styles easily by overriding a minimal
+          amount of templates.
+        </p>
+      </section>
+
+      <section xml:id='feat-rng'>
+        <title>RelaxNG (@PARTIAL)</title>
+        <p>
+          RelaxNG should be embeddable straight into the specification, 
+          along with annotations that describe the elements and attributes,
+          as well as ways to override the auto-generated description. The 
+          style of the RNG will have to be specific. The XSLT will then
+          auto-generate descriptions of the element and attributes based 
+          on that. Weenies will want RNC, they get that option but later.
+          The RNG may get some syntax highlighting.
+        </p>
+      </section>
+
+      <section xml:id='feat-rfc'>
+        <title>RFC2129 keyword highlighting</title>
+        <p>
+          Automatically any capitalized MUST, SHOULD, SHALL, MAY, possibly
+          followed by a NOT will find themselves wrapped in an <el>rfc2119</el>
+          element which'll be transformed into something nice by the XSLT.
+        </p>
+      </section>
+
+      <section xml:id='feat-acro'>
+        <title>Acronym detection</title>
+        <p>
+          Any occurence of an abbr or acronym element will cause a search so
+          that all the other occurences of the same term that aren't marked 
+          up will be marked up.
+        </p>
+      </section>
+
+      <section xml:id='feat-idl'>
+        <title>IDL support (@TODO)</title>
+        <p>
+          Handling IDL is horrible. We will use an XML syntax that will fully
+          describe the IDL and the spec prose, and that will be used to 
+          generate both the prose and the IDL snippets. The IDL may get 
+          some syntax highlighting. Or not. We might just parse the IDL
+          using some code that has been written for SVG.
+        </p>
+      </section>
+
+      <section xml:id='feat-app'>
+        <title>Autogenerated appendices (@TODO)</title>
+        <p>
+          Based on the above, lists of elements, attributes, and interfaces
+          can be generated if need be for the appendix.
+        </p>
+      </section>
+
+      <section xml:id='feat-gloss'>
+        <title>Glossary support (@TODO)</title>
+        <p>
+          If a glossary is defined, links will be auto-generated from occurences
+          to it. This should ideally be done without elements to mark defined
+          terms.
+        </p>
+      </section>
+
+      <section xml:id='feat-bundle'>
+        <title>Autobundling (@TODO)</title>
+        <p>
+          All the dependencies of a spec can be listed and then packed into a
+          zip file and a tarball.
+        </p>
+      </section>
+
+      <section xml:id='feat-checks'>
+        <title>Various checks (@TODO)</title>
+        <p>
+          When being published a Re-Spec document will have its spelling,
+          its pubrules-validity, and various other things validated.
+          One thing that notably needs to be checked is that when an internal
+          link to an anchor is created, it needs to exist.
+        </p>
+      </section>
+      
+      <section xml:id='feat-biblodb'>
+        <title>Bibliography database</title>
+        <p>
+          Many specs tend to reuse always the same set of bibliographic
+          references. Rather than having to always create or copy them anew,
+          ReSpec provides a pre-existing database using the typical keys
+          for those references. Simply using the square-bracket markup
+          will cause the right entry to be added to the bibliography.
+        </p>
+      </section>
+
+      <section xml:id='feat-testable'>
+        <title>Testable assertion management (@TODO)</title>
+        <p>
+          Each section can be categorised by normativity (reference, content,
+          ua, discussion, etc.). Then a tool would expose present the various
+          sections that have a given normativity (ua for test suite production,
+          content for validation suite production) and in those split each
+          sentence that it would present on separate lines. For each of those
+          sentences one could say if it's a testable assertion or not, and if
+          it is give it an ID. The tool would save that information in a separate
+          document, using both the XPath relative to the closest ancestor with
+          a given ID and the text of the sentence. This is to be used once the
+          text is reasonably stable, but when reloading a document it would make
+          a best effort to re-locate things that have changed. One could also
+          associate TAs with tests, produce a coverage report, etc.
+        </p>
+      </section>
+    </section>
+  </section>
+
+	<section xml:id='elements'>
+		<title>Elements</title>
+		<p>
+      This section presents a rather simplified descriptions of the
+      elements which are available for use within Re-Spec. The categories
+      may not be the most intuitive in all cases.
+    </p>
+    <p>
+      All elements are in the <code>http://berjon.com/ns/re-spec/</code> 
+      namespace, unless otherwise specified.
+    </p>
+    <p>
+      Most elements in this draft documentation don't have a corresponding
+      RNG snippet yet. They'll get one as things go.
+    </p>
+		
+		<section xml:id='structure'>
+			<title>Structural elements</title>
+			<p>
+			  These elements define the backbone of the document.
+			</p>
+
+			<section xml:id='elem-specification'>
+				<title>The specification element</title>
+				<p>
+				  This is the root element for all documents. The version attribute
+				  must be present and its value must currently be equal to "1.0".
+				  Note that this is not currently enforced.
+				</p>
+				<p>
+				  Typically, it would contain one <el>metadata</el> element and
+				  several <el>section</el> elements.
+			  </p>
+				<schema>
+					<title>The <el>specification</el> element</title>
+					<include href='respec.rng#specification'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-section'>
+				<title>The section element</title>
+				<p>
+				  The section element defines a section inside a specification,
+				  and can be nested to arbitrary depths. It must have an
+				  <at>xml:id</at> attribute, may have a <at>type</at> attribute,
+				  must have a <el>title</el> child, and may then contain a variety
+				  of XHTML block-level elements such as <el>p</el>, <el>ul</el>, 
+				  or <el>table</el>.
+				</p>
+				<schema>
+					<title>The <el>section</el> element</title>
+					<include href='respec.rng#section'/>
+				</schema>
+				<p>
+				  The <at>type</at> attribute has a variety of predefined values with
+				  specific behaviours.
+			  </p>
+				<dl>
+				  <dt>abstract</dt>
+				  <dd>
+				    Identifies the section as an abstract. This removes it from the TOC.
+			    </dd>
+				  <dt>w3c-abstract</dt>
+				  <dd>
+				    Identifies the section as an abstract following W3C style. This removes
+				    it from the TOC and also applies some W3C specific processing.
+			    </dd>
+				  <dt>w3c-sotd</dt>
+				  <dd>
+				    Identifies the section as a state of this document section following W3C
+				    style. This removes it from the TOC and also applies some W3C specific processing.
+			    </dd>
+				  <dt>toc</dt>
+				  <dd>
+				    Identifies the section as a table of contents.  This removes it from the TOC.
+				    Note that this does not cause a TOC to be generated, you need the <pi>respec-toc</pi>
+				    processing instruction for that.
+			    </dd>
+				  <dt>appendix</dt>
+				  <dd>
+				    Identifies the section as an appendix. This causes its numbering to use letters
+				    instead of numbers in the present style sheets.
+			    </dd>
+			  </dl>
+			</section>
+
+			<section xml:id='elem-title'>
+				<title>The title element</title>
+				<p>
+				  The title element is used to capture titles. Inside the <el>metadata</el>
+				  element it's the specification's title, inside other elements it applies
+				  directly to its parent element (<el>section</el>, <el>section</el>, 
+				  <el>example</el>, <el>schema</el>, etc.).
+				</p>
+				<p>
+				  While most of the time only its textual content will be used, for section
+				  titles the <el>at</el>, <el>pi</el>, <el>ev</el>, <el>prop</el>, and <el>el</el>
+				  elements will be processed specially.
+			  </p>
+				<schema>
+					<title>The <el>title</el> element</title>
+					<include href='respec.rng#title'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-include'>
+				<title>The include element</title>
+				<p>
+				  This is used to include other documents (which are not required to be ReSpec 
+				  documents, they only need to be XML) with the <at>href</at> attribute
+				  pointing relative to the document in which the element occurs. Future
+				  improvements will likely include the ability to have absolute links,
+				  <a href='#scheme-respec'>respec:</a> links, and to taking xml:base into
+				  account. Some XPointer schemes, notably the xpath scheme, may be 
+				  considered as well.
+				</p>
+				<p>
+				  Note that fragment identifiers will always be processed as if the linked
+				  document was of type application/xml, which is to say that the element
+				  with the given ID will be included. This is often used to include part of
+				  an external RelaxNG schema inside a <el>schema</el> element (this document
+				  does precisely that).
+			  </p>
+				<schema>
+					<title>The <el>include</el> element</title>
+					<include href='respec.rng#include'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-ednote'>
+				<title>The ednote element</title>
+				<p>
+				  This element is meant to flag that part of the document is an editorial note.
+				  This normally causes them to stick out strongly. Editorial notes are not
+				  normally meant for public consumption. It is possible that future versions
+				  will provide a flag to turn them on and off.
+				</p>
+				<p>
+				  This element can contain pretty much anything else.
+			  </p>
+				<schema>
+					<title>The <el>ednote</el> element</title>
+					<include href='respec.rng#ednote'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-schema'>
+				<title>The schema element</title>
+				<p>
+				  The schema element is used to capture schemata. These can be of several
+				  types. Currently, RelaxNG is largely supported (at least for many simple
+				  RelaxNG constructs), EBNF is supported but will be extended, and IDL
+				  support is planned for very soon. The way the type is decided is
+				  by looking at the child elements. It should also contain a title child.
+				  XML Schema support may be added some day.
+				</p>
+				<schema>
+					<title>The <el>schema</el> element</title>
+					<include href='respec.rng#schema'/>
+				</schema>
+				<dl>
+				  <dt>namespace is RelaxNG</dt>
+				  <dd>
+				    If the namespace of its content is the RelaxNG namespace, then this
+				    mode is used.
+			    </dd>
+				  <dt xml:id='elem-ebnf'>ebnf</dt>
+				  <dd>
+				    If it contains an <el>ebnf</el> element then the EBNF mode is used.
+				    The <el>ebnf</el> element contains an EBNF grammar in raw text that
+				    will be re-indented and should in the future gain autogenerated links.
+			    </dd>
+				  <dt xml:id='elem-idl'>idl</dt>
+				  <dd>
+				    If it contains an <el>idl</el> element then the IDL mode is used.
+				    The <el>idl</el> element contains an IDL interface in raw text that
+				    once supported will be re-indented and gain autogenerated links with
+				    specific IDs for cross-referencing.
+			    </dd>
+			  </dl>
+			</section>
+    </section>
+
+		<section xml:id='inline'>
+			<title>Inline elements</title>
+			<p>
+			  Inline elements are used to markup regular text in a variety of convenient ways.
+			</p>
+
+			<section xml:id='elem-at'>
+				<title>The at element</title>
+				<p>
+				  This element is used to mark that its content is an attribute name. The <at el='at'>el</at>
+				  attribute can be used to say that it's an attribute that belongs to that
+				  given element. The content must be an attribute name, and that only. A
+				  link will be generated to an ID as per the rules documented in 
+				  <a href='#special-ids'>the section on special identifiers</a>.
+				</p>
+				<schema>
+					<title>The <el>at</el> element</title>
+					<include href='respec.rng#at'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-el'>
+				<title>The el element</title>
+				<p>
+				  This element is used to mark that its content is an element name. 
+				  The content must be an element name, and that only. A
+				  link will be generated to an ID as per the rules documented in 
+				  <a href='#special-ids'>the section on special identifiers</a>.
+				</p>
+				<schema>
+					<title>The <el>el</el> element</title>
+					<include href='respec.rng#el'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-ev'>
+				<title>The ev element</title>
+				<p>
+				  This element is used to mark that its content is an event name. 
+				  The content must be an event name, and that only. A
+				  link will be generated to an ID as per the rules documented in 
+				  <a href='#special-ids'>the section on special identifiers</a>.
+				</p>
+				<schema>
+					<title>The <el>ev</el> element</title>
+					<include href='respec.rng#ev'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-pi'>
+				<title>The pi element</title>
+				<p>
+				  This element is used to mark that its content is a PI name. 
+				  The content must be a PI name, and that only. A
+				  link will be generated to an ID as per the rules documented in 
+				  <a href='#special-ids'>the section on special identifiers</a>.
+				</p>
+				<schema>
+					<title>The <el>pi</el> element</title>
+					<include href='respec.rng#pi'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-prop'>
+				<title>The prop element</title>
+				<p>
+				  This element is used to mark that its content is a property name. 
+				  The content must be a property name, and that only. A
+				  link will be generated to an ID as per the rules documented in 
+				  <a href='#special-ids'>the section on special identifiers</a>.
+				</p>
+				<schema>
+					<title>The <el>prop</el> element</title>
+					<include href='respec.rng#prop'/>
+				</schema>
+			</section>
+		</section>
+
+		<section xml:id='bibliographic'>
+			<title>Bibliographic elements</title>
+			<p>
+			  These elements are used in the creation of bibliographies.
+			</p>
+
+			<section xml:id='elem-bibliography'>
+				<title>The bibliography element</title>
+				<p>
+				  This is the root of a bibliography. Future versions may distinguish
+				  between normative and informative ones. It contains a series of
+				  <el>bibentry</el> elements.
+				</p>
+				<p>
+				  If you wish to only use the bibliographic database without bothering
+				  to create the entries yourself, you can have an empty bibliography
+				  element to which the entries will get added at generation time.
+				  Please keep in mind though that the DB is currently somewhat limited
+				  (but I'm adding to it as I go).
+			  </p>
+				<schema>
+					<title>The <el>bibliography</el> element</title>
+					<include href='respec.rng#bibliography'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-bibentry'>
+				<title>The bibentry element</title>
+				<p>
+				  Captures a single entry, or a group of entries that are commonly
+				  referred in most cases. If it is a single entry, the entry is
+				  described directly inside this element. If a group entry, then
+				  there may be several <el>p</el> elements introducing the group
+				  followed by several <el>entry</el> elements which will capture
+				  individual entries. The content model for the single entry version
+				  is described as part of the <el>entry</el> element.
+				</p>
+				<p>
+				  It is required that there be an <at>xml:id</at> attribute that
+				  corresponds exactly to the short name of the entry used in 
+				  the specs' references.
+			  </p>
+				<schema>
+					<title>The <el>bibentry</el> element</title>
+					<include href='respec.rng#bibentry'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-entry'>
+				<title>The entry element</title>
+				<p>
+				  Describes a single bibliographic entry. This is expected to have
+				  a <el>title</el>, a <el>link</el>, a <el>date</el>, and an
+				  <el>authors</el> element.
+				</p>
+				<schema>
+					<title>The <el>entry</el> element</title>
+					<include href='respec.rng#entry'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-link'>
+				<title>The link element</title>
+				<p>
+				  Contains a single IRI that is the link to that entry. Currently
+				  only online resources may be referenced in a bibliography.
+				</p>
+				<schema>
+					<title>The <el>link</el> element</title>
+					<include href='respec.rng#link'/>
+				</schema>
+			</section>
+		</section>
+
+		<section xml:id='metadata'>
+			<title>Metadata elements</title>
+			<p>
+			  A variety of elements are available to describe what can be
+			  vaguely called metadata. They are not restricted to the
+			  metadata headers in the document but are also reused in
+			  other contexts such as bibliographic entries.
+			</p>
+
+			<section xml:id='elem-metadata'>
+				<title>The metadata element</title>
+				<p>
+				  This is the header element for the entire specification. It contains
+				  a <el>title</el>, <el>styling</el> information, a <el>date</el>,
+				  and possibly <el>editors</el> and <el>authors</el>.
+				</p>
+				<schema>
+					<title>The <el>metadata</el> element</title>
+					<include href='respec.rng#metadata'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-people'>
+				<title>Elements describing people</title>
+				<p>
+				  Describing people is always a tricky business, and this set of elements
+				  is just about as ad hoc as many other attempts. It simply tries to capture
+				  what is normally used in specifications.
+				</p>
+				<p>
+				  The <el>editors</el> and <el>authors</el> elements contain a list of 
+				  <el>person</el> elements who are editors or authors of a specification
+				  or reference.
+			  </p>
+				<p>
+				  The <el>person</el> element describes an individual, and is rendered differently
+				  depending on its location. The various child elements that it may contain are
+				  <el>name</el> for the full name, <el>email</el> for that person's email,
+				  <el>url</el> for the person's IRI, <el>company</el> being the company that
+				  person works for, and <el>company-url</el> its IRI.
+			  </p>
+				<schema>
+					<title>Elements describing people</title>
+					<include href='respec.rng#editors'/>
+					<include href='respec.rng#authors'/>
+					<include href='respec.rng#person'/>
+					<include href='respec.rng#company'/>
+					<include href='respec.rng#company-url'/>
+					<include href='respec.rng#url'/>
+					<include href='respec.rng#email'/>
+					<include href='respec.rng#name'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-date'>
+				<title>The date element</title>
+				<p>
+				  The date element contains three attributes for the year, month and day.
+				  The intent is to use it to generate dates in specification headers but
+				  it is not currently implemented. It is expected that this will be
+				  remedied very soon.
+				</p>
+				<schema>
+					<title>The <el>date</el> element</title>
+					<include href='respec.rng#date'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-styling'>
+				<title>The styling element</title>
+				<p>
+				  The styling element contains metadata about the style of the specification.
+				  It's type attribute provides the type of the specification, a set currently
+				  limited to "W3C", "robin", and "Expway" but which can be extended.
+				</p>
+				<p>
+				  The status attribute indicates the current status of the specification. This
+				  is currently mostly useful for the "W3C" type. The possible values are:
+				  ED (Editor's Draft), EDMO (the same, but Member-only), N (Note), INF (informal
+				  document), MO (Member-only informal document), WD, LC, CR, PR, and REC. I am
+				  aware that this does not capture all document types that can be produced within
+				  W3C and will be adding more as needed.
+			  </p>
+				<schema>
+					<title>The <el>styling</el> element</title>
+					<include href='respec.rng#styling'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-version'>
+				<title>Elements describing versions</title>
+				<p>
+				  The <el>versions</el> element, contained inside the <el>metadata</el> element,
+				  is used to include pointers to multiple versions of the document. It is
+				  currently extremely ad hoc and it is expected that a better scheme will be
+				  provided in the close future. It contains three elements: <el>current</el>, <el>latest</el>
+				  and <el>previous</el>, the content of each of which is merely a link to the version
+				  being either the current, latest, or previous one.
+				</p>
+				<schema>
+					<title>Elements describing versions</title>
+					<include href='respec.rng#versions'/>
+					<include href='respec.rng#current'/>
+					<include href='respec.rng#latest'/>
+					<include href='respec.rng#previous'/>
+				</schema>
+			</section>
+		</section>
+
+		<section xml:id='elem-xhtml'>
+			<title>Elements taken from XHTML</title>
+			<p>
+			  The following elements have been lifted as is from XHTML. For convenience their
+			  namespace is the ReSpec one: p, a, abbr, acronym, code, dl, dd, dt, ol, ul, li,
+			  table, thead, tbody, tfoot, caption, tr, th, td, em, strong, br.
+			</p>
+			<p>
+			  All their attributes in no namespace are copied over as is. If they have an
+			  xml:id attribute (the only to be recognised as an ID inside ReSpec) the output
+			  will also have a matching id attribute.
+		  </p>
+			<schema>
+				<title>Elements taken from XHTML</title>
+				<include href='respec.rng#xhtml'/>
+			</schema>
+		</section>
+
+		<section xml:id='generated'>
+			<title>Generated elements</title>
+			<p>
+			  The following elements are described for completeness' sake, but
+			  are not actually available for use while editing ReSpec documents.
+			  They are automatically generated in the pre-processing phase of a ReSpec
+			  run, and the downstream XSLT then handles them. It may therefore be
+			  useful to XSLT authors to know about them.
+			</p>
+
+			<section xml:id='elem-rfc2119'>
+				<title>The rfc2119 element</title>
+				<p>
+				  Whenever an RFC 2119 [RFC2119] keyword in uppercase is found, it gets wrapped in this
+				  element.
+				</p>
+				<schema>
+					<title>The <el>rfc2119</el> element</title>
+					<include href='respec.rng#rfc2119'/>
+				</schema>
+			</section>
+
+			<section xml:id='elem-bibref'>
+				<title>The bibref element</title>
+				<p>
+				  Whenever a bibliographic reference is found, it is wrapped in this element
+				  (the square brackets are not removed, they are placed right before and right
+				  after the element).
+				</p>
+				<schema>
+					<title>The <el>bibref</el> element</title>
+					<include href='respec.rng#bibref'/>
+				</schema>
+			</section>
+		</section>
+
+		<section xml:id='pis'>
+			<title>Processing Instructions</title>
+			<p>
+			  The one and only PI understood by the ReSpec processor is <pi>respec-toc</pi>.
+			</p>
+
+			<section xml:id='pi-respec-toc'>
+				<title>The respec-toc processing instruction</title>
+				<p>
+				  This instructs the final step style sheet to generate a table of contents
+				  in place of the PI.
+				</p>
+			</section>
+		</section>
+	</section>
+
+	<section xml:id='scheme-respec'>
+		<title>The respec: scheme</title>
+		<p>
+		  It is generally considered a bad idea to introduce new URI schemes, and the
+		  introduction of this one has been given extensive thought. In the end, I
+		  figured that since it would never be used in the wild but only within
+		  ReSpec documents (that are not meant for widespread distribution). When
+		  ReSpec documents are transformed, all mentions of the respec: scheme are
+		  removed.
+		</p>
+		<p>
+		  The goal of this scheme is to provide locators for resources that are
+		  bundled with ReSpec, so that the ReSpec processor may access them easily.
+		  A typical use for this would be to specify an additional style sheet
+		  that ships with ReSpec and have it copied to the publish directory.
+	  </p>
+	  <p>
+	    Currently, the only two sorts of resources that ReSpec knows to locate through
+	    this scheme are its CSS and XSLT style sheets. Simply provide the sheet's name
+	    and it will know where to look for it. This may be extended to include more
+	    resource types.
+    </p>
+	</section>
+
+	<section xml:id='special-ids'>
+		<title>Special identifiers for elements</title>
+		<p>
+		  Links to the following special identifiers are generated for some various items in the
+		  grammar. More will be added for EBNF and IDL support. If you give this ID to
+		  a section, the <el>at</el>, <el>pi</el>, <el>ev</el>, <el>prop</el>, and <el>el</el>
+		  elements will then work correctly (NOTE: this is not always the case in this document
+		  which was written a little too fast).
+		</p>
+		
+		<table>
+		  <tr>
+		    <th>Identifier</th>
+		    <th>Description</th>
+	    </tr>
+	    <tr>
+	      <td>prop-&lt;name></td>
+	      <td>
+	        Generated for properties, where <code>&lt;name></code> is the name of the property.
+        </td>
+      </tr>
+	    <tr>
+	      <td>event-&lt;name></td>
+	      <td>
+	        Generated for events, where <code>&lt;name></code> is the name of the event. I haven't
+	        yet thought of how to get that to work cleanly for namespaced events should we ever
+	        need to describe events in multiple namespaces from within a single document.
+        </td>
+      </tr>
+	    <tr>
+	      <td>elem-&lt;name></td>
+	      <td>
+	        Generated for elements, where <code>&lt;name></code> is the name of the element.
+        </td>
+      </tr>
+	    <tr>
+	      <td>attr-&lt;name></td>
+	      <td>
+	        Generated for attributes, where <code>&lt;name></code> is the name of the attribute.
+        </td>
+      </tr>
+	    <tr>
+	      <td>attr-&lt;elem>-&lt;name></td>
+	      <td>
+	        Generated for attributes that are local to a given element, where <code>&lt;name></code>
+	        is the name of the attribute and <code>&lt;elem></code> that of the element.
+        </td>
+      </tr>
+	    <tr>
+	      <td>pi-&lt;piname></td>
+	      <td>
+	        Generated for processing instructions, where <code>&lt;piname></code> is the name of
+	        the PI.
+        </td>
+      </tr>
+	    <tr>
+	      <td>rng-&lt;defname></td>
+	      <td>
+	        Unlike the previous instances, this is not a generated link but rather a generated
+	        anchor, so that using such an ID will cause duplicate IDs to be present in the document.
+	        Needless to say, don't do that. Use this to link to RelaxNG schema snippets from the body
+	        of the specification. Whenever the ReSpec processor finds a RelaxNG <code>ref</code> element,
+	        it creates a link to the corresponding <code>define</code>.
+        </td>
+      </tr>
+	  </table>
+	</section>
+
+  <section xml:id='bibref' type='appendix'>
+    <title>References</title>
+
+    <bibliography/>
+  </section>
+
+</specification>
