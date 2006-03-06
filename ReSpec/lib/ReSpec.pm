@@ -16,7 +16,7 @@ use warnings;
 #     sequence of test writing
 ####
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 use XML::LibXML                 qw();
 use XML::LibXML::XPathContext   qw();
@@ -55,10 +55,14 @@ my %boolOpts = (
                 IDL                 => 1,
 );
 
+my %defaultOps = (
+                    format  => 'xhtml',
+                 );
+
 # simple ctor
 sub new {
     my $class = shift;
-    return bless { %boolOpts }, $class;
+    return bless { %boolOpts, %defaultOps }, $class;
 }
 
 # yeah, I know, Class::Accessors is better -- flog me!
@@ -75,7 +79,6 @@ sub loadSpec {
     my $base = ReSpec::FS->parseFilePath($file)->basePath;
     $self->sourceFile($file);
     $self->baseDir($base);
-    $self->format('xhtml'); # this will have options later
     die "File must currently end in '.xml'" if $file !~ m/\.xml$/;
     
     $self->doc( XML::LibXML->new->parse_file($file) );
@@ -84,8 +87,9 @@ sub loadSpec {
 
     # pick stylesheet
     my $type = $self->xc->findvalue('/r:*/r:metadata/r:styling/@type');
-    my $xsltPath = ReSpec::FS->respecToFile('respec:' . $type . '-' .  $self->format . '.xslt');
-    die "No XSLT for type '$type' at '$xsltPath'\n" unless -e $xsltPath;
+    my $format = $self->format;
+    my $xsltPath = ReSpec::FS->respecToFile("respec:$type-$format.xslt");
+    die "No XSLT for type '$type' and format '$format' at '$xsltPath'\n" unless -e $xsltPath;
     $self->xsltPath($xsltPath);
 }
 
@@ -133,6 +137,10 @@ sub parseConfig {
         }
         elsif (exists $boolOpts{$cmd}) {
             $self->$cmd( $prms =~ m/^\s*on\s*$/i ? 1 : 0 );
+        }
+        elsif ($cmd eq 'Format') {
+            $prms =~ s/\s+//g;
+            $self->format($prms);
         }
         elsif ($cmd eq 'Output') {
             my @prms = grep !/^\s*$/, split /\s+/, $prms;
@@ -199,7 +207,7 @@ sub output {
     }
     else {
         my $out = $self->sourceFile;
-        $out =~ s/\.xml$/\.xhtml/; # change when we have format options
+        $out =~ s/\.xml$/'.' . $self->format/e;
         $self->outputFile($out);
     }
     
