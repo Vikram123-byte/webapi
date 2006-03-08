@@ -119,6 +119,22 @@ BEGIN {
                           </authors>
                         </bibentry>
         },
+        RFC2616     => q{
+                        <bibentry xml:id='RFC2616' xmlns='http://berjon.com/ns/re-spec/'>
+                          <title>Hypertext Transfer Protocol -- HTTP/1.1</title>
+                          <link>http://www.ietf.org/rfc/rfc2616.txt</link>
+                          <date>1999-06</date>
+                          <authors>
+                            <person><name>R. Fielding</name><company>UC Irvine</company></person>
+                            <person><name>J. Gettys</name><company>Compaq/W3C</company></person>
+                            <person><name>J. Mogul</name><company>Compaq</company></person>
+                            <person><name>H. Frystyk</name><company>W3C/MIT</company></person>
+                            <person><name>L. Masinter</name><company>Xerox</company></person>
+                            <person><name>P. Leach</name><company>Microsoft</company></person>
+                            <person><name>T. Berners-Lee</name><company>W3C/MIT</company></person>
+                            </authors>
+                        </bibentry>
+        },
         RFC3023     => q{
                         <bibentry xml:id='RFC3023' xmlns='http://berjon.com/ns/re-spec/'>
                           <title>XML Media Types</title>
