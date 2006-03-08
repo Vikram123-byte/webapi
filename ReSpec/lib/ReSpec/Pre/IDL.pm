@@ -65,8 +65,8 @@ sub process {
                 addText($df, "\n");
             }
             for my $am ($re->xc->findnodes('.//r:attribute | .//r:method', $obj)) {
-                processAttribute($re, $am, $df, \%allIF, $ifName, '  ') if $am->localName eq 'attribute';
-                processMethod($re, $am, $df, \%allIF, $ifName, '  ') if $am->localName eq 'method';
+                processAttribute($re, $am, $df, \%allIF, $ifLink, '  ') if $am->localName eq 'attribute';
+                processMethod($re, $am, $df, \%allIF, $ifLink, '  ') if $am->localName eq 'method';
             }
             addText($df, "};");
         }

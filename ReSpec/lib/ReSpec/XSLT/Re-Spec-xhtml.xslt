@@ -8,6 +8,8 @@
                 xmlns:r='http://berjon.com/ns/re-spec/'
                 xmlns:c='http://berjon.com/ns/xslt-conf/'
                 xmlns:rng='http://relaxng.org/ns/structure/1.0'
+                xmlns:str='http://exslt.org/strings'
+                extension-element-prefixes='str'
                 exclude-result-prefixes='r c rng'
                 version='1.0'>
 
@@ -102,30 +104,29 @@
     </xsl:template>
 
   <xsl:template match='r:section'>
-        <div class='section'>
-            <xsl:element name='h{count(ancestor::r:section)+2}'
-                         namespace='http://www.w3.org/1999/xhtml'>
-                <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
-								<xsl:choose>
-									<xsl:when test='not($noTOC/@key = @type)'>
-		                <xsl:call-template name='get-section-number'>
-		                  <xsl:with-param name='section' select='.'/>
-		                </xsl:call-template>
-		                <xsl:text> </xsl:text>
-									</xsl:when>
-									<xsl:when test='@type = "appendix"'>
-				            <xsl:number format='A' value='count(preceding-sibling::r:section[@type = "appendix"]) + 1'/>
-				            <xsl:text>. </xsl:text>
-									</xsl:when>
-								</xsl:choose>
-                <xsl:apply-templates select='r:title/node()'/>
-            </xsl:element>
-            <xsl:if test='@normativity="informative"'>
-              <p><strong>This section is informative.</strong></p>
-            </xsl:if>
-            <xsl:apply-templates/>
-        </div>
-    </xsl:template>
+    <div class='section'>
+      <xsl:element name='h{count(ancestor::r:section)+2}' namespace='http://www.w3.org/1999/xhtml'>
+        <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
+				<xsl:choose>
+					<xsl:when test='not($noTOC/@key = @type)'>
+            <xsl:call-template name='get-section-number'>
+              <xsl:with-param name='section' select='.'/>
+            </xsl:call-template>
+            <xsl:text> </xsl:text>
+					</xsl:when>
+					<xsl:when test='@type = "appendix"'>
+            <xsl:number format='A' value='count(preceding-sibling::r:section[@type = "appendix"]) + 1'/>
+            <xsl:text>. </xsl:text>
+					</xsl:when>
+				</xsl:choose>
+        <xsl:apply-templates select='r:title/node()'/>
+      </xsl:element>
+      <xsl:if test='@normativity="informative"'>
+        <p><strong>This section is informative.</strong></p>
+      </xsl:if>
+      <xsl:apply-templates/>
+    </div>
+  </xsl:template>
 
   <!-- the HTML elements -->
   <xsl:template match='r:p | r:a | r:abbr | r:acronym | r:code | r:dl | r:dd |
@@ -307,7 +308,7 @@
 
   <xsl:template match='r:example'>
     <div class='boxed'>
-      <p><span class='exampleTitle'>Example: <xsl:value-of select='r:title'/></span></p>
+      <div><span class='exampleTitle'>Example: <xsl:value-of select='r:title'/></span></div>
       <pre class='example' title='{r:title}'>
         <xsl:copy-of select='*[namespace-uri() != "http://berjon.com/ns/re-spec/"]|text()'/>
       </pre>
@@ -324,27 +325,6 @@
         <xsl:apply-templates select='r:idl'/>
       </pre>
     </div>
-    <!-- <xsl:apply-templates select='r:idl' mode='make-idl-html'/> -->
-  </xsl:template>
-
-  <xsl:template match='r:idl' mode='make-idl-text'>
-    <xsl:apply-templates select='r:interface' mode='make-idl-text'/>
-  </xsl:template>
-
-  <xsl:template match='r:idl' mode='make-idl-html'>
-    <xsl:apply-templates mode='make-idl-html'/>
-  </xsl:template>
-
-  <!-- IDL mode making text -->
-  <xsl:template match='r:interface' mode='make-idl-text'>
-    <!--
-    <xsl:variable name='module'><xsl:value-of select='@module'/>-</xsl:variable>
-    <xsl:text>interface </xsl:text>
-    <a href='#idl-{$module}{@name}'><xsl:value-of select='@name'/></a>
-    <xsl:text> {&nl;&nl;</xsl:text>
-    <xsl:apply-templates select='r:definition-group | r:method | r:attribute' mode='make-idl-text'/>
-    <xsl:text>};</xsl:text>
-  -->
   </xsl:template>
 
   <xsl:template match='r:interface'>
@@ -376,12 +356,19 @@
   </xsl:template>
 
   <xsl:template match='r:attribute'>
+    <xsl:variable name='type'>
+      <xsl:choose>
+        <xsl:when test='@type'><xsl:value-of select='@type'/></xsl:when>
+        <xsl:otherwise>DOMString</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <dt id='idl-attr-{../@name}-{@name}'>
       <code><xsl:value-of select='@name'/></code>
       of type
       <xsl:choose>
-        <xsl:when test='//r:interface[@name = current()/@type]'><a href='#idl-if-{@type}'><xsl:value-of select='@type'/></a></xsl:when>
-        <xsl:otherwise><xsl:value-of select='@type'/></xsl:otherwise>
+        <xsl:when test='//r:interface[@name = $type]'><a href='#idl-if-{$type}'><xsl:value-of select='$type'/></a></xsl:when>
+        <xsl:otherwise><xsl:value-of select='$type'/></xsl:otherwise>
       </xsl:choose>
       <xsl:if test='@ro = "true"'>, readonly</xsl:if>
     </dt>
@@ -389,18 +376,22 @@
       <xsl:apply-templates select='*[not(self::r:exception)]'/>
       <xsl:if test='r:exception'>
         <dl>
-          <dt>Exceptions on setting</dt>
-          <dd>
-            <table class='idl-exceptions'>
-              <xsl:apply-templates select='r:exception[r:code[contains(@on, "setting")]]'/>
-            </table>
-          </dd>
-          <dt>Exceptions on retrieval</dt>
-          <dd>
-            <table class='idl-exceptions'>
-              <xsl:apply-templates select='r:exception[r:code[contains(@on, "retrieval")]]'/>
-            </table>
-          </dd>
+          <xsl:if test='contains(r:exception/r:code/@on, "setting")'>
+            <dt>Exceptions on setting</dt>
+            <dd>
+              <table class='idl-exceptions'>
+                <xsl:apply-templates select='r:exception[r:code[contains(@on, "setting")]]'/>
+              </table>
+            </dd>
+          </xsl:if>
+          <xsl:if test='contains(r:exception/r:code/@on, "retrieval")'>
+            <dt>Exceptions on retrieval</dt>
+            <dd>
+              <table class='idl-exceptions'>
+                <xsl:apply-templates select='r:exception[r:code[contains(@on, "retrieval")]]'/>
+              </table>
+            </dd>
+          </xsl:if>
         </dl>
       </xsl:if>
     </dd>
@@ -408,7 +399,7 @@
 
   <xsl:template match='r:definition-group'>
     <div class='section'>
-      <h4 class='idl-header'>Definition Group <em><xsl:value-of select='@for'/></em></h4>
+      <h4 class='idl-header' id='idl-defs-{@for}'>Definition Group <em><xsl:value-of select='@for'/></em></h4>
       <xsl:apply-templates select='*[not(self::r:constant)]'/>
       <dl class='idl-defs'>
         <xsl:apply-templates select='r:constant'/>
@@ -484,9 +475,9 @@
           <xsl:when test='r:exception'>
             <dt>Exceptions</dt>
             <dd>
-              <dl>
+              <table>
                 <xsl:apply-templates select='r:exception'/>
-              </dl>
+              </table>
             </dd>
           </xsl:when>
           <xsl:otherwise><dt>No Exceptions</dt></xsl:otherwise>
@@ -496,12 +487,26 @@
   </xsl:template>
 
   <xsl:template match='r:param'>
+    <xsl:variable name='type'>
+      <xsl:choose>
+        <xsl:when test='@type'><xsl:value-of select='@type'/></xsl:when>
+        <xsl:otherwise>DOMString</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <dt>
       <code><xsl:value-of select='@name'/></code>
-      of type
       <xsl:choose>
-        <xsl:when test='//r:interface[@name = current()/@type]'><a href='#idl-if-{@type}'><xsl:value-of select='@type'/></a></xsl:when>
-        <xsl:otherwise><xsl:value-of select='@type'/></xsl:otherwise>
+        <xsl:when test='contains($type, "|")'>
+          of varying types (see IDL)
+        </xsl:when>
+        <xsl:otherwise>
+          of type
+          <xsl:choose>
+            <xsl:when test='//r:interface[@name = $type]'><a href='#idl-if-{$type}'><xsl:value-of select='$type'/></a></xsl:when>
+            <xsl:otherwise><xsl:value-of select='$type'/></xsl:otherwise>
+          </xsl:choose>
+        </xsl:otherwise>
       </xsl:choose>
       <xsl:if test='@optional = "true"'>, optional</xsl:if>
     </dt>
