@@ -376,7 +376,7 @@
   </xsl:template>
 
   <xsl:template match='r:attribute'>
-    <dt id='#idl-attr-{../@name}-{@name}'>
+    <dt id='idl-attr-{../@name}-{@name}'>
       <code><xsl:value-of select='@name'/></code>
       of type
       <xsl:choose>
@@ -417,7 +417,7 @@
   </xsl:template>
 
   <xsl:template match='r:constant'>
-    <dt id='#idl-defs-{../@for}-{@name}'><code><xsl:value-of select='@name'/></code></dt>
+    <dt id='idl-defs-{../@for}-{@name}'><code><xsl:value-of select='@name'/></code></dt>
     <dd>
       <xsl:apply-templates/>
     </dd>
@@ -447,7 +447,7 @@
   </xsl:template>
 
   <xsl:template match='r:method'>
-    <dt id='#idl-meth-{../@name}-{@name}'><code><xsl:value-of select='@name'/></code></dt>
+    <dt id='idl-meth-{../@name}-{@name}'><code><xsl:value-of select='@name'/></code></dt>
     <dd>
       <xsl:apply-templates select='*[not(self::r:param) and not(self::r:returns) and not(self::r:exception)]'/>
       <dl>
