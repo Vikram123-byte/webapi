@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+          ******* WARNING ********
+          This document was automatically generated using the Re-Spec specification
+          publishing system. Edits made here are likely to be lost when it is
+          regenerated.
+          ******* WARNING ********
+        --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Window Object 1.0</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Window.html,v 1.1 2006-03-13 11:18:08 mstachow Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Window Object 1.0</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>12 March 2006</em></h2><dl><dt>Editor:</dt><dd><span class="person">Maciej Stachowiak (<a href="http://apple.com/">Apple Computer, Inc.</a>) &lt;<a href="mailto:mjs@apple.com">mjs@apple.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+        <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
+        (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
+        <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
+        <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and 
+        <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document  use</a> rules apply.
+      </p></div><hr></hr>
+  
+
+  <h2 id="specabstract">Abstract</h2><div class="section">
+    
+
+    <p>
+      This specification defines the Window object, which provides the
+      global namespace for web scripting languages, access to other
+      documents in a compound document by reference, navigation to
+      other locations, and timers. The Window object is a longstanding
+      de facto standard for HTML user agents. However, it should not
+      be assumed based on this or the name "Window" that it is limited to HTML
+      or to visual user agents.
+    </p>
+  </div>
+
+  <div class="section"><h2 id="sotd">Status of this Document</h2>
+    
+
+    <p>
+      <em>This section describes the status of this document at the time of its publication.
+      Other documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the
+      latest revision of this technical report can be found in the 
+      <a href="http://www.w3.org/TR/"><acronym title="World Wide Web Consortium">W3C</acronym> technical reports index</a> at http://www.w3.org/TR/.</em>
+    </p>
+    <p>
+      This document is produced by the <a href="http://www.w3.org/2006/webapi">Web API
+      <acronym title="Working Group">WG</acronym></a> (part of the
+      <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>).
+      This document has no formal standing within the <acronym title="World Wide Web Consortium">W3C</acronym>. 
+      Please send comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, 
+      the public email list for issues related to Web APIs.
+    </p>
+    <p>
+      The patent policy for this document is the 
+      <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>. 
+      Patent disclosures relevant to this specification may be found on the 
+      <a href="http://www.w3.org/2004/01/pp-impl/38482/status" rel="disclosure">Web API Working Group's patent
+      disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes 
+      contains Essential Claim(s) with respect to this specification should disclose the information in
+      accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6
+      of the <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>.
+    </p>
+    <p>
+      Publication as an Editor's Draft does not imply endorsement by the <acronym title="World Wide Web Consortium">W3C</acronym> Membership.
+      This is a draft document and may be updated, replaced or obsoleted by other 
+      documents at any time. It is inappropriate to cite this document as other than
+      work in progress.
+    </p>
+  </div>
+
+  <div class="section"><h2 id="contents">Table of contents</h2>
+    
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><ul class="toc"><li><a href="#usage">1.1. Examples of usage</a></li><li><a href="#notcovered">1.2. Not in This Specification</a></li><li><a href="#conformance">1.3. Conformance</a></li></ul></li><li><a href="#interfaces">2. Browsing Contexts</a></li><li><ul class="toc"><li><a href="#overview">2.1. Overview</a></li><li><a href="#window">2.2. The <em>Window</em> Interface</a></li><li><a href="#document-window">2.3. The <em>DocumentWindow</em> Interface</a></li></ul></li><li><a href="#navigation">3. Navigation</a></li><li><ul class="toc"><li><a href="#window-location">3.1. The <em>WindowLocation</em> Interface</a></li><li><a href="#document-location">3.2. The <em>DocumentLocation</em> Interface</a></li><li><a href="#location">3.3. The <em>Location</em> Interface</a></li></ul></li><li><a href="#embedding">4. Embedding: Compound Documents by Reference</a></li><li><ul class="toc"><li><a href="#window-embedding">4.1. The <em>WindowEmbedding</em> Interface</a></li><li><a href="#embeddingelt">4.2. The <em>EmbeddingElement</em> Interface</a></li></ul></li><li><a href="#timers">5. Timers</a></li><li><ul class="toc"><li><a href="#window-timers">5.1. The <em>WindowTimers</em> Interface</a></li><li><a href="#timerlistener">5.2. The <em>TimerListener</em> Interface</a></li></ul></li><li><a href="#security">6. Security Consideration</a></li></ul><ul class="toc"><li><a href="#idl">A. IDL Definitions</a></li><li><a href="#ecmascript">B. ECMAScript Language Binding</a></li><li><a href="#acknow">C. Acknowledgements</a></li><li><a href="#bibref">D. References</a></li></ul>
+  </div>
+
+  <div class="section"><h2 id="introduction">1. Introduction</h2>
+    
+
+    <p>
+      The <strong>Window Object 1.0</strong> specification defines a subset of the
+      features of the Window object, a widely implemented part of HTML
+      User Agents, with parts also found in non-HTML UAs that offer
+      scripting and DOM access. With this specification, it is recommended
+      for all implementations that present documents to the user or provide
+      the equivalent of a browsing context.
+    </p>
+
+    <p>
+      The main purpose of the Window object is to provide the global
+      namespace for script execution. This specification defines four
+      features of the window object, in addition to its use for the
+      global namespace. It describes the use of the Window object as a
+      <strong>browsing context</strong>: a container that displays a
+      document, or a series of documents in sequence. It describes
+      interfaces for <strong>navigation</strong>, the ability to go to
+      a new document in the same browsing context. It describes
+      interfaces for <strong>embedding</strong>, a feature also known
+      as <strong>compound document by reference</strong>, where one
+      document includes another separate document by external
+      reference. And finally it provides <strong>timers</strong>.
+    </p>
+    
+    <div class="section"><h3 id="usage">1.1. Examples of usage</h3>
+      
+      <p>(this section is informative)</p>
+
+    </div>
+
+    <div class="section"><h3 id="notcovered">1.2. Not in This Specification</h3>
+      
+      <p>(this section is informative)</p>
+
+      <p>
+      This specification does not include the following features,
+      which are also found on the Window Object in some
+      implementations. It is possible they will defined by other
+      specifications or found in a future version of this specification.
+      </p>
+
+      <ul>
+      <li>History <div class="ednote">(may have to reconsider this)</div></li>
+      <li>Access to frames by name <div class="ednote">(may have to reconsider this)</div></li>
+      <li>Opening new windows</li>
+      <li>Manipulating UI of existing windows</li>
+      <li>Window size and position information</li>
+      <li>Client information ("window.navigator")</li>
+      <li>Window events</li>
+      <li>Printing</li>
+      <li>Focus</li>
+      <li>Selection</li>
+      <li>Editing</li>
+      <li>Networking APIs</li>
+      <li>Handling of binary data</li>
+      </ul>
+    </div>
+
+    <div class="section"><h3 id="conformance">1.3. Conformance</h3>
+      
+
+      <p>
+        The key words "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL NOT</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em>",
+        "<em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em>", and "<em class="rfc2119" title="Keyword in RFC 2119 context">OPTIONAL</em>" in this document are to be interpreted as described in
+        RFC 2119 [<cite><a href="#RFC2119" class="bibref">RFC2119</a></cite>].
+      </p>
+      <p>
+
+	Sometimes, for readability, conformance requirements are
+	phrased as requirements on elements, attributes, methods,
+	interfaces, properties or functions. In all cases these are
+	conformance requirements on implementations.
+      </p>
+      <p>
+        This specification defines two classes of conformance:
+
+      </p>
+      <dl>
+      <dt>conforming implementation</dt>
+      <dd>A conforming implementation of the Window Object specification is one that implements all the interfaces in this specification, and satisfies all other <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em> and <em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em> level criteria in all parts of this document other than language binding appendices.</dd>
+
+      <dt>conforming ECMAScript implementation</dt>
+      <dd>A conforming ECMAScript implementation of the <strong>Window Object</strong> specification is a conforming implementation that maps all of the interfaces in this specification to ECMAScript, and satisfies the additional requirements in the <a href="#ecmascript">ECMAScript Language Binding Appendix</a>.</dd>
+      </dl>
+    </div>
+
+  </div>
+
+  <div class="section"><h2 id="interfaces">2. Browsing Contexts</h2>
+    
+
+    <div class="section"><h3 id="overview">2.1. Overview</h3>
+      
+    </div>
+
+    <div class="section"><h3 id="window">2.2. The <em>Window</em> Interface</h3>
+      
+
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+// should this interface be called something else - Global, DOMWindow, DOMGlobal?
+// should specify that for ECMAScript execution this provides the global scope
+// based on Mozilla and Safari implementations, Win IE docs, Web Apps 1.0 draft
+// (some also in SVG Tiny 1.2 draft)
+interface Window : views::AbstractView {
+    // AbstractView has a document attribute of type DocumentView, should we drop the
+    // charade and admit it is a Document?
+
+    // self-reference
+    readonly attribute Window window;
+
+    // self-reference - why both? because both are used
+    readonly attribute Window self;
+};</pre></div>
+
+    </div>
+
+    <div class="section"><h3 id="document-window">2.3. The <em>DocumentWindow</em> Interface</h3>
+      
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+interface DocumentWindow : views::DocumentView {
+// the defaultView must be the Window object
+};</pre></div>
+
+    </div>
+
+  </div>
+
+  <div class="section"><h2 id="navigation">3. Navigation</h2>
+    
+
+    <div class="section"><h3 id="window-location">3.1. The <em>WindowLocation</em> Interface</h3>
+      
+
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+interface WindowLocation {
+    // Location object representing the current location
+    // assigning this has special behavior in ECMAScript, but it is otherwise 
+    // read only. specifically, in ES a string URI can be assigned to location, 
+    // having the same effect as location.assign(URI)
+    readonly attribute Location location;
+};</pre></div>
+
+    </div>
+
+    <div class="section"><h3 id="document-location">3.2. The <em>DocumentLocation</em> Interface</h3>
+      
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+interface DocumentLocation {
+    // must be same object as window.location
+    // same special JS assignment as window.location
+    readonly attribute Location location;
+};</pre></div>
+
+    </div>
+
+    <div class="section"><h3 id="location">3.3. The <em>Location</em> Interface</h3>
+      
+    
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+interface Location {
+    attribute DOMString href;
+		
+    // pieces of the URI, per the generic URI syntax
+    attribute DOMString hash; // (fragment)
+    attribute DOMString host; // hostname:port if port specified,
+    attribute DOMString hostname; // just the hostname, no port
+    attribute DOMString pathname;
+    attribute DOMString port;
+    attribute DOMString protocol; // scheme
+    attribute DOMString search;  // query
+
+    void assign(in DOMString url); // go to the requested URL
+    // does it make sense to spec reload and replace without specifying 
+    // history behavior at all?
+    void replace(in DOMString url);
+    void reload();
+
+    // same value as href; not all implementations have this explicitly 
+    // but toString is always available in ECMAScript, and probably this 
+    // should be explicit for the sake of Java. Or we could skip it since
+    // it matches href.
+    DOMString toString();
+};</pre></div>
+
+    </div>
+
+  </div>
+
+  <div class="section"><h2 id="embedding">4. Embedding: Compound Documents by Reference</h2>
+    
+
+    <div class="section"><h3 id="window-embedding">4.1. The <em>WindowEmbedding</em> Interface</h3>
+      
+
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+interface WindowEmbedding {
+    // name attribute of referencing frame/iframe/object, or name passed to 
+    // window.open, does it make sense to spec this without being html-specific 
+    // or defining open?
+    attribute DOMString name;
+
+    // global object of containing document
+    readonly attribute Window parent;
+
+    // global object of outermost containing document
+    readonly attribute Window top;
+
+    // referencing &lt;html:frame&gt;, &lt;html:iframe&gt;, &lt;html:object&gt;, &lt;svg:foreignObject&gt;, 
+    // &lt;svg:animation&gt; or other embedding point, or null if none
+    readonly attribute core::Element frameElement;
+};</pre></div>
+
+    </div>
+
+    <div class="section"><h3 id="embeddingelt">4.2. The <em>EmbeddingElement</em> Interface</h3>
+      
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+// must be on an object that also implements core::Element
+interface EmbeddingElement {
+    readonly attribute core::Document contentDocument;
+    readonly attribute Window contentWindow;
+};</pre></div>
+
+    </div>
+
+  </div>
+
+  <div class="section"><h2 id="timers">5. Timers</h2>
+    
+
+    <div class="section"><h3 id="window-timers">5.1. The <em>WindowTimers</em> Interface</h3>
+      
+
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+interface WindowTimers {
+    // should timers allow more than long, maybe a floating point type? 
+    // don't think anyone's timers have more precision
+
+    // one-shot timer
+    long setTimeout(in TimerListener listener, in long milliseconds);
+    void clearTimeout(in long timerID);
+
+    // repeating timer
+    long setInterval(in TimerListener listener, in long milliseconds);
+    void clearInterval(in long timerID);
+};</pre></div>
+
+    </div>
+
+    <div class="section"><h3 id="timerlistener">5.2. The <em>TimerListener</em> Interface</h3>
+      
+      <div class="boxed"><p><span class="idlTitle"></span></p><pre class="schema" title="">
+// behavior is always special in ECMAScript, this is defined only for the benefit
+// of other languages
+interface TimerListener {
+    // what to put here?
+};</pre></div>
+    </div>
+
+  </div>
+
+  <div class="section"><h2 id="security">6. Security Consideration</h2>
+    
+  </div>
+
+  <div class="section"><h2 id="idl">A. IDL Definitions</h2>
+    
+  </div>
+
+
+  <div class="section"><h2 id="ecmascript">B. ECMAScript Language Binding</h2>
+    
+
+  </div>
+
+  <div class="section"><h2 id="acknow">C. Acknowledgements</h2>
+    
+
+    <p>
+      The WebAPI <acronym title="Working Group">WG</acronym> would like to thanks the following people for contributing to this specification:
+    </p>
+  </div>
+
+  <div class="section"><h2 id="bibref">D. References</h2>
+    
+
+    <dl class="bibliography">
+
+    <dt id="RFC2119">RFC2119</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
+    <span class="person">S. Bradner</span>.</dd></dl>
+  </div>
+</body></html>
