@@ -1,0 +1,457 @@
+<!--
+<?xml-stylesheet href="../../../../ReSpec-0.06/lib/ReSpec/XSLT/W3C-xhtml.xslt" type="text/xsl" ?>
+-->
+<specification xmlns='http://berjon.com/ns/re-spec/'
+               xmlns:rs='http://berjon.com/ns/re-spec/'
+               version='1.0'
+               xml:lang='en'>
+  <metadata>
+    <title>Window Object 1.0</title>
+    <styling type='W3C' status='ED'/>
+    <date year='2006' month='03' day='06'/>
+    <editors>
+      <person>
+        <name>Ian Davis</name>
+        <email>ian.davis@talis.com</email>
+        <company>Talis Information Ltd.</company>
+        <company-url>http://www.talis.com/</company-url>
+      </person>
+      <person>
+        <name>Maciej Stachowiak</name>
+        <email>mjs@apple.com</email>
+        <company>Apple Computer, Inc.</company>
+        <company-url>http://apple.com/</company-url>
+      </person>
+    </editors>
+    <versions>
+      <current>http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/source/ED-window-20060306.xml</current>
+      <latest>http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/source/ED-window-20060306.xml</latest>
+      <previous>http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/source/Window.xml</previous>
+    </versions>
+  </metadata>
+
+  <section xml:id='abstract' type='w3c-abstract'>
+    <title>Abstract</title>
+
+    <p>
+      This specification defines the Window object, which provides the
+      global namespace for web scripting languages, access to other
+      documents in a compound document by reference, navigation to
+      other locations, and timers. The Window object is a longstanding
+      de facto standard for HTML user agents. However, it should not
+      be assumed based on this or the name "Window" that it is limited to HTML
+      or to visual user agents.
+    </p>
+  </section>
+
+  <section xml:id='sotd' type='w3c-sotd'>
+    <title>Status of this Document</title>
+
+    <p>
+      <em>This section describes the status of this document at the time of its publication.
+      Other documents may supersede this document. A list of current W3C publications and the
+      latest revision of this technical report can be found in the 
+      <a href='http://www.w3.org/TR/'>W3C technical reports index</a> at http://www.w3.org/TR/.</em>
+    </p>
+    <p>
+      This document is produced by the <a href='http://www.w3.org/2006/webapi'>Web API
+      <acronym title='Working Group'>WG</acronym></a> (part of the
+      <a href='http://www.w3.org/2006/rwc/Activity'>Rich Web Clients Activity</a>).
+      This document has no formal standing within the <acronym title='World Wide Web Consortium'>W3C</acronym>. 
+      Please send comments to <a href='mailto:public-webapi@w3.org'>public-webapi@w3.org</a>, 
+      the public email list for issues related to Web APIs.
+    </p>
+    <p>
+      The patent policy for this document is the 
+      <a href='http://www.w3.org/Consortium/Patent-Policy-20040205/'>5 February 2004 W3C Patent Policy</a>. 
+      Patent disclosures relevant to this specification may be found on the 
+      <a href='http://www.w3.org/2004/01/pp-impl/38482/status' rel='disclosure'>Web API Working Group's patent
+      disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes 
+      contains Essential Claim(s) with respect to this specification should disclose the information in
+      accordance with <a href='http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure'>section 6
+      of the W3C Patent Policy</a>.
+    </p>
+    <p>
+      Publication as an Editor's Draft does not imply endorsement by the W3C Membership.
+      This is a draft document and may be updated, replaced or obsoleted by other 
+      documents at any time. It is inappropriate to cite this document as other than
+      work in progress.
+    </p>
+  </section>
+
+  <section xml:id='contents' type='toc'>
+    <title>Table of contents</title>
+    <?respec-toc?>
+  </section>
+
+  <section xml:id='introduction'>
+    <title>Introduction</title>
+
+    <p>
+      The <strong>Window Object 1.0</strong> specification defines a subset of the
+      features of the Window object, a widely implemented part of HTML
+      User Agents, with parts also found in non-HTML UAs that offer
+      scripting and DOM access. With this specification, it is recommended
+      for all implementations that present documents to the user or provide
+      the equivalent of a browsing context.
+    </p>
+
+    <p>
+      The main purpose of the Window object is to provide the global
+      namespace for script execution. This specification defines four
+      features of the window object, in addition to its use for the
+      global namespace. It describes the use of the Window object as a
+      <strong>browsing context</strong>: a container that displays a
+      document, or a series of documents in sequence. It describes
+      interfaces for <strong>navigation</strong>, the ability to go to
+      a new document in the same browsing context. It describes
+      interfaces for <strong>embedding</strong>, a feature also known
+      as <strong>compound document by reference</strong>, where one
+      document includes another separate document by external
+      reference. And finally it provides <strong>timers</strong>.
+    </p>
+    
+    <section xml:id='usage'>
+      <title>Examples of usage</title>
+      <p>(this section is informative)</p>
+
+    </section>
+
+    <section xml:id='notcovered'>
+      <title>Not in This Specification</title>
+      <p>(this section is informative)</p>
+
+      <p>
+      This specification does not include the following features,
+      which are also found on the Window Object in some
+      implementations. It is possible they will defined by other
+      specifications or found in a future version of this specification.
+      </p>
+
+      <ul>
+      <li>History <ednote>(may have to reconsider this)</ednote></li>
+      <li>Access to frames by name <ednote>(may have to reconsider this)</ednote></li>
+      <li>Opening new windows</li>
+      <li>Manipulating UI of existing windows</li>
+      <li>Window size and position information</li>
+      <li>Client information ("window.navigator")</li>
+      <li>Window events</li>
+      <li>Printing</li>
+      <li>Focus</li>
+      <li>Selection</li>
+      <li>Editing</li>
+      <li>Networking APIs</li>
+      <li>Handling of binary data</li>
+      </ul>
+    </section>
+
+    <section xml:id='conformance'>
+      <title>Conformance</title>
+
+      <p>
+        The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT",
+        "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in
+        RFC 2119 [RFC2119].
+      </p>
+      <p>
+
+	Sometimes, for readability, conformance requirements are
+	phrased as requirements on elements, attributes, methods,
+	interfaces, properties or functions. In all cases these are
+	conformance requirements on implementations.
+      </p>
+      <p>
+        This specification defines two classes of conformance:
+
+      </p>
+      <dl>
+      <dt>conforming implementation</dt>
+      <dd>A conforming implementation of the Window Object specification is one that implements all the interfaces in this specification, and satisfies all other MUST, REQUIRED and SHALL level criteria in all parts of this document other than language binding appendices.</dd>
+
+      <dt>conforming ECMAScript implementation</dt>
+      <dd>A conforming ECMAScript implementation of the <strong>Window Object</strong> specification is a conforming implementation that maps all of the interfaces in this specification to ECMAScript, and satisfies the additional requirements in the <a href="#ecmascript">ECMAScript Language Binding Appendix</a>.</dd>
+      </dl>
+    </section>
+
+  </section>
+
+  <section xml:id='interfaces'>
+    <title>Browsing Contexts</title>
+
+    <section xml:id='overview'>
+      <title>Overview</title>
+    </section>
+
+    <section xml:id='window'>
+      <title>The <em>Window</em> Interface</title>
+
+      <schema>
+        <title></title>
+        <idl><![CDATA[
+// should this interface be called something else - Global, DOMWindow, DOMGlobal?
+// should specify that for ECMAScript execution this provides the global scope
+// based on Mozilla and Safari implementations, Win IE docs, Web Apps 1.0 draft
+// (some also in SVG Tiny 1.2 draft)
+interface Window : views::AbstractView {
+    // AbstractView has a document attribute of type DocumentView, should we drop the
+    // charade and admit it is a Document?
+
+    readonly attribute Location location;
+
+    // window hierarchy
+    readonly attribute Window window;
+    readonly attribute Window self;
+
+    // name attribute of referencing frame/iframe/object, or name passed to 
+    // window.open, does it make sense to spec this without being html-specific 
+    // or defining open?
+    attribute DOMString name;
+
+    // global object of containing document
+    readonly attribute Window parent;
+
+    // global object of outermost containing document
+    readonly attribute Window top;
+
+    // referencing <html:frame>, <html:iframe>, <html:object>, <svg:foreignObject>, 
+    // <svg:animation> or other embedding point, or null if none
+    readonly attribute core::Element frameElement;
+
+    // should timers allow more than long, maybe a floating point type? 
+    // don't think anyone's timers have more precision
+
+    // one-shot timer
+    long setTimeout(in Function function, in long milliseconds);
+    void clearTimeout(in long timerID);
+
+    // repeating timer
+    long setInterval(in Function function, in long milliseconds);
+    void clearInterval(in long intervalID);
+
+};]]></idl>
+      </schema>
+ 
+
+      <p>The <code><a href="#window">Window</a></code> interface has the following members:</p>
+  
+      <dl>
+        <dt><dfn xml:id="attr-location">location</dfn></dt>
+        <dd>An attribute containing a reference to the current Window object's location.</dd>
+
+        <dt><dfn xml:id="attr-window">window</dfn></dt>
+        <dd>An attribute containing a reference to the current Window object, effectively a synonym for the self attribute.</dd>
+
+        <dt><dfn xml:id="attr-self">self</dfn></dt>
+        <dd>An attribute containing a reference to the current Window object, effectively a synonym for the window attribute.</dd>
+
+        <dt><dfn xml:id="attr-parent">parent</dfn></dt>
+        <dd>An attribute containing a reference to Window object that contains this object. <ednote>What behaviour if no parent - null?</ednote></dd>
+
+        <dt><dfn xml:id="attr-top">top</dfn></dt>
+        <dd>An attribute containing a reference to the topmost Window object in the hierarchy that contains this object. <ednote>What behaviour if this is the top - self reference or null?</ednote></dd>
+
+        <dt><dfn xml:id="attr-name">name</dfn></dt>
+        <dd>An attribute containing a unique name used to refer to this Window object.</dd>
+
+        <dt><dfn xml:id="attr-frameElement">frameElement</dfn></dt>
+        <dd><ednote>@@TODO</ednote></dd>
+
+        <dt><dfn xml:id="meth-setTimeout">setTimeout(<var>function</var>, <var>milliseconds</var>)</dfn></dt>
+        <dd>This method calls the function once after a specified number of milliseconds elapses, until canceled by a call to clearTimeout. The methods returns a timerID which may be used in a subsequent call to clearTimeout to cancel the interval.</dd>
+
+        <dt><dfn xml:id="meth-setInterval">setInterval(<var>function</var>, <var>milliseconds</var>)</dfn></dt>
+        <dd>This method calls the function every time a specified number of milliseconds elapses, until canceled by a call to clearInterval. The methods returns an intervalID which may be used in a subsequent call to clearInterval to cancel the interval.</dd>
+
+        <dt><dfn xml:id="meth-clearTimeout">clearTimeout(<var>timerID</var>)</dfn></dt>
+        <dd>Cancels a timeout that was set with the setTimeout method.</dd>
+
+        <dt><dfn xml:id="meth-clearInterval">clearInterval(<var>intervalID</var>)</dfn></dt>
+        <dd>Cancels an interval that was set with the setTimeout method.</dd>
+
+      </dl>
+
+      <section xml:id='window-embedding'>
+        <title><em>Window</em> Interface: embedding</title>
+
+
+        <p>An element that refers to another document that is then embedded is called 
+        a <dfn>referencing element</dfn>. A document such an element points to is 
+        called a <dfn>child document</dfn>. Seen from a child document, the 
+        referencing element is part of a <dfn>parent document</dfn>. When a 
+        document has no referencing element that points to it the document is a 
+        <dfn>root document</dfn>. A document can be both a parent document and 
+        child document at the same time.</p>
+        
+        <p><code>Window.frameElement</code> from a child document must reflect the 
+        referencing element or <code>null</code> if there is no such element. 
+        <code>Window.parent</code> must reflect the parent document Window object 
+        or <code>null</code> if there is no such document. <code>Window.top</code> 
+        MUST reflect the root document Window object. Using 
+        <code>Window.top</code> within the root document makes no difference. 
+        Implementations MAY throw for any of these attributes for security 
+        reasons. Some language specific bindings allow these DOM attributes, even 
+        though readonly, to be set to different values. In such cases UAs reflect 
+        the values set by the script author.</p>
+        
+        <ednote>ISSUE: Because implementations may throw the must should probably be 
+        SHOULD...</ednote>
+        
+        <p><code>Window.name</code> must reflect the name assigned by the referencing 
+        element, the empty string if there is no such element or a value set by 
+        the script author. How this name is extracted from the referencing element 
+        is language specific.</p>
+        
+        <ednote>ISSUE: Perhaps mention that it can be set by Window.open()?</ednote>
+        
+        <p>For example, if you have &lt;object data="<var>file</var>" id="test"/&gt; 
+        in an XHTML document the <code>window.name</code> DOM attribute within 
+        <var>file</var> will be "test".</p>
+
+  
+      </section>
+
+    </section>
+
+    <section xml:id='document-window'>
+      <title>The <em>DocumentWindow</em> Interface</title>
+      <schema>
+      <title></title>
+      <idl>
+interface DocumentWindow : views::DocumentView {
+// the defaultView must be the Window object
+};</idl></schema>
+
+    </section>
+
+  </section>
+
+    <section xml:id='location'>
+      <title>The <em>Location</em> Interface</title>
+    
+      <schema>
+      <title></title>
+      <idl>
+interface Location {
+    attribute DOMString href;
+		
+    // pieces of the URI, per the generic URI syntax
+    attribute DOMString hash; // (fragment)
+    attribute DOMString host; // hostname:port if port specified,
+    attribute DOMString hostname; // just the hostname, no port
+    attribute DOMString pathname;
+    attribute DOMString port;
+    attribute DOMString protocol; // scheme
+    attribute DOMString search;  // query
+
+    void assign(in DOMString url); // go to the requested URL
+    // does it make sense to spec reload and replace without specifying 
+    // history behavior at all?
+    void replace(in DOMString url);
+    void reload();
+
+    // same value as href; not all implementations have this explicitly 
+    // but toString is always available in ECMAScript, and probably this 
+    // should be explicit for the sake of Java. Or we could skip it since
+    // it matches href.
+    DOMString toString();
+};</idl></schema>
+
+
+      <p>The <code><a href="#location">Location</a></code> interface has the following members:</p>
+  
+      <dl>
+        <dt><dfn xml:id="attr-href">href</dfn></dt>
+        <dd>This attribute represents the entire URI described by the Location object</dd>
+
+        <dt><dfn xml:id="attr-hash">hash</dfn></dt>
+        <dd>This attribute represents the anchor name fragment for the URI. The value of this attribute includes the hash mark (#). <ednote>what about non-HTTP?</ednote></dd>
+
+        <dt><dfn xml:id="attr-host">host</dfn></dt>
+        <dd>This attribute represents the network host  of the Location's URI. If the port attribute is not null then the host attribute's value is the concatenation of the hostname attribute, a colon (:)  and the port attribute. If the port attribute is null then the host attribute's value is identical to the hostname attribute.</dd>
+
+        <dt><dfn xml:id="attr-hostname">hostname</dfn></dt>
+        <dd>This attribute represents the name or IP address of the network location without any port number.</dd>
+
+        <dt><dfn xml:id="attr-pathname">pathname</dfn></dt>
+        <dd>This attribute represents the path component of the Location's URI which consists of everything after the host and port up to and excluding the first question mark (?) or hash mark (#).</dd>
+
+        <dt><dfn xml:id="attr-port">port</dfn></dt>
+        <dd>This attribute represents the port number of the network location.</dd>
+
+        <dt><dfn xml:id="attr-protocol">protocol</dfn></dt>
+        <dd>This attribute represents the scheme of the URI including the trailing colon (:)</dd>
+
+        <dt><dfn xml:id="attr-search">search</dfn></dt>
+        <dd>This attribute represents the query portion of a URI. It consists of everything after the pathname up to and excluding the first hash mark (#).</dd>
+
+        <dt><dfn xml:id="meth-replace">replace(<var>url</var>)</dfn></dt>
+        <dd>This function replaces the current history entry with the url specified. <ednote>we haven't specified history - but we need to if we are to support this</ednote></dd>
+
+        <dt><dfn xml:id="meth-reload">reload()</dfn></dt>
+        <dd>This function forces the host application to reload the resource identified by the Location. <ednote>Netscape used to allow a bool argument to force an unconditional GET from the network</ednote></dd>
+
+      </dl>
+
+    </section>
+
+
+    <section xml:id='embeddingelt'>
+      <title>The <em>EmbeddingElement</em> Interface</title>
+      <schema>
+      <title></title>
+      <idl>
+// must be on an object that also implements core::Element
+interface EmbeddingElement {
+    readonly attribute core::Document contentDocument;
+    readonly attribute Window contentWindow;
+};</idl></schema>
+
+    </section>
+
+  <section xml:id='timers'>
+    <title>Timers</title>
+
+    <section xml:id='timerlistener'>
+      <title>The <em>TimerListener</em> Interface</title>
+      <schema>
+      <title></title>
+      <idl>
+// behavior is always special in ECMAScript, this is defined only for the benefit
+// of other languages
+interface TimerListener {
+    // what to put here?
+};</idl></schema>
+    </section>
+
+  </section>
+
+  <section xml:id='security'>
+    <title>Security Consideration</title>
+  </section>
+
+  <section xml:id='idl' type='appendix'>
+    <title>IDL Definitions</title>
+  </section>
+
+
+  <section xml:id='ecmascript' type='appendix'>
+    <title>ECMAScript Language Binding</title>
+
+  </section>
+
+  <section xml:id='acknow' type='appendix'>
+    <title>Acknowledgements</title>
+
+    <p>
+      The WebAPI WG would like to thanks the following people for contributing to this specification:
+    </p>
+  </section>
+
+  <section xml:id='bibref' type='appendix'>
+    <title>References</title>
+
+    <bibliography>
+
+    </bibliography>
+  </section>
+</specification>
