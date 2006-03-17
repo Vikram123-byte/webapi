@@ -52,7 +52,7 @@
         Dino has to fill this in.
       </p>
       <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.22 2006-03-17 11:12:09 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.xml,v 1.23 2006-03-17 11:46:18 avankest Exp $.
       </p>
     </ednote>
   </section>
@@ -128,7 +128,7 @@
             <p>
               An attribute that represents a function that MUST be invoked when
               <code>readyState</code> changes value. The function MAY be called
-              multiple times when readyState is 3 (<code>RECEIVING_STATE</code>).
+              multiple times when readyState is 3 (Receiving).
             </p>
           </attribute>
 
@@ -141,25 +141,25 @@
               object.
             </p>
             <dl>
-              <dt>0</dt>
+              <dt>0 Uninitialised</dt>
               <dd>
                 The initial value.
               </dd>
-              <dt>1</dt>
+              <dt>1 Open</dt>
               <dd>
                 The <code>open()</code> method has been successfully called.
               </dd>
-              <dt>2</dt>
+              <dt>2 Sent</dt>
               <dd>
                 The <code>send()</code> method has been successfully called,
                 but no data has yet been received.
               </dd>
-              <dt>3</dt>
+              <dt>3 Receiving</dt>
               <dd>
                 Data is being received, but the data transfer is not yet
                 complete.
               </dd>
-              <dt>4</dt>
+              <dt>4 Loaded</dt>
               <dd>
                 The data transfer has been completed.
               </dd>
@@ -318,9 +318,9 @@
             <p>
               If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code> attribute
               has a value other than
-              1 (<code>OPEN_STATE</code>), an exception MUST be raised. Otherwise, the
+              1 (Open), an exception MUST be raised. Otherwise, the
               <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-              attribute MUST be set to 2 (<code>SENT_STATE</code>) and
+              attribute MUST be set to 2 (Sent) and
               a request to <var>uri</var> using method <var>method</var>, authenticating using
               <var>user</var> and
               <var>password</var> as appropriate is sent. If the <var>async</var> flag is set
@@ -363,9 +363,9 @@
               Once the final HTTP status line has been received, the
               <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
               attribute SHOULD be set to to 3
-              (<code>RECEIVING_STATE</code>). When the request has completed loading, the
+              (Receiving). When the request has completed loading, the
               <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-              attribute SHOULD be set to 4 (<code>LOADED_STATE</code>).
+              attribute SHOULD be set to 4 (Loaded).
               <!-- why not MUST? -->
             </p>
             <param name='data' type='Document | DOMString'>
@@ -388,7 +388,7 @@
               Calling this method MUST cancel any network activity for which the object is
               responsible. In addition, UAs MUST then set
               <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-              to 4 (<code>LOADED_STATE</code>), call the function defined in <code>onreadystatechange</code>
+              to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
               and reset the object.
             </p>
           </method>
@@ -399,7 +399,7 @@
             <p>
               If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
               attribute has a value other than
-              3 (<code>RECEIVING_STATE</code>) or 4 (<code>LOADED_STATE</code>), it MUST be null.
+              3 (Receiving) or 4 (Loaded), it MUST be null.
               Otherwise, it MUST represent all the HTTP
               headers, as a single string, with each header line separated by a
               CR (U+000D) LF (U+000A) pair. The status line MUST not be included.
@@ -436,7 +436,7 @@
             <p>
               If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
               attribute has a value other than
-              3 (<code>RECEIVING_STATE</code>) or 4 (<code>LOADED_STATE</code>), it MUST be the empty string.
+              3 (Receiving) or 4 (Loaded), it MUST be the empty string.
               Otherwise, it MUST represent
               the value of the given HTTP header in the data received so far for the
               last request sent, as a single string. If more than one header of the
@@ -483,7 +483,7 @@
             <p>
               If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code> attribute has
               a value other than
-              3 (<code>REPLACEMENT</code>) or 4 <code>LOADED_STATE</code>), it MUST be the empty string.
+              3 (Receiving) or 4 (Loaded), it MUST be the empty string.
               Otherwise, returns
               the body of the data received so far, interpreted using the character
               encoding specified in the response, or UTF-8 if no character encoding was
@@ -504,7 +504,7 @@
             <p>
               If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
               attribute has a value other than
-              4 (<code>LOADED_STATE</code>), it MUST be <code>null</code>.
+              4 (Loaded), it MUST be <code>null</code>.
               Otherwise, if the <code>Content-Type</code>
               header is either <code>text/xml</code>, <code>application/xml</code>, or
               ends in <code>+xml</code>, it MUST be an object that implements the Document
@@ -526,7 +526,7 @@
             <p>
               If the <code>status</code> attribute is not available it MUST raise an
               exception. It MUST be available when <code>readyState</code> is
-              3 (<code>REPLACEMENT</code>) or 4 <code>LOADED_STATE</code>).
+              3 (Receiving) or 4 (Loaded).
               When available, it MUST represent the HTTP status
               code (typically 200 for a successful connection).
             </p>
@@ -543,7 +543,7 @@
             <p>
               If the <code>statusText</code> attribute is not available it MUST raise an
               exception. It MUST be available when <code>readyState</code> is
-              3 (<code>REPLACEMENT</code>) or 4 <code>LOADED_STATE</code>).
+              3 (Receiving) or 4 (Loaded).
               When available, it MUST represent the HTTP status text
               sent by the server (appears after the status code).
             </p>
