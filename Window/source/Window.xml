@@ -8,6 +8,12 @@
     <date year='2006' month='03' day='12'/>
     <editors>
       <person>
+        <name>Ian Davis</name>
+        <email>ian.davis@talis.com</email>
+        <company>Talis Information Ltd.</company>
+        <company-url>http://www.talis.com/</company-url>
+      </person>
+      <person>
         <name>Maciej Stachowiak</name>
         <email>mjs@apple.com</email>
         <company>Apple Computer, Inc.</company>
@@ -15,8 +21,8 @@
       </person>
     </editors>
     <versions>
-<!--      <current>http://www.w3.org/TR/2006/ED-window-20060219</current>
-      <latest>http://www.w3.org/TR/window</latest> -->
+      <current>http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html</current>
+      <latest>http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html</latest>
     </versions>
   </metadata>
 
@@ -155,54 +161,183 @@
 
       </p>
       <dl>
-      <dt>conforming implementation</dt>
-      <dd>A conforming implementation of the Window Object specification is one that implements all the interfaces in this specification, and satisfies all other MUST, REQUIRED and SHALL level criteria in all parts of this document other than language binding appendices.</dd>
+        <dt>conforming implementation</dt>
 
-      <dt>conforming ECMAScript implementation</dt>
-      <dd>A conforming ECMAScript implementation of the <strong>Window Object</strong> specification is a conforming implementation that maps all of the interfaces in this specification to ECMAScript, and satisfies the additional requirements in the <a href="#ecmascript">ECMAScript Language Binding Appendix</a>.</dd>
+        <dd>
+          A conforming implementation of the Window Object
+	  specification is one that implements all the interfaces in
+	  this specification, and satisfies all other MUST, REQUIRED
+	  and SHALL level criteria in all parts of this document other
+	  than language binding appendices.
+	</dd>
+
+        <dt>conforming ECMAScript implementation</dt>
+      
+        <dd>
+	  A conforming ECMAScript implementation of the <strong>Window
+          Object</strong> specification is a conforming implementation
+          that maps all of the interfaces in this specification to
+          ECMAScript<ednote>needs bibliography reference</ednote>, and
+          satisfies the additional requirements in the <a
+          href="#ecmascript">ECMAScript Language Binding Appendix</a>.
+        </dd> 
       </dl>
+
     </section>
 
   </section>
 
-  <section xml:id='interfaces'>
+  <section xml:id='browsing'>
     <title>Browsing Contexts</title>
 
-    <section xml:id='overview'>
-      <title>Overview</title>
-    </section>
+    <p>A <strong>browsing context</strong> is a place where a user agent
+    presents a document or a sequence of documents to the user, using
+    one or more views. Only one document of this sequence is presented
+    at a time. A browsing context is said to <strong>navigate</strong> when it
+    changes from presenting one document to another, for example by
+    following a hyperlink.</p>
+
+    <p>An visual user agent typically presents a document by rendering
+    it to a display. However, even non-visual agents could have a
+    browsing context. For example, a voice browser also presents
+    documents to the user. This also establishes a browsing
+    context.</p>
+
+    <p>A document that implements the DOM Core <code>Document</code>
+    interface and is presented in a browsing context interface MUST
+    also implement the <code>DocumentWindow</code> interface.</p>
+
+    <p>Each view of a <code>Document</code> presented in a browsing
+    context MUST be represented by an object that implements the
+    <code>Window</code> interface. One of these is the <strong>default
+    view</strong>. The default view is typically the primary mode of
+    presentation to the user, and in interactive user agents, the
+    primary means of interaction for the user. <ednote>Are there any
+    UAs out there that implement AbstractViews and actually have
+    multiple views? In this case do all the views implement the Window
+    interface, or only the primary view? Maybe we shouldn't specify
+    too much about multiple views unless we can find actual
+    implementations of this.</ednote></p>
+
+    <p>An object that implements the <code>Window</code> interface is
+    referred to as a <strong><code>Window</code>
+    object</strong>. Note: despite the name, a <code>Window</code>
+    object does not necessarily represent an onscreen overlapping
+    window, even in visual user agents.</p>
+
+    <p>A document presented in a browsing context may have elements
+    that embed additional documents, forming a Compound Document by
+    Reference. Such elements create nested browsing contexts. This
+    mechanism is described in <a href="#embedding">Embedding: Compound
+    Documents by Reference</a>.</p>
+
+    <p>When a DOM Events<ednote>needs cross reference</ednote>
+    <code>UIEvent</code> is dispatched on any node in a
+    <code>Document</code> presented in a browsing context, the value
+    of the <code>view</code> attribute of the event MUST be the
+    <code>Window</code> object where the user originated the
+    event. <ednote>Should we specify how the Window is actually part
+    of the capture and bubble phases of DOM event dispatch? Should we
+    specify anything about events at all? Maybe all event
+    considerations should be deferred to a future Window Events
+    spec. And the particular requirement on UIEvent here appears to
+    duplicate what DOM Level 2 Views already says.</ednote></p>
 
     <section xml:id='window'>
-      <title>The <em>Window</em> Interface</title>
+      <title>The <em>Window</em> Interface, basic attributes</title>
+
+      <p>To better organize this specification, the <code>Window</code>
+      interface is presented in mulitple IDL fragments. The full
+      normative IDL interface is presented in the <a href="#idl">IDL
+      Definitions Appendix</a>. This fragment defines only the most basic
+      methods and attributes of the <code>Window</code> interface.</p>
+
+      <p>The <code>Window</code> interface inherits from the DOM Level
+      2 Views <ednote>need cross reference</ednote>
+      <code>AbstractView</code> interface.</p>
 
       <schema>
       <title></title>
       <idl><![CDATA[
-// should this interface be called something else - Global, DOMWindow, DOMGlobal?
-// should specify that for ECMAScript execution this provides the global scope
-// based on Mozilla and Safari implementations, Win IE docs, Web Apps 1.0 draft
-// (some also in SVG Tiny 1.2 draft)
+
 interface Window : views::AbstractView {
-    // AbstractView has a document attribute of type DocumentView, should we drop the
-    // charade and admit it is a Document?
+    // ...
 
-    // self-reference
+    // self-references
     readonly attribute Window window;
-
-    // self-reference - why both? because both are used
     readonly attribute Window self;
+
+    // ...
 };]]></idl></schema>
+
+      <p>The value of the <code>document</code> property inherited by
+      <code>Window</code> objects from the <code>AbstractView</code>
+      interface MUST be the document for which the <code>Window</code>
+      is a view. In addition to the <code>DocumentView</code>
+      interface, the document MUST implement the <code>Document</code>
+      and <code>DocumentWindow</code> interfaces.</p>
+
+      <section>
+       <title>Attributes</title>
+
+      <dl>
+        <dt><dfn xml:id="attr-window"><code>window</code></dfn></dt>
+        <dd>This attribtue MUST be a reference to the same
+        <code>Window</code> object that has the attribute (a
+        self-reference).</dd>
+
+        <dt><dfn xml:id="attr-self"><code>self</code></dfn></dt>
+        <dd>This attribtue MUST be a reference to the same
+        <code>Window</code> object that has the attribute (a
+        self-reference). Consequently, it also MUST be a reference to
+        the same object as the <code>window</code> attribute.</dd>
+      </dl>
+      </section>
+
+      <section>
+      <title>Use in scripting</title>
+      <p>The <code>Window</code> object also has a special role as the
+      global scope for scripts in the document in languages such as
+      ECMAScript <ednote>needs cross reference</ednote>. Such use is
+      specified by individual language bindings. For ECMAScript it is
+      specified in the <a href="#ecmascript">ECMAScript Language Binding
+      Appendix</a>.</p>
+      </section>
 
     </section>
 
     <section xml:id='document-window'>
-      <title>The <em>DocumentWindow</em> Interface</title>
+      <title>The <em>DocumentWindow</em> Interface, basic attributes</title>
+
+      <p>To better organize this specification, the
+      <code>DocumentWindow</code> interface is presented in mulitple
+      IDL fragments. The full normative IDL interface is presented in
+      the <a href="#idl">IDL Definitions Appendix</a>. This fragment
+      defines only the most basic methods and attributes of the
+      <code>Window</code> interface.</p>
+
       <schema>
       <title></title>
       <idl>
+
 interface DocumentWindow : views::DocumentView {
-// the defaultView must be the Window object
+    // ...
 };</idl></schema>
+
+      <p>The value of the <code>defaultView</code> property inherited
+      by objects that implement the <code>DocumentWindow</code>
+      interfacefrom the <code>AbstractView</code> interface MUST be
+      the default view for the browsing context presenting the
+      document, if any. In addition to the <code>AbstractView</code>
+      interface, the default view MUST implement the
+      <code>Window</code> interface. For documents not being presented
+      in a browsing context, the value of the <code>defaultView</code>
+      attribute MUST be null. <ednote>Is this reasonably testable?
+      There are ways (XMLHttpRequest, DOM 3 L&amp;S, xml data islands,
+      DOMParser) in browser-like UAs to have a document that's not
+      being presented in a browsing context, but how to test this?
+      Maybe the spec just shouldn't say anything about documents not
+      presented in a browsing context.</ednote></p>
 
     </section>
 
@@ -357,7 +492,7 @@ interface TimerListener {
   </section>
 
   <section xml:id='security'>
-    <title>Security Consideration</title>
+    <title>Security Considerations</title>
   </section>
 
   <section xml:id='idl' type='appendix'>
@@ -372,10 +507,18 @@ interface TimerListener {
 
   <section xml:id='acknow' type='appendix'>
     <title>Acknowledgements</title>
-
+    
     <p>
       The WebAPI WG would like to thanks the following people for contributing to this specification:
     </p>
+
+    <p>
+      Special thanks to Ian Hickson for making the first attempt to
+      standardize the Window object in Web Apps 1.0, drafts of which
+      heavily influenced this document. In particular, he coined the
+      term "browsing context".
+    </p>
+
   </section>
 
   <section xml:id='bibref' type='appendix'>
