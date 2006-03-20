@@ -12,7 +12,7 @@ function printTestPassed(prefix, message)
 {
     var console = document.getElementById("console");
     var span = document.createElement("span");
-    span.setAttribute("class", "pass");
+    span.className = "pass";
     span.appendChild(document.createTextNode(prefix));
     console.appendChild(span);
     console.appendChild(document.createTextNode(" " + message));
@@ -23,7 +23,7 @@ function printTestFailed(prefix, message)
 {
     var console = document.getElementById("console");
     var span = document.createElement("span");
-    span.setAttribute("class", "fail");
+    span.className = "fail";
     span.appendChild(document.createTextNode(prefix));
     console.appendChild(span);
     console.appendChild(document.createTextNode(" " + message));
