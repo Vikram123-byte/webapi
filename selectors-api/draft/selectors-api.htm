@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en-US">
+ <head>
+  <title>Selectors API</title>
+  <style type="text/css">
+   html { margin:1em; max-width:45em; font:1em/1.5 Arial, sans-serif }
+   .ct { font-style:normal; font-weight:normal; font-variant:small-caps }
+   .example { margin-left:2em }
+  </style>
+ </head>
+ <body>
+  <h1>Selectors API</h1>
+  <dl>
+   <dt>Editor</dt>
+   <dd>Anne van Kesteren, Opera Software ASA</dd>
+  </dl>
+  <h2>Conformance requirements</h2>
+  <p>As well as sections marked as non-normative, all diagrams, examples, and
+   notes in this specification are non-normative. Everything else in this
+   specification is normative.</p>
+  <p>The key words <em class="ct">must</em>, <em class="ct">must
+   not</em>, <em class="ct">required</em>, <em class="ct">shall</em>,
+   <em class="ct">shall not</em>, <em class="ct">should</em>,
+   <em class="ct">should not</em>, <em class="ct">recommended</em>,
+   <em class="ct">may</em>, and <em class="ct">optional</em> in the normative
+   parts of this document are to be interpreted as described in [RFC2119].</p>
+  <h2>The <code>DocumentSelector</code> interface</h2>
+  <p>Objects implementing the <code>Document</code> interface defined in DOM
+   Level 3 Core <em class="ct">must</em> also implement the
+   <code>DocumentSelector</code> interface [DOM3Core].</p>
+  <pre class="idl">interface DocumentSelector {
+  Node            match(in DOMString <var>selector</var>, in XPathNSResolver <var>nsresolver</var>);
+  StaticNodeList  matchAll(in DOMString <var>selector</var>, in XPathNSResolver <var>nsresolver</var>);
+};</pre>
+  <p>The <dfn><code>match</code></dfn> method, when invoked,
+   <em class="ct">must</em> return the first <code>Element</code> that matches
+   the group of selectors (<var>selector</var>), if any. Otherwise it
+   <em class="ct">must</em>return <code>null</code>.</p>
+  <p>The <dfn><code>matchAll</code></dfn> method, when invoked,
+   <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
+   <code>Element</code>s that match the group of selectors (<var>selector</var>)
+   in document order [DOM3CORE].</p>
+  <p>Both <code>match</code> and <code>matchAll</code> take a group of selectors
+   (<var>selector</var>) as defined in [Selectors] as first argument and an
+   <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. As described
+   in the [DOM3XPath] specification applications have to construct an object
+   implementing the <code>XPathNSResolver</code> interface themselves. In
+   ECMAScript bindings a special <code>Function</code> can be passed as argument
+   instead. How namespace prefixes within <var>selector</var> using
+   <var>nsresolver</var> are resolved is defined in [DOM3XPath].</p>
+  <p>If the given selector <var>selector</var> is an invalid selector or
+   contains a pseudo-element the UA <em class="ct">must</em> raise a
+   <code>SYNTAX_ERR</code> exception [Selectors]. If the given selector
+   <var>selector</var> uses namespace prefixes and the prefix can not be
+   resolved using the <var>nsresolver</var> argument the UA
+   <em class="ct">must</em> raise a <code>NAMESPACE_ERR</code> exception.</p>
+  <p>In ECMAScript bindings the <var>nsresolver</var> argument
+   <em class="ct">must</em> be an optional argument.</p>
+  <div class="example">
+   <p>Something like this would be possible in ECMAScript:</p>
+   <pre>function NSResolver(prefix){
+ if("xh" == prefix)
+  return "http://www.w3.org/1999/xhtml";
+ else if("svg" == prefix)
+  return "http://www.w3.org/2000/svg";
+ else // ouch!
+  return null;
+}
+var x = document.matchAll("xh|div > svg|svg", NSResolver);
+var y = document.match("div.foo.bar");</pre>
+   <p>Cool!</p>
+  </div>
+  <h2>The <code>StaticNodeList</code> interface</h2>
+  <pre class="idl">interface StaticNodeList {
+  Node               item(in unsigned long index);
+  readonly attribute unsigned long   length;
+};</pre>
+  <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
+   identically to the <code>NodeList</code> interface as defined in DOM Level 3
+   Core with the exception that the interface, as the name suggests, is static
+   and not live [DOM3CORE].</p>
+ </body>
+</html>
