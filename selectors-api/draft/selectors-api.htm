@@ -29,30 +29,31 @@
    Level 3 Core <em class="ct">must</em> also implement the
    <code>DocumentSelector</code> interface [DOM3Core].</p>
   <pre class="idl">interface DocumentSelector {
-  Node            match(in DOMString <var>selector</var>, in XPathNSResolver <var>nsresolver</var>);
-  StaticNodeList  matchAll(in DOMString <var>selector</var>, in XPathNSResolver <var>nsresolver</var>);
+  Node            match(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
+  StaticNodeList  matchAll(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
 };</pre>
   <p>The <dfn><code>match</code></dfn> method, when invoked,
    <em class="ct">must</em> return the first <code>Element</code> that matches
-   the group of selectors (<var>selector</var>), if any. Otherwise it
-   <em class="ct">must</em>return <code>null</code>.</p>
+   the group of selectors (<var>selectors</var>), if any. Otherwise it
+   <em class="ct">must</em> return <code>null</code>.</p>
   <p>The <dfn><code>matchAll</code></dfn> method, when invoked,
    <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
-   <code>Element</code>s that match the group of selectors (<var>selector</var>)
-   in document order [DOM3CORE].</p>
+   <code>Element</code>s that match the group of selectors
+   (<var>selectors</var>) in document order, if any [DOM3CORE]. Otherwise it
+   <em class="ct">must</em> return <code>null</code>.</p>
   <p>Both <code>match</code> and <code>matchAll</code> take a group of selectors
-   (<var>selector</var>) as defined in [Selectors] as first argument and an
+   (<var>selectors</var>) as defined in [Selectors] as first argument and an
    <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. As described
    in the [DOM3XPath] specification applications have to construct an object
    implementing the <code>XPathNSResolver</code> interface themselves. In
    ECMAScript bindings a special <code>Function</code> can be passed as argument
-   instead. How namespace prefixes within <var>selector</var> using
+   instead. How namespace prefixes within <var>selectors</var> using
    <var>nsresolver</var> are resolved is defined in [DOM3XPath].</p>
-  <p>If the given selector <var>selector</var> is an invalid selector or
+  <p>If the given selector <var>selectors</var> is an invalid selector or
    contains a pseudo-element the UA <em class="ct">must</em> raise a
-   <code>SYNTAX_ERR</code> exception [Selectors]. If the given selector
-   <var>selector</var> uses namespace prefixes and the prefix can not be
-   resolved using the <var>nsresolver</var> argument the UA
+   <code>SYNTAX_ERR</code> exception [Selectors]. If the given group of
+   selectors (<var>selectors</var>) uses namespace prefixes and the prefix can
+   not be resolved using the <var>nsresolver</var> argument the UA
    <em class="ct">must</em> raise a <code>NAMESPACE_ERR</code> exception.</p>
   <p>In ECMAScript bindings the <var>nsresolver</var> argument in both
    <code>match</code> and <code>matchAll</code> <em class="ct">must</em> be an
@@ -86,6 +87,7 @@ var y = document.match("div.foo.bar");</pre>
    <li>Jonas Sicking</li>
    <li>Lachlan Hunt</li>
    <li>Maciej Stachowiak</li>
+   <li>Mohamed Zergaoui</li>
   </ul>
  </body>
 </html>
