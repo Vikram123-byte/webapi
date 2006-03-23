@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+
+use ReTest;
+use strict;
+
+if (scalar @ARGV != 2) {
+    die("Usage: retest sourcedir publishdir");
+}
+
+my $testDir = $ARGV[0];
+my $publishDir = $ARGV[1];
+
+my @files = `(cd "$testDir"; find . -name "*.js")`;
+
+my @templates = ("TEMPLATE.html", "TEMPLATE.xhtml", "TEMPLATE.svg");
+my %templateSuffix;
+my %templateContents;
+
+for my $templateFile (@templates) {
+    {
+	local($/);
+	open(TEMPLATE, "<" . ReTest::resourcePath($templateFile));
+	$templateContents{$templateFile} = <TEMPLATE>;
+	$templateSuffix{$templateFile} = $templateFile;
+	$templateSuffix{$templateFile} =~ s:^[^.]*\.::;
+	close TEMPLATE;
+	
+	my @matches = $templateContents{$templateFile} =~ m:"\@SHARED_RESOURCE_DIR\@/([^"]*)":g;
+        for my $match (@matches) {
+            my $resourceInLib = ReTest::resourcePath($match);
+            my $publishedResource = "${publishDir}/shared/$match";
+            open(LIB, "<$resourceInLib");
+            open(PUBLISH, ">$publishedResource");
+            print PUBLISH <LIB>;
+            close LIB;
+            close PUBLISH;
+        }
+    }
+}
+
+print "Generating tests...\n";
+
+sub cleanupPath($) {
+    my ($path) = @_;
+    $path =~ s://:/:g;
+    return $path;
+}
+
+for my $scriptFile (@files) {
+    chomp $scriptFile;
+    $scriptFile =~ s:\./::;
+
+    my $scriptBase = $scriptFile;
+    $scriptBase =~ s:^([^/]*/)*::;
+    $scriptBase =~ s:\.js::;
+    my $scriptDir = $scriptFile;
+    $scriptDir =~ s:^(([^/]*/)*).*$:$1:;
+    my $publishScriptDir = "${publishDir}/shared/${scriptDir}";
+
+    `mkdir -p "$publishScriptDir"`;
+
+    my $scriptOriginal = "${testDir}/${scriptFile}";
+    my $scriptCopy = "${publishScriptDir}/${scriptBase}.js";
+
+    open(SCRIPT, "<$scriptOriginal");
+    open(COPY, ">$scriptCopy");
+
+    while (<SCRIPT>) {
+	print COPY;
+    }
+    print COPY "var successfullyParsed = true;";
+
+    close SCRIPT;
+    close COPY;
+
+    for my $templateFile (@templates) {
+	my $template = $templateContents{$templateFile};
+	my $suffix = $templateSuffix{$templateFile};
+
+	my $wrapperBaseDir = "$publishDir/$suffix/";
+	my $wrapperDir = "$wrapperBaseDir$scriptDir";
+
+	`mkdir -p "$wrapperBaseDir"`;
+	`mkdir -p "$wrapperDir"`;
+	
+	my $wrapperFile = "${wrapperDir}/${scriptBase}.${suffix}";
+        
+	print "    " . cleanupPath(${wrapperFile}) . "\n";
+	open WRAPPER, ">$wrapperFile";
+	my $output = $template;
+        my $substPath = cleanupPath("${scriptDir}/${scriptBase}.js");
+        my $dots = "../" x scalar(split /\//, $substPath);
+        my $sharedResourceDir = "${dots}shared";
+
+	$output =~ s:\@SHARED_RESOURCE_DIR\@:$sharedResourceDir:g;
+	$output =~ s:\@YOUR_JS_FILE_HERE\@:$sharedResourceDir/$substPath:;
+        print WRAPPER $output;
+        close WRAPPER;
+    }
+}
