@@ -13,7 +13,7 @@ description(
 
 shouldNotThrow("document");
 shouldBeFalse("typeof document == 'undefined'");
-shouldBeFalse("typeof document == 'null'");
+shouldBeFalse("document === null");
 
 // how to test the window is *a* view for this document? At best we
 // can check it is the default view but this is already tested in the
@@ -27,10 +27,10 @@ shouldBeFalse("typeof document == 'null'");
 
 shouldNotThrow("document.getElementById");
 shouldBeFalse("typeof document.getElementById == 'undefined'");
-shouldBeFalse("typeof document.getElementById == 'null'");
+shouldBeFalse("document.getElementById === null");
 shouldNotThrow("document.documentElement");
 shouldBeFalse("typeof document.documentElement == 'undefined'");
-shouldBeFalse("typeof document.documentElement == 'null'");
+shouldBeFalse("document.documentElement === null");
 
 // When a DOM Events UIEvent is dispatched on any node in a Document
 // presented in a browsing context, the value of the view attribute of

@@ -14,7 +14,7 @@ shouldBeFalse("typeof document.defaultView == 'undefined'");
 // interface MUST be the default view for the browsing context
 // presenting the document, if any. 
 
-shouldBeFalse("typeof document.defaultView == 'null'");
+shouldBeFalse("document.defaultView === null");
 shouldBeTrue("document.defaultView == window");
 shouldBe("document.defaultView", "window");
 

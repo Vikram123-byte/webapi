@@ -10,7 +10,7 @@ description(
 
 shouldNotThrow("self");
 shouldBeFalse("typeof self == 'undefined'");
-shouldBeFalse("typeof self == 'null'");
+shouldBeFalse("self === null");
 
 // The self attribute MUST be a reference to the same Window object that
 // has the attribute (a self-reference).
