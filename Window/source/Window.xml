@@ -5,7 +5,7 @@
   <metadata>
     <title>Window Object 1.0</title>
     <styling type='W3C' status='ED'/>
-    <date year='2006' month='03' day='12'/>
+    <date year='2006' month='03' day='24'/>
     <editors>
       <person>
         <name>Ian Davis</name>
@@ -157,12 +157,11 @@
 	conformance requirements on implementations.
       </p>
       <p>
-        This specification defines two classes of conformance:
+        This specification defines three classes of conformance:
 
       </p>
       <dl>
         <dt>conforming implementation</dt>
-
         <dd>
           A conforming implementation of the Window Object
 	  specification is one that implements all the interfaces in
@@ -172,15 +171,24 @@
 	</dd>
 
         <dt>conforming ECMAScript implementation</dt>
-      
         <dd>
 	  A conforming ECMAScript implementation of the <strong>Window
           Object</strong> specification is a conforming implementation
           that maps all of the interfaces in this specification to
-          ECMAScript<ednote>needs bibliography reference</ednote>, and
+          ECMAScript [ECMAScript], and
           satisfies the additional requirements in the <a
           href="#ecmascript">ECMAScript Language Binding Appendix</a>.
         </dd> 
+
+        <dt>conforming Java implementation</dt>
+        <dd>
+	  A conforming Java implementation of the <strong>Window
+          Object</strong> specification is a conforming implementation
+          that maps all of the interfaces in this specification to
+          Java [Java], and satisfies the additional requirements in the <a
+          href="#java">Java Language Binding Appendix</a>.
+        </dd> 
+    
       </dl>
 
     </section>
@@ -231,20 +239,19 @@
     mechanism is described in <a href="#embedding">Embedding: Compound
     Documents by Reference</a>.</p>
 
-    <p>When a DOM Events<ednote>needs cross reference</ednote>
-    <code>UIEvent</code> is dispatched on any node in a
-    <code>Document</code> presented in a browsing context, the value
-    of the <code>view</code> attribute of the event MUST be the
-    <code>Window</code> object where the user originated the
-    event. <ednote>Should we specify how the Window is actually part
-    of the capture and bubble phases of DOM event dispatch? Should we
-    specify anything about events at all? Maybe all event
+    <p>When a DOM Events [DOM3EV] <code>UIEvent</code> is dispatched
+    on any node in a <code>Document</code> presented in a browsing
+    context, the value of the <code>view</code> attribute of the event
+    MUST be the <code>Window</code> object where the user originated
+    the event. <ednote>Should we specify how the Window is actually
+    part of the capture and bubble phases of DOM event dispatch?
+    Should we specify anything about events at all? Maybe all event
     considerations should be deferred to a future Window Events
     spec. And the particular requirement on UIEvent here appears to
     duplicate what DOM Level 2 Views already says.</ednote></p>
 
     <section xml:id='window'>
-      <title>The <em>Window</em> Interface, basic attributes</title>
+      <title>The <em>Window</em> Interface, Basic Attributes</title>
 
       <p>To better organize this specification, the <code>Window</code>
       interface is presented in mulitple IDL fragments. The full
@@ -253,8 +260,11 @@
       methods and attributes of the <code>Window</code> interface.</p>
 
       <p>The <code>Window</code> interface inherits from the DOM Level
-      2 Views <ednote>need cross reference</ednote>
-      <code>AbstractView</code> interface.</p>
+      2 Views [DOM2VIEWS] <code>AbstractView</code> interface.</p>
+
+      <ednote>Should we give a requirement or explanatory note here that
+      if you implement CSSOM then the Window and ViewCSS interfaces should
+      be implemented by the same object?</ednote>
 
       <schema>
       <title></title>
@@ -277,39 +287,42 @@ interface Window : views::AbstractView {
       interface, the document MUST implement the <code>Document</code>
       and <code>DocumentWindow</code> interfaces.</p>
 
-      <section>
+      <section xml:id="window-basic-attributes">
         <title>Attributes</title>
        
         <p><code>Window</code> objects MUST implement the following attributes:</p>
 
       <dl>
-        <dt><dfn xml:id="attr-window"><code>window</code></dfn></dt>
-        <dd>The <code>window</code> attribute MUST be a reference to the same
-        <code>Window</code> object that has the attribute (a
-        self-reference).</dd>
+        <dt><dfn xml:id="attr-window">window</dfn></dt>
+        <dd>The value of the <code>window</code> attribute MUST be the same
+        <code>Window</code> object that has the attribute (a self-reference).</dd>
 
-        <dt><dfn xml:id="attr-self"><code>self</code></dfn></dt>
-        <dd>This <code>self</code> attribute MUST be a reference to the same
+        <dt><dfn xml:id="attr-self">self</dfn></dt>
+        <dd>The value of the <code>self</code> attribute MUST be to the same
         <code>Window</code> object that has the attribute (a
-        self-reference). Consequently, it also MUST be a reference to
-        the same object as the <code>window</code> attribute.</dd>
+        self-reference). Consequently, it MUST have the same value
+        as the <code>window</code> attribute.</dd>
       </dl>
       </section>
 
-      <section>
+      <section xml:id="window-basic-scripting">
       <title>Use in scripting</title>
-      <p>The <code>Window</code> object also has a special role as the
-      global scope for scripts in the document in languages such as
-      ECMAScript <ednote>needs cross reference</ednote>. Such use is
-      specified by individual language bindings. For ECMAScript it is
-      specified in the <a href="#ecmascript">ECMAScript Language Binding
-      Appendix</a>.</p>
+
+      <p>
+        The <code>Window</code> object also has a special role as the
+        global scope for scripts in the document in languages such as
+        ECMAScript [ECMAScript]. Such use is specified by individual
+        language bindings. For ECMAScript it is specified in the <a
+        href="#ecmascript">ECMAScript Language Binding
+        Appendix</a>.
+      </p>
+
       </section>
 
     </section>
 
     <section xml:id='document-window'>
-      <title>The <em>DocumentWindow</em> Interface, basic attributes</title>
+      <title>The <em>DocumentWindow</em> Interface, Basic Attributes</title>
 
       <p>To better organize this specification, the
       <code>DocumentWindow</code> interface is presented in mulitple
@@ -317,6 +330,9 @@ interface Window : views::AbstractView {
       the <a href="#idl">IDL Definitions Appendix</a>. This fragment
       defines only the most basic methods and attributes of the
       <code>Window</code> interface.</p>
+
+    <ednote>Should we also specify the parentWindow property? It is effectively
+    a synonym for defaultView but implemented by a different set of UAs.</ednote>
 
       <schema>
       <title></title>
@@ -346,67 +362,219 @@ interface DocumentWindow : views::DocumentView {
   </section>
 
   <section xml:id='navigation'>
+    <ednote>Need prose description for this section, including
+    definition of terms, etc.</ednote>
+
     <title>Navigation</title>
 
     <section xml:id='window-location'>
-      <title>The <em>WindowLocation</em> Interface</title>
+      <title>The <em>Window</em> Interface, Location Attributes</title>
 
       <schema>
       <title></title>
       <idl><![CDATA[
-interface WindowLocation {
-    // Location object representing the current location
+
+interface Window : views::AbstractView {
+    // ...
+
     // assigning this has special behavior in ECMAScript, but it is otherwise 
     // read only. specifically, in ES a string URI can be assigned to location, 
     // having the same effect as location.assign(URI)
     readonly attribute Location location;
+
+    // ...
 };]]></idl></schema>
+
+      <section xml:id="window-location-attributes">
+        <title>Attributes</title>
+       
+        <p><code>Window</code> objects MUST implement the following attributes:</p>
+
+    <dl>
+        <dt><dfn xml:id="attr-location">location</dfn></dt>
+        <dd>
+          The value of the location attribute MUST be the Location
+          object that represents the window's current
+          location. <ednote>Need to define the term "current location"
+          in prose.</ednote>
+        </dd>
+    </dl>
+
+    </section>
 
     </section>
 
     <section xml:id='document-location'>
-      <title>The <em>DocumentLocation</em> Interface</title>
+      <title>The <em>DocumentWindow</em> Interface, Location Attributes</title>
       <schema>
       <title></title>
       <idl>
-interface DocumentLocation {
-    // must be same object as window.location
+
+interface DocumentWindow  : views::DocumentView {
+    // ...
     // same special JS assignment as window.location
     readonly attribute Location location;
+    // ...
 };</idl></schema>
+
+      <section xml:id="document-location-attributes">
+        <title>Attributes</title>
+
+    <p><code>DocumentWindow</code> objects MUST implement the following attributes:</p>
+
+    <dl>
+        <dt><dfn xml:id="attr-doc-location">location</dfn></dt>
+        <dd>The value of the location attribute MUST be a Location
+        object that represents the DocumentWindow's current
+        location. The value MUST be the same as the Location for all
+        views of the document. <ednote>Need to define the term
+        "current location" in prose.</ednote></dd>
+    </dl>
+
+    </section>
 
     </section>
 
     <section xml:id='location'>
       <title>The <em>Location</em> Interface</title>
     
+    <ednote>Should all the instances of DOMString be core::DOMString?</ednote>
       <schema>
       <title></title>
       <idl>
+
 interface Location {
     attribute DOMString href;
 		
     // pieces of the URI, per the generic URI syntax
-    attribute DOMString hash; // (fragment)
-    attribute DOMString host; // hostname:port if port specified,
-    attribute DOMString hostname; // just the hostname, no port
+    attribute DOMString hash;
+    attribute DOMString host;
+    attribute DOMString hostname;
     attribute DOMString pathname;
     attribute DOMString port;
-    attribute DOMString protocol; // scheme
-    attribute DOMString search;  // query
+    attribute DOMString protocol;
+    attribute DOMString search;
 
-    void assign(in DOMString url); // go to the requested URL
-    // does it make sense to spec reload and replace without specifying 
-    // history behavior at all?
+    void assign(in DOMString url);
     void replace(in DOMString url);
     void reload();
 
-    // same value as href; not all implementations have this explicitly 
-    // but toString is always available in ECMAScript, and probably this 
-    // should be explicit for the sake of Java. Or we could skip it since
-    // it matches href.
     DOMString toString();
 };</idl></schema>
+
+      <section xml:id="location-attributes">
+        <title>Attributes</title>
+
+    <p><code>Location</code> objects MUST implement the following attributes:</p>
+
+      <dl>
+        <dt><dfn xml:id="attr-href">href</dfn></dt>
+
+        <dd>
+          The value of the <code>href</code> attribute MUST be the
+          absolute URI reference [RFC2396] that is the Location's
+          current location. When the <code>href</code> atribute is
+          set, the Location's window MUST <em>navigate</em> to the newly set value.
+	  <ednote>Must define the term navigate</ednote>
+	  <ednote>Should resulution of relative URI references be 
+	  defined here or in the bindings?</ednote>
+        </dd>
+
+        <dt><dfn xml:id="attr-hash">hash</dfn></dt>
+        <dd>
+          If the absolute URI reference[RFC2396] for the Location's
+          current location has a fragment identifier[RFC2396], then
+          the value of the <code>hash</code> attribute the value of
+          this attribute MUST be the string concatenation of the hash
+          mark(#) and the fragment identifier. Otherwise, the value of
+          the <code>hash</code> attribute MUST be the empty
+          string. <ednote>what about non-HTTP? -- I think fragment IDs
+          should apply to all URI schemes.</ednote> When this atribute is 
+	  set to a new value <var>new-hash</var>, user agents MUST perform
+	   the following steps:
+	  <ol>
+	  <li>Give the hash attribute the value <var>new-hash</var>.</li>
+	  <li><em>Reconstruct the location URI</em><ednote>Need to define the 
+	  term "reconstruct the location URI".</ednote></li>
+	  <li><em>Navigate</em> to the result of step 2.</li>
+	  </ol>
+        </dd>
+
+<ednote>The remainder of these attribute descriptions need to be
+rewritten to state conformance requirements. In the manner of the above.</ednote>
+
+        <dt><dfn xml:id="attr-host">host</dfn></dt>
+        <dd>
+          This attribute represents the network host of the Location's
+          URI. If the port attribute is not null then the host
+          attribute's value is the concatenation of the hostname
+          attribute, a colon (:) and the port attribute. If the port
+          attribute is null then the host attribute's value is
+          identical to the hostname attribute.
+        </dd>
+
+
+        <dt><dfn xml:id="attr-hostname">hostname</dfn></dt>
+        <dd>
+          This attribute represents the name or IP address of the
+          network location without any port number.
+        </dd>
+
+        <dt><dfn xml:id="attr-pathname">pathname</dfn></dt>
+        <dd>
+          This attribute represents the path component of the
+          Location's URI which consists of everything after the host
+          and port up to and excluding the first question mark (?) or
+          hash mark (#).
+        </dd>
+
+        <dt><dfn xml:id="attr-port">port</dfn></dt>
+        <dd>
+          This attribute represents the port number of the network
+          location.
+        </dd>
+        
+        <dt><dfn xml:id="attr-protocol">protocol</dfn></dt>
+        <dd>
+          This attribute represents the scheme of the URI including
+          the trailing colon (:)
+        </dd>
+
+        <dt><dfn xml:id="attr-search">search</dfn></dt>
+        <dd>
+          This attribute represents the query portion of a URI. It
+          consists of everything after the pathname up to and
+          excluding the first hash mark (#).
+       </dd>
+     </dl>
+
+     </section>
+
+      <section xml:id="location-methods">
+        <title>Methods</title>
+
+    <p><code>Location</code> objects MUST implement the following methods:</p>
+
+      <ednote>These all need to be rewritten to state conformance requirements.</ednote>
+
+      <dl>
+
+        <ednote>Need description for assign.</ednote>
+
+	<ednote>Need description for toString, if we specify that. It
+	has the same value as href; not all implementations have this
+	explicitly but toString is always available in ECMAScript, and
+	probably this should be explicit for the sake of Java. Or we
+	could skip it since it matches href, and define string
+	conversion in the JS bindings.</ednote>
+
+        <dt><dfn xml:id="meth-replace">replace(<var>url</var>)</dfn></dt>
+        <dd>This function replaces the current history entry with the url specified. <ednote>we haven't specified history - but we need to if we are to support this</ednote></dd>
+
+        <dt><dfn xml:id="meth-reload">reload()</dfn></dt>
+        <dd>This function forces the host application to reload the resource identified by the Location. <ednote>Netscape used to allow a bool argument to force an unconditional GET from the network</ednote></dd>
+     </dl>
+     </section>
 
     </section>
 
@@ -415,13 +583,16 @@ interface Location {
   <section xml:id='embedding'>
     <title>Embedding: Compound Documents by Reference</title>
 
+    <ednote>Need to fold in Anne's prose for this section.</ednote>
+
     <section xml:id='window-embedding'>
-      <title>The <em>WindowEmbedding</em> Interface</title>
+      <title>The <em>Window</em> Interface, Embedding Attributes</title>
 
       <schema>
       <title></title>
       <idl><![CDATA[
-interface WindowEmbedding {
+
+interface Window {
     // name attribute of referencing frame/iframe/object, or name passed to 
     // window.open, does it make sense to spec this without being html-specific 
     // or defining open?
@@ -438,6 +609,25 @@ interface WindowEmbedding {
     readonly attribute core::Element frameElement;
 };]]></idl></schema>
 
+      <ednote>This needs fixing to clearly state the conformance requirements.</ednote>
+
+      <dl>
+        <dt><dfn xml:id="attr-parent">parent</dfn></dt>
+        <dd>An attribute containing a reference to Window object that contains this object. <ednote>What behaviour if no parent - null? [if this is a top-level browsing context, the value is self - mjs]</ednote></dd>
+
+        <dt><dfn xml:id="attr-top">top</dfn></dt>
+        <dd>An attribute containing a reference to the topmost Window object in the hierarchy that contains this object. <ednote>What behaviour if this is the top - self reference or null? [if this is a toplevel browsing context, the value is self - mjs]</ednote></dd>
+
+        <dt><dfn xml:id="attr-name">name</dfn></dt>
+        <dd>An attribute containing a unique name used to refer to this Window object.
+	<ednote>Need to describe how this could come from a containing element.</ednote>
+	</dd>
+
+        <dt><dfn xml:id="attr-frameElement">frameElement</dfn></dt>
+        <dd><ednote>@@TODO</ednote></dd>
+      </dl>
+
+
     </section>
 
     <section xml:id='embeddingelt'>
@@ -445,6 +635,7 @@ interface WindowEmbedding {
       <schema>
       <title></title>
       <idl>
+
 // must be on an object that also implements core::Element
 interface EmbeddingElement {
     readonly attribute core::Document contentDocument;
@@ -453,18 +644,23 @@ interface EmbeddingElement {
 
     </section>
 
+    <ednote>Need actual description.</ednote>
+
   </section>
 
   <section xml:id='timers'>
     <title>Timers</title>
 
+    <ednote>Need to describe processing model for timers.</ednote>
+
     <section xml:id='window-timers'>
-      <title>The <em>WindowTimers</em> Interface</title>
+      <title>The <em>Window</em> Interface, Timer Attributes</title>
 
       <schema>
       <title></title>
       <idl><![CDATA[
-interface WindowTimers {
+
+interface Window {
     // should timers allow more than long, maybe a floating point type? 
     // don't think anyone's timers have more precision
 
@@ -477,6 +673,20 @@ interface WindowTimers {
     void clearInterval(in long timerID);
 };]]></idl></schema>
 
+<dl>
+        <dt><dfn xml:id="meth-setTimeout">setTimeout(<var>function</var>, <var>milliseconds</var>)</dfn></dt>
+        <dd>This method calls the function once after a specified number of milliseconds elapses, until canceled by a call to clearTimeout. The methods returns a timerID which may be used in a subsequent call to clearTimeout to cancel the interval.</dd>
+
+        <dt><dfn xml:id="meth-setInterval">setInterval(<var>function</var>, <var>milliseconds</var>)</dfn></dt>
+        <dd>This method calls the function every time a specified number of milliseconds elapses, until canceled by a call to clearInterval. The methods returns an intervalID which may be used in a subsequent call to clearInterval to cancel the interval.</dd>
+
+        <dt><dfn xml:id="meth-clearTimeout">clearTimeout(<var>timerID</var>)</dfn></dt>
+        <dd>Cancels a timeout that was set with the setTimeout method.</dd>
+
+        <dt><dfn xml:id="meth-clearInterval">clearInterval(<var>intervalID</var>)</dfn></dt>
+        <dd>Cancels an interval that was set with the setTimeout method.</dd>
+    </dl>
+
     </section>
 
     <section xml:id='timerlistener'>
@@ -484,27 +694,47 @@ interface WindowTimers {
       <schema>
       <title></title>
       <idl>
+
 // behavior is always special in ECMAScript, this is defined only for the benefit
 // of other languages
 interface TimerListener {
     // what to put here?
 };</idl></schema>
+
+    <ednote>Need to define this. In ES bindings, a function or string is the only thing allowed.</ednote>
+
     </section>
 
   </section>
 
   <section xml:id='security'>
     <title>Security Considerations</title>
+
+    <ednote>Needs a discussion of various kinds of cross-site
+    scripting and phishing exploits, and known defenses against
+    them.</ednote>
+
   </section>
 
   <section xml:id='idl' type='appendix'>
     <title>IDL Definitions</title>
+
+    <ednote>Need to fill in the full IDL here.</ednote>
   </section>
 
 
   <section xml:id='ecmascript' type='appendix'>
     <title>ECMAScript Language Binding</title>
 
+    <ednote>Need to define all the ECMAScript-specific issues, such as which properties
+    are shadowable or replaceable, assigning to the location property, passing functions or
+    strings as timers, etc.</ednote>
+  </section>
+
+  <section xml:id='java' type='appendix'>
+    <title>Java Language Binding</title>
+
+    <ednote>Need to write this.</ednote>
   </section>
 
   <section xml:id='acknow' type='appendix'>
@@ -526,8 +756,32 @@ interface TimerListener {
   <section xml:id='bibref' type='appendix'>
     <title>References</title>
 
-    <bibliography>
+    <ednote>Need to be able to include organization and date for references.</ednote>
 
+    <ednote>Need appropriate cites for DOM Core and OMG IDL.</ednote>
+
+    <ednote>Need titles and authors for DOM2VIEWS</ednote>
+    <ednote>Need titles and authors for ECMAScript</ednote>
+    <ednote>Need titles and authors for Java</ednote>
+
+    <bibliography>
+      <bibentry xml:id="DOM2VIEWS">
+      </bibentry>
+      <bibentry xml:id="ECMAScript">
+      <ednote>Need titles and authors</ednote>
+      </bibentry>
+      <bibentry xml:id="Java">
+      <ednote>Need titles and authors</ednote>
+      </bibentry>
+      <bibentry xml:id="RFC2396">
+        <title>Uniform Resource Identifiers (URI): Generic Syntax</title>
+        <link>http://www.ietf.org/rfc/rfc2396.txt</link>
+      <authors>
+        <person><name>T. Berners-Lee</name></person>
+	<person><name>R. Fielding</name></person>
+	<person><name>L. Masinter</name></person>
+      </authors>
+      </bibentry>
     </bibliography>
   </section>
 </specification>
