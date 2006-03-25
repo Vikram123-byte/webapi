@@ -6,7 +6,7 @@
           regenerated.
           ******* WARNING ********
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Window Object 1.0</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Window.html,v 1.5 2006-03-25 09:20:38 mstachow Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Window Object 1.0</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>24 March 2006</em></h2><dl><dt>This version:</dt><dd><a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html</a></dd><dt>Latest version:</dt><dd><a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html</a></dd><dt>Editors:</dt><dd><span class="person">Ian Davis (<a href="http://www.talis.com/">Talis Information Ltd.</a>) &lt;<a href="mailto:ian.davis@talis.com">ian.davis@talis.com</a>&gt;</span></dd><dd><span class="person">Maciej Stachowiak (<a href="http://apple.com/">Apple Computer, Inc.</a>) &lt;<a href="mailto:mjs@apple.com">mjs@apple.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+<title>Window Object 1.0</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Window.html,v 1.6 2006-03-25 10:55:36 mstachow Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Window Object 1.0</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>24 March 2006</em></h2><dl><dt>This version:</dt><dd><a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html</a></dd><dt>Latest version:</dt><dd><a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/Window/publish/Window.html</a></dd><dt>Editors:</dt><dd><span class="person">Ian Davis (<a href="http://www.talis.com/">Talis Information Ltd.</a>) &lt;<a href="mailto:ian.davis@talis.com">ian.davis@talis.com</a>&gt;</span></dd><dd><span class="person">Maciej Stachowiak (<a href="http://apple.com/">Apple Computer, Inc.</a>) &lt;<a href="mailto:mjs@apple.com">mjs@apple.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -597,7 +597,56 @@ rewritten to state conformance requirements. In the manner of the above.</div>
   <div class="section"><h2 id="embedding">4. Embedding: Compound Documents by Reference</h2>
     
 
-    <div class="ednote">Need to fold in Anne's prose for this section.</div>
+<p>An element that refers to another document which is then embedded is
+called an <dfn id="def-embedding-element">embedding element</dfn>. A
+document embedded in such an element points to is called a <dfn>child
+document</dfn>. Seen from a child document, the embedding element is
+part of a <dfn>parent document</dfn>. When a document has no
+referencing element that points to it the document is a <dfn>root
+document</dfn>. A document can be both a parent document and child
+document at the same time.</p>
+
+<p>The value of the <code>frameElement</code> attribute of a Window
+object <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> the embedding element, or <code>null</code> if there is no
+such element. The value of the <code>parent</code> attribute of a
+Window object <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> must the parent document's <code>Window</code>
+object or the document itself if there is no such document. The value
+of the <code>top</code> attribute of a Window object <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the
+root document's <code>Window</code> object.
+
+<div class="ednote">For the ES bindings appendix: In ECMAScript these DOM
+attributes, even though readonly, to be set to different values. In
+such cases the attributes are simply the values set by the script
+author.</div>
+
+<div class="ednote">This does not deal with security. Security should probably be
+taken care of in a separate part of the specification. That way these
+attributes are not restricted by design, but by security environment.</div></p>
+
+<p>The <code>name</code> attribute of a Window object <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the name
+assigned by the embedding element, the empty string if there is no
+such element or a value set by the script author. How this name is
+extracted from the referencing element is language specific.
+
+<div class="ednote">Need to mention that it can be set by Window.open() and the
+"target" attribute in some languages, basically anything that can open
+a new top-level browsing context.</div></p>
+
+<p>For example, if you have &lt;object data="<var>file</var>"
+id="test"/&gt; in an XHTML document the <code>window.name</code> DOM
+attribute within <var>file</var> will be "test".</p>
+
+<p>The value of the <code>contentDocument</code> attribute of an
+object that implements the EmbeddingElement interface <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the
+child document's <code>Document</code> object or <code>null</code> if
+the embedding element is not currently displaying a document with a
+DOM. <div class="ednote">Need to discuss the possibility of embedding elements
+containing non-DOM content, like images or plugin content.</div>
+Likewise the <code>contentWindow</code> attribute of an object that
+implements the EmbeddingElement interface <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the child document's
+<code>Window</code> object or <code>null</code> if the embedding
+element is not currently establishing a browsing context.<div class="ednote">Can
+this ever happen?</div></p>
 
     <div class="section"><h3 id="window-embedding">4.1. The <em>Window</em> Interface, Embedding Attributes</h3>
       

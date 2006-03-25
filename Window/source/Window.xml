@@ -622,7 +622,56 @@ rewritten to state conformance requirements. In the manner of the above.</ednote
   <section xml:id='embedding'>
     <title>Embedding: Compound Documents by Reference</title>
 
-    <ednote>Need to fold in Anne's prose for this section.</ednote>
+<p>An element that refers to another document which is then embedded is
+called an <dfn id="def-embedding-element">embedding element</dfn>. A
+document embedded in such an element points to is called a <dfn>child
+document</dfn>. Seen from a child document, the embedding element is
+part of a <dfn>parent document</dfn>. When a document has no
+referencing element that points to it the document is a <dfn>root
+document</dfn>. A document can be both a parent document and child
+document at the same time.</p>
+
+<p>The value of the <code>frameElement</code> attribute of a Window
+object MUST the embedding element, or <code>null</code> if there is no
+such element. The value of the <code>parent</code> attribute of a
+Window object MUST must the parent document's <code>Window</code>
+object or the document itself if there is no such document. The value
+of the <code>top</code> attribute of a Window object MUST be the
+root document's <code>Window</code> object.
+
+<ednote>For the ES bindings appendix: In ECMAScript these DOM
+attributes, even though readonly, to be set to different values. In
+such cases the attributes are simply the values set by the script
+author.</ednote>
+
+<ednote>This does not deal with security. Security should probably be
+taken care of in a separate part of the specification. That way these
+attributes are not restricted by design, but by security environment.</ednote></p>
+
+<p>The <code>name</code> attribute of a Window object MUST be the name
+assigned by the embedding element, the empty string if there is no
+such element or a value set by the script author. How this name is
+extracted from the referencing element is language specific.
+
+<ednote>Need to mention that it can be set by Window.open() and the
+"target" attribute in some languages, basically anything that can open
+a new top-level browsing context.</ednote></p>
+
+<p>For example, if you have &lt;object data="<var>file</var>"
+id="test"/&gt; in an XHTML document the <code>window.name</code> DOM
+attribute within <var>file</var> will be "test".</p>
+
+<p>The value of the <code>contentDocument</code> attribute of an
+object that implements the EmbeddingElement interface MUST be the
+child document's <code>Document</code> object or <code>null</code> if
+the embedding element is not currently displaying a document with a
+DOM. <ednote>Need to discuss the possibility of embedding elements
+containing non-DOM content, like images or plugin content.</ednote>
+Likewise the <code>contentWindow</code> attribute of an object that
+implements the EmbeddingElement interface MUST be the child document's
+<code>Window</code> object or <code>null</code> if the embedding
+element is not currently establishing a browsing context.<ednote>Can
+this ever happen?</ednote></p>
 
     <section xml:id='window-embedding'>
       <title>The <em>Window</em> Interface, Embedding Attributes</title>
