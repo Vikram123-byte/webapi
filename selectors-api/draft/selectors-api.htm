@@ -23,10 +23,28 @@
    <dt>Editor</dt>
    <dd>Anne van Kesteren, Opera Software ASA</dd>
   </dl>
+  <!--
+  <p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
+   � 2006
+   <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>�</sup>
+   (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
+   <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
+   <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
+   <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+   <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a>
+   and
+   <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document
+   use</a> rules apply.</p>
+  -->
+  <hr>
+  <h2>Abstract</h2>
+  <p>This specification defines two methods for retrieving <code>Element</code>
+   nodes in the DOM using a group of selectors as defined in
+   [<cite><a href="#ref-selectors">Selectors</a></cite>]</p>
   <h2>Status of this Document</h2>
   <p>This document is an Editor's Working Group draft. It is <strong>not an
-   official publication</strong> of the <abbr title="World Wide Web
-   Consortium">W3C</abbr>.</p>
+   official publication</strong> of the
+   <abbr title="World Wide Web Consortium">W3C</abbr>.</p>
   <h2>Conformance requirements</h2>
   <p>As well as sections marked as non-normative, all diagrams, examples, and
    notes in this specification are non-normative. Everything else in this
@@ -36,11 +54,13 @@
    <em class="ct">shall not</em>, <em class="ct">should</em>,
    <em class="ct">should not</em>, <em class="ct">recommended</em>,
    <em class="ct">may</em>, and <em class="ct">optional</em> in the normative
-   parts of this document are to be interpreted as described in [RFC2119].</p>
+   parts of this document are to be interpreted as described in
+   [<cite><a href="#ref-rfc2119">RFC2119</a></cite>].</p>
   <h2>The <code>DocumentSelector</code> interface</h2>
-  <p>Objects implementing the <code>Document</code> interface defined in DOM
-   Level 3 Core <em class="ct">must</em> also implement the
-   <code>DocumentSelector</code> interface [DOM3Core].</p>
+  <p>Objects implementing the <code>Document</code> interface defined in
+   <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
+   <code>DocumentSelector</code> interface
+   [<cite><a href="#ref-dom3core">DOM3Core</a></cite>].</p>
   <pre class="idl">interface DocumentSelector {
   Node            match(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
   StaticNodeList  matchAll(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
@@ -57,16 +77,20 @@
    traversal), if any. Otherwise it <em class="ct">must</em> return
    <code>null</code>.</p>
   <p>Both <code>match</code> and <code>matchAll</code> take a group of selectors
-   (<var>selectors</var>) as defined in [Selectors] as first argument and an
-   <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. UAs
+   (<var>selectors</var>) as defined in
+   [<cite><a href="#ref-selectors">Selectors</a></cite>] as first argument and
+   an <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. UAs
    <em class="ct">must</em> use the <var>nsresolver</var> argument to resolve
-   namespace prefixes as defined in [DOM3XPath]. When the <var>nsresolver</var>
+   namespace prefixes as defined in
+   [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. When the
+   <var>nsresolver</var>
    argument is <code>null</code> UAs <em class="ct">must</em> ignore it.</p>
   <p>When authors use namespace prefixes within <var>selectors</var> they
    <em class="ct">must</em> create an object implementing the
    <code>XPathNSResolver</code> interface. In case of ECMAScript they
    <em class="ct">may</em> pass a <code>Function</code> as argument for
-   <code>nsresolver</code> instead as defined in in [DOM3XPath]. If they don't
+   <code>nsresolver</code> instead as defined in in
+   [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. If they don't
    use namespace prefixes within <var>selectors</var> authors
    <em class="ct">must</em> set <var>nsresolver</var> to <code>null</code> or
    omit the argument completely if the language binding allows it.</p>
@@ -74,10 +98,9 @@
    draft will have to. (Which is needed anyway when this goes beyond Last Call
    and DOM Level 3 XPath does not.)</p>
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the UA
-   <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception
-   [Selectors]. If the given group of
-   selectors (<var>selectors</var>) uses namespace prefixes and the prefix can
-   not be resolved using the <var>nsresolver</var> argument UAs
+   <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If the
+   given group of selectors (<var>selectors</var>) uses namespace prefixes and
+   the prefix can not be resolved using the <var>nsresolver</var> argument UAs
    <em class="ct">must</em> raise a <code>NAMESPACE_ERR</code> exception.</p>
   <p>If the <var>nsresolver</var> argument is not of the right type UAs
    <em class="ct">must</em> raise a <code>TYPE_MISMATCH_ERR</code>
@@ -106,37 +129,50 @@ var y = document.match("div.foo.bar");</pre>
   <h2>The <code>StaticNodeList</code> interface</h2>
   <pre class="idl">typedef StaticNodeList NodeList;</pre>
   <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
-   identically to the <code>NodeList</code> interface as defined in [DOM3Core]
+   identically to the <code>NodeList</code> interface as defined in
+   [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
    with the exception that the interface, as the name suggests, is static and
    not live.</p>
   <h2>Security Considerations</h2>
   <p>It is expected that implementing this specification introduces no new risks
    for users.</p>
   <p><strong>History theft</strong> is the only potential security exploit,
-   because of the <code>:visited</code> pseudo-class in [Selectors].
+   because of the <code>:visited</code> pseudo-class in
+   [<cite><a href="#ref-selectors">Selectors</a></cite>].
    <code>:visited</code> can already be used to query which links are visited
-   and which are not using methods from [DOM2Style] and even [CSS21] and because
+   and which are not using methods from
+   [<cite><a href="#ref-dom2-style">DOM2Style</a></cite>] and even
+   [<cite><a href="#ref-css21">CSS21</a></cite>] and because
    this specification did not introduce the problem and it can already be
    exploited by other means UAs don't have to take action upon it.</p>
   <h2>References</h2>
   <dl>
-   <dt>[CSS21]</dt>
-   <dd>...</dd>
-   <dt>[DOM2Style]</dt>
-   <dd>...</dd>
-   <dt>[DOM3Core]</dt>
-   <dd>....</dd>
-   <dt>[DOM3XPath]</dt>
-   <dd>...</dd>
-   <dt>[Selectors]</dt>
-   <dd>...</dd>
-   <dt>[RFC2119]</dt>
-   <dd>...</dd>
+   <dt id="ref-css21">[CSS21]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/CSS21">Cascading Style Sheets, level
+    2 revision 1</a></cite>, B. Bos, T. Çelik, I. Hickson, H. Wium Lie, editors.
+    World Wide Web Consortium, June 2005.</dd>
+   <dt id="ref-dom2style">[DOM2Style]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-2-Style">Document Object
+    Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P. Le
+    Hégaret, V. Apparao, editors. World Wide Web Consortium, November 2000.</dd>
+   <dt id="ref-dom3core">[DOM3Core]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
+    Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
+    Hégaret, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne, editors. World
+    Wide Web Consortium, April 2004.</dd>
+   <dt id="ref-dom3xpath">[DOM3XPath]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-XPath">Document Object
+    Model (DOM) Level 3 XPath Specification</a></cite>, R. Whitmer, editor.
+    World Wide Web Consortium, February 2004.</dd>
+   <dt id="ref-selectors">[Selectors]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/css3-selectors">Selectors</a></cite>,
+    D. Glazman, T. Çelik, I. Hickson, P. Linss, J. Williams, editors. World Wide
+    Web Consortium, December 2005.</dd>
+   <dt id="ref-rfc2119">[RFC2119]</dt>
+   <dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119: Key words
+    for use in RFCs to Indicate Requirement Levels</cite></a>, S. Bradner. IETF,
+    March 1997.</dd>
   </dl>
-  <p class="issue">Work this out here and in the document. Currently it is
-   cluttered with references all over the place. Perhaps I should just make a
-   section on dependencies on other specifications or on definitions or
-   whatever.</p>
   <h2>Acknowledgements</h2>
   <ul>
    <li>Björn Höhrmann</li>
