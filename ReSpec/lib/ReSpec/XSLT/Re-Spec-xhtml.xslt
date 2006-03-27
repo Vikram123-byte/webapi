@@ -128,14 +128,30 @@
     </div>
   </xsl:template>
 
+  <xsl:template match='r:dfn'>
+    <dfn id='dfn-{translate(normalize-space(.), " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'>
+      <xsl:copy-of select='@*[namespace-uri() = ""]'/>
+      <xsl:apply-templates/>
+    </dfn>
+  </xsl:template>
+
+  <xsl:template match='r:term'>
+    <a class='term' href='#dfn-{translate(normalize-space(.), " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'>
+      <xsl:if test='@xml:id'>
+        <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
+      </xsl:if>
+      <xsl:copy-of select='@*[namespace-uri() = ""]'/>
+      <xsl:apply-templates/>
+    </a>
+  </xsl:template>
+
   <!-- the HTML elements -->
   <xsl:template match='r:p | r:a | r:abbr | r:acronym | r:code | r:dl | r:dd |
                        r:dt | r:ol | r:ul | r:li | r:table | r:thead | r:tbody | r:tfoot |
                        r:caption | r:tr | r:th | r:td | r:em | r:strong | r:br | r:cite | r:q |
-                       r:span | r:dfn | r:var | r:pre'>
+                       r:span | r:var | r:pre'>
     <xsl:element name='{local-name()}' namespace='http://www.w3.org/1999/xhtml'>
       <xsl:if test='@xml:id'>
-        <xsl:attribute name='xml:id'><xsl:value-of select='@xml:id'/></xsl:attribute>
         <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
       </xsl:if>
       <xsl:copy-of select='@*[namespace-uri() = ""]'/>
