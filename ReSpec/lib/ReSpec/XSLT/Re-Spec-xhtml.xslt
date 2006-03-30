@@ -124,6 +124,9 @@
       <xsl:if test='@normativity="informative"'>
         <p><strong>This section is informative.</strong></p>
       </xsl:if>
+      <xsl:if test='@normativity="not normative"'>
+        <p><strong>This section is not normative normative.</strong></p>
+      </xsl:if>
       <xsl:apply-templates/>
     </div>
   </xsl:template>
@@ -328,6 +331,14 @@
       <pre class='example' title='{r:title}'>
         <xsl:copy-of select='*[namespace-uri() != "http://berjon.com/ns/re-spec/"]|text()'/>
       </pre>
+    </div>
+  </xsl:template>
+
+  <xsl:template match='r:specexample'>
+    <div class='boxed'>
+      <div class='specexample'>
+        <xsl:apply-templates />
+      </div>
     </div>
   </xsl:template>
 
