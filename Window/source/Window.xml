@@ -5,7 +5,7 @@
   <metadata>
     <title>Window Object 1.0</title>
     <styling type='W3C' status='ED'/>
-    <date year='2006' month='03' day='25'/>
+    <date year='2006' month='03' day='30'/>
     <editors>
       <person>
         <name>Ian Davis</name>
@@ -81,7 +81,7 @@
     <?respec-toc?>
   </section>
 
-  <section xml:id='introduction'>
+  <section xml:id='introduction' normativity='not normative'>
     <title>Introduction</title>
 
     <p>
@@ -89,36 +89,42 @@
       subset of the features of the <term><code>Window</code>
       object</term>, a widely implemented part of HTML User Agents,
       with parts also found in non-HTML UAs that offer scripting and
-      DOM access. With this specification, it is recommended for all
-      implementations that present documents to the user or provide
-      the equivalent of a <term>browsing context</term>.
+      DOM access. This specification is intended to be suitable for
+      all implementations that present any sort of DOM document
+      [DOM3Core] to the user.
     </p>
 
     <p>
-      The main purpose of the <term><code>Window</code> object</term>
-      is to provide the global namespace for script execution. This
-      specification defines four features of the window object, in
-      addition to its use for the global namespace. It describes the
-      use of the Window object as a <term>browsing context</term>:
-      a container that displays a document, or a series of documents
-      in sequence. It describes interfaces for
-      <strong>navigation</strong>, the ability to go to a new document
-      in the same <term>browsing context</term>. It describes interfaces for
-      <strong>embedding</strong>, a feature also known as
-      <strong>compound document by reference</strong>, where one
-      document includes another separate document by external
-      reference. And finally it provides <strong>timers</strong>.
+      This specification defines four features of the window
+      object. It describes the use of the Window object as a
+      <term>browsing context</term>: a container that displays a
+      document, or a series of documents in sequence. It describes
+      interfaces for <term>navigation</term>, the ability to go to
+      a new document in the same <term>browsing context</term>. It
+      describes interfaces for <strong>embedding</strong>, a feature
+      also known as <strong>compound document by reference</strong>,
+      where one document includes another separate document by
+      external reference. And it specifies methods for using
+      <strong>timers</strong>.
     </p>
 
-    <section xml:id='usage' normativity='informative'>
+    <p>
+      In addition, for some languages, such as ECMAScript
+      [ECMAScript], the <term><code>Window</code> interface</term> is
+      implemented by the object that provides the global namespace for
+      script execution. The details of how this works for ECMAScript
+      are specified in <a href="#ecmascript-binding">ECMAScript
+      Language Binding Appendix</a>.
+    </p>
+
+    <section xml:id='usage' normativity='not normative'>
       <title>Examples of usage</title>
 
       <ednote>Need to fill this in.</ednote>
     </section>
 
-    <section xml:id='notcovered' normativity='informative'>
+    <section xml:id='notcovered' normativity='not normative'>
       <title>Not in This Specification</title>
-      <p>(this section is informative)</p>
 
       <p>
       This specification does not include the following features,
@@ -144,7 +150,7 @@
       </ul>
     </section>
 
-    <section xml:id='definitions' normativity='informative'>
+    <section xml:id='definitions' normativity='not normative'>
       <title>Definitions</title>
 
       <p>
@@ -193,7 +199,7 @@
 	  A <term>conforming implementation</term> of the <strong>Window
 	  Object 1.0</strong> specification is one that implements all the
 	  interfaces in this specification, and satisfies all other
-	  MUST, REQUIRED and SHALL level criteria in all parts of this
+	  MUST-, REQUIRED- and SHALL-level criteria in all parts of this
 	  document other than language binding appendices.  
         </dd>
 
@@ -241,7 +247,7 @@
     </p>
 
     <p>
-      An visual user agent typically presents a document by rendering
+      A visual user agent typically presents a document by rendering
       it to a display. However, even non-visual agents could have a
       <term>browsing context</term>. For example, a voice browser also presents
       documents to the user. This also establishes a <term>browsing
@@ -249,10 +255,9 @@
     </p>
 
     <p>
-      In a conforming implementation, an object that implements the
-      <code>Document</code> interface [DOM3Core] and is
-      presented in a <term>browsing context</term> MUST also implement the
-      <code>DocumentWindow</code> interface.
+      An object that implements the <code>Document</code> interface
+      [DOM3Core] and is presented in a <term>browsing context</term>
+      MUST also implement the <code>DocumentWindow</code> interface.
     </p>
 
     <p>
@@ -335,9 +340,9 @@ interface Window : views::AbstractView {
         The value of the <code>document</code> property inherited by
         <code>Window</code> objects from the <code>AbstractView</code> interface
         MUST be the <code>Document</code> for which the <code>Window</code> is a
-        view. In addition to the <code>DocumentView</code> interface,
-        the <code>Document</code> MUST implement the <code>Document</code> and
-        <code>DocumentWindow</code> interfaces.
+        view. As a result, in addition to the <code>DocumentView</code> interface,
+        it implements the <code>Document</code> and <code>DocumentWindow</code> 
+	interfaces.
       </p>
 
       <section xml:id="window-basic-attributes">
@@ -356,12 +361,16 @@ interface Window : views::AbstractView {
 
           <dt><dfn><code>self</code> attribute</dfn></dt>
           <dd>
-	    The value of the <term><code>self</code> attribute</term>
-            MUST be the same <code>Window</code> object that has the
-            attribute (a self-reference). Consequently, the
-            <term><code>self</code> attribute</term> MUST have the
-            same value as the <term><code>window</code>
-            attribute</term>.
+	    The value of the <term><code>self</code> attribute</term> MUST be the
+            same <code>Window</code> object that has the attribute: the attribute
+            is a self-reference. Consequently, the value of the <term><code>self</code> 
+            attribute</term> MUST be the same object as the <term><code>window</code> 
+	    attribute</term>.
+            <ednote>
+	      Need to define "being the same object" in such a way
+	      that it is an equivalence relation. Then the second
+	      conformance clause for "self" can just be a note.
+            </ednote>
           </dd>
         </dl>
 
@@ -412,8 +421,9 @@ interface DocumentWindow : views::DocumentView {
         MUST be the default view for the <term>browsing context</term> presenting
         the document, if any. In addition to the
         <code>AbstractView</code> interface, the default view MUST
-        implement the <code>Window</code> interface. For documents not
-        being presented in a <term>browsing context</term>, the value of the
+        implement the <code>Window</code> interface. If a document is
+	not being presented in a <term>browsing context</term> but nontheless
+	implements the DocumentWindow interface, the value of the
         <code>defaultView</code> attribute MUST be <code>null</code>. <ednote>Is
         this reasonably testable?  There are ways (XMLHttpRequest, DOM
         3 L&amp;S, xml data islands, DOMParser) in browser-like UAs to
@@ -663,6 +673,10 @@ rewritten to state conformance requirements. In the manner of the above.</ednote
      has no embedding element that points to it the document is a
      <dfn>root document</dfn>. A document can be both
      a parent document and child document at the same time.</p>
+
+    <ednote>The normative definitions of the various attributes should
+    be moved to below the IDL to match other sections.</ednote>
+
     <p>The value of the <code>frameElement</code> attribute of a
      <code>Window</code> object MUST be the
      <term>embedding element</term>, or
@@ -723,8 +737,7 @@ rewritten to state conformance requirements. In the manner of the above.</ednote
 
 interface Window {
     // name attribute of referencing frame/iframe/object, or name passed to
-    // window.open, does it make sense to spec this without being html-specific
-    // or defining open?
+    // window.open
     attribute dom::DOMString name;
 
     // global object of containing document
@@ -842,9 +855,31 @@ interface TimerListener {
   <section xml:id='security'>
     <title>Security Considerations</title>
 
-    <ednote>Needs a discussion of various kinds of cross-site
-    scripting and phishing exploits, and known defenses against
-    them.</ednote>
+    <ednote>
+<p>My current plan for the "security considerations" section is that it will contain the following:</p>
+
+<ul>
+<li>Non-normative statements of fact about various security vulnerabilities that may affect Window implementations (unauthorized data access, phishing/pharming, frame injection, etc).</li>
+
+<li>A normative requirement that UAs implement some security policy that is in line with some general principles of cross-site scripting security, with exemptions allowed for "trusted" content. Some rough cuts at it (this language is not nearly precise as it should be, just trying to get the rules across):
+<ul>
+    <li> "A script executing in a browsing context currently presenting a document from one origin MUST NOT be allowed to access remote content from a different origin in such a way that the script can then access the contents." (where "same origin" is defined as same URI scheme, host and port, modulo differences for document.domain which I guess needs to be in the spec).</li>
+    <li> "A non-trusted document MUST NOT be allowed to navigate a browsing context unless one of the following holds: the browsing contexts have the same top-level browsing context; the target browsing context has the same origin as the source browsing context; one of the ancestor browsing contexts of the target browsing context has the same origin as the source; OR the target browsing context is a top-level browsing context and the user can see the context's current location."</li>
+    <li> "A non-trusted document MUST NOT be allowed to access or navigate to content from a file: URI in any way."</li>
+</ul></li>
+
+<li>Specific cases where access and navigation must be allowed, notwithstanding any additional security restrictions (anything from the same origin).</li>
+
+<li>Normative restrictions on what may be considered "trusted" content (MUST be from a specific known location, MUST NOT be transmitted over a network via an insecure protocol -- so you can't just say "my UA considers all content to be trusted" or "my company's homepage sent over non-SSL http is trusted".)</li>
+
+<li>An example of a specific security model that is believed to satisfy these constraints.</li>
+</ul>
+
+<p>I would rather not have normative requirements on when UAs must or must not throw exceptions or return null or whatever, since these would merely represent our best current understanding of how to implement the security policy.</p>
+
+<p>It may be that some of this belongs in the main body of the spec instead of in Security Considerations, let's figure that out when the security part is actually written.</p>
+
+</ednote>
 
   </section>
 
