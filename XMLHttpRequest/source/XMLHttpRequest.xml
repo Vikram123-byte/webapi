@@ -16,7 +16,7 @@
   <metadata>
     <title>The XMLHttpRequest Object</title> <!-- please don't call it 1.0 -->
     <styling type="W3C" status="ED"/>
-    <date year="2006" month="03" day="20"/>
+    <date year="2006" month="04" day="03"/>
     <editors>
       <person>
         <name>Anne van Kesteren</name>
@@ -50,7 +50,7 @@
     </p>
     <ednote>
       <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.33 2006-03-24 19:15:54 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.xml,v 1.34 2006-04-02 23:22:51 avankest Exp $.
       </p>
     </ednote>
   </section>
@@ -167,6 +167,7 @@
       <title>XMLHttpRequest constructor</title>
       var r = new XMLHttpRequest();
     </example>
+    <!-- XXX non-ECMAScript implementations die? -->
     <p>
       A more complete description of what can be done with <code>XMLHttpRequest</code>
       can be found in the IDL below and its associated details.
@@ -521,17 +522,17 @@
             </exception>
           </method>
 
-          <attribute name='responseText'>
-            <p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code> attribute has
-              a value other than
-              3 (Receiving) or 4 (Loaded), it MUST be the empty string.
-              Otherwise, returns
-              the body of the data received so far, interpreted using the character
-              encoding specified in the response, or UTF-8 if no character encoding was
-              specified. Invalid bytes MUST be converted to U+FFFD REPLACEMENT
-              CHARACTER.
-            </p>
+          <attribute name="responseText">
+           <p>If the
+            <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+            attribute has a value other than 3 (Receiving) or 4 (Loaded), it
+            MUST be the empty string. Otherwise, returns
+            the body of the data received so far, interpreted using the character
+            encoding specified in the response, or UTF-8 if no character encoding was
+            specified. Invalid bytes MUST be converted to U+FFFD REPLACEMENT
+            CHARACTER.
+           </p>
+            <!--
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this attribute is accessed when
@@ -539,6 +540,7 @@
                 has an inappropriate value.
               </code>
             </exception>
+            -->
           </attribute>
           <!-- XXX ISSUE-31 -->
 
@@ -547,14 +549,16 @@
               If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
               attribute has a value other than
               4 (Loaded), it MUST be <code>null</code>.
-              Otherwise, if the <code>Content-Type</code>
-              header is either <code>text/xml</code>, <code>application/xml</code>, or
+              Otherwise, if the <code>Content-Type</code> header contains a
+              media type (ignoring any parameters) that is either
+              <code>text/xml</code>, <code>application/xml</code>, or
               ends in <code>+xml</code>, it MUST be an object that implements the <code>Document</code>
               interface representing the parsed document. If the document was not an
               XML document, or if the document could not be parsed (due to an XML
               well-formedness error or unsupported character encoding, for instance),
               it MUST be <code>null</code>.
             </p>
+            <!--
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this attribute is accessed when
@@ -562,6 +566,7 @@
                 has an inappropriate value.
               </code>
             </exception>
+            -->
           </attribute>
 
           <attribute name='status' type='unsigned short'>
