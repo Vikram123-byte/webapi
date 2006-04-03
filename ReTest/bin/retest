@@ -2,6 +2,8 @@
 
 use ReTest;
 use strict;
+use File::Find;
+
 
 if (scalar @ARGV != 2) {
     die("Usage: retest sourcedir publishdir");
@@ -9,8 +11,19 @@ if (scalar @ARGV != 2) {
 
 my $testDir = $ARGV[0];
 my $publishDir = $ARGV[1];
+print "testDir is $testDir", "\n";
 
-my @files = `(cd "$testDir"; find . -name "*.js")`;
+my @files = ();
+
+find( sub { 
+                if ( $_ =~ /\.js$/) { 
+                  my $fileName = $File::Find::name;
+                  $fileName =~ s/^$testDir//;
+                  push @files, $fileName;  
+                }
+
+             }, $testDir);
+
 
 my @templates = ("TEMPLATE.html", "TEMPLATE.xhtml", "TEMPLATE.svg");
 my %templateSuffix;
@@ -19,7 +32,7 @@ my %templateContents;
 for my $templateFile (@templates) {
     {
 	local($/);
-	open(TEMPLATE, "<" . ReTest::resourcePath($templateFile));
+	open(TEMPLATE, "<" . ReTest::resourcePath($templateFile)) or die "Cannot open " . ReTest::resourcePath($templateFile) . " for reading";
 	$templateContents{$templateFile} = <TEMPLATE>;
 	$templateSuffix{$templateFile} = $templateFile;
 	$templateSuffix{$templateFile} =~ s:^[^.]*\.::;
@@ -29,8 +42,8 @@ for my $templateFile (@templates) {
         for my $match (@matches) {
             my $resourceInLib = ReTest::resourcePath($match);
             my $publishedResource = "${publishDir}/shared/$match";
-            open(LIB, "<$resourceInLib");
-            open(PUBLISH, ">$publishedResource");
+            open(LIB, "<$resourceInLib") or die "Cannot open $resourceInLib for reading";
+            open(PUBLISH, ">$publishedResource") or die "Cannot open $publishedResource for writing" ;
             print PUBLISH <LIB>;
             close LIB;
             close PUBLISH;
@@ -46,9 +59,14 @@ sub cleanupPath($) {
     return $path;
 }
 
+
 for my $scriptFile (@files) {
     chomp $scriptFile;
+
+print "scriptFile = ", $scriptFile, "\n";
+
     $scriptFile =~ s:\./::;
+    $scriptFile =~ s:\.\\::;
 
     my $scriptBase = $scriptFile;
     $scriptBase =~ s:^([^/]*/)*::;
@@ -56,14 +74,14 @@ for my $scriptFile (@files) {
     my $scriptDir = $scriptFile;
     $scriptDir =~ s:^(([^/]*/)*).*$:$1:;
     my $publishScriptDir = "${publishDir}/shared/${scriptDir}";
-
+    print "Making script directory: $publishScriptDir\n";
     `mkdir -p "$publishScriptDir"`;
 
     my $scriptOriginal = "${testDir}/${scriptFile}";
     my $scriptCopy = "${publishScriptDir}/${scriptBase}.js";
 
-    open(SCRIPT, "<$scriptOriginal");
-    open(COPY, ">$scriptCopy");
+    open(SCRIPT, "<$scriptOriginal") or die "Cannot open $scriptOriginal for reading" ;
+    open(COPY, ">$scriptCopy") or die "Cannot open $scriptCopy for reading" ;
 
     while (<SCRIPT>) {
 	print COPY;
@@ -86,7 +104,7 @@ for my $scriptFile (@files) {
 	my $wrapperFile = "${wrapperDir}/${scriptBase}.${suffix}";
         
 	print "    " . cleanupPath(${wrapperFile}) . "\n";
-	open WRAPPER, ">$wrapperFile";
+	open WRAPPER, ">$wrapperFile" or die "Cannot open $wrapperFile for writing";
 	my $output = $template;
         my $substPath = cleanupPath("${scriptDir}/${scriptBase}.js");
         my $dots = "../" x scalar(split /\//, $substPath);
