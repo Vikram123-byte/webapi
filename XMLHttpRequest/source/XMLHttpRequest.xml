@@ -50,7 +50,7 @@
     </p>
     <ednote>
       <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.34 2006-04-02 23:22:51 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.xml,v 1.35 2006-04-03 16:11:31 avankest Exp $.
       </p>
     </ednote>
   </section>
@@ -170,49 +170,44 @@
     <!-- XXX non-ECMAScript implementations die? -->
     <p>
       A more complete description of what can be done with <code>XMLHttpRequest</code>
-      can be found in the IDL below and its associated details.
+      can be found in the IDL below and its associated details. <ednote>Need to
+      define which IDL specification we are going to conform to, if any.</ednote>
     </p>
-
     <schema>
       <title>The XMLHttpRequest interface</title>
       <idl>
         <interface module='webapi' name='XMLHttpRequest'>
-
           <attribute type='Function' name='onreadystatechange'>
             <p>
               An attribute that represents a function that MUST be invoked when
-              <code>readyState</code> changes value. The function MAY be called
-              multiple times when readyState is 3 (Receiving).
+              <code>readyState</code> changes value. The function MAY be invoked
+              multiple times when readyState is 3 (Receiving). Its initial value
+              MUST be <code>null</code>. <ednote>What if languages don't have
+              functions? Perhaps this should be an EventListener?</ednote>
             </p>
           </attribute>
 
           <attribute ro='true' type='unsigned short' name='readyState'>
-            <p>
-              The state of the object.
-            </p>
-            <p>
-              The value of <code>readyState</code> MUST be within the following set of constants, which describe the current state of the object.
-            </p>
-            <dl>
-              <dt>0 Uninitialized</dt>
-              <dd>The initial value.</dd>
-              <dt>1 Open</dt>
-              <dd>The <code>open()</code> method has been successfully
-               called.</dd>
-              <dt>2 Sent</dt>
-              <dd>The UA successfully completed the request, but no data has yet
-               been received.</dd>
-              <dt>3 Receiving</dt>
-              <dd>Immediately before receiving the message body (if any). All
-               HTTP headers have been received.</dd>
-              <!-- XXX what about HEAD requests? -->
-              <!-- XXX see ISSUE-48 too -->
-              <dt>4 Loaded</dt>
-              <dd>The data transfer has been completed.</dd>
-            </dl>
+           <p>The state of the object. The attribute MUSt be one of the
+            following values:</p>
+           <dl>
+            <dt>0 Uninitialized</dt>
+            <dd>The initial value.</dd>
+            <dt>1 Open</dt>
+            <dd>The <code>open()</code> method has been successfully
+             called.</dd>
+            <dt>2 Sent</dt>
+            <dd>The UA successfully completed the request, but no data has yet
+             been received.</dd>
+            <dt>3 Receiving</dt>
+            <dd>Immediately before receiving the message body (if any). All
+             HTTP headers have been received. <ednote>What about HEAD
+             requests?</ednote></dd>
+             <!-- XXX see ISSUE-48 too -->
+            <dt>4 Loaded</dt>
+            <dd>The data transfer has been completed.</dd>
+           </dl>
           </attribute>
-
-          <!-- === request methods ======================== -->
           <method name='open'>
             <p>
               Calling this method MUST initialise the object by remembering the <var>method</var>,
@@ -362,10 +357,10 @@
 
           <method name="send">
             <p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code> attribute
+              If the <code><term>readyState</term></code> attribute
               has a value other than
               1 (Open), an exception MUST be raised. Otherwise, the
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><term>readyState</term></code>
               attribute MUST be set to 2 (Sent) and
               a request to <var>uri</var> using method <var>method</var>, authenticating using
               <var>user</var> and
@@ -407,10 +402,10 @@
             <!-- XXX what about 304? -->
             <p>
               Immediately before processing the message body (if any), the
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><term>readyState</term></code>
               attribute MUST be set to to 3 (Receiving). When the request has
               completed loading, the
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><term>readyState</term></code>
               attribute MUST be set to 4 (Loaded).
             </p>
             <param name='data' type='Document | DOMString'>
@@ -419,7 +414,7 @@
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 MUST be raised if this method is called when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><term>readyState</term></code>
                 has an inappropriate value.
               </code>
             </exception>
@@ -432,25 +427,20 @@
             <p>
               Calling this method MUST cancel any network activity for which the object is
               responsible. In addition, UAs MUST then set
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><term>readyState</term></code>
               to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
               and reset the object.
             </p>
           </method>
-
-
-          <!-- === response methods ======================== -->
           <method name='getAllResponseHeaders'>
-            <p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-              attribute has a value other than
-              3 (Receiving) or 4 (Loaded), it MUST be <code>null</code>.
-              Otherwise, it MUST represent all the HTTP
-              headers, as a single string, with each header line separated by a
-              CR (U+000D) LF (U+000A) pair. The status line MUST not be included.
-            </p>
-            <example>
-              <title>Manipulating response headers</title>
+           <p>If the <code><term>readyState</term></code>
+            attribute has a value other than 3 (Receiving) or 4 (Loaded), it
+            MUST return <code>null</code>. Otherwise, it MUST return all the
+            HTTP headers, as a single string, with each header line separated by
+            a CR (U+000D) LF (U+000A) pair. The status line MUST not be
+            included.</p>
+           <example>
+            <title>Manipulating response headers</title>
               // The following script:
               var r = new XMLHttpRequest();
               r.open('get', 'test.txt', false);
@@ -464,31 +454,30 @@
               Connection: Keep-Alive
               Transfer-Encoding: chunked
               Content-Type: text/plain; charset=utf-8
-            </example>
-            <returns type='DOMString'>
-              @XXX TBD@
-            </returns>
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                SHOULD be raised if this method is called when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-                has an inappropriate value.
-              </code>
-            </exception>
+           </example>
+           <returns type='DOMString'>A single string consisting of all HTTP
+            headers. See prose for details.</returns>
+           <!-- XXX
+           <exception name='DOMException'>
+            <code name='INVALID_STATE_ERR' on='retrieval'>SHOULD be raised if
+            this method is called when
+            <code><term>readyState</term></code>
+            has an inappropriate value.</code>
+           </exception>
+           -->
           </method>
-
           <method name='getResponseHeader'>
             <p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              If the <code><term>readyState</term></code>
               attribute has a value other than
-              3 (Receiving) or 4 (Loaded), it MUST be the empty string.
+              3 (Receiving) or 4 (Loaded), it MUST return the empty string.
               Otherwise, it MUST represent
               the value of the given HTTP header in the data received so far for the
               last request sent, as a single string. If more than one header of the
               given name was received, then the values MUST be concatenated,
               separated from each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of that
-              name were received, then it MUST be the empty string. Header names MUST be
-              compared <span>case-insensitively</span><!--XXX xref --> to the method
+              name were received, then it MUST return the empty string. Header names MUST be
+              compared case-insensitively<!--XXX xref --> to the method
               argument (<var>header</var>).
             </p>
             <example>
@@ -513,20 +502,21 @@
             <param name='header'>
               @XXX TDB@
             </param>
+            <!-- XXX
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this method is called when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><term>readyState</term></code>
                 has an inappropriate value.
               </code>
             </exception>
+            -->
           </method>
-
           <attribute name="responseText">
            <p>If the
-            <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+            <code><term>readyState</term></code>
             attribute has a value other than 3 (Receiving) or 4 (Loaded), it
-            MUST be the empty string. Otherwise, returns
+            MUST be the empty string. Otherwise, it MUST return
             the body of the data received so far, interpreted using the character
             encoding specified in the response, or UTF-8 if no character encoding was
             specified. Invalid bytes MUST be converted to U+FFFD REPLACEMENT
@@ -536,7 +526,7 @@
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this attribute is accessed when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><term>readyState</term></code>
                 has an inappropriate value.
               </code>
             </exception>
@@ -546,7 +536,7 @@
 
           <attribute name='responseXML' type='Document'>
             <p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              If the <code><term>readyState</term></code>
               attribute has a value other than
               4 (Loaded), it MUST be <code>null</code>.
               Otherwise, if the <code>Content-Type</code> header contains a
@@ -562,7 +552,7 @@
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this attribute is accessed when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><term>readyState</term></code>
                 has an inappropriate value.
               </code>
             </exception>
@@ -572,7 +562,7 @@
           <attribute name='status' type='unsigned short'>
             <p>
               If the <code>status</code> attribute is not available it MUST raise an
-              exception. It MUST be available when <code>readyState</code> is
+              exception. It MUST be available when <code><term>readyState</term></code> is
               3 (Receiving) or 4 (Loaded).
               When available, it MUST represent the HTTP status
               code (typically 200 for a successful connection).
@@ -580,8 +570,7 @@
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this attribute is accessed when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-                has an inappropriate value.
+                <code><term>readyState</term></code> has an inappropriate value.
               </code>
             </exception>
           </attribute>
@@ -597,7 +586,7 @@
             <exception name='DOMException'>
               <code name='INVALID_STATE_ERR' on='retrieval'>
                 SHOULD be raised if this attribute is accessed when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><term>readyState</term></code>
                 has an inappropriate value.
               </code>
             </exception>

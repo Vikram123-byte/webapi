@@ -6,7 +6,7 @@
           regenerated.
           ******* WARNING ********
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.11 2006-04-02 23:22:51 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>03 April 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="
+<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.12 2006-04-03 16:11:31 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>03 April 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="
         
       ">
         
@@ -32,7 +32,7 @@
     </p>
     <div class="ednote">
       <p>
-        Last update: $Id: XMLHttpRequest.html,v 1.11 2006-04-02 23:22:51 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.html,v 1.12 2006-04-03 16:11:31 avankest Exp $.
       </p>
     </div>
   </div>
@@ -164,9 +164,9 @@
     
     <p>
       A more complete description of what can be done with <code>XMLHttpRequest</code>
-      can be found in the IDL below and its associated details.
+      can be found in the IDL below and its associated details. <div class="ednote">Need to
+      define which IDL specification we are going to conform to, if any.</div>
     </p>
-
     <div class="boxed"><p><span class="idlTitle">The XMLHttpRequest interface</span></p><pre class="schema" title="The XMLHttpRequest interface">interface <a href="#idl-webapi-XMLHttpRequest">XMLHttpRequest</a> {
 
            attribute Function        <a href="#idl-attr-XMLHttpRequest-onreadystatechange">onreadystatechange</a>;
@@ -182,10 +182,8 @@
   void               <a href="#idl-meth-XMLHttpRequest-send">send</a>(in Document data)
                                         raises(DOMException);
   void               <a href="#idl-meth-XMLHttpRequest-abort">abort</a>();
-  DOMString          <a href="#idl-meth-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders</a>()
-                                        raises(DOMException);
-  DOMString          <a href="#idl-meth-XMLHttpRequest-getResponseHeader">getResponseHeader</a>(in DOMString header)
-                                        raises(DOMException);
+  DOMString          <a href="#idl-meth-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders</a>();
+  DOMString          <a href="#idl-meth-XMLHttpRequest-getResponseHeader">getResponseHeader</a>(in DOMString header);
            attribute DOMString       <a href="#idl-attr-XMLHttpRequest-responseText">responseText</a>;
            attribute Document        <a href="#idl-attr-XMLHttpRequest-responseXML">responseXML</a>;
            attribute unsigned short  <a href="#idl-attr-XMLHttpRequest-status">status</a>;
@@ -196,36 +194,35 @@
       of type
       Function</dt><dd><p>
               An attribute that represents a function that <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be invoked when
-              <code>readyState</code> changes value. The function <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be called
-              multiple times when readyState is 3 (Receiving).
+              <code>readyState</code> changes value. The function <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be invoked
+              multiple times when readyState is 3 (Receiving). Its initial value
+              <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be <code>null</code>. <div class="ednote">What if languages don't have
+              functions? Perhaps this should be an EventListener?</div>
             </p></dd><dt id="idl-attr-XMLHttpRequest-readyState"><code>readyState</code>
       of type
-      unsigned short, readonly</dt><dd><p>
-              The state of the object.
-            </p><p>
-              The value of <code>readyState</code> <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be within the following set of constants, which describe the current state of the object.
-            </p><dl>
-              <dt>0 Uninitialized</dt>
-              <dd>The initial value.</dd>
-              <dt>1 Open</dt>
-              <dd>The <code>open()</code> method has been successfully
-               called.</dd>
-              <dt>2 Sent</dt>
-              <dd>The UA successfully completed the request, but no data has yet
-               been received.</dd>
-              <dt>3 Receiving</dt>
-              <dd>Immediately before receiving the message body (if any). All
-               HTTP headers have been received.</dd>
-              
-              
-              <dt>4 Loaded</dt>
-              <dd>The data transfer has been completed.</dd>
-            </dl></dd><dt id="idl-attr-XMLHttpRequest-responseText"><code>responseText</code>
+      unsigned short, readonly</dt><dd><p>The state of the object. The attribute MUSt be one of the
+            following values:</p><dl>
+            <dt>0 Uninitialized</dt>
+            <dd>The initial value.</dd>
+            <dt>1 Open</dt>
+            <dd>The <code>open()</code> method has been successfully
+             called.</dd>
+            <dt>2 Sent</dt>
+            <dd>The UA successfully completed the request, but no data has yet
+             been received.</dd>
+            <dt>3 Receiving</dt>
+            <dd>Immediately before receiving the message body (if any). All
+             HTTP headers have been received. <div class="ednote">What about HEAD
+             requests?</div></dd>
+             
+            <dt>4 Loaded</dt>
+            <dd>The data transfer has been completed.</dd>
+           </dl></dd><dt id="idl-attr-XMLHttpRequest-responseText"><code>responseText</code>
       of type
       DOMString</dt><dd><p>If the
-            <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+            <code><a class="term" href="#dfn-readystate">readyState</a></code>
             attribute has a value other than 3 (Receiving) or 4 (Loaded), it
-            <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the empty string. Otherwise, returns
+            <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the empty string. Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return
             the body of the data received so far, interpreted using the character
             encoding specified in the response, or UTF-8 if no character encoding was
             specified. Invalid bytes <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be converted to U+FFFD REPLACEMENT
@@ -233,7 +230,7 @@
            </p></dd><dt id="idl-attr-XMLHttpRequest-responseXML"><code>responseXML</code>
       of type
       Document</dt><dd><p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              If the <code><a class="term" href="#dfn-readystate">readyState</a></code>
               attribute has a value other than
               4 (Loaded), it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be <code>null</code>.
               Otherwise, if the <code>Content-Type</code> header contains a
@@ -248,15 +245,14 @@
       of type
       unsigned short</dt><dd><p>
               If the <code>status</code> attribute is not available it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> raise an
-              exception. It <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be available when <code>readyState</code> is
+              exception. It <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be available when <code><a class="term" href="#dfn-readystate">readyState</a></code> is
               3 (Receiving) or 4 (Loaded).
               When available, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> represent the HTTP status
               code (typically 200 for a successful connection).
             </p><dl><dt>Exceptions on retrieval</dt><dd><table class="idl-exceptions"><tr><td><a href="#idl-if-DOMException">DOMException</a></td><td><table>
               <tr><td>INVALID_STATE_ERR</td><td>
                 <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> be raised if this attribute is accessed when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-                has an inappropriate value.
+                <code><a class="term" href="#dfn-readystate">readyState</a></code> has an inappropriate value.
               </td></tr>
             </table></td></tr></table></dd></dl></dd><dt id="idl-attr-XMLHttpRequest-statusText"><code>statusText</code>
       of type
@@ -269,23 +265,21 @@
             </p><dl><dt>Exceptions on retrieval</dt><dd><table class="idl-exceptions"><tr><td><a href="#idl-if-DOMException">DOMException</a></td><td><table>
               <tr><td>INVALID_STATE_ERR</td><td>
                 <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> be raised if this attribute is accessed when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><a class="term" href="#dfn-readystate">readyState</a></code>
                 has an inappropriate value.
               </td></tr>
             </table></td></tr></table></dd></dl></dd></dl></div><div class="section"><h4 class="idl-header">Methods</h4><dl class="idl-meth"><dt id="idl-meth-XMLHttpRequest-abort"><code>abort</code></dt><dd><p>
               Calling this method <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> cancel any network activity for which the object is
               responsible. In addition, UAs <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> then set
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><a class="term" href="#dfn-readystate">readyState</a></code>
               to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
               and reset the object.
-            </p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd><dt id="idl-meth-XMLHttpRequest-getAllResponseHeaders"><code>getAllResponseHeaders</code></dt><dd><p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-              attribute has a value other than
-              3 (Receiving) or 4 (Loaded), it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be <code>null</code>.
-              Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> represent all the HTTP
-              headers, as a single string, with each header line separated by a
-              CR (U+000D) LF (U+000A) pair. The status line <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> not be included.
-            </p><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
+            </p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd><dt id="idl-meth-XMLHttpRequest-getAllResponseHeaders"><code>getAllResponseHeaders</code></dt><dd><p>If the <code><a class="term" href="#dfn-readystate">readyState</a></code>
+            attribute has a value other than 3 (Receiving) or 4 (Loaded), it
+            <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return <code>null</code>. Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return all the
+            HTTP headers, as a single string, with each header line separated by
+            a CR (U+000D) LF (U+000A) pair. The status line <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> not be
+            included.</p><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
 var r = new XMLHttpRequest();
 r.open('get', 'test.txt', false);
 r.send();
@@ -297,25 +291,18 @@ Server: Apache/1.3.31 (Unix)
 Keep-Alive: timeout=15, max=99
 Connection: Keep-Alive
 Transfer-Encoding: chunked
-Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>No Parameters</dt><dt>Return Value</dt><dd><dl><table><tr><td><code></code></td><td>
-              @XXX TBD@
-            </td></tr></table></dl></dd><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-DOMException">DOMException</a></td><td><table>
-              <tr><td>INVALID_STATE_ERR</td><td>
-                <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> be raised if this method is called when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-                has an inappropriate value.
-              </td></tr>
-            </table></td></tr></table></dd></dl></dd><dt id="idl-meth-XMLHttpRequest-getResponseHeader"><code>getResponseHeader</code></dt><dd><p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>No Parameters</dt><dt>Return Value</dt><dd><dl><table><tr><td><code></code></td><td>A single string consisting of all HTTP
+            headers. See prose for details.</td></tr></table></dl></dd><dt>No Exceptions</dt></dl></dd><dt id="idl-meth-XMLHttpRequest-getResponseHeader"><code>getResponseHeader</code></dt><dd><p>
+              If the <code><a class="term" href="#dfn-readystate">readyState</a></code>
               attribute has a value other than
-              3 (Receiving) or 4 (Loaded), it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the empty string.
+              3 (Receiving) or 4 (Loaded), it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return the empty string.
               Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> represent
               the value of the given HTTP header in the data received so far for the
               last request sent, as a single string. If more than one header of the
               given name was received, then the values <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be concatenated,
               separated from each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of that
-              name were received, then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be the empty string. Header names <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
-              compared <span>case-insensitively</span> to the method
+              name were received, then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return the empty string. Header names <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
+              compared case-insensitively to the method
               argument (<var>header</var>).
             </p><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
 var r = new XMLHttpRequest();
@@ -335,13 +322,7 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
               @XXX TDB@
             </dd></dl></dd><dt>Return Value</dt><dd><dl><table><tr><td><code></code></td><td>
               @XXX TBD@
-            </td></tr></table></dl></dd><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-DOMException">DOMException</a></td><td><table>
-              <tr><td>INVALID_STATE_ERR</td><td>
-                <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> be raised if this method is called when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
-                has an inappropriate value.
-              </td></tr>
-            </table></td></tr></table></dd></dl></dd><dt id="idl-meth-XMLHttpRequest-open"><code>open</code></dt><dd><p>
+            </td></tr></table></dl></dd><dt>No Exceptions</dt></dl></dd><dt id="idl-meth-XMLHttpRequest-open"><code>open</code></dt><dd><p>
               Calling this method <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> initialise the object by remembering the <var>method</var>,
               <var>uri</var>, <var>async</var> (defaulting to <code>true</code> if
               omitted), <var>user</var> (defaulting to <code>null</code> if omitted), and
@@ -385,10 +366,10 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
           DOMString, optional</dt><dd>
               @XXX TBD@
             </dd></dl></dd><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd><dt id="idl-meth-XMLHttpRequest-send"><code>send</code></dt><dd><p>
-              If the <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code> attribute
+              If the <code><a class="term" href="#dfn-readystate">readyState</a></code> attribute
               has a value other than
               1 (Open), an exception <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be raised. Otherwise, the
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><a class="term" href="#dfn-readystate">readyState</a></code>
               attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to 2 (Sent) and
               a request to <var>uri</var> using method <var>method</var>, authenticating using
               <var>user</var> and
@@ -418,10 +399,10 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
               page as the response.
             </p><p>
               Immediately before processing the message body (if any), the
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><a class="term" href="#dfn-readystate">readyState</a></code>
               attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to to 3 (Receiving). When the request has
               completed loading, the
-              <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+              <code><a class="term" href="#dfn-readystate">readyState</a></code>
               attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to 4 (Loaded).
             </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>data</code>
           of varying types (see IDL)
@@ -430,7 +411,7 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
             </dd></dl></dd><dt>No Return Value</dt><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-DOMException">DOMException</a></td><td><table>
               <tr><td>INVALID_STATE_ERR</td><td>
                 <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be raised if this method is called when
-                <code><a href="#idl-attr-XMLHttpRequest-readyState">readyState</a></code>
+                <code><a class="term" href="#dfn-readystate">readyState</a></code>
                 has an inappropriate value.
               </td></tr>
             </table></td></tr></table></dd></dl></dd><dt id="idl-meth-XMLHttpRequest-setRequestHeader"><code>setRequestHeader</code></dt><dd><p>
