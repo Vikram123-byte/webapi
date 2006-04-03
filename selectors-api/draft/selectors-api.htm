@@ -88,12 +88,12 @@
    argument is <code>null</code> UAs <em class="ct">must</em> ignore it.</p>
   <p>When authors use namespace prefixes within <var>selectors</var> they
    <em class="ct">must</em> create an object implementing the
-   <code>XPathNSResolver</code> interface. In case of ECMAScript they
-   <em class="ct">may</em> pass a <code>Function</code> as argument for
-   <code>nsresolver</code> instead as defined in in
-   [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. If they don't
-   use namespace prefixes within <var>selectors</var> authors
-   <em class="ct">must</em> set <var>nsresolver</var> to <code>null</code> or
+   <code>XPathNSResolver</code> interface (or <em class="ct"may</em> create a
+   <code>Function</code> in case of ECMAScript) and pass that as argument for
+   <code>nsresolver</code> as defined in in 
+   [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. If they don't use
+   namespace prefixes within <var>selectors</var> authors
+   <em class="ct">may</em> set <var>nsresolver</var> to <code>null</code> or
    omit the argument completely if the language binding allows it.</p>
   <p class="issue">Make sure [DOM3XPath] actually defines this. Otherwise this
    draft will have to. (Which is needed anyway when this goes beyond Last Call
@@ -103,11 +103,6 @@
    given group of selectors (<var>selectors</var>) uses namespace prefixes and
    the prefix can not be resolved using the <var>nsresolver</var> argument UAs
    <em class="ct">must</em> raise a <code>NAMESPACE_ERR</code> exception.</p>
-  <p>If the <var>nsresolver</var> argument is not of the right type UAs
-   <em class="ct">must</em> raise a <code>TYPE_MISMATCH_ERR</code>
-   exception.</p>
-  <p class="issue">What happens when <var>selectors</var> is not of the right
-   type?</p>
   <p class="note">Using psuedo-elements in one of the selectors could mean that
    nothing is returned for that particular selector when it doesn't resolve in
    one or more <code>Element</code> nodes.</p>
@@ -137,7 +132,7 @@ var y = document.match("div.foo.bar");</pre>
   <h2>Security Considerations</h2>
   <p>It is expected that implementing this specification introduces no new risks
    for users.</p>
-  <p><strong>History theft</strong> is the only potential security exploit,
+  <p><strong>History theft</strong> is the one potential security problem,
    because of the <code>:visited</code> pseudo-class in
    [<cite><a href="#ref-selectors">Selectors</a></cite>].
    <code>:visited</code> can already be used to query which links are visited
