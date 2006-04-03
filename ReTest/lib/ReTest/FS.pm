@@ -12,12 +12,16 @@ sub new {
     my $class = shift;
     my $path = shift;
     my $noFile = shift || 0;
+
+
     my $self = bless clear({}), $class;
     if (defined $path) {
         my $dirs;
         ($self->{volume}, $dirs, $self->{file}) = File::Spec->splitpath($path, $noFile);
         $self->{dirs} = [File::Spec->splitdir($dirs)];
     }
+
+
     #if (@{$self->{dirs}})
     return $self;
 }
@@ -54,9 +58,11 @@ sub rel2abs {
 
 sub path {
     my $self = shift;
-    return File::Spec->catpath( $self->{volume},
+    my $path = File::Spec->catpath( $self->{volume},
                                 File::Spec->catdir(@{$self->{dirs}}),
                                 $self->{file});
+
+    return $path;
 }
 
 sub basePath {
