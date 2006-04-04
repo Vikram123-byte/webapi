@@ -132,14 +132,14 @@
   </xsl:template>
 
   <xsl:template match='r:dfn'>
-    <dfn id='dfn-{translate(normalize-space(.), " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'>
+    <dfn id='dfn-{translate(normalize-space(.), " ABCDEFGHIJKLMNOPQRSTUVWXYZ()", "-abcdefghijklmnopqrstuvwxyz")}'>
       <xsl:copy-of select='@*[namespace-uri() = ""]'/>
       <xsl:apply-templates/>
     </dfn>
   </xsl:template>
 
   <xsl:template match='r:term'>
-    <a class='term' href='#dfn-{translate(normalize-space(.), " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'>
+    <a class='term' href='#dfn-{translate(normalize-space(.), " ABCDEFGHIJKLMNOPQRSTUVWXYZ()", "-abcdefghijklmnopqrstuvwxyz")}'>
       <xsl:if test='@xml:id'>
         <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
       </xsl:if>
@@ -390,7 +390,7 @@
       </xsl:choose>
     </xsl:variable>
 
-    <dt id='dfn-{translate(@name, " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'>
+    <dt id='dfn-{translate(@name, " ABCDEFGHIJKLMNOPQRSTUVWXYZ()", "-abcdefghijklmnopqrstuvwxyz")}'>
       <code><xsl:value-of select='@name'/></code>
       of type
       <xsl:choose>
@@ -465,7 +465,7 @@
   </xsl:template>
 
   <xsl:template match='r:method'>
-    <dt id='dfn-{translate(@name, " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'><code><xsl:value-of select='@name'/></code></dt>
+    <dt id='dfn-{translate(@name, " ABCDEFGHIJKLMNOPQRSTUVWXYZ()", "-abcdefghijklmnopqrstuvwxyz")}'><code><xsl:value-of select='@name'/></code></dt>
     <dd>
       <xsl:apply-templates select='*[not(self::r:param) and not(self::r:returns) and not(self::r:exception)]'/>
       <dl>
