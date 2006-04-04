@@ -185,7 +185,7 @@ sub processMethod {
         addText($df, '  ');
         addLinkIFOrText($allIF, $df, $type);
         addText($df, ' ' x ($maxMethType - length($type)));
-        appendElement($df, NS, 'a', { href => '#dfn-' . "$name" }, $name);
+        appendElement($df, NS, 'a', { href => '#dfn-' . lc($name) }, $name);
         addText($df, "(");
         my $i = 1;
         for my $prm (@$prms) {
@@ -223,7 +223,7 @@ sub processAttribute {
     addText($df, $indent . ($attr{ro} ? 'readonly' : ' ' x 8) . ' attribute ');
     addLinkIFOrText($allIF, $df, $attr{type});
     addText($df, ' ' x ($maxAttrType - length($attr{type})));
-    appendElement($df, NS, 'a', { href => '#dfn-' . "$attr{name}" }, $attr{name});
+    appendElement($df, NS, 'a', { href => '#dfn-' . lc($attr{name}) }, $attr{name});
     addText($df, ";\n");
 
     # exceptions
