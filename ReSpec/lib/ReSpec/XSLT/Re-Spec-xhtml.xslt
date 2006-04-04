@@ -390,7 +390,7 @@
       </xsl:choose>
     </xsl:variable>
 
-    <dt id='idl-attr-{../@name}-{@name}'>
+    <dt id='dfn-{translate(@name, " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'>
       <code><xsl:value-of select='@name'/></code>
       of type
       <xsl:choose>
@@ -465,7 +465,7 @@
   </xsl:template>
 
   <xsl:template match='r:method'>
-    <dt id='idl-meth-{../@name}-{@name}'><code><xsl:value-of select='@name'/></code></dt>
+    <dt id='dfn-{translate(@name, " ABCDEFGHIJKLMNOPQRSTUVWXYZ", "-abcdefghijklmnopqrstuvwxyz")}'><code><xsl:value-of select='@name'/></code></dt>
     <dd>
       <xsl:apply-templates select='*[not(self::r:param) and not(self::r:returns) and not(self::r:exception)]'/>
       <dl>
