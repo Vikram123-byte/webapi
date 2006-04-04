@@ -16,7 +16,7 @@
   <metadata>
     <title>The XMLHttpRequest Object</title> <!-- please don't call it 1.0 -->
     <styling type="W3C" status="ED"/>
-    <date year="2006" month="04" day="03"/>
+    <date year="2006" month="04" day="04"/>
     <editors>
       <person>
         <name>Anne van Kesteren</name>
@@ -50,7 +50,7 @@
     </p>
     <ednote>
       <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.35 2006-04-03 16:11:31 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.xml,v 1.36 2006-04-04 09:06:55 avankest Exp $.
       </p>
     </ednote>
   </section>
@@ -167,7 +167,7 @@
       <title>XMLHttpRequest constructor</title>
       var r = new XMLHttpRequest();
     </example>
-    <!-- XXX non-ECMAScript implementations die? -->
+    <p><ednote>What about non-ECMAScript implementations?</ednote></p>
     <p>
       A more complete description of what can be done with <code>XMLHttpRequest</code>
       can be found in the IDL below and its associated details. <ednote>Need to
@@ -187,9 +187,9 @@
             </p>
           </attribute>
 
-          <attribute ro='true' type='unsigned short' name='readyState'>
-           <p>The state of the object. The attribute MUSt be one of the
-            following values:</p>
+          <attribute ro='true' type='unsigned short' name='readyState' xml:id="dfn-readystate">
+           <p>The state of the object. The
+            attribute MUSt be one of the following values:</p>
            <dl>
             <dt>0 Uninitialized</dt>
             <dd>The initial value.</dd>
@@ -234,18 +234,18 @@
               If <code>open()</code> is called when <code>readyState</code> is
               4 (Loaded) the entire object MUST be reset.
             </p>
-            <!-- XXX ISSUE-29, awaiting testcases -->
             <param name='method'>
               A valid HTTP method name. The <code>GET</code>, <code>POST</code>,
               and <code>HEAD</code> values MUST be supported.
+              <ednote>What about <code>PUT</code> and <code>DELETE</code>?</ednote>
             </param>
-            <!-- XXX what about PUT and DELETE? -->
             <param name='uri'>
               A URI, which MUST be resolved to an absolute URI using the script's
-              context <code>window.location.href</code> value as base if available,
-              and <code>xml:base</code> otherwise.
+              context <code>window.location.href</code> value as base if available.
+              <ednote>This does not reflect what implementations do.
+               <code>document.baseURI</code> might come closer.
+               (<a href="http://www.w3.org/2006/webapi/track/issues/29">ISSUE-29</a>)</ednote>
             </param>
-            <!-- XXX xml:base otherwise makes no sense whatsoever... -->
             <param name='async' type='boolean' optional='true'>
               @XXX TBD@
             </param>
@@ -367,7 +367,7 @@
               <var>password</var> as appropriate is sent. If the <var>async</var> flag is set
               to false, then the method MUST not
               return until the request has completed. Otherwise, it MUST return
-              immediately. (See: <code><a href="#idl-meth-XMLHttpRequest-open">open()</a></code>.)
+              immediately. (See: <code><term>open()</term></code>.)
             </p>
             <!-- ISSUE-34 -->
             <p>
@@ -420,17 +420,9 @@
             </exception>
           </method>
 
-          <!--
-           misnomer again, should probably have been reset() ...
-          -->
           <method name='abort'>
-            <p>
-              Calling this method MUST cancel any network activity for which the object is
-              responsible. In addition, UAs MUST then set
-              <code><term>readyState</term></code>
-              to 4 (Loaded), call the function defined in <code>onreadystatechange</code>
-              and reset the object.
-            </p>
+           <p>When invoked, this method MUST cancels any network activity for
+            which the object is responsible and resets the object.</p>
           </method>
           <method name='getAllResponseHeaders'>
            <p>If the <code><term>readyState</term></code>
@@ -516,7 +508,7 @@
            <p>If the
             <code><term>readyState</term></code>
             attribute has a value other than 3 (Receiving) or 4 (Loaded), it
-            MUST be the empty string. Otherwise, it MUST return
+            MUST be the empty string. Otherwise, it MUST be the
             the body of the data received so far, interpreted using the character
             encoding specified in the response, or UTF-8 if no character encoding was
             specified. Invalid bytes MUST be converted to U+FFFD REPLACEMENT
@@ -533,7 +525,6 @@
             -->
           </attribute>
           <!-- XXX ISSUE-31 -->
-
           <attribute name='responseXML' type='Document'>
             <p>
               If the <code><term>readyState</term></code>
