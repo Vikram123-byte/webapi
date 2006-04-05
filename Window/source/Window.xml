@@ -120,7 +120,7 @@
     <section xml:id='usage' normativity='not normative'>
       <title>Examples of usage</title>
 
-      <ednote>Need to fill this in.</ednote>
+      <ednote>ACTION-129: Write Window Object 1.0 "examples of usage" section.</ednote>
     </section>
 
     <section xml:id='notcovered' normativity='not normative'>
@@ -134,8 +134,8 @@
       </p>
 
       <ul>
-      <li>History <ednote>(may have to reconsider this)</ednote></li>
-      <li>Access to frames by name <ednote>(may have to reconsider this)</ednote></li>
+      <li>History <ednote>ISSUE-59: Should Window 1.0 include history?</ednote></li>
+      <li>Access to frames by name <ednote>ISSUE-60: Should Window Object 1.0 include access to frames by name (window.frames)?</ednote></li>
       <li>Opening new windows</li>
       <li>Manipulating UI of existing windows</li>
       <li>Window size and position information</li>
@@ -233,7 +233,7 @@
   <section xml:id='browsing'>
     <title>Browsing Contexts</title>
 
-    <ednote>Need to define the term "document"?</ednote>
+    <ednote>ACTION-130: Need to add definition of "document"</ednote>
 
     <p>
       A <dfn>browsing context</dfn> is a place where a user agent
@@ -267,12 +267,8 @@
       is the <dfn>default view</dfn>. The <term>default view</term> is
       typically the primary mode of presentation to the user, and in
       interactive user agents, the primary means of interaction for
-      the user. <ednote>Are there any UAs out there that implement
-      AbstractViews and actually have multiple views? In this case do
-      all the views implement the <term><code>Window</code> interface</term>, or only the
-      primary view? Maybe we shouldn't specify too much about multiple
-      views unless we can find actual implementations of
-      this.</ednote>
+      the user. <ednote>ISSUE-61: Should the Window spec drop any conformance 
+      requirements for AbstractViews besides the defaultView?</ednote>
     </p>
 
     <p>
@@ -298,12 +294,11 @@
       is dispatched on any node in a <code>Document</code> presented in a
       <term>browsing context</term>, the value of the <code>view</code> attribute of the
       event MUST be the <code>Window</code> object where the user originated the
-      event. <ednote>Should we specify how the Window is actually part
-      of the capture and bubble phases of DOM event dispatch?  Should
-      we specify anything about events at all? Maybe all event
-      considerations should be deferred to a future Window Events
-      spec. And the particular requirement on UIEvent here appears to
-      duplicate what DOM Level 2 Views already says.</ednote>
+      event. 
+
+<ednote>ISSUE-63: Should Window 1.0 drop the arguably redundant requirment on UIEvent.view?</ednote>
+
+<ednote>ISSUE-64: Should the Window spec define Window's place in DOM event flow?</ednote>
     </p>
 
     <section xml:id='window'>
@@ -317,10 +312,10 @@
       <p>The <term><code>Window</code> interface</term> inherits from
       the <code>AbstractView</code> interface [DOM2Views].</p>
 
-      <ednote>Should we give a requirement or explanatory note here
-      that if you implement CSSOM then the <code>Window</code> and
-      <code>ViewCSS</code> interfaces should be implemented by the
-      same object?</ednote>
+      <p>In implementations that support Document Object Model CSS
+      from DOM Level 2 Views [DOM2Views], every
+      <term><code>Window</code> object</term> MUST also implement the
+      <code>ViewCSS</code> interface.</p>
 
       <schema>
       <title></title>
@@ -366,8 +361,8 @@ interface Window : views::AbstractView {
             is a self-reference. Consequently, the value of the <term><code>self</code> 
             attribute</term> MUST be the same object as the <term><code>window</code> 
 	    attribute</term>.
-            <ednote>
-	      Need to define "being the same object" in such a way
+
+            <ednote>ACTION-131: Need to define "being the same object" in such a way
 	      that it is an equivalence relation. Then the second
 	      conformance clause for "self" can just be a note.
             </ednote>
@@ -402,7 +397,7 @@ interface Window : views::AbstractView {
       defines only the most basic methods and attributes of the
       <code>Window</code> interface.</p>
 
-<ednote>Should we also specify the parentWindow property? It is
+<ednote>ISSUE-65: Should we also specify the parentWindow property? It is
 effectively a synonym for defaultView but implemented by a different
 set of UAs.</ednote>
 
@@ -424,13 +419,10 @@ interface DocumentWindow : views::DocumentView {
         implement the <code>Window</code> interface. If a document is
 	not being presented in a <term>browsing context</term> but nontheless
 	implements the DocumentWindow interface, the value of the
-        <code>defaultView</code> attribute MUST be <code>null</code>. <ednote>Is
-        this reasonably testable?  There are ways (XMLHttpRequest, DOM
-        3 L&amp;S, xml data islands, DOMParser) in browser-like UAs to
-        have a document that's not being presented in a browsing
-        context, but how to test this?  Maybe the spec just shouldn't
-        say anything about documents not presented in a browsing
-        context.</ednote>
+        <code>defaultView</code> attribute MUST be
+        <code>null</code>. <ednote>ISSUE-66: should Documents that
+        aren't being presented be required to have a null
+        defaultView?</ednote>
       </p>
     </section>
 
@@ -549,12 +541,14 @@ interface Location {
 
         <dd>
           The value of the <code>href</code> attribute MUST be the
-          absolute URI reference [RFC2396] that is the Location's
-          current location. When the <code>href</code> attribute is
-          set, the Location's window MUST <em>navigate</em> to the newly set value.
-	  <ednote>Must define the term navigate</ednote>
-	  <ednote>Should resulution of relative URI references be
-	  defined here or in the bindings?</ednote>
+          absolute URI reference [RFC2396] <ednote>use newer URI
+          RFC?</ednote> that is the Location's current location. When
+          the <code>href</code> attribute is set, the Location's
+          window MUST <em>navigate</em> to the newly set value.
+          <ednote>Must define the term navigate</ednote>
+          <ednote>ISSUE-67: Should resolution of relative URI
+          references sent to location be defined in JS bindings or
+          generally?</ednote> 
         </dd>
 
         <dt><dfn>hash</dfn></dt>
@@ -565,10 +559,8 @@ interface Location {
           this attribute MUST be the string concatenation of the hash
           mark(#) and the fragment identifier. Otherwise, the value of
           the <code>hash</code> attribute MUST be the empty
-          string. <ednote>what about non-HTTP? -- I think fragment IDs
-          should apply to all URI schemes.</ednote> When this atribute is
-	  set to a new value <var>new-hash</var>, user agents MUST perform
-	   the following steps:
+          string. When this atribute is set to a new value <var>new-hash</var>, 
+	  user agents MUST perform the following steps:
 	  <ol>
 	  <li>Give the hash attribute the value <var>new-hash</var>.</li>
 	  <li><em>Reconstruct the location URI</em><ednote>Need to define the
@@ -639,7 +631,7 @@ rewritten to state conformance requirements. In the manner of the above.</ednote
 
         <ednote>Need description for assign.</ednote>
 
-	<ednote>Need description for toString, if we specify that. It
+	<ednote>ISSUE-68: Need description for toString, if we specify that. It
 	has the same value as href; not all implementations have this
 	explicitly but toString is always available in ECMAScript, and
 	probably this should be explicit for the sake of Java. Or we
@@ -648,12 +640,12 @@ rewritten to state conformance requirements. In the manner of the above.</ednote
 
         <dt><dfn>replace(<var>url</var>)</dfn></dt>
         <dd>This function replaces the current history entry with the
-         <var>url</var> specified. <ednote>we haven't specified history - but we
+         <var>url</var> specified. <ednote>ISSUE-59: we haven't specified history - but we
          need to if we are to support this</ednote></dd>
 
         <dt><dfn>reload()</dfn></dt>
         <dd>This function forces the host application to reload the resource
-         identified by the Location. <ednote>Netscape used to allow a bool
+         identified by the Location. <ednote>ISSUE-69: Netscape used to allow a bool
          argument to force an unconditional GET from the network</ednote></dd>
      </dl>
      </section>
@@ -846,6 +838,8 @@ interface TimerListener {
     // what to put here?
 };</idl></schema>
 
+    <ednote>ISSUE-70: what to do about timers?</ednote>
+
     <ednote>Need to define this. In ES bindings, a function or string is the only thing allowed.</ednote>
 
     </section>
@@ -855,8 +849,7 @@ interface TimerListener {
   <section xml:id='security'>
     <title>Security Considerations</title>
 
-    <ednote>
-<p>My current plan for the "security considerations" section is that it will contain the following:</p>
+    <ednote><p>My current plan for the "security considerations" section is that it will contain the following:</p>
 
 <ul>
 <li>Non-normative statements of fact about various security vulnerabilities that may affect Window implementations (unauthorized data access, phishing/pharming, frame injection, etc).</li>
@@ -947,10 +940,8 @@ interface TimerListener {
       <bibentry xml:id="DOM3Core">
       </bibentry>
       <bibentry xml:id="ECMAScript">
-      <ednote>Need titles and authors</ednote>
       </bibentry>
       <bibentry xml:id="Java">
-      <ednote>Need titles and authors</ednote>
       </bibentry>
       <bibentry xml:id="RFC2396">
         <title>Uniform Resource Identifiers (URI): Generic Syntax</title>
