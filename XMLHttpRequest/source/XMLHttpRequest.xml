@@ -50,7 +50,7 @@
     </p>
     <ednote>
       <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.37 2006-04-04 09:32:42 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.xml,v 1.38 2006-04-06 22:54:23 avankest Exp $.
       </p>
     </ednote>
   </section>
@@ -401,7 +401,7 @@
             <!-- XXX what about DNS errors? -->
             <!-- XXX what about 304? -->
             <p>
-              Immediately before processing the message body (if any), the
+              Immediately before receiving the message body (if any), the
               <code><term>readyState</term></code>
               attribute MUST be set to to 3 (Receiving). When the request has
               completed loading, the
@@ -421,8 +421,8 @@
           </method>
 
           <method name='abort'>
-           <p>When invoked, this method MUST cancels any network activity for
-            which the object is responsible and resets the object.</p>
+           <p>When invoked, this method MUST cancel any network activity for
+            which the object is responsible and reset the object.</p>
           </method>
           <method name='getAllResponseHeaders'>
            <p>If the <code><term>readyState</term></code>
@@ -437,9 +437,9 @@
               var r = new XMLHttpRequest();
               r.open('get', 'test.txt', false);
               r.send();
-              alert(r.getAllResponseHeaders());
+              print(r.getAllResponseHeaders());
 
-              // ...should display a dialog with text similar to the following:
+              // ...should output something similar to the following text:
               Date: Sun, 24 Oct 2004 04:58:38 GMT
               Server: Apache/1.3.31 (Unix)
               Keep-Alive: timeout=15, max=99
@@ -449,14 +449,6 @@
            </example>
            <returns type='DOMString'>A single string consisting of all HTTP
             headers. See prose for details.</returns>
-           <!-- XXX
-           <exception name='DOMException'>
-            <code name='INVALID_STATE_ERR' on='retrieval'>SHOULD be raised if
-            this method is called when
-            <code><term>readyState</term></code>
-            has an inappropriate value.</code>
-           </exception>
-           -->
           </method>
           <method name='getResponseHeader'>
             <p>
@@ -478,14 +470,9 @@
               var r = new XMLHttpRequest();
               r.open('get', 'test.txt', false);
               r.send();
-              alert(r.getAllResponseHeaders());
+              print(r.getResponseHeader('Content-Type'));
 
-              // ...should display a dialog with text similar to the following:
-              Date: Sun, 24 Oct 2004 04:58:38 GMT
-              Server: Apache/1.3.31 (Unix)
-              Keep-Alive: timeout=15, max=99
-              Connection: Keep-Alive
-              Transfer-Encoding: chunked
+              // ...should output something similar to the following text:
               Content-Type: text/plain; charset=utf-8
             </example>
             <returns type='DOMString'>
@@ -494,15 +481,6 @@
             <param name='header'>
               @XXX TDB@
             </param>
-            <!-- XXX
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                SHOULD be raised if this method is called when
-                <code><term>readyState</term></code>
-                has an inappropriate value.
-              </code>
-            </exception>
-            -->
           </method>
           <attribute name="responseText">
            <p>If the
@@ -514,15 +492,6 @@
             specified. Invalid bytes MUST be converted to U+FFFD REPLACEMENT
             CHARACTER.
            </p>
-            <!--
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                SHOULD be raised if this attribute is accessed when
-                <code><term>readyState</term></code>
-                has an inappropriate value.
-              </code>
-            </exception>
-            -->
           </attribute>
           <!-- XXX ISSUE-31 -->
           <attribute name='responseXML' type='Document'>
@@ -539,15 +508,6 @@
               well-formedness error or unsupported character encoding, for instance),
               it MUST be <code>null</code>.
             </p>
-            <!--
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                SHOULD be raised if this attribute is accessed when
-                <code><term>readyState</term></code>
-                has an inappropriate value.
-              </code>
-            </exception>
-            -->
           </attribute>
 
           <attribute name='status' type='unsigned short'>
