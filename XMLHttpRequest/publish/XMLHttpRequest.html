@@ -6,11 +6,11 @@
           regenerated.
           ******* WARNING ********
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.16 2006-04-04 09:44:51 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>04 April 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="
+<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.17 2006-04-07 12:37:22 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>07 April 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="
         
       ">
         
-      </a></dd><dt>Previous version:</dt><dd><a href=""></a></dd><dt>Editors:</dt><dd><span class="person"><a href="http://annevankesteren.nl/">Anne van Kesteren</a> (<a href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</span></dd><dd><span class="person"><a href="http://www.w3.org/People/Dean/">Dean Jackson</a> (<a href="http://www.w3.org/">W3C</a>) &lt;<a href="mailto:dino@w3.org">dino@w3.org</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+      </a></dd><dt>Previous version:</dt><dd><a href=""></a></dd><dt>Editors:</dt><dd><span class="person"><a href="http://annevankesteren.nl/"></a> (<a href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</span></dd><dd><span class="person"><a href="http://www.w3.org/People/Dean/">Dean Jackson</a> (<a href="http://www.w3.org/">W3C</a>) &lt;<a href="mailto:dino@w3.org">dino@w3.org</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -32,7 +32,7 @@
     </p>
     <div class="ednote">
       <p>
-        Last update: $Id: XMLHttpRequest.html,v 1.16 2006-04-04 09:44:51 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.html,v 1.17 2006-04-07 12:37:22 avankest Exp $.
       </p>
     </div>
   </div>
@@ -56,8 +56,8 @@
       Working Group</a>.
     </p>
     <p>
-      This document is produced by the <a href="http://www.w3.org/2006/webapi">Web API
-      <acronym title="Working Group">WG</acronym></a>, part of the
+      This document is produced by the
+      <a href="http://www.w3.org/2006/webapi">Web APIs WG</a>, part of the
       <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a> in
       the <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.
     </p>
@@ -92,81 +92,88 @@
   <div class="section"><h2 id="contents">Table of contents</h2>
     
 
-    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><a href="#conformance">2. Conformance</a></li><li><a href="#xmlhttprequest">3. The <code>XMLHttpRequest</code> object</a></li></ul><ul class="toc"><li><a href="#bibref">A. References</a></li><li><a href="#authors">B. Authors</a></li></ul>
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><a href="#conformance">2. Conformance</a></li><li><a href="#issues">3. Outstanding issues</a></li><li><a href="#xmlhttprequest">4. The <code>XMLHttpRequest</code> object</a></li></ul><ul class="toc"><li><a href="#bibref">A. References</a></li><li><a href="#authors">B. Authors</a></li></ul>
   </div>
 
   <div class="section"><h2 id="introduction">1. Introduction</h2>
-    
-    <p><em>This section is informative</em></p>
-
-    <p>
-      The XMLHttpRequest object is an interface exposed by a scripting
-      engine that allows scripts to perform HTTP client functionality,
-      such as submitting form data or loading data from a remove Web
-      site.
-    </p>
-
-    <p>
-        The XMLHttpRequest object is implemented today, in some form, by
-        many popular Web browsers. Unfortunately the implementations are
-        not completely interoperable. The goal of this specification is
-        to document a minimum set of interoperable features based on
-        existing implementations, allowing Web developers to use these
-        features without platform-specific code. In order to do this,
-        only features that are already implemented are considered. In the
-        case where there is a feature with no interoperable implementations,
-        the authors have specified what they believe to be the most
-        correct behavior.
-    </p>
-
-    <p>
-      Future versions of this specification (as opposed to future drafts
-      of this version) may add new features, after careful examination
-      from browser developers and Web content developers.
-    </p>
-
-    <p>
-      This specification was originally derived from the WHAT <acronym title="Working Group">WG</acronym>'s Web
-      Applications 1.0 document. The authors acknowledge the work
-      of the WHAT <acronym title="Working Group">WG</acronym> in documenting existing behavior.
-    </p>
-
+   
+   <p><em>This section is non-normative</em></p>
+   <p>The <code>XMLHttpRequest</code> object is an interface exposed by a
+    scripting engine that allows scripts to perform HTTP client functionality,
+    such as submitting form data or loading data from a server. Although the
+    name of the object starts with "XML", it supports the transport of other
+    data formats in addition to XML.</p>
+   <p>The <code>XMLHttpRequest</code> object is implemented today, in some form, by
+    many popular Web browsers. Unfortunately the implementations are not
+    completely interoperable. The goal of this specification is to document a
+    minimum set of interoperable features based on existing implementations,
+    allowing Web developers to use these features without platform-specific
+    code. In order to do this, only features that are already implemented are
+    considered. In the case where there is a feature with no interoperable
+    implementations, the authors have specified what they believe to be the most
+    correct behavior. It is expected that vendors update their implementation to
+    match what the specification specifies.</p>
+   <p>Future versions of this specification (as opposed to future drafts of this
+    version) may add new features, after careful examination from browser
+    developers and Web content developers.</p>
+   <p>This specification was originally derived from the WHATWG's Web
+    Applications 1.0 document. The authors acknowledge the work of the WHATWG in
+    documenting existing behavior.</p>
   </div>
 
   <div class="section"><h2 id="conformance">2. Conformance</h2>
-    
-
-    <p><em>This section is normative</em></p>
-
-    <p>
-      The key words <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHALL NOT</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em>,
-      <em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em>, and <em class="rfc2119" title="Keyword in RFC 2119 context">OPTIONAL</em> in this document are to be interpreted as described in
-      RFC 2119 [<cite><a href="#RFC2119" class="bibref">RFC2119</a></cite>].
-    </p>
+   
+   <p><em>This section is normative</em></p>
+   <p>The key words <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHALL NOT</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em>,
+    <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em>, <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em>, and <em class="rfc2119" title="Keyword in RFC 2119 context">OPTIONAL</em> in this document are to be
+    interpreted as described in RFC 2119 [<cite><a href="#RFC2119" class="bibref">RFC2119</a></cite>].</p>
   </div>
-
-  <div class="section"><h2 id="xmlhttprequest">3. The <code>XMLHttpRequest</code> object</h2>
-    
-
-    <p><em>This section is normative</em></p>
-
-    <p>
-      The following interface <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be used to allow scripts to
-      programmatically connect to their originating
-      server via HTTP.
-    </p>
-    
-    <p>
-      In ECMAScript, an instance of <code>XMLHttpRequest</code> can be
-      created using the <code>XMLHttpRequest()</code> constructor:
-    </p>
-    <div class="boxed"><div><span class="exampleTitle">Example: XMLHttpRequest constructor</span></div><pre class="example" title="XMLHttpRequest constructor">var r = new XMLHttpRequest();</pre></div>
-    <p><div class="ednote">What about non-ECMAScript implementations?</div></p>
-    <p>
-      A more complete description of what can be done with <code>XMLHttpRequest</code>
-      can be found in the IDL below and its associated details. <div class="ednote">Need to
-      define which IDL specification we are going to conform to, if any.</div>
-    </p>
+  <div class="section"><h2 id="issues">3. Outstanding issues</h2>
+   
+   <ul>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/29">ISSUE-29 - how
+     is uri parameter of the open() method resolved</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/31">ISSUE-31 - 
+     invalid bytes and default character encoding</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/34">ISSUE-34 - XHR:
+     Should synchronous loading call onreadystatechange</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/39">ISSUE-39 - 
+     Errors in XHR requests</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/42">ISSUE-42 -
+     missing text for arguments and return values</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/43">ISSUE-43 -
+     change to "common baseline"?</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/44">ISSUE-44 - XHR:
+     Overloading in the IDL</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/47">ISSUE-47 -
+     responseText is not always accessible when readyState &lt; 3</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/71">ISSUE-71 -
+     setRequestHeader has too many header restrictions</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/72">ISSUE-72 -
+     should XMLHttpRequest be an EventTarget?</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/73">ISSUE-73 - Are
+     we going to support non-ECMAScript languages?</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/74">ISSUE-74 - what
+     does it mean for XHR to support more methods?</a></li>
+    <li><a href="http://www.w3.org/2006/webapi/track/issues/75">ISSUE-75 -
+     Is method case-sensitive?</a></li>
+   </ul>
+  </div>
+  <div class="section"><h2 id="xmlhttprequest">4. The <code>XMLHttpRequest</code> object</h2>
+   
+   <p><em>This section is normative</em></p>
+   <p>The following interface <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be used to allow scripts to programmatically
+    connect to their originating server via HTTP.</p>
+   
+   <p>In ECMAScript, an instance of <code>XMLHttpRequest</code> can be created
+    using the <code>XMLHttpRequest()</code> constructor:</p>
+   <div class="boxed"><div><span class="exampleTitle">Example: XMLHttpRequest constructor</span></div><pre class="example" title="XMLHttpRequest constructor">var r = new XMLHttpRequest();</pre></div>
+   <div class="ednote">What about non-ECMAScript implementations?</div>
+   <p>A more complete description of what can be done with
+    <code>XMLHttpRequest</code> can be found in the IDL below and its associated
+    details.</p>
+    <div class="ednote">Need to define which IDL specification we are going to conform to,
+     if any. Robin suggested drafting up a Note...</div>
     <div class="boxed"><p><span class="idlTitle">The XMLHttpRequest interface</span></p><pre class="schema" title="The XMLHttpRequest interface">interface <a href="#idl-webapi-XMLHttpRequest">XMLHttpRequest</a> {
 
            attribute Function        <a href="#dfn-onreadystatechange">onreadystatechange</a>;
@@ -196,9 +203,8 @@
               An attribute that represents a function that <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be invoked when
               <code>readyState</code> changes value. The function <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be invoked
               multiple times when readyState is 3 (Receiving). Its initial value
-              <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be <code>null</code>. <div class="ednote">What if languages don't have
-              functions? Perhaps this should be an EventListener?</div>
-            </p></dd><dt id="dfn-readystate"><code>readyState</code>
+              <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be <code>null</code>.</p><div class="ednote">What if languages don't have functions? Perhaps this should
+             be an EventListener?</div></dd><dt id="dfn-readystate"><code>readyState</code>
       of type
       unsigned short, readonly</dt><dd><p>The state of the object. The
             attribute MUSt be one of the following values:</p><dl>
@@ -212,9 +218,7 @@
              been received.</dd>
             <dt>3 Receiving</dt>
             <dd>Immediately before receiving the message body (if any). All
-             HTTP headers have been received. <div class="ednote">What about HEAD
-             requests?</div></dd>
-             
+             HTTP headers have been received.</dd>
             <dt>4 Loaded</dt>
             <dd>The data transfer has been completed.</dd>
            </dl></dd><dt id="dfn-responsetext"><code>responseText</code>
@@ -227,7 +231,7 @@
             encoding specified in the response, or UTF-8 if no character encoding was
             specified. Invalid bytes <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be converted to U+FFFD REPLACEMENT
             CHARACTER.
-           </p></dd><dt id="dfn-responsexml"><code>responseXML</code>
+           </p><div class="ednote">See ISSUE-31.</div></dd><dt id="dfn-responsexml"><code>responseXML</code>
       of type
       Document</dt><dd><p>
               If the <code><a class="term" href="#dfn-readystate">readyState</a></code>
@@ -268,8 +272,8 @@
                 <code><a class="term" href="#dfn-readystate">readyState</a></code>
                 has an inappropriate value.
               </td></tr>
-            </table></td></tr></table></dd></dl></dd></dl></div><div class="section"><h4 class="idl-header">Methods</h4><dl class="idl-meth"><dt id="dfn-abort"><code>abort</code></dt><dd><p>When invoked, this method <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> cancels any network activity for
-            which the object is responsible and resets the object.</p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd><dt id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dt><dd><p>If the <code><a class="term" href="#dfn-readystate">readyState</a></code>
+            </table></td></tr></table></dd></dl></dd></dl></div><div class="section"><h4 class="idl-header">Methods</h4><dl class="idl-meth"><dt id="dfn-abort"><code>abort</code></dt><dd><p>When invoked, this method <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> cancel any network activity for
+            which the object is responsible and reset the object.</p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd><dt id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dt><dd><p>If the <code><a class="term" href="#dfn-readystate">readyState</a></code>
             attribute has a value other than 3 (Receiving) or 4 (Loaded), it
             <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return <code>null</code>. Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return all the
             HTTP headers, as a single string, with each header line separated by
@@ -278,9 +282,9 @@
 var r = new XMLHttpRequest();
 r.open('get', 'test.txt', false);
 r.send();
-alert(r.getAllResponseHeaders());
+print(r.getAllResponseHeaders());
 
-// ...should display a dialog with text similar to the following:
+// ...should output something similar to the following text:
 Date: Sun, 24 Oct 2004 04:58:38 GMT
 Server: Apache/1.3.31 (Unix)
 Keep-Alive: timeout=15, max=99
@@ -299,18 +303,13 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>No Parameters</dt><dt
               name were received, then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return the empty string. Header names <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
               compared case-insensitively to the method
               argument (<var>header</var>).
-            </p><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
+            </p><div class="ednote">Case-insensitively how?</div><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
 var r = new XMLHttpRequest();
 r.open('get', 'test.txt', false);
 r.send();
-alert(r.getAllResponseHeaders());
+print(r.getResponseHeader('Content-Type'));
 
-// ...should display a dialog with text similar to the following:
-Date: Sun, 24 Oct 2004 04:58:38 GMT
-Server: Apache/1.3.31 (Unix)
-Keep-Alive: timeout=15, max=99
-Connection: Keep-Alive
-Transfer-Encoding: chunked
+// ...should output something similar to the following text:
 Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>header</code>
           of type
           DOMString</dt><dd>
@@ -326,9 +325,7 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
               the <code>responseText</code>, <code>responseXML</code>, <code>status</code>, and
               <code>statusText</code> attributes to their initial
               values, and resetting the list of request headers.
-            </p><p>
-              Same-origin security restrictions <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> apply.
-            </p><p>
+            </p><p>Same-origin security restrictions <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> apply.</p><p>
               If the URI given to this method contains a user name and a password
               (the latter potentially being the empty string), then these <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be used
               if the <var>user</var> and <var>password</var>
@@ -389,19 +386,23 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
             </p><p>
              Implementations <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> support the <code>send()</code> to be called
              without the <var>data</var> argument to be passed.
-            </p><p>
-              If the response is an HTTP redirect (status code 301, 302, 303 or 307),
-              then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be transparently
-              followed (unless it violates security or infinite loop precautions). Any
-              other error (including a 401) <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> cause the object to use that error
-              page as the response.
-            </p><p>
-              Immediately before processing the message body (if any), the
+            </p><div class="ednote">This should be a <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>, no?</div><p>If the response is an HTTP redirect (status code 301, 302, 303 or 307),
+            then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be transparently followed (unless it violates security or infinite loop precautions). Any
+            other error (including a 401) <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> cause the object to use that error
+            page as the response.</p><p>If the author performed a conditional GET request (setting the
+            relevant headers using <code><a class="term" href="#dfn-setrequestheader">setRequestHeader()</a></code>)
+            and the resulting response is a 304 the UA <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return a 304 and it
+            is expected the page author can deal with that. Otherwise, if the UA
+            performed a conditional GET request and the response is a 304 the UA
+            <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return a 200 (using the relevant cached file).</p><div class="ednote">What about DNS errors?</div><p>
+              Immediately before receiving the message body (if any), the
               <code><a class="term" href="#dfn-readystate">readyState</a></code>
               attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to to 3 (Receiving). When the request has
               completed loading, the
               <code><a class="term" href="#dfn-readystate">readyState</a></code>
-              attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to 4 (Loaded).
+              attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to 4 (Loaded). In case of a HEAD request
+              <code><a class="term" href="#dfn-readystate">readyState</a></code> <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to 4 (Loaded)
+              immediatly after having gone to 3 (Receiving).
             </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>data</code>
           of varying types (see IDL)
         </dt><dd>
@@ -458,13 +459,6 @@ X-Test: one, two
                 overridden.
               </li>
               <li>
-                UAs <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> set the <code>If-Modified-Since</code>,
-                <code>If-None-Match</code>, <code>If-Range</code>, and
-                <code>Range</code> headers if the resource is cached and has not
-                expired (as allowed by HTTP), and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em> allow those headers to be
-                overridden.
-              </li>
-              <li>
                 UAs <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> set the <code>Connection</code> and
                 <code>Keep-Alive</code> headers as described by the HTTP specification,
                 and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em> allow those headers to be overridden.
@@ -499,12 +493,9 @@ X-Test: one, two
                 @XXX TDB@
               </td></tr>
             </table></td></tr></table></dd></dl></dd></dl></div></div>
-
-    <p>
-      HTTP requests sent from multiple different
-      <code><a href="#xmlhttprequest">XMLHttpRequest</a></code>
-      objects in succession <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> be pipelined into shared HTTP connections.
-    </p>
+    <p>HTTP requests sent from multiple different
+     <code>XMLHttpRequest</code> objects in succession <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> be pipelined into
+     shared HTTP connections.</p>
   </div>
 
   <div class="section"><h2 id="bibref">A. References</h2>
