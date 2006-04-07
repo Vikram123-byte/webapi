@@ -46,6 +46,22 @@
   <p>This document is an Editor's Working Group draft. It is <strong>not an
    official publication</strong> of the
    <abbr title="World Wide Web Consortium">W3C</abbr>.</p>
+  <h2>Introduction</h2>
+  <p><em>This section is non-normative.</em></p>
+  <p>This specification provides a means for authors to use a group of selectors
+   [<cite><a href="#ref-selectors">Selectors</a></cite>] as mechanism for
+   getting references to DOM <code>Element</code> nodes. For example:</p>
+  <div class="example">
+   <p>Something like this would be possible in ECMAScript:</p>
+   <pre>function resolver(str) {
+  var x = {xh:  'http://www.w3.org/1999/xhtml',
+           svg: 'http://www.w3.org/2000/svg'}
+  return x[str];
+}
+var x = document.matchAll("xh|div > svg|svg", resolver);
+var y = document.match("div.foo.bar");</pre>
+   <p>Cool!</p>
+  </div>
   <h2>Conformance requirements</h2>
   <p>As well as sections marked as non-normative, all diagrams, examples, and
    notes in this specification are non-normative. Everything else in this
@@ -111,17 +127,6 @@
    or <code>matchAll</code> method <em class="ct">must</em> return the same
    result as if the method was called with the <var>nsresolver</var> argument
    being <code>null</code>.</p>
-  <div class="example">
-   <p>Something like this would be possible in ECMAScript:</p>
-   <pre>function resolver(str) {
-  var prefixes = {xh: 'http://www.w3.org/1999/xhtml',
-                  svg: 'http://www.w3.org/2000/svg'}
-  return prefixes[str];
-}
-var x = document.matchAll("xh|div > svg|svg", resolver);
-var y = document.match("div.foo.bar");</pre>
-   <p>Cool!</p>
-  </div>
   <h2>The <code>StaticNodeList</code> interface</h2>
   <pre class="idl">typedef StaticNodeList NodeList;</pre>
   <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
@@ -132,7 +137,7 @@ var y = document.match("div.foo.bar");</pre>
   <h2>Security Considerations</h2>
   <p>It is expected that implementing this specification introduces no new risks
    for users.</p>
-  <p><strong>History theft</strong> is one potential security problem, because
+  <p><strong>History theft</strong> is a potential security problem, because
    of the <code>:visited</code> pseudo-class in
    [<cite><a href="#ref-selectors">Selectors</a></cite>].
    <code>:visited</code> can already be used to query which links are visited
@@ -141,7 +146,14 @@ var y = document.match("div.foo.bar");</pre>
    [<cite><a href="#ref-css21">CSS21</a></cite>] and because
    this specification did not introduce the problem and it can already be
    exploited by other means UAs don't have to take action upon it.</p>
-  <!-- XXX http://lists.w3.org/Archives/Member/w3c-archive/2006Apr/0016.html -->
+  <p>Another problem is hostile content. UAs <em class="ct">must</em> ensure
+   they remain stable when facing a hostile <code>XPathNSResolver</code>
+   object. Potential hostile things such an object could do include:</p>
+  <ul>
+   <li>Returning inconsistent results;</li>
+   <li>Hanging;</li>
+   <li>Changing the DOM during the operation.</li>
+  </ul>
   <h2>References</h2>
   <dl>
    <dt id="ref-css21">[CSS21]</dt>
