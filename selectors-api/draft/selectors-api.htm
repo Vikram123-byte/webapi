@@ -6,6 +6,7 @@
   <style type="text/css">
    /* html { margin:1em; max-width:45em; font:1em/1.5 Arial, sans-serif } */
    dfn { font-style:normal; font-weight:bolder }
+   .toc, .toc ol { list-style:none }
    .ct { font-style:normal; font-weight:normal; font-variant:small-caps }
    .example { margin-left:2em }
    .note { color:green }
@@ -49,26 +50,65 @@
    W3C. Please consult the <a href="http://www.w3.org/2006/webapi/">group's home
    page</a> and the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> for information about the latest publications by this group.</p>
-  <h2>Introduction</h2>
+  <h2>Table of contents</h2>
+  <ol class="toc">
+   <li><a href="#introduction">1. Introduction</a></li>
+   <li><a href="#conformance">2. Conformance requirements</a></li>
+   <li><a href="#documentselector">3. The <code>DocumentSelector</code> interface</a>
+    <ol>
+     <li><a href="#extensibility">3.1. Extensibility</a></li>
+    </ol>
+   </li>
+   <li><a href="#staticnodelist">4. The <code>StaticNodeList</code> interface</a></li>
+   <li><a href="#security">5. Security considerations</a></li>
+   <li><a href="#references">6. References</a></li>
+   <li><a href="#acknowledgements">7. Acknowledgements</a></li>
+  </ol>
+  <h2 id="introduction">1. Introduction</h2>
   <p><em>This section is non-normative.</em></p>
-  <p>This specification provides a means for authors to use a group of selectors
-   [<cite><a href="#ref-selectors">Selectors</a></cite>] as mechanism for
-   getting references to DOM <code>Element</code> nodes. For example:</p>
+  <p>It is often desirable to perform script and or DOM operations on a specific
+   set of elements in a document.
+   [<cite><a href="#ref-selectors">Selectors</a></cite>], mostly used in CSS
+   [<cite><a href="#ref-css21">CSS21</a></cite>] context, provides a way of
+   matching such a set of elements. This specification introduces two methods
+   which take a selector (technically a group of selectors) as argument and
+   return the matched elements as result. Examples of usage in ECMAScript:</p>
   <div class="example">
-   <p>Something like this would be possible in ECMAScript:</p>
    <pre>function resolver(str) {
-  var x = {xh:  'http://www.w3.org/1999/xhtml',
-           svg: 'http://www.w3.org/2000/svg'}
-  return x[str];
+  var prefixes = {
+    xh:  "http://www.w3.org/1999/xhtml",
+    svg: "http://www.w3.org/2000/svg"}
+  return prefixes[str];
 }
-var x = document.matchAll("xh|div > svg|svg", resolver);
-var y = document.match("div.foo.bar");</pre>
-   <p>Cool!</p>
+var <var>a</var> = document.matchAll("xh|div &gt; svg|svg", resolver);
+var <var>b</var> = document.match("div.foo.bar");</pre>
+   <p><var>a</var> contains a <code>StaticNodeList</code> of all the nodes
+    matched by <code>xh|div &gt; svg|svg</code> (namespace prefixes are
+    resolved using the function in this case). <var>b</var> would contain the
+    first <code>div</code> element which has the classes <code>foo</code> and
+    <code>bar</code> set. (So in case of multiple <code>div</code> elements
+    matching <code>div.foo.bar</code> only the first is returned because
+    <code>match</code> is used and not <code>matchAll</code>.)</p>
+   <pre>function test(){
+  var c = document.matchAll(":root"),
+      d = document.documentElement;
+  return c[0] === d;
+}</pre>
+   <p><code>test()</code> would return <code>true</code> when both
+    <code>matchAll</code> and <code>:root</code> are supported.</p>
+   <p class="note">When using <code>:root</code> like this it's probably better
+    (and faster) to use <code>match</code> given that there's only one possible
+    result. This is just to illustrate how it works.</p>
+   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
+   <p>The above code snippet shows that besides using a single selector you can
+    also pass a group of selectors (basically comma-separated selectors) as
+    argument. <var>e</var> would contain a <code>StaticNodeList</code> with all
+    <code>p</code> elements in the document that have a <code>warning</code> or
+    <code>alert</code> class.</p>
   </div>
-  <h2>Conformance requirements</h2>
-  <p>As well as sections marked as non-normative, all diagrams, examples, and
-   notes in this specification are non-normative. Everything else in this
-   specification is normative.</p>
+  <h2 id="conformance">2. Conformance requirements</h2>
+  <p>Everying in this specification is normative except for diagrams, examples,
+   notes and sections marked non-normative.</p>
   <p>The key words <em class="ct">must</em>, <em class="ct">must
    not</em>, <em class="ct">required</em>, <em class="ct">shall</em>,
    <em class="ct">shall not</em>, <em class="ct">should</em>,
@@ -76,7 +116,17 @@ var y = document.match("div.foo.bar");</pre>
    <em class="ct">may</em>, and <em class="ct">optional</em> in the normative
    parts of this document are to be interpreted as described in
    [<cite><a href="#ref-rfc2119">RFC2119</a></cite>].</p>
-  <h2>The <code>DocumentSelector</code> interface</h2>
+  <p>A <dfn>conforming implementation</dfn> is a UA that follows all
+   <em class="ct">must</em> requirements in this specification. A
+   <dfn>conforming document</dfn> is a document that follows all
+   <em class="ct">must</em> requirements in this specification that apply to
+   document authors. A <dfn>conforming authoring tool</dfn>
+   <em class="ct">must</em> produce conforming documents.</p>
+  <p class="issue">The conforming stuff feels like nonsense, but is probably
+   relevant to some people. The main problem is that the specification is clear
+   in what is right and what's not. It just doesn't use the terms just
+   "defined", which creates a problem.</p>
+  <h2 id="documentselector">3. The <code>DocumentSelector</code> interface</h2>
   <p>Objects implementing the <code>Document</code> interface defined in
    <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
    <code>DocumentSelector</code> interface
@@ -130,14 +180,25 @@ var y = document.match("div.foo.bar");</pre>
    or <code>matchAll</code> method <em class="ct">must</em> return the same
    result as if the method was called with the <var>nsresolver</var> argument
    being <code>null</code>.</p>
-  <h2>The <code>StaticNodeList</code> interface</h2>
+  <h3 id="extensibility">3.1. Extensibility</h3>
+  <p>Extensions to the <code>DocumentSelector</code> interface are reserved for
+   future work by the Web APIs WG. WGs besides the Web APIs WG
+   <em class="ct">may</em> extend the interface, but <em class="ct">must</em>
+   coordinate that with the Web APIs WG. UAs <em class="ct">may</em> extend the
+   interface, but <em class="ct">must</em> prefix the new members using a string
+   specific to the vendor following the <var>Vendor</var><var>Member</var>
+   scheme. (Normally members follow the <var>member</var> scheme.)
+   <code>OperaSetDefaultNamespace(<var>ns</var>)</code> would be an example.</p>
+  <p>Authors <em class="ct">may</em> use extension mechanisms specific to the
+   host language, like <code>.prototype</code> in ECMAScript.</p>
+  <h2 id="staticnodelist">4. The <code>StaticNodeList</code> interface</h2>
   <pre class="idl">typedef StaticNodeList NodeList;</pre>
   <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
    identically to the <code>NodeList</code> interface as defined in
    [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
    with the exception that the interface, as the name suggests, is static and
    not live.</p>
-  <h2>Security Considerations</h2>
+  <h2 id="security">5. Security Considerations</h2>
   <p>It is expected that implementing this specification introduces no new risks
    for users.</p>
   <p><strong>History theft</strong> is a potential security problem, because
@@ -157,7 +218,8 @@ var y = document.match("div.foo.bar");</pre>
    <li>Hanging;</li>
    <li>Changing the DOM during the operation.</li>
   </ul>
-  <h2>References</h2>
+  <p class="issue">It was said that this section is in need of examples...</p>
+  <h2 id="references">6. References</h2>
   <dl>
    <dt id="ref-css21">[CSS21]</dt>
    <dd><cite><a href="http://www.w3.org/TR/CSS21">Cascading Style Sheets, level
@@ -185,7 +247,7 @@ var y = document.match("div.foo.bar");</pre>
     for use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner. IETF,
     March 1997.</dd>
   </dl>
-  <h2>Acknowledgements</h2>
+  <h2 id="acknowledgements">7. Acknowledgements</h2>
   <ul>
    <li>Björn Höhrmann</li>
    <li>Cameron McCormack</li>
