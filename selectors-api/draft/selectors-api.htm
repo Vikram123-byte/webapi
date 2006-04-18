@@ -4,7 +4,6 @@
   <title>Selectors API</title>
   <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base.css">
   <style type="text/css">
-   /* html { margin:1em; max-width:45em; font:1em/1.5 Arial, sans-serif } */
    dfn { font-style:normal; font-weight:bolder }
    .toc, .toc ol { list-style:none }
    .ct { font-style:normal; font-weight:normal; font-variant:small-caps }
@@ -16,16 +15,18 @@
   </style>
  </head>
  <body>
+  <p><a href='http://www.w3.org/'><img alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
   <h1>Selectors API</h1>
   <h2>Editor's Draft April 2006</h2>
   <dl>
+   <dt>This version</dt>
+   <dd>The one you're reading, stupid.</dd>
    <dt>Latest editor version</dt>
    <dd><a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/selectors-api/draft/selectors-api.htm?content-type=text/html;%20charset=utf-8">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/selectors-api/draft/selectors-api.htm?content-type=text/html;%20charset=utf-8</a></dd>
    <dt>
    <dt>Editor</dt>
    <dd>Anne van Kesteren, Opera Software ASA</dd>
   </dl>
-  <!--
   <p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
    © 2006
    <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>®</sup>
@@ -37,11 +38,11 @@
    and
    <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document
    use</a> rules apply.</p>
-  -->
   <hr>
   <h2>Abstract</h2>
   <p>This specification defines two methods for retrieving <code>Element</code>
-   nodes in the DOM using a group of selectors as defined in
+   nodes in the <abbr title="Document Object Model">DOM</abbr> using a group of
+   selectors as defined in
    [<cite><a href="#ref-selectors">Selectors</a></cite>].</p>
   <h2>Status of this Document</h2>
   <p>This document is for review by the
@@ -52,29 +53,43 @@
    index</a> for information about the latest publications by this group.</p>
   <h2>Table of contents</h2>
   <ol class="toc">
-   <li><a href="#introduction">1. Introduction</a></li>
-   <li><a href="#conformance">2. Conformance requirements</a></li>
-   <li><a href="#documentselector">3. The <code>DocumentSelector</code> interface</a>
+   <li><a href="#introduction">1. Introduction</a>
     <ol>
-     <li><a href="#extensibility">3.1. Extensibility</a></li>
+     <li><a href="#examples">1.1. Examples</a></li>
+     <li><a href="#conformance">1.2. Conformance requirements</a></li>
     </ol>
    </li>
-   <li><a href="#staticnodelist">4. The <code>StaticNodeList</code> interface</a></li>
-   <li><a href="#security">5. Security considerations</a></li>
-   <li><a href="#references">6. References</a></li>
-   <li><a href="#acknowledgements">7. Acknowledgements</a></li>
+   <li><a href="#interfaces">2. Interfaces</a>
+    <ol>
+     <li><a href="#documentselector">2.1. The <code>DocumentSelector</code> interface</a>
+      <ol>
+       <li><a href="#extensibility">2.1.1. Extensibility</a></li>
+      </ol>
+     </li>
+     <li><a href="#staticnodelist">2.2. The <code>StaticNodeList</code> interface</a></li>
+    </ol>
+   </li>
+   <li><a href="#security">3. Security considerations</a></li>
+  </ol>
+  <ol class="toc">
+   <li><a href="#references">A. References</a></li>
+   <li><a href="#acknowledgements">B. Acknowledgements</a></li>
   </ol>
   <h2 id="introduction">1. Introduction</h2>
   <p><em>This section is non-normative.</em></p>
   <p>It is often desirable to perform script and or DOM operations on a specific
    set of elements in a document.
-   [<cite><a href="#ref-selectors">Selectors</a></cite>], mostly used in CSS
+   [<cite><a href="#ref-selectors">Selectors</a></cite>], mostly used in
+   <abbr title="Cascading Style Sheets">CSS</abbr>
    [<cite><a href="#ref-css21">CSS21</a></cite>] context, provides a way of
    matching such a set of elements. This specification introduces two methods
    which take a selector (technically a group of selectors) as argument and
-   return the matched elements as result. Examples of usage in ECMAScript:</p>
-  <div class="example">
-   <pre>function resolver(str) {
+   return the matched elements as result.</p>
+  <h3 id="examples">1.1. Examples</h3>
+  <p><em>This section is non-normative.</em></p>
+  <p>Some ECMAScript [<cite><a href="#ref-ecma262">ECMA262</a></cite>]
+   examples:</p>
+  <pre>function resolver(str) {
   var prefixes = {
     xh:  "http://www.w3.org/1999/xhtml",
     svg: "http://www.w3.org/2000/svg"}
@@ -82,31 +97,30 @@
 }
 var <var>a</var> = document.matchAll("xh|div &gt; svg|svg", resolver);
 var <var>b</var> = document.match("div.foo.bar");</pre>
-   <p><var>a</var> contains a <code>StaticNodeList</code> of all the nodes
-    matched by <code>xh|div &gt; svg|svg</code> (namespace prefixes are
-    resolved using the function in this case). <var>b</var> would contain the
-    first <code>div</code> element which has the classes <code>foo</code> and
-    <code>bar</code> set. (So in case of multiple <code>div</code> elements
-    matching <code>div.foo.bar</code> only the first is returned because
-    <code>match</code> is used and not <code>matchAll</code>.)</p>
-   <pre>function test(){
+  <p><var>a</var> contains a <code>StaticNodeList</code> of all the nodes
+   matched by <code>xh|div &gt; svg|svg</code> (namespace prefixes are
+   resolved using the function in this case). <var>b</var> would contain the
+   first <code>div</code> element which has the classes <code>foo</code> and
+   <code>bar</code> set. (So in case of multiple <code>div</code> elements
+   matching <code>div.foo.bar</code> only the first is returned because
+   <code>match</code> is used and not <code>matchAll</code>.)</p>
+  <pre>function test(){
   var c = document.matchAll(":root"),
       d = document.documentElement;
   return c[0] === d;
 }</pre>
-   <p><code>test()</code> would return <code>true</code> when both
-    <code>matchAll</code> and <code>:root</code> are supported.</p>
-   <p class="note">When using <code>:root</code> like this it's probably better
-    (and faster) to use <code>match</code> given that there's only one possible
-    result. This is just to illustrate how it works.</p>
-   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
-   <p>The above code snippet shows that besides using a single selector you can
-    also pass a group of selectors (basically comma-separated selectors) as
-    argument. <var>e</var> would contain a <code>StaticNodeList</code> with all
-    <code>p</code> elements in the document that have a <code>warning</code> or
-    <code>alert</code> class.</p>
-  </div>
-  <h2 id="conformance">2. Conformance requirements</h2>
+  <p><code>test()</code> would return <code>true</code> when both
+   <code>matchAll</code> and <code>:root</code> are supported.</p>
+  <p class="note">When using <code>:root</code> like this it's probably better
+   (and faster) to use <code>match</code> given that there's only one possible
+   result. This is just to illustrate how it works.</p>
+  <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
+  <p>The above code snippet shows that besides using a single selector you can
+   also pass a group of selectors (basically comma-separated selectors) as
+   argument. <var>e</var> would contain a <code>StaticNodeList</code> with all
+   <code>p</code> elements in the document that have a <code>warning</code> or
+   <code>alert</code> class.</p>
+  <h3 id="conformance">1.2. Conformance requirements</h3>
   <p>Everying in this specification is normative except for diagrams, examples,
    notes and sections marked non-normative.</p>
   <p>The key words <em class="ct">must</em>, <em class="ct">must
@@ -116,17 +130,20 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <em class="ct">may</em>, and <em class="ct">optional</em> in the normative
    parts of this document are to be interpreted as described in
    [<cite><a href="#ref-rfc2119">RFC2119</a></cite>].</p>
-  <p>A <dfn>conforming implementation</dfn> is a UA that follows all
-   <em class="ct">must</em> requirements in this specification. A
-   <dfn>conforming document</dfn> is a document that follows all
-   <em class="ct">must</em> requirements in this specification that apply to
-   document authors. A <dfn>conforming authoring tool</dfn>
-   <em class="ct">must</em> produce conforming documents.</p>
-  <p class="issue">The conforming stuff feels like nonsense, but is probably
-   relevant to some people. The main problem is that the specification is clear
-   in what is right and what's not. It just doesn't use the terms just
-   "defined", which creates a problem.</p>
-  <h2 id="documentselector">3. The <code>DocumentSelector</code> interface</h2>
+  <dl>
+   <dt><dfn>conforming implementation</dfn></dt>
+   <dd>A UA that implements all interfaces described in this specification and
+    follows all <em class="ct">must</em>-, <em class="ct">required</em>- and
+    <em class="ct">shall</em>-level of critera in this specification.</dd>
+   <dt><dfn>conforming document</dfn></dt>
+   <dd>A document that follows all <em class="ct">must</em>-,
+    <em class="ct">required</em>- and <em class="ct">shall</em>-level of critera
+    in this specification that apply to document authors.</dd>
+   <dt><dfn>conforming authoring tool</dfn></dt>
+   <dd>One that produces conforming documents.</dd>
+  </dl>
+  <h2 id="interfaces">2. Interfaces</h2>
+  <h3 id="documentselector">2.1. The <code>DocumentSelector</code> interface</h3>
   <p>Objects implementing the <code>Document</code> interface defined in
    <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
    <code>DocumentSelector</code> interface
@@ -135,12 +152,12 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
   Node            match(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
   StaticNodeList  matchAll(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
 };</pre>
-  <p>The <dfn><code>match</code></dfn> method, when invoked,
+  <p>The <dfn id="match"><code>match</code></dfn> method, when invoked,
    <em class="ct">must</em> return the first (using depth-first pre-order
    traversal) <code>Element</code> that matches the group of selectors
    (<var>selectors</var>), if any. Otherwise it <em class="ct">must</em> return
    <code>null</code>.</p>
-  <p>The <dfn><code>matchAll</code></dfn> method, when invoked,
+  <p>The <dfn id="matchall"><code>matchAll</code></dfn> method, when invoked,
    <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
    <code>Element</code>s that match the group of selectors
    (<var>selectors</var>) in document order (using depth-first pre-order
@@ -180,7 +197,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    or <code>matchAll</code> method <em class="ct">must</em> return the same
    result as if the method was called with the <var>nsresolver</var> argument
    being <code>null</code>.</p>
-  <h3 id="extensibility">3.1. Extensibility</h3>
+  <h4 id="extensibility">2.1.1. Extensibility</h4>
   <p>Extensions to the <code>DocumentSelector</code> interface are reserved for
    future work by the Web APIs WG. WGs besides the Web APIs WG
    <em class="ct">may</em> extend the interface, but <em class="ct">must</em>
@@ -191,18 +208,18 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <code>OperaSetDefaultNamespace(<var>ns</var>)</code> would be an example.</p>
   <p>Authors <em class="ct">may</em> use extension mechanisms specific to the
    host language, like <code>.prototype</code> in ECMAScript.</p>
-  <h2 id="staticnodelist">4. The <code>StaticNodeList</code> interface</h2>
+  <h3 id="staticnodelist">2.2. The <code>StaticNodeList</code> interface</h3>
   <pre class="idl">typedef StaticNodeList NodeList;</pre>
   <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
    identically to the <code>NodeList</code> interface as defined in
    [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
    with the exception that the interface, as the name suggests, is static and
    not live.</p>
-  <h2 id="security">5. Security Considerations</h2>
+  <h2 id="security">3. Security Considerations</h2>
   <p>It is expected that implementing this specification introduces no new risks
    for users.</p>
-  <p><strong>History theft</strong> is a potential security problem, because
-   of the <code>:visited</code> pseudo-class in
+  <p>History theft is a potential security problem, because of the
+   <code>:visited</code> pseudo-class in
    [<cite><a href="#ref-selectors">Selectors</a></cite>].
    <code>:visited</code> can already be used to query which links are visited
    and which are not using methods from
@@ -219,7 +236,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <li>Changing the DOM during the operation.</li>
   </ul>
   <p class="issue">It was said that this section is in need of examples...</p>
-  <h2 id="references">6. References</h2>
+  <h2 id="references">A. References</h2>
   <dl>
    <dt id="ref-css21">[CSS21]</dt>
    <dd><cite><a href="http://www.w3.org/TR/CSS21">Cascading Style Sheets, level
@@ -238,6 +255,9 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-XPath">Document Object
     Model (DOM) Level 3 XPath Specification</a></cite>, R. Whitmer, editor.
     World Wide Web Consortium, February 2004.</dd>
+   <dt id="ref-ecma262">[ECMA262]</dt>
+   <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
+    Language Specification</a></cite>, Third Edition. ECMA, December 1999.</dd>
    <dt id="ref-selectors">[Selectors]</dt>
    <dd><cite><a href="http://www.w3.org/TR/css3-selectors">Selectors</a></cite>,
     D. Glazman, T. Çelik, I. Hickson, P. Linss, J. Williams, editors. World Wide
@@ -247,7 +267,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
     for use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner. IETF,
     March 1997.</dd>
   </dl>
-  <h2 id="acknowledgements">7. Acknowledgements</h2>
+  <h2 id="acknowledgements">B. Acknowledgements</h2>
   <ul>
    <li>Björn Höhrmann</li>
    <li>Cameron McCormack</li>
@@ -260,5 +280,8 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <li>Mohamed Zergaoui</li>
    <li>Robin Berjon</li>
   </ul>
+  <p>Thanks to all those who have helped to improve this specification by
+   sending suggestions and corrections. (Please, keep bugging us with your
+   issues!)</p>
  </body>
 </html>
