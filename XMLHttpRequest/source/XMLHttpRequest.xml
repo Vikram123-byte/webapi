@@ -32,7 +32,7 @@
    additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
    functionality for transferring data between a client and a server.</p>
   <ednote>
-   <p>Last update: $Id: XMLHttpRequest.xml,v 1.45 2006-04-21 20:06:25 avankest Exp $.</p>
+   <p>Last update: $Id: XMLHttpRequest.xml,v 1.46 2006-04-21 20:55:24 avankest Exp $.</p>
   </ednote>
  </section>
  <section xml:id="sotd" type="w3c-sotd">
@@ -200,408 +200,325 @@
    <title>The XMLHttpRequest interface</title>
    <idl>
     <interface module='webapi' name='XMLHttpRequest'>
-     <attribute type='Function' name='onreadystatechange'>
-      <p>An attribute that represents a function that MUST be invoked when
-       <code>readyState</code> changes value. The function MAY be invoked
-       multiple times when readyState is 3 (Receiving). Its initial value MUST
-       be <code>null</code>.</p>
-      <ednote>What if languages don't have functions? Perhaps this should be an
-      EventListener?</ednote>
+     <attribute type='EventListener' name='onreadystatechange'>
+      <p>An attribute that takes an <code>EventListener</code> as value that
+       MUST be invoked when <code><term>readyState</term></code> changes value.
+       It MAY be invoked multiple times when <code>readyState</code> is 3
+       (Receiving). Its initial value MUST be <code>null</code>.</p>
+      <ednote>How about making <code>onreadystatechange</code> only about actual
+       changes to readyState?</ednote>
      </attribute>
      <attribute ro='true' type='unsigned short' name='readyState' xml:id="dfn-readystate">
       <p>The state of the object. The attribute MUSt be one of the following
        values:</p>
-           <dl>
-            <dt>0 Uninitialized</dt>
-            <dd>The initial value.</dd>
-            <dt>1 Open</dt>
-            <dd>The <code><term>open()</term></code> method has been successfully
-             called.</dd>
-            <dt>2 Sent</dt>
-            <dd>The UA successfully completed the request, but no data has yet
-             been received.</dd>
-            <dt>3 Receiving</dt>
-            <dd>Immediately before receiving the message body (if any). All
-             HTTP headers have been received.</dd>
-            <dt>4 Loaded</dt>
-            <dd>The data transfer has been completed.</dd>
-           </dl>
-          </attribute>
-          <method name='open'>
-            <p>
-              Calling this method MUST initialise the object by remembering the <var>method</var>,
-              <var>uri</var>, <var>async</var> (defaulting to <code>true</code> if
-              omitted), <var>user</var> (defaulting to <code>null</code> if omitted), and
-              <var>password</var> (defaulting to <code>null</code> if omitted) arguments,
-              setting the <code>readyState</code> attribute to 1 (Open), resetting
-              the <code>responseText</code>, <code>responseXML</code>, <code>status</code>, and
-              <code>statusText</code> attributes to their initial
-              values, and resetting the list of request headers.
-            </p>
-            <p>Same-origin security restrictions SHOULD apply.</p>
-            <!-- XXX revisit with access-control or in general? -->
-            <p>
-              If the URI given to this method contains userinfo ([RFC3986],
-              section 3.2.1) then the user name and password specified MUST be
-              used if the <var>user</var> and <var>password</var>
-              arguments are omitted. If the arguments are not omitted, they take
-              precedence, even if they are <code>null</code>. The usage of
-              userinfo is discouraged MAY not work in implementations.
-            </p>
-            <p>
-              If <code>open()</code> is called when <code>readyState</code> is
-              4 (Loaded) the entire object MUST be reset.
-            </p>
-            <param name='method'>
-              A valid HTTP method name. The <code>GET</code>, <code>POST</code>,
-              and <code>HEAD</code> values MUST be supported.
-              <ednote>What about <code>PUT</code> and <code>DELETE</code>?</ednote>
-            </param>
-            <param name='uri'>
-              A URI, which MUST be resolved to an absolute URI using the script's
-              context <code>window.location.href</code> value as base if available.
-              <ednote>This does not reflect what implementations do.
-               <code>document.baseURI</code> might come closer.
-               (<a href="http://www.w3.org/2006/webapi/track/issues/29">ISSUE-29</a>)</ednote>
-            </param>
-            <param name='async' type='boolean' optional='true'>
-              @XXX TBD@
-            </param>
-            <param name='user' optional='true'>
-              @XXX TBD@
-            </param>
-            <param name='password' optional='true'>
-              @XXX TBD@
-            </param>
-          </method>
+      <dl>
+       <dt>0 Uninitialized</dt>
+       <dd>The initial value.</dd>
+       <dt>1 Open</dt>
+       <dd>The <code><term>open()</term></code> method has been successfully
+        called.</dd>
+       <dt>2 Sent</dt>
+       <dd>The UA successfully completed the request, but no data has yet been
+        received.</dd>
+       <dt>3 Receiving</dt>
+       <dd>Immediately before receiving the message body (if any). All HTTP
+        headers have been received.</dd>
+       <dt>4 Loaded</dt>
+       <dd>The data transfer has been completed.</dd>
+      </dl>
+     </attribute>
+     <method name='open'>
+      <p>Calling this method MUST initialise the object by remembering the
+       <var>method</var>, <var>uri</var>, <var>async</var> (defaulting to
+       <code>true</code> if omitted), <var>user</var> (defaulting to
+       <code>null</code> if omitted), and <var>password</var> (defaulting to
+       <code>null</code> if omitted) arguments, setting the
+       <code><term>readyState</term></code> attribute to 1 (Open), resetting the
+       <code><term>responseText</term></code>,
+       <code><term>responseXML</term></code>, <code><term>status</term></code>,
+       and <code><term>statusText</term></code> attributes to their initial
+       values, and resetting the list of request headers.</p>
+      <p>Same-origin security restrictions SHOULD apply.</p>
+      <p>If the URI given to this method contains userinfo ([RFC3986], section
+       3.2.1) then the user name and password specified MUST be used if the
+       <var>user</var> and <var>password</var> arguments are omitted. If the
+       arguments are not omitted, they take precedence, even if they are
+       <code>null</code>. The usage of userinfo is discouraged MAY not work in
+       implementations.</p>
+      <p>If <code>open()</code> is called when <code>readyState</code> is 4
+       (Loaded) the entire object MUST be reset.</p>
+      <param name='method'>A valid HTTP method name. The <code>GET</code>,
+       <code>POST</code>, <code>PUT</code>, <code>DELETE</code> and
+       <code>HEAD</code> values MUST be supported [RFC2616].</param>
+      <param name='uri'>A URI, which MUST be resolved to an absolute URI using
+       the script's context <code>window.location.href</code> value as base if
+       available. <ednote>This does not reflect what implementations do.
+       <code>document.baseURI</code> might come closer.
+       (<a href="http://www.w3.org/2006/webapi/track/issues/29">ISSUE-29</a>)</ednote>
+      </param>
+      <param name='async' type='boolean' optional='true'>
+       @XXX TBD@
+      </param>
+      <param name='user' optional='true'>
+       @XXX TBD@
+      </param>
+      <param name='password' optional='true'>
+       @XXX TBD@
+      </param>
+     </method>
+     <method name='setRequestHeader'>
+      <p>If the <code><term>readyState</term></code> attribute has a value other
+       than 1 (Open), an exception MUST be raised. If the <var>header</var> or
+       <var>value</var> arguments contain any U+000A LINE FEED or U+000D
+       CARRIAGE RETURN characters, or if the <var>header</var> argument contains
+       any U+0020 SPACE or U+003A COLON charecters, nothing MUST be done.
+       Otherwise, the request header <var>header</var> MUST be set to
+       <var>value</var>. If the request header <var>header</var> had already
+       been set, then the new <var>value</var> MUST be concatenated to the
+       existing value using a U+002C COMMA followed by a U+0020 SPACE for
+       separation.</p>
+      <example>
+       <title>Setting a request header</title>
+       // The following script:
+       var r = new XMLHttpRequest();
+       r.open('GET', 'demo.cgi');
+       r.setRequestHeader('X-Test', 'one');
+       r.setRequestHeader('X-Test', 'two');
+       r.send(null);
 
-          <method name='setRequestHeader'>
-            <p>
-              If the <code><term>readyState</term></code> attribute has a
-              value other than 1 (Open), an exception MUST be raised. If the <var>header</var> or
-              <var>value</var> arguments contain any U+000A LINE FEED or U+000D
-              CARRIAGE RETURN characters, or if the <var>header</var> argument
-              contains any U+0020 SPACE or U+003A COLON charecters, nothing MUST be done.
-              Otherwise, the request header <var>header</var> MUST be set to <var>value</var>.
-              If the request header <var>header</var> had already been set, then the new
-              <var>value</var> MUST be concatenated to the existing value using a U+002C COMMA
-              followed by a U+0020 SPACE for separation.
-            </p>
-            <example>
-              <title>Setting a request header</title>
-              // The following script:
-              var r = new XMLHttpRequest();
-              r.open('GET', 'demo.cgi');
-              r.setRequestHeader('X-Test', 'one');
-              r.setRequestHeader('X-Test', 'two');
-              r.send(null);
+       // ...would result in the following header being sent:
+       ...
+       X-Test: one, two
+       ...
+      </example>
+      <p>The list of request headers MUST be reset when the
+       <code><term>open()</term></code> method is called.</p>
+      <p>User agents MUST not set any headers other than the headers set by the
+       author using this method, with the following exceptions:</p>
+      <ul>
+       <li>UAs MUST set the <code>Host</code> header appropriately (see
+        <code><term>open()</term></code>) and not allow it to be
+        overridden.</li>
+       <li>UAs MUST set the <code>Authorization</code> header according to the
+        values passed to the <code><term>open()</term></code> method (but MUST
+        allow calls to <code><term>setRequestHeader()</term></code> to append
+        values to it).</li>
+       <li>UAs MAY set the <code>Accept-Charset</code> and
+        <code>Accept-Encoding</code> headers and MUST NOT allow them to be
+        overridden.</li>
+       <li>UAs MUST set the <code>Connection</code> and <code>Keep-Alive</code>
+        headers as described by the HTTP specification, and MUST NOT allow those
+        headers to be overridden.</li>
+       <li>UAs SHOULD set the proxy-related headers according to proxy settings
+        of the environment, and MUST NOT allow those headers to be overridden.
+        <ednote>Perhaps this should be more explicit. Only <code>Via</code>
+        comes to mind though...</ednote></li>
+       <li>UAs MAY give the <code>User-Agent</code> header an initial value, but
+        MUST allow authors to append values to it.</li>
+       <li>UAs SHOULD set <code>Cookie</code> and <code>Cookie2</code> headers
+        appropriately for the given URI and given the user's current cookies,
+        and MUST allow authors to append values to these headers.</li>
+      </ul>
+      <p>In particular, UAs MUST NOT automatically set the
+       <code>Cache-Control</code> or <code>Pragma</code> headers to defeat
+       caching [RFC2616].</p>
+      <param name='header'>@XXX TDB@</param>
+      <param name='value'>@XXX TDB@</param>
+      <exception name='DOMException'>
+       <code name='INVALID_STATE_ERR'>MUST be raised if
+        <code><term>readyState</term></code> has an inappropriate value. (See
+        prose above.)</code>
+      </exception>
+     </method>
+     <method name="send">
+      <p>If the <code><term>readyState</term></code> attribute has a value other
+       than 1 (Open), an exception MUST be raised. Otherwise, the
+       <code><term>readyState</term></code> attribute MUST be set to 2 (Sent)
+       and a request to <var>uri</var> using method <var>method</var>,
+       authenticating using <var>user</var> and <var>password</var> as
+       appropriate is sent. If the <var>async</var> flag is set to false, then
+       the method MUST not return until the request has completed. Otherwise, it
+       MUST return immediately. (See: <code><term>open()</term></code>.)</p>
+      <p>If the <var>method</var> is <code>POST</code> or <code>PUT</code>,
+       then the <var>data</var> passed to the <code>send()</code> method MUST be
+       used for the entity body. If <var>data</var> is a string, the data MUST
+       be encoded as UTF-8 for transmission. If the <var>data</var> is a
+       <code>Document</code>, then the document MUST be serialised using the
+       encoding given by <code><var>data</var>.xmlEncoding</code>, if specified,
+       or UTF-8 otherwise [DOM3]. If <var>data</var> is not a
+       <code>Document</code> or a <code>DOMString</code> the host language MUST
+       use the stringification mechanisms on the argument that was passed.</p>
+      <p>Invoking <code>send()</code> without the <var>data</var> argument MUST
+       give the same result as if it was invoked with <code>null</code> as
+       argument.</p>
+      <p>If the response is an HTTP redirect (status code 301, 302, 303 or 307),
+       then it MUST be transparently followed (unless it violates security or
+       infinite loop precautions). Any other error (including a 401) MUST cause
+       the object to use that error page as the response.</p>
+      <p>If the author performed a conditional GET request (setting the relevant
+       headers using <code><term>setRequestHeader()</term></code>) and the
+       resulting response is a 304 the UA MUST return a 304 and it is expected
+       the page author can deal with that. Otherwise, if the UA performed a
+       conditional GET request and the response is a 304 the UA MUST return a
+       200 (using the relevant cached file).</p>
+      <ednote>What about DNS errors?</ednote>
+      <p>Immediately before receiving the message body (if any), the
+       <code><term>readyState</term></code> attribute MUST be set to to 3
+       (Receiving). When the request has completed loading, the
+       <code><term>readyState</term></code> attribute MUST be set to 4 (Loaded).
+       In case of a HEAD request <code><term>readyState</term></code> MUST be
+       set to 4 (Loaded) immediatly after having gone to 3 (Receiving).</p>
+      <param name='data' type='Document | DOMString'>@XXX TDB@</param>
+      <exception name='DOMException'>
+       <code name='INVALID_STATE_ERR' on='retrieval'>MUST be raised if this
+       method is called when <code><term>readyState</term></code> has an
+       inappropriate value.</code>
+      </exception>
+     </method>
+     <method name='abort'>
+      <p>When invoked, this method MUST cancel any network activity for which
+       the object is responsible and reset the object.</p>
+     </method>
+     <method name='getAllResponseHeaders'>
+      <p>If the <code><term>readyState</term></code> attribute has a value other
+       than 3 (Receiving) or 4 (Loaded), it MUST return <code>null</code>.
+       Otherwise, it MUST return all the HTTP headers, as a single string, with
+       each header line separated by a CR (U+000D) LF (U+000A) pair. The status
+       line MUST not be included.</p>
+      <example>
+       <title>Manipulating response headers</title>
+       // The following script:
+       var r = new XMLHttpRequest();
+       r.open('GET', 'test.txt', false);
+       r.send();
+       print(r.getAllResponseHeaders());
 
-              // ...would result in the following header being sent:
-              ...
-              X-Test: one, two
-              ...
-            </example>
-            <p>
-              The list of request headers MUST be reset when the
-              <code><term>open()</term></code>
-              method is called.
-            </p>
-            <p>
-              User agents MUST not set any headers other than the headers set by the
-              author using this method, with the following exceptions:
-            </p>
-            <ul>
-              <li>
-                UAs MUST set the <code>Host</code> header appropriately (see
-                <code><term>open()</term></code>) and not allow it to be
-                overridden.
-              </li>
-              <li>
-                UAs MUST set the <code>Authorization</code> header according to the
-                values passed to the <code><term>open()</term></code> method
-                (but MUST allow calls to
-                <code><term>setRequestHeader()</term></code> to append values
-                to it).
-              </li>
-              <li>
-                UAs MAY set the <code>Accept-Charset</code> and
-                <code>Accept-Encoding</code> headers and MUST NOT allow them to be
-                overridden.
-              </li>
-              <li>
-                UAs MUST set the <code>Connection</code> and
-                <code>Keep-Alive</code> headers as described by the HTTP specification,
-                and MUST NOT allow those headers to be overridden.
-              </li>
-              <li>
-                UAs SHOULD set the proxy-related headers according to proxy settings
-                of the environment, and MUST NOT allow those headers to be overridden.
-              </li>
-              <li>
-                UAs MAY give the <code>User-Agent</code> header an initial value,
-                but MUST allow authors to append values to it.
-              </li>
-              <li>
-                UAs SHOULD set <code>Cookie</code> and <code>Cookie2</code> headers
-                appropriately for the given URI and given the user's current cookies,
-                and MUST allow authors to append values to these headers.
-              </li>
-            </ul>
-              <!-- XXX this entire sections needs work -->
-            <p>
-              In particular, UAs MUST NOT automatically set the
-              <code>Cache-Control</code> or <code>Pragma</code> headers to defeat
-              caching [RFC2616].
-            </p>
-            <param name='header'>
-              @XXX TDB@
-            </param>
-            <param name='value'>
-              @XXX TDB@
-            </param>
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR'>
-               MUST be raised if <code><term>readyState</term></code> has an
-               inappropriate value. (See prose above.)
-              </code>
-            </exception>
-          </method>
+       // ...should output something similar to the following text:
+       Date: Sun, 24 Oct 2004 04:58:38 GMT
+       Server: Apache/1.3.31 (Unix)
+       Keep-Alive: timeout=15, max=99
+       Connection: Keep-Alive
+       Transfer-Encoding: chunked
+       Content-Type: text/plain; charset=utf-8
+      </example>
+      <returns type='DOMString'>A single string consisting of all HTTP headers.
+       See prose for details.</returns>
+     </method>
+     <method name='getResponseHeader'>
+      <p>If the <code><term>readyState</term></code> attribute has a value other
+       than 3 (Receiving) or 4 (Loaded), it MUST return the empty string.
+       Otherwise, it MUST represent the value of the given HTTP header in the
+       data received so far for the last request sent, as a single string. If
+       more than one header of the given name was received, then the values MUST
+       be concatenated, separated from each other by an U+002C COMMA followed by
+       an U+0020 SPACE. If no headers of that name were received, then it MUST
+       return the empty string. Header names MUST be compared case-insensitively
+       to the method argument (<var>header</var>).</p>
+      <ednote>Case-insensitively how?</ednote>
+      <ednote>Needs to be revised largely based on Mark's comments.</ednote>
+      <example>
+       <title>Getting a response header</title>
+       // The following script:
+       var r = new XMLHttpRequest();
+       r.open('GET', 'test.txt', false);
+       r.send();
+       print(r.getResponseHeader('Content-Type'));
 
-          <method name="send">
-            <p>
-              If the <code><term>readyState</term></code> attribute
-              has a value other than
-              1 (Open), an exception MUST be raised. Otherwise, the
-              <code><term>readyState</term></code>
-              attribute MUST be set to 2 (Sent) and
-              a request to <var>uri</var> using method <var>method</var>, authenticating using
-              <var>user</var> and
-              <var>password</var> as appropriate is sent. If the <var>async</var> flag is set
-              to false, then the method MUST not
-              return until the request has completed. Otherwise, it MUST return
-              immediately. (See: <code><term>open()</term></code>.)
-            </p>
-            <!-- XXX ISSUE-34 -->
-            <p>
-              If the <var>method</var> is <code>POST</code> or
-              <code>PUT</code><!-- XXX, conflicts -->, then the <var>data</var> passed to the
-              <code>send()</code> method MUST be used for the entity body. If <var>data</var>
-              is a string, the data MUST be encoded as UTF-8 for
-              transmission. If the <var>data</var> is a <code>Document</code>, then the
-              document MUST be serialised using the encoding given by
-              <code><var>data</var>.xmlEncoding</code>, if specified, or UTF-8
-              otherwise [DOM3]. If <var>data</var> is not a <code>Document</code> or a <code>DOMString</code>
-              the host language MUST use the stringification mechanisms on the argument
-              that was passed.
-            </p>
-            <!-- XXX, see above -->
-            <!-- probably should say somewhere that only PUT, POST, DELETE and GET are
-                 to be supported by implementors and that that's per RFC2616
-                 http://ietf.org/rfc/rfc2616.txt -->
-            <p>
-             Implementations SHOULD support the <code>send()</code> to be called
-             without the <var>data</var> argument to be passed.
-            </p>
-           <ednote>This should be a MUST, no?</ednote>
-           <p>If the response is an HTTP redirect (status code 301, 302, 303 or 307),
-            then it MUST be transparently followed (unless it violates security or infinite loop precautions). Any
-            other error (including a 401) MUST cause the object to use that error
-            page as the response.</p>
-           <p>If the author performed a conditional GET request (setting the
-            relevant headers using <code><term>setRequestHeader()</term></code>)
-            and the resulting response is a 304 the UA MUST return a 304 and it
-            is expected the page author can deal with that. Otherwise, if the UA
-            performed a conditional GET request and the response is a 304 the UA
-            MUST return a 200 (using the relevant cached file).</p>
-            <ednote>What about DNS errors?</ednote>
-            <p>
-              Immediately before receiving the message body (if any), the
-              <code><term>readyState</term></code>
-              attribute MUST be set to to 3 (Receiving). When the request has
-              completed loading, the
-              <code><term>readyState</term></code>
-              attribute MUST be set to 4 (Loaded). In case of a HEAD request
-              <code><term>readyState</term></code> MUST be set to 4 (Loaded)
-              immediatly after having gone to 3 (Receiving).
-            </p>
-            <param name='data' type='Document | DOMString'>
-              @XXX TDB@
-            </param>
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                MUST be raised if this method is called when
-                <code><term>readyState</term></code>
-                has an inappropriate value.
-              </code>
-            </exception>
-          </method>
-
-          <method name='abort'>
-           <p>When invoked, this method MUST cancel any network activity for
-            which the object is responsible and reset the object.</p>
-          </method>
-          <method name='getAllResponseHeaders'>
-           <p>If the <code><term>readyState</term></code>
-            attribute has a value other than 3 (Receiving) or 4 (Loaded), it
-            MUST return <code>null</code>. Otherwise, it MUST return all the
-            HTTP headers, as a single string, with each header line separated by
-            a CR (U+000D) LF (U+000A) pair. The status line MUST not be
-            included.</p>
-           <example>
-            <title>Manipulating response headers</title>
-              // The following script:
-              var r = new XMLHttpRequest();
-              r.open('GET', 'test.txt', false);
-              r.send();
-              print(r.getAllResponseHeaders());
-
-              // ...should output something similar to the following text:
-              Date: Sun, 24 Oct 2004 04:58:38 GMT
-              Server: Apache/1.3.31 (Unix)
-              Keep-Alive: timeout=15, max=99
-              Connection: Keep-Alive
-              Transfer-Encoding: chunked
-              Content-Type: text/plain; charset=utf-8
-           </example>
-           <returns type='DOMString'>A single string consisting of all HTTP
-            headers. See prose for details.</returns>
-          </method>
-          <method name='getResponseHeader'>
-            <p>
-              If the <code><term>readyState</term></code>
-              attribute has a value other than
-              3 (Receiving) or 4 (Loaded), it MUST return the empty string.
-              Otherwise, it MUST represent
-              the value of the given HTTP header in the data received so far for the
-              last request sent, as a single string. If more than one header of the
-              given name was received, then the values MUST be concatenated,
-              separated from each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of that
-              name were received, then it MUST return the empty string. Header names MUST be
-              compared case-insensitively to the method
-              argument (<var>header</var>).
-            </p>
-            <ednote>Case-insensitively how?</ednote>
-            <example>
-              <title>Getting a response header</title>
-              // The following script:
-              var r = new XMLHttpRequest();
-              r.open('GET', 'test.txt', false);
-              r.send();
-              print(r.getResponseHeader('Content-Type'));
-
-              // ...should output something similar to the following text:
-              Content-Type: text/plain; charset=utf-8
-            </example>
-            <returns type='DOMString'>
-              @XXX TBD@
-            </returns>
-            <param name='header'>
-              @XXX TDB@
-            </param>
-          </method>
-          <attribute name="responseText">
-           <p>If the <code><term>readyState</term></code> attribute has a value
-            other than 3 (Receiving) or 4 (Loaded), it MUST be the empty string.
-            Otherwise, it MUST be the fragment of the entity body received so
-            far (when <code><term>readyState</term></code> is 3 (Receiving)) or
-            the entity body (when <code><term>readyState</term></code> is 4
-            (Loaded)), interpreted using the character encoding specified in the
-            response, or UTF-8 if no character encoding was specified. Invalid
-            bytes MUST be converted to U+FFFD REPLACEMENT CHARACTER.
-           </p>
-           <ednote>See ISSUE-31.</ednote>
-          </attribute>
-          <attribute name='responseXML' type='Document'>
-            <p>
-              If the <code><term>readyState</term></code>
-              attribute has a value other than
-              4 (Loaded), it MUST be <code>null</code>.
-              Otherwise, if the <code>Content-Type</code> header contains a
-              media type (ignoring any parameters) that is either
-              <code>text/xml</code>, <code>application/xml</code>, or
-              ends in <code>+xml</code>, it MUST be an object that implements the <code>Document</code>
-              interface representing the parsed document. If the document was not an
-              XML document, or if the document could not be parsed (due to an XML
-              well-formedness error or unsupported character encoding, for instance),
-              it MUST be <code>null</code>.
-            </p>
-          </attribute>
-          <attribute name='status' type='unsigned short'>
-            <p>
-              If the <code>status</code> attribute is not available it MUST raise an
-              exception. It MUST be available when <code><term>readyState</term></code> is
-              3 (Receiving) or 4 (Loaded).
-              When available, it MUST represent the HTTP status
-              code (typically 200 for a successful connection).
-            </p>
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                SHOULD be raised if this attribute is accessed when
-                <code><term>readyState</term></code> has an inappropriate value.
-              </code>
-            </exception>
-          </attribute>
-          <attribute name='statusText'>
-            <p>
-              If the <code>statusText</code> attribute is not available it MUST raise an
-              exception. It MUST be available when <code>readyState</code> is
-              3 (Receiving) or 4 (Loaded).
-              When available, it MUST represent the HTTP status text
-              sent by the server (appears after the status code).
-            </p>
-            <exception name='DOMException'>
-              <code name='INVALID_STATE_ERR' on='retrieval'>
-                SHOULD be raised if this attribute is accessed when
-                <code><term>readyState</term></code>
-                has an inappropriate value.
-              </code>
-            </exception>
-          </attribute>
-
-        </interface>
-      </idl>
-    </schema>
-    <p>HTTP requests sent from multiple different
-     <code>XMLHttpRequest</code> objects in succession SHOULD be pipelined into
-     shared HTTP connections.</p>
-  </section>
-
-  <section xml:id='bibref' type='appendix'>
-    <title>References</title>
-    <bibliography/>
-  </section>
-
-  <section xml:id="acknowledgements" type="appendix">
-    <title>Acknowledgements</title>
-    <p><em>This section is non-normative</em></p>
-    <ul>
-     <li>Asbjørn Ulsberg</li>
-     <li>Boris Zbarsky</li>
-     <li>Björn Höhrmann</li>
-     <li>Christophe Jolif</li>
-     <li>Charles McCathieNevile</li>
-     <li>Doug Schepers</li>
-     <li>Douglas Livingstone</li>
-     <li>Gorm Haug Eriksen</li>
-     <li>Julian Reschke</li>
-     <li>Ian Davis</li>
-     <li>Ian Hickson</li>
-     <li>Ivan Herman</li>
-     <li>Jim Ley</li>
-     <li>Jonas Sicking</li>
-     <li>Maciej Stachowiak</li>
-     <li>Marc Hadley</li>
-     <li>Mark Nottingham</li>
-     <li>Pawel Glowacki</li>
-     <li>Robin Berjon</li>
-    </ul>
-    <p>Special thanks also to the Microsoft employees who first implemented the
-     <code>XMLHttpRequest</code> interface, which was first widely deployed by
-     the Windows Internet Explorer browser.</p>
-    <p>Thanks also to all those who have helped to improve this specification by
-     sending suggestions and corrections. (Please, keep bugging us with your
-     issues!)</p>
-    <p>(By the way, if you contributed to this specification in any way and you
-     are not listed in this appendix please e-mail either editor directly.)</p>
-  </section>
+       // ...should output something similar to the following text:
+       Content-Type: text/plain; charset=utf-8
+      </example>
+      <returns type='DOMString'>@XXX TBD@</returns>
+      <param name='header'>@XXX TDB@</param>
+     </method>
+     <attribute name="responseText">
+      <p>If the <code><term>readyState</term></code> attribute has a value other
+       than 3 (Receiving) or 4 (Loaded), it MUST be the empty string. Otherwise,
+       it MUST be the fragment of the entity body received so far (when
+       <code><term>readyState</term></code> is 3 (Receiving)) or the entity body
+       (when <code><term>readyState</term></code> is 4 (Loaded)), interpreted
+       using the character encoding specified in the response, or UTF-8 if no
+       character encoding was specified. Invalid bytes MUST be converted to
+       U+FFFD REPLACEMENT CHARACTER.</p>
+     </attribute>
+     <attribute name='responseXML' type='Document'>
+      <p>If the <code><term>readyState</term></code> attribute has a value other
+       than 4 (Loaded), it MUST be <code>null</code>. Otherwise, if the
+       <code>Content-Type</code> header contains a media type (ignoring any
+       parameters) that is either <code>text/xml</code>,
+       <code>application/xml</code>, or ends in <code>+xml</code>, it MUST be an
+       object that implements the <code>Document</code> interface representing
+       the parsed document. If the document was not an XML document, or if the
+       document could not be parsed (due to an XML well-formedness error or
+       unsupported character encoding, for instance), it MUST be
+       <code>null</code>.</p>
+      <ednote>Because of nonsense like
+       <code>r.responseXML.getElementsByTagName()</code> this might have to
+       return an empty document node instead. It seems to be what
+       implementations do in a lot of cases anyway...</ednote>
+     </attribute>
+     <attribute name='status' type='unsigned short'>
+      <p>If the <code>status</code> attribute is not available it MUST raise an
+       exception. It MUST be available when <code><term>readyState</term></code>
+       is 3 (Receiving) or 4 (Loaded). When available, it MUST represent the
+       HTTP status code (typically 200 for a successful connection).</p>
+      <exception name='DOMException'>
+       <code name='INVALID_STATE_ERR' on='retrieval'>MUST be raised when this
+       attribute is accessed when <code><term>readyState</term></code> has an
+       inappropriate value.</code>
+      </exception>
+     </attribute>
+     <attribute name='statusText'>
+      <p>If the <code>statusText</code> attribute is not available it MUST raise
+       an exception. It MUST be available when <code>readyState</code> is 3
+       (Receiving) or 4 (Loaded). When available, it MUST represent the HTTP
+       status text sent by the server (appears after the status code).</p>
+      <exception name='DOMException'>
+       <code name='INVALID_STATE_ERR' on='retrieval'>MUST be raised if this
+        attribute is accessed when <code><term>readyState</term></code> has an
+        inappropriate value.</code>
+      </exception>
+     </attribute>
+    </interface>
+   </idl>
+  </schema>
+  <p>HTTP requests sent from multiple different <code>XMLHttpRequest</code>
+   objects in succession SHOULD be pipelined into shared HTTP connections.</p>
+ </section>
+ <section xml:id='bibref' type='appendix'>
+  <title>References</title>
+   <bibliography/>
+ </section>
+ <section xml:id="acknowledgements" type="appendix">
+  <title>Acknowledgements</title>
+  <p><em>This section is non-normative</em></p>
+  <ul>
+   <li>Asbjørn Ulsberg</li>
+   <li>Boris Zbarsky</li>
+   <li>Björn Höhrmann</li>
+   <li>Christophe Jolif</li>
+   <li>Charles McCathieNevile</li>
+   <li>Doug Schepers</li>
+   <li>Douglas Livingstone</li>
+   <li>Gorm Haug Eriksen</li>
+   <li>Julian Reschke</li>
+   <li>Ian Davis</li>
+   <li>Ian Hickson</li>
+   <li>Ivan Herman</li>
+   <li>Jim Ley</li>
+   <li>Jonas Sicking</li>
+   <li>Maciej Stachowiak</li>
+   <li>Marc Hadley</li>
+   <li>Mark Nottingham</li>
+   <li>Pawel Glowacki</li>
+   <li>Robin Berjon</li>
+  </ul>
+  <p>Special thanks also to the Microsoft employees who first implemented the
+   <code>XMLHttpRequest</code> interface, which was first widely deployed by
+   the Windows Internet Explorer browser.</p>
+  <p>Thanks also to all those who have helped to improve this specification by
+   sending suggestions and corrections. (Please, keep bugging us with your
+   issues!)</p>
+  <p>(By the way, if you contributed to this specification in any way and you
+   are not listed in this appendix please e-mail either editor directly.)</p>
+ </section>
 </specification>
