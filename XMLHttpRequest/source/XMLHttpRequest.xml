@@ -1,138 +1,136 @@
 <specification xmlns="http://berjon.com/ns/re-spec/" xmlns:rs="http://berjon.com/ns/re-spec/" version="1.0" xml:lang="en-US">
-
-  <!--
-    VERSION 2.0 (the one we implement)
-
-    * .onload
-    * .onprogress
-    * the XMLHttpRequest object implements the EventTarget object
-    * .ontimeout (Gorm wants it!)
-    * .onerror (error event...)
-    * does abort() trigger the error event
-    * property for not following redirects?
-    * ...
-  -->
-
-  <metadata>
-    <title>The XMLHttpRequest Object</title> <!-- please don't call it 1.0 -->
-    <styling type="W3C" status="ED"/>
-    <date year="2006" month="04" day="07"/>
-    <editors>
-      <person>
-        <name>Anne van Kesteren</name>
-        <email>annevk@opera.com</email>
-        <url>http://annevankesteren.nl/</url>
-        <company>Opera Software ASA</company>
-        <company-url>http://www.opera.com/</company-url>
-      </person>
-      <person>
-        <name>Dean Jackson</name>
-        <email>dino@w3.org</email>
-        <url>http://www.w3.org/People/Dean/</url>
-        <company>W3C</company>
-        <company-url>http://www.w3.org/</company-url>
-      </person>
-    </editors>
-    <versions>
-      <current/>
-      <latest>http://www.w3.org/TR/XMLHttpRequest/</latest>
-      <previous>http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</previous>
-    </versions>
-  </metadata>
-
-  <section xml:id="abstract" type="w3c-abstract">
-    <title>Abstract</title>
-    <p>
-      This specification defines the <code>XMLHttpRequest</code> object, an
-      API that provides some HTTP client functionality.
-    </p>
-    <ednote>
-      <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.44 2006-04-21 14:10:59 avankest Exp $.
-      </p>
-    </ednote>
+ <metadata>
+  <title>The XMLHttpRequest Object</title> <!-- please don't call it 1.0 -->
+  <styling type="W3C" status="ED"/>
+  <date year="2006" month="04" day="21"/>
+  <editors>
+   <person>
+    <name>Anne van Kesteren</name>
+    <email>annevk@opera.com</email>
+    <url>http://annevankesteren.nl/</url>
+    <company>Opera Software ASA</company>
+    <company-url>http://www.opera.com/</company-url>
+   </person>
+   <person>
+    <name>Dean Jackson</name>
+    <email>dino@w3.org</email>
+    <url>http://www.w3.org/People/Dean/</url>
+    <company>W3C</company>
+    <company-url>http://www.w3.org/</company-url>
+   </person>
+  </editors>
+  <versions>
+   <current/>
+   <latest>http://www.w3.org/TR/XMLHttpRequest/</latest>
+   <previous>http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</previous>
+  </versions>
+ </metadata>
+ <section xml:id="abstract" type="w3c-abstract">
+  <title>Abstract</title>
+  <p>This specification defines the <code>XMLHttpRequest</code> object, an
+   <abbr title="Application Programming Interface">API</abbr> that provides
+   additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
+   functionality for transferring data between a client and a server.</p>
+  <ednote>
+   <p>Last update: $Id: XMLHttpRequest.xml,v 1.45 2006-04-21 20:06:25 avankest Exp $.</p>
+  </ednote>
+ </section>
+ <section xml:id="sotd" type="w3c-sotd">
+  <title>Status of this Document</title>
+  <include href='respec:sotd-head.tpl'/>
+  <p>This document is a Working Group draft. It is <strong>not an official
+   publication</strong> of the W3C.</p>
+  <p>This document is produced by the
+   <a href="http://www.w3.org/2006/webapi">Web APIs WG</a>, part of the
+   <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
+   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
+   Domain</a>.</p>
+  <p>Web content and browser developers are encouraged to review this draft.
+   Please send comments to
+   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the W3C's
+   public email list for issues related to Web APIs.
+   <a href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of
+   the list are available.</p>
+  <p>The patent policy for this document is the
+   <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February
+   2004 W3C Patent Policy</a>. Patent disclosures relevant to this specification
+   MAY be found on the
+   <a href="http://www.w3.org/2004/01/pp-impl/38482/status" rel="disclosure">Web
+   API Working Group's patent disclosure page</a>. An individual who has actual
+   knowledge of a patent which the individual believes contains Essential
+   Claim(s) with respect to this specification SHOULD disclose the information
+   in accordance with
+   <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
+   6 of the W3C Patent Policy</a>.</p>
+  <include href='respec:sotd-endorse.tpl'/>
+ </section>
+ <section xml:id="toc" type="toc">
+  <title>Table of contents</title>
+  <?respec-toc?>
+ </section>
+ <section xml:id="introduction">
+  <title>Introduction</title>
+  <p><em>This section is non-normative.</em></p>
+  <p>The <code>XMLHttpRequest</code> object is an interface exposed by a
+   scripting engine that allows scripts to perform HTTP client functionality,
+   such as submitting form data or loading data from a server. Although the
+   name of the object starts with "XML", it supports the transport of other
+   data formats in addition to
+   <abbr title="Extensible Markup Language">XML</abbr>.  Also, some
+   implementation support other protocols besides HTTP opposed to what "Http" in
+   the name suggests (that functionality is not covered in this specification
+   though).</p>
+  <p>The <code>XMLHttpRequest</code> object is implemented today, in some form, by
+   many popular Web browsers. Unfortunately the implementations are not
+   completely interoperable. The goal of this specification is to document a
+   minimum set of interoperable features based on existing implementations,
+   allowing Web developers to use these features without platform-specific
+   code. In order to do this, only features that are already implemented are
+   considered. In the case where there is a feature with no interoperable
+   implementations, the authors have specified what they believe to be the most
+   correct behavior. It is expected that vendors update their implementation to
+   match what the specification specifies.</p>
+  <p>Future versions of this specification (as opposed to future drafts of this
+   version) may add new features, after careful examination from browser
+   developers and Web content developers.</p>
+  <p>This specification was originally derived from the WHATWG's Web
+   Applications 1.0 document. The authors acknowledge the work of the WHATWG in
+   documenting existing behavior.</p>
+  <section xml:id="examples">
+   <title>Examples of usage</title>
+   <p><em>This section is non-normative.</em></p>
+   <p>Various examples are listed throughout the specification.</p>
+   <ednote>Blah...</ednote>
   </section>
-
-  <section xml:id="sotd" type="w3c-sotd">
-    <title>Status of this Document</title>
-
-    <include href='respec:sotd-head.tpl'/>
-    <p>
-      This document is a Working Group draft. It is <strong>not an official
-      publication</strong> of the W3C. The <a href="#authors">authors of this document</a> are
-      the members of the W3C <a href="http://www.w3.org/2006/webapi">Web API
-      Working Group</a>.
-    </p>
-    <p>
-      This document is produced by the
-      <a href="http://www.w3.org/2006/webapi">Web APIs WG</a>, part of the
-      <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a> in
-      the W3C <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.
-    </p>
-    <p>
-      Web content and browser developers are encouraged to review this
-      draft.
-      Please send comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>,
-      the W3C's public email list for issues related to Web APIs.
-      <a href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of the
-      list are available.
-    </p>
-    <p>
-      The patent policy for this document is the
-      <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 W3C Patent Policy</a>.
-      Patent disclosures relevant to this specification MAY be found on the
-      <a href="http://www.w3.org/2004/01/pp-impl/38482/status" rel="disclosure">Web API Working Group's patent
-      disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes
-      contains Essential Claim(s) with respect to this specification SHOULD disclose the information in
-      accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6
-      of the W3C Patent Policy</a>.
-    </p>
-    <include href='respec:sotd-endorse.tpl'/>
-  </section>
-
-  <section xml:id="contents" type="toc">
-    <title>Table of contents</title>
-
-    <?respec-toc?>
-  </section>
-
-  <section xml:id="introduction">
-   <title>Introduction</title>
-   <p><em>This section is non-normative</em></p>
-   <p>The <code>XMLHttpRequest</code> object is an interface exposed by a
-    scripting engine that allows scripts to perform HTTP client functionality,
-    such as submitting form data or loading data from a server. Although the
-    name of the object starts with "XML", it supports the transport of other
-    data formats in addition to XML.  Also, some implementation support other
-    protocols besides HTTP opposed to what "Http" in the name suggests (that
-    functionality is not covered in this specification though).</p>
-   <p>The <code>XMLHttpRequest</code> object is implemented today, in some form, by
-    many popular Web browsers. Unfortunately the implementations are not
-    completely interoperable. The goal of this specification is to document a
-    minimum set of interoperable features based on existing implementations,
-    allowing Web developers to use these features without platform-specific
-    code. In order to do this, only features that are already implemented are
-    considered. In the case where there is a feature with no interoperable
-    implementations, the authors have specified what they believe to be the most
-    correct behavior. It is expected that vendors update their implementation to
-    match what the specification specifies.</p>
-   <p>Future versions of this specification (as opposed to future drafts of this
-    version) may add new features, after careful examination from browser
-    developers and Web content developers.</p>
-   <p>This specification was originally derived from the WHATWG's Web
-    Applications 1.0 document. The authors acknowledge the work of the WHATWG in
-    documenting existing behavior.</p>
-  </section>
-
   <section xml:id="conformance">
    <title>Conformance</title>
    <p><em>This section is normative</em></p>
    <p>The key words MUST, MUST NOT, REQUIRED, SHALL, SHALL NOT, SHOULD,
     SHOULD NOT, RECOMMENDED, MAY, and OPTIONAL in this document are to be
     interpreted as described in RFC 2119 [RFC2119].</p>
+   <p>This specification defines some classes of products:</p>
+   <dl>
+    <dt>conforming implementation</dt>
+    <dd>...</dd>
+    <dt>...</dt>
+    <dd>...</dd>
+   </dl>
+  </section>
+  <section xml:id="extensibility">
+   <title>Extensibility</title>
+   <p>Extensions to the <code>XMLHttpRequest</code> interface are reserved for
+    future work by the Web APIs WG. WGs besides the Web APIs WG may extend the
+    interface, but MUST coordinate that with the Web APIs WG. UAs MAY extend the
+    interface, but MUST prefix the new members using a string specific to the
+    vendor following the <var>Vendor</var><var>Member</var>  scheme. (Normally
+    members follow the <var>member</var> scheme.) Company Foo could introduce a
+    <code>FooFollowRedirect(<var>boolean</var>)</code> method for example.</p>
+   <p>Authors MAY use extension mechanisms specific to the host language, like
+    <code>.prototype</code> in ECMAScript.</p>
   </section>
   <section xml:id="issues">
    <title>Outstanding issues</title>
+   <p><em>This section is non-normative.</em></p>
    <ul>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/29">ISSUE-29 - how
      is uri parameter of the open() method resolved</a></li>
@@ -162,40 +160,57 @@
      Is method case-sensitive?</a></li>
    </ul>
   </section>
-  <section xml:id="xmlhttprequest">
-   <title>The <code>XMLHttpRequest</code> object</title>
-   <p><em>This section is normative</em></p>
-   <p>The following interface MAY be used to allow scripts to programmatically
-    connect to their originating server via HTTP.</p>
-   <!-- XXX revisit with access-control -->
-   <p>In ECMAScript, an instance of <code>XMLHttpRequest</code> can be created
+  <section xml:id="notcovered">
+   <title>Not in this specification</title>
+   <p>This specification currently does not include the following features that
+    may or may not be implemented by UAs. It is currently unclear whether some
+    of these will be added for this version of the specification or the
+    next.</p>
+   <ul>
+    <li><code>load</code> event and <code>onload</code> attribute;</li>
+    <li><code>error</code> event and <code>onerror</code> attribute;</li>
+    <li><code>progress</code> event and <code>onprogress</code> attribute;</li>
+    <li><code>abort</code> event and <code>onabort</code> attribute;</li>
+    <li><code>readystatechange</code> event;</li>
+    <li>Objects that implement the <code>XMLHttpRequest</code> interface to also
+    implement the <code>EventTarget</code> interface;</li>
+    <li>Timers have been suggested, perhaps an <code>ontimeout</code>
+     attribute;</li>
+    <li>Property to disable following redirects.</li>
+   </ul>
+  </section>
+ </section> 
+ <section xml:id="xmlhttprequest">
+  <title>The <code>XMLHttpRequest</code> object</title>
+  <p>The following interface MAY be used to allow scripts to programmatically
+   connect to their originating server via HTTP.</p>
+  <p>In ECMAScript, an instance of <code>XMLHttpRequest</code> can be created
     using the <code>XMLHttpRequest()</code> constructor:</p>
-   <example>
-    <title>XMLHttpRequest constructor</title>
-    var r = new XMLHttpRequest();
-   </example>
-   <ednote>What about non-ECMAScript implementations?</ednote>
-   <p>A more complete description of what can be done with
-    <code>XMLHttpRequest</code> can be found in the IDL below and its associated
-    details.</p>
-    <ednote>Need to define which IDL specification we are going to conform to,
-     if any. Robin suggested drafting up a Note...</ednote>
-    <schema>
-      <title>The XMLHttpRequest interface</title>
-      <idl>
-        <interface module='webapi' name='XMLHttpRequest'>
-          <attribute type='Function' name='onreadystatechange'>
-            <p>
-              An attribute that represents a function that MUST be invoked when
-              <code>readyState</code> changes value. The function MAY be invoked
-              multiple times when readyState is 3 (Receiving). Its initial value
-              MUST be <code>null</code>.</p>
-            <ednote>What if languages don't have functions? Perhaps this should
-             be an EventListener?</ednote>
-          </attribute>
-          <attribute ro='true' type='unsigned short' name='readyState' xml:id="dfn-readystate">
-           <p>The state of the object. The
-            attribute MUSt be one of the following values:</p>
+  <example>
+   <title>XMLHttpRequest constructor</title>
+   var r = new XMLHttpRequest();
+  </example>
+  <ednote>What about non-ECMAScript implementations?</ednote>
+  <p>A more complete description of what can be done with
+   <code>XMLHttpRequest</code> can be found in the IDL below and its associated
+   details.</p>
+  <ednote>Need to define which IDL specification we are going to conform to, if
+   any. Robin suggested drafting up a Note...</ednote>
+  <schema>
+   <title>The XMLHttpRequest interface</title>
+   <idl>
+    <interface module='webapi' name='XMLHttpRequest'>
+     <attribute type='Function' name='onreadystatechange'>
+      <p>An attribute that represents a function that MUST be invoked when
+       <code>readyState</code> changes value. The function MAY be invoked
+       multiple times when readyState is 3 (Receiving). Its initial value MUST
+       be <code>null</code>.</p>
+      <ednote>What if languages don't have functions? Perhaps this should be an
+      EventListener?</ednote>
+     </attribute>
+     <attribute ro='true' type='unsigned short' name='readyState' xml:id="dfn-readystate">
+      <p>The state of the object. The attribute MUSt be one of the following
+       values:</p>
            <dl>
             <dt>0 Uninitialized</dt>
             <dd>The initial value.</dd>
@@ -583,8 +598,10 @@
     <p>Special thanks also to the Microsoft employees who first implemented the
      <code>XMLHttpRequest</code> interface, which was first widely deployed by
      the Windows Internet Explorer browser.</p>
-    <p>Thanks to all those who have helped to improve this specification by
+    <p>Thanks also to all those who have helped to improve this specification by
      sending suggestions and corrections. (Please, keep bugging us with your
      issues!)</p>
+    <p>(By the way, if you contributed to this specification in any way and you
+     are not listed in this appendix please e-mail either editor directly.)</p>
   </section>
 </specification>
