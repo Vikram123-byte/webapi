@@ -6,11 +6,7 @@
           regenerated.
           ******* WARNING ********
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.18 2006-04-07 12:38:55 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>07 April 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="
-        
-      ">
-        
-      </a></dd><dt>Previous version:</dt><dd><a href=""></a></dd><dt>Editors:</dt><dd><span class="person"><a href="http://annevankesteren.nl/">Anne van Kesteren</a> (<a href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</span></dd><dd><span class="person"><a href="http://www.w3.org/People/Dean/">Dean Jackson</a> (<a href="http://www.w3.org/">W3C</a>) &lt;<a href="mailto:dino@w3.org">dino@w3.org</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.19 2006-04-21 13:45:08 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>07 April 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="http://www.w3.org/TR/XMLHttpRequest/">http://www.w3.org/TR/XMLHttpRequest/</a></dd><dt>Previous version:</dt><dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</a></dd><dt>Editors:</dt><dd><span class="person"><a href="http://annevankesteren.nl/">Anne van Kesteren</a> (<a href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</span></dd><dd><span class="person"><a href="http://www.w3.org/People/Dean/">Dean Jackson</a> (<a href="http://www.w3.org/">W3C</a>) &lt;<a href="mailto:dino@w3.org">dino@w3.org</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -32,7 +28,7 @@
     </p>
     <div class="ednote">
       <p>
-        Last update: $Id: XMLHttpRequest.html,v 1.18 2006-04-07 12:38:55 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.html,v 1.19 2006-04-21 13:45:08 avankest Exp $.
       </p>
     </div>
   </div>
@@ -92,7 +88,7 @@
   <div class="section"><h2 id="contents">Table of contents</h2>
     
 
-    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><a href="#conformance">2. Conformance</a></li><li><a href="#issues">3. Outstanding issues</a></li><li><a href="#xmlhttprequest">4. The <code>XMLHttpRequest</code> object</a></li></ul><ul class="toc"><li><a href="#bibref">A. References</a></li><li><a href="#authors">B. Authors</a></li></ul>
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><a href="#conformance">2. Conformance</a></li><li><a href="#issues">3. Outstanding issues</a></li><li><a href="#xmlhttprequest">4. The <code>XMLHttpRequest</code> object</a></li></ul><ul class="toc"><li><a href="#bibref">A. References</a></li><li><a href="#acknowledgements">B. Acknowledgements</a></li></ul>
   </div>
 
   <div class="section"><h2 id="introduction">1. Introduction</h2>
@@ -102,7 +98,9 @@
     scripting engine that allows scripts to perform HTTP client functionality,
     such as submitting form data or loading data from a server. Although the
     name of the object starts with "XML", it supports the transport of other
-    data formats in addition to XML.</p>
+    data formats in addition to XML.  Also, some implementation support other
+    protocols besides HTTP opposed to what "Http" in the name suggests (that
+    functionality is not covered in this specification though).</p>
    <p>The <code>XMLHttpRequest</code> object is implemented today, in some form, by
     many popular Web browsers. Unfortunately the implementations are not
     completely interoperable. The goal of this specification is to document a
@@ -280,7 +278,7 @@
             a CR (U+000D) LF (U+000A) pair. The status line <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> not be
             included.</p><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
 var r = new XMLHttpRequest();
-r.open('get', 'test.txt', false);
+r.open('GET', 'test.txt', false);
 r.send();
 print(r.getAllResponseHeaders());
 
@@ -303,9 +301,9 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>No Parameters</dt><dt
               name were received, then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return the empty string. Header names <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
               compared case-insensitively to the method
               argument (<var>header</var>).
-            </p><div class="ednote">Case-insensitively how?</div><div class="boxed"><div><span class="exampleTitle">Example: Manipulating response headers</span></div><pre class="example" title="Manipulating response headers">// The following script:
+            </p><div class="ednote">Case-insensitively how?</div><div class="boxed"><div><span class="exampleTitle">Example: Getting a response header</span></div><pre class="example" title="Getting a response header">// The following script:
 var r = new XMLHttpRequest();
-r.open('get', 'test.txt', false);
+r.open('GET', 'test.txt', false);
 r.send();
 print(r.getResponseHeader('Content-Type'));
 
@@ -326,11 +324,12 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
               <code>statusText</code> attributes to their initial
               values, and resetting the list of request headers.
             </p><p>Same-origin security restrictions <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> apply.</p><p>
-              If the URI given to this method contains a user name and a password
-              (the latter potentially being the empty string), then these <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be used
-              if the <var>user</var> and <var>password</var>
+              If the URI given to this method contains userinfo ([RFC3986],
+              section 3.2.1) then the user name and password specified <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
+              used if the <var>user</var> and <var>password</var>
               arguments are omitted. If the arguments are not omitted, they take
-              precedence, even if they are <code>null</code>.
+              precedence, even if they are <code>null</code>. The usage of
+              userinfo is discouraged <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> not work in implementations.
             </p><p>
               If <code>open()</code> is called when <code>readyState</code> is
               4 (Loaded) the entire object <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be reset.
@@ -425,7 +424,7 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
               followed by a U+0020 SPACE for separation.
             </p><div class="boxed"><div><span class="exampleTitle">Example: Setting a request header</span></div><pre class="example" title="Setting a request header">// The following script:
 var r = new XMLHttpRequest();
-r.open('get', 'demo.cgi');
+r.open('GET', 'demo.cgi');
 r.setRequestHeader('X-Test', 'one');
 r.setRequestHeader('X-Test', 'two');
 r.send(null);
@@ -489,8 +488,9 @@ X-Test: one, two
           DOMString</dt><dd>
               @XXX TDB@
             </dd></dl></dd><dt>No Return Value</dt><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-DOMException">DOMException</a></td><td><table>
-              <tr><td>UNKNOWN_ERR</td><td>
-                @XXX TDB@
+              <tr><td>INVALID_STATE_ERR</td><td>
+               <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be raised if <code><a class="term" href="#dfn-readystate">readyState</a></code> has an
+               inappropriate value. (See prose above.)
               </td></tr>
             </table></td></tr></table></dd></dl></dd></dl></div></div>
     <p>HTTP requests sent from multiple different
@@ -500,45 +500,39 @@ X-Test: one, two
 
   <div class="section"><h2 id="bibref">A. References</h2>
     
-
-    <p><em>This section is normative</em></p>
-
     <dl class="bibliography"><dt id="DOM3">DOM3</dt><dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core/">Document Object Model (DOM) Level 3 Core Specification</a></cite>,
     <span class="person">Arnaud Le Hors (IBM)</span>, <span class="person">Philippe Le Hégaret (W3C)</span>, <span class="person">Lauren Wood (SoftQuad, Inc.)</span>, <span class="person">Gavin Nicol (Inso EPS)</span>, <span class="person">Jonathan Robie (Texcel Research and Software AG)</span>, <span class="person">Mike Champion (Arbortext and Software AG)</span>, and <span class="person">Steve Byrne (JavaSoft)</span>.</dd><dt id="RFC2119">RFC2119</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
     <span class="person">S. Bradner</span>.</dd><dt id="RFC2616">RFC2616</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc2616.txt">Hypertext Transfer Protocol -- HTTP/1.1</a></cite>,
     <span class="person">R. Fielding (UC Irvine)</span>, <span class="person">J. Gettys (Compaq/W3C)</span>, <span class="person">J. Mogul (Compaq)</span>, <span class="person">H. Frystyk (W3C/MIT)</span>, <span class="person">L. Masinter (Xerox)</span>, <span class="person">P. Leach (Microsoft)</span>, and <span class="person">T. Berners-Lee (W3C/MIT)</span>.</dd></dl>
   </div>
 
-  <div class="section"><h2 id="authors">B. Authors</h2>
+  <div class="section"><h2 id="acknowledgements">B. Acknowledgements</h2>
     
-
-    <p><em>This section is informative</em></p>
-
-    <p>The authors of this document are the members of the
-        <acronym title="World Wide Web Consortium">W3C</acronym> Web APIs Working Group.</p>
-
+    <p><em>This section is non-normative</em></p>
     <ul>
-      <li>Robin Berjon, Expway (Working Group Chair)</li>
-      <li>Ian Davis, Talis Information Limited</li>
-      <li>Gorm Haug Eriksen, Opera Software</li>
-      <li>Marc Hadley, Sun Microsystems</li>
-      <li>Scott Hayman, Research In Motion</li>
-      <li>Ian Hickson, Google</li>
-      <li>Björn Höhrmann, Invited Expert</li>
-      <li>Dean Jackson, <acronym title="World Wide Web Consortium">W3C</acronym></li>
-      <li>Christophe Jolif, ILOG</li>
-      <li>Luca Mascaro, HTML Writers Guild</li>
-      <li>Charles McCathieNevile, Opera Software</li> 
-      <li>T.V. Raman, Google</li>
-      <li>Arun Ranganathan, AOL</li>
-      <li>John Robinson, AOL</li>
-      <li>Doug Schepers, Vectoreal</li>
-      <li>Michael Shenfield, Research In Motion</li>
-      <li>Jonas Sicking, Mozilla Foundation</li>
-      <li>Stéphane Sire, IntuiLab</li>
-      <li>Maciej Stachowiak, Apple Computer</li>
-      <li>Anne van Kesteren, Opera Software</li>
+     <li>Asbjørn Ulsberg</li>
+     <li>Boris Zbarsky</li>
+     <li>Björn Höhrmann</li>
+     <li>Christophe Jolif</li>
+     <li>Charles McCathieNevile</li>
+     <li>Doug Schepers</li>
+     <li>Douglas Livingstone</li>
+     <li>Gorm Haug Eriksen</li>
+     <li>Julian Reschke</li>
+     <li>Ian Davis</li>
+     <li>Ian Hickson</li>
+     <li>Ivan Herman</li>
+     <li>Jim Ley</li>
+     <li>Jonas Sicking</li>
+     <li>Maciej Stachowiak</li>
+     <li>Marc Hadley</li>
+     <li>Mark Nottingham</li>
+     <li>Pawel Glowacki</li>
+     <li>Robin Berjon</li>
     </ul>
+    <p>Special thanks also to the Microsoft employees who first implemented the
+     <code>XMLHttpRequest</code> interface, which was first widely deployed by
+     the Windows Internet Explorer browser.</p>
     <p>Thanks to all those who have helped to improve this specification by
      sending suggestions and corrections. (Please, keep bugging us with your
      issues!)</p>

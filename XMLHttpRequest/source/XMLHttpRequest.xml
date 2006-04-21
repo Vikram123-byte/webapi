@@ -35,10 +35,8 @@
     </editors>
     <versions>
       <current/>
-      <latest>
-        <!-- http://www.w3.org/TR/XMLHttpRequest/ -->
-      </latest>
-      <previous/>
+      <latest>http://www.w3.org/TR/XMLHttpRequest/</latest>
+      <previous>http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</previous>
     </versions>
   </metadata>
 
@@ -50,7 +48,7 @@
     </p>
     <ednote>
       <p>
-        Last update: $Id: XMLHttpRequest.xml,v 1.42 2006-04-20 15:04:14 avankest Exp $.
+        Last update: $Id: XMLHttpRequest.xml,v 1.43 2006-04-21 13:45:09 avankest Exp $.
       </p>
     </ednote>
   </section>
@@ -105,7 +103,9 @@
     scripting engine that allows scripts to perform HTTP client functionality,
     such as submitting form data or loading data from a server. Although the
     name of the object starts with "XML", it supports the transport of other
-    data formats in addition to XML.</p>
+    data formats in addition to XML.  Also, some implementation support other
+    protocols besides HTTP opposed to what "Http" in the name suggests (that
+    functionality is not covered in this specification though).</p>
    <p>The <code>XMLHttpRequest</code> object is implemented today, in some form, by
     many popular Web browsers. Unfortunately the implementations are not
     completely interoperable. The goal of this specification is to document a
@@ -226,11 +226,12 @@
             <p>Same-origin security restrictions SHOULD apply.</p>
             <!-- XXX revisit with access-control or in general? -->
             <p>
-              If the URI given to this method contains a user name and a password
-              (the latter potentially being the empty string), then these MUST be used
-              if the <var>user</var> and <var>password</var>
+              If the URI given to this method contains userinfo ([RFC3986],
+              section 3.2.1) then the user name and password specified MUST be
+              used if the <var>user</var> and <var>password</var>
               arguments are omitted. If the arguments are not omitted, they take
-              precedence, even if they are <code>null</code>.
+              precedence, even if they are <code>null</code>. The usage of
+              userinfo is discouraged MAY not work in implementations.
             </p>
             <p>
               If <code>open()</code> is called when <code>readyState</code> is
@@ -275,7 +276,7 @@
               <title>Setting a request header</title>
               // The following script:
               var r = new XMLHttpRequest();
-              r.open('get', 'demo.cgi');
+              r.open('GET', 'demo.cgi');
               r.setRequestHeader('X-Test', 'one');
               r.setRequestHeader('X-Test', 'two');
               r.send(null);
@@ -344,8 +345,9 @@
               @XXX TDB@
             </param>
             <exception name='DOMException'>
-              <code name='UNKNOWN_ERR'>
-                @XXX TDB@
+              <code name='INVALID_STATE_ERR'>
+               MUST be raised if <code><term>readyState</term></code> has an
+               inappropriate value. (See prose above.)
               </code>
             </exception>
           </method>
@@ -434,7 +436,7 @@
             <title>Manipulating response headers</title>
               // The following script:
               var r = new XMLHttpRequest();
-              r.open('get', 'test.txt', false);
+              r.open('GET', 'test.txt', false);
               r.send();
               print(r.getAllResponseHeaders());
 
@@ -465,10 +467,10 @@
             </p>
             <ednote>Case-insensitively how?</ednote>
             <example>
-              <title>Manipulating response headers</title>
+              <title>Getting a response header</title>
               // The following script:
               var r = new XMLHttpRequest();
-              r.open('get', 'test.txt', false);
+              r.open('GET', 'test.txt', false);
               r.send();
               print(r.getResponseHeader('Content-Type'));
 
@@ -566,17 +568,21 @@
      <li>Doug Schepers</li>
      <li>Douglas Livingstone</li>
      <li>Gorm Haug Eriksen</li>
+     <li>Julian Reschke</li>
      <li>Ian Davis</li>
      <li>Ian Hickson</li>
      <li>Ivan Herman</li>
+     <li>Jim Ley</li>
      <li>Jonas Sicking</li>
      <li>Maciej Stachowiak</li>
      <li>Marc Hadley</li>
+     <li>Mark Nottingham</li>
      <li>Pawel Glowacki</li>
      <li>Robin Berjon</li>
     </ul>
     <p>Special thanks also to the Microsoft employees who first implemented the
-     <code>XMLHttpRequest</code> interface.</p>
+     <code>XMLHttpRequest</code> interface, which was first widely deployed by
+     the Windows Internet Explorer browser.</p>
     <p>Thanks to all those who have helped to improve this specification by
      sending suggestions and corrections. (Please, keep bugging us with your
      issues!)</p>
