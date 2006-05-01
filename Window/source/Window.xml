@@ -134,7 +134,6 @@
       </p>
 
       <ul>
-      <li>History <ednote>ISSUE-59: Should Window 1.0 include history?</ednote></li>
       <li>Access to frames by name <ednote>ISSUE-60: Should Window Object 1.0 include access to frames by name (window.frames)?</ednote></li>
       <li>Opening new windows</li>
       <li>Manipulating UI of existing windows</li>
@@ -236,13 +235,13 @@
     <ednote>ACTION-130: Need to add definition of "document"</ednote>
 
     <p>
-      A <dfn>browsing context</dfn> is a place where a user agent
-      presents a document or a sequence of documents to the user,
-      using one or more views. Only one document of this sequence is
-      presented at a time. A <term>browsing context</term> is said to
-      <dfn>navigate</dfn> when it changes from presenting one document
-      to another, for example by following a hyperlink. More is
-      specified about navigation behavior in the <a
+      A <dfn>browsing context</dfn> is a collection of one or more
+      views that present a document or a sequence of documents to the
+      user, using one or more views. Only one document of this
+      sequence is presented at a time. A <term>browsing context</term>
+      is said to <term>navigate</term> when it changes from presenting
+      one document to another, for example by following a
+      hyperlink. More is specified about navigation behavior in the <a
       href="#navigation">Navigation</a> section.
     </p>
 
@@ -428,11 +427,395 @@ interface DocumentWindow : views::DocumentView {
 
   </section>
 
-  <section xml:id='navigation'>
-    <ednote>Need prose description for this section, including
-    definition of terms, etc.</ednote>
+  <section xml:id='navigation-and-session-history'>
+    <title>Navigation and Session History</title>
 
-    <title>Navigation</title>
+    <p>A <term>browsing context</term> has a <dfn>session
+    history</dfn>: a sequence of absolute URI references [RFC2396]. It
+    also has a <dfn>current history position</dfn>, an integer index
+    into the <term>session history</term> that identifies the absolute
+    URI reference for the document currently being presented. The
+    absolute URI reference at the <term>current history
+    position</term> is called the <dfn>current location</dfn>. The
+    <term>session history</term> models the back/forward system of
+    navigation familiar to browser users.</p>
+
+    <p>When a <term>browsing context</term> changes from one
+    <term>current loation</term> to another, it is said to perform a
+    <dfn>navigation</dfn> to a <dfn>target location</dfn>, as specified
+    by an absolute URI reference.</p>
+
+    <p>A <term>navigation</term> can be triggered in many different
+    situations. For example, a user action, such as typing a URI in a
+    location field or selecting a bookmark MAY have this
+    effect. Markup languages and APIs also specify particular
+    situations that trigger a <term>navigation</term>, such as
+    activating a hyperlink or submitting a form. This specification
+    defines some API operations that result in a
+    <term>navigation</term>, using the algorithms described below.</p>
+
+    <p>When a <term>browsing context</term> performs a
+    <term>navigation</term> that is not specifically intended to be a
+    history navigation, reload, or replacement, it MUST remove any
+    entries in the <term>session history</term> after the
+    <term>current history position</term>, append the <term>target
+    location</term>, and update the <term>current history
+    position</term> to point to it. These values MUST be updated at
+    the moment the <term>browsing context</term> starts presenting the
+    new <term>document</term>. In particular, they MUST NOT be updated
+    while still presenting the last <term>document</term> (if
+    different from the new one), and MUST be updated when presenting
+    even a partialy loaded portion of the new
+    <term>document</term>.</p>
+
+    <p>When a <term>navigation</term> is performed to a <term>target
+    location</term> that differs only in fragment identifier [RFC2396] from
+    the <term>current location</term>, the <term>browsing
+    context</term> MUST continue to present the same
+    <term>document</term>, but MAY adjust its presentation of the
+    document based on the fragment identifier. Individual markup
+    languages SHOULD define the proper way to interpret fragment
+    identifiers when displaying a document using that language.</p>
+    <ednote>The SHOULD above doesn't relate to a conformance class,
+    should we describe how a language spec can be
+    Window-compatible?</ednote>
+
+    <p><term>Conforming implementation</term>s MAY also offer user
+    interfaces, APIs, markup language features or other mechanisms
+    that result in a reload, replacement or history navigation,
+    behaving as described below in the algorithms section or
+    otherwise. Nothing in this section should be taken to require a
+    linear user interface to <term>session history</term>, even though
+    the processing model depends on a linear list. <term>Conforming
+    implementations</term> may use a tree or any other method of
+    organizing what is presented to the user.</p>
+
+    <ednote>use newer URI RFC?</ednote>
+
+    <section xml:id='object-relationships'>
+      <title>Object Relationships</title>
+
+      <p>In addition to the <term><code>Window</code> object</term>
+      itself, <term>navigation</term> involves a number of other
+      objects. In addition to the <term><code>Window</code>
+      object</term> and the <term>document</term>, there are two other
+      objects that participate in <term>navigation</term>, the
+      <term><code>Location</code> object</term> and the
+      <term><code>History</code> object</term>.</p>
+
+      <p>These objects are, like the <term><code>Window</code>
+      object</term>, associated with a specific <term>browsing
+      context</term>.</p>
+
+    <ednote>This would be a good place to add a diagram of object relationships - someone with art skills please help!</ednote>
+
+    <ednote>Should define which objects are replaced on a navigation
+    and which aren't. Window is not replaced, document sometimes is as
+    mentioned above. With history and location I think it may vary per
+    browser. Needs research.</ednote>
+
+
+    </section>
+
+    <section xml:id='navigation-algorithms'>
+      <title>Navigation Algorithms</title>
+
+	<p>All requirements for performing alogorithms are "as if"
+	requirements - all observable behavior must be as if the
+	<term>conforming implementation</term> had performed the
+	required steps, but this specification makes no requirements
+	on how this effect is achieved.</p>
+
+	<section xml:id='uri-parsing'>
+	  <title>URI Parsing</title>
+
+	<p>The following algorithms are applied when parsing absolute
+	URI references into components. Absolute URI referencess are
+	parsed according to Uniform Resource Identifiers (URI):
+	Generic Syntax [RFC2396], but the strings of interest when
+	dealing with <term>browsing context</term>
+	<term>navigation</term> are often somewhat different than the
+	RFC standard pieces.</p>
+
+	<dl>
+	<dt><dfn>parseHash</dfn>(<var>URI-Ref</var>, <var>preserve-empty</var>)</dt>
+	<dd>
+	  <ol>
+	    <li>If <var>URI-Ref</var> has a non-empty fragment
+	    identifier [RFC2396], or has an empty fragment identifier
+	    and <var>preserve-empty</var> is true, return the
+	    concatenation of a number sign (#) and the fragment
+	    identifier; and do not proceed to step 2. Otherwise go to
+	    step 2.</li>
+	    <li>Return the empty string.</li>
+	  </ol>
+	</dd>
+	
+	<dt><dfn>parseHost</dfn>(<var>URI-Ref</var>)</dt>
+
+	<dd>Return the result of the following steps:
+	  <ol>
+	    <li>If <var>URI-Ref</var> is hierarchical and uses a
+	    server-based naming authority [RFC2396], return the
+	    hostport [RFC2396] portion of the naming authority and do
+	    not proceed to step 2. Otherwise go to step 2.</li>
+
+	    <li>Return the empty string.</li>
+        </ol>
+	</dd>
+
+	<dt><dfn>parseHostname</dfn>(<var>URI-Ref</var>)</dt>
+
+	<dd>Return the result of the following steps:
+	  <ol>
+	    <li>If <var>URI-Ref</var> is hierarchical and uses a
+	    server-based naming authority [RFC2396], return the
+	    host [RFC2396] portion of the naming authority and do
+	    not proceed to step 2. Otherwise go to step 2.</li>
+
+	    <li>Return the empty string.</li>
+        </ol>
+	</dd>
+
+	<dt><dfn>parsePathname</dfn>(<var>URI-Ref</var>)</dt> 
+	<dd> 
+	  <ol>
+	    <li>If <var>URI-Ref</var> is hierarchical, return the
+	    abs_path [RFC2396] portion; and do not proceed to step
+	    2. Otherwise go to step 2.</li>
+	    <li>Return the empty string.</li>
+          </ol>
+        </dd>
+
+	<dt><dfn>parsePort</dfn>(<var>URI-Ref</var>)</dt>
+	<dd>Return the result of the following steps:
+	  <ol>
+	    <li>If <var>URI-Ref</var> is hierarchical and uses a
+	    server-based naming authority [RFC2396], return the
+	    port [RFC2396] portion of the naming authority and do
+	    not proceed to step 2. Otherwise go to step 2.</li>
+
+	    <li>Return the empty string.</li>
+          </ol>
+	</dd>
+
+	<dt><dfn>parseProtocol</dfn>(<var>URI-Ref</var>)</dt> 
+	<dd>Return the concatenation of the <var>URI-Ref</var>'s scheme
+	[RFC2396] and a colon (:).</dd>
+
+	<dt><dfn>parseSearch</dfn>(<var>URI-Ref</var>, <var>preserve-empty</var>)</dt> 
+	<dd> 
+	  <ol>
+	    <li>If <var>URI-Ref</var> is hierarchical and has a
+	    non-empty query [RFC2396], or has an empty query and
+	    <var>preserve-emtpy</var> is true, return the
+	    concatenation of a question mark (?) and the query; and do
+	    not proceed to step 2. Otherwise go to step 2.</li>
+
+	    <li>Return the empty string.</li>
+          </ol>
+        </dd>
+
+	<dt><dfn>reconstructURI</dfn>(<var>protocol</var>, <var>host</var>, <var>pathname</var>, <var>query</var>, <var>fragment</var>)</dt> 
+	<ednote>Need to define this algorithm</ednote>
+	<dd>
+	</dd>
+
+	</dl>
+	</section>
+
+	<section xml:id='location-state'>
+	  <title>Browsing Context State</title>
+
+	<p>A <term>conforming implementation</term> MUST store several items
+	of internal state for each <term>browsing context</term>:</p>
+
+	<dl>
+	<dt><dfn>session-history</dfn></dt>
+
+	<dd>A sequence of absolute URI references representing the
+	<term>session
+	history</term>. <term>session-history</term>[<var>n</var>] for
+	an integer <var>n</var> is the <var>n</var>-th entry in the <term>
+	session history</term></dd>
+
+	<dt><dfn>current-history-position</dfn></dt>
+	<dd>An integer giving the index of the entry in the session
+	history currently being presented in this <term>browsing
+	context</term>, i.e. the <term>current history position</term>.</dd>
+
+	<dt><dfn>current-location</dfn></dt>
+	<dd>The absolute URI reference given by
+	<term>session-history</term>[<term>current-history-position</term>].</dd>
+
+	<dt><dfn>pending-location</dfn></dt>
+	<dd>Either a string containing an absolute URI reference or
+	null. This is used as part of the algorithms that perform
+	various navigations.</dd>
+
+	<dt><dfn>pending-navigation-type</dfn></dt>
+
+	<dd>The value of this internal property is one of "normal",
+	"replace", "reload" or "history".</dd>
+
+	<dt><dfn>pending-history-position</dfn></dt>
+	<dd>An integer used when a history navigation is pending.</dd>
+
+	</dl>
+
+	</section>
+
+	<section xml:id='performing-navigation'>
+	  <title>Performing Navigations</title>
+
+	  <p>The following algorithms are used to perform
+	  navigations. Many of the surprisingly detailed definitions
+	  are required for interoperability.</p>
+
+	<p>When a <term>browsing context</term> is REQUIRED to
+	<dfn>actuate the pending navigation</dfn>, it MUST perform the
+	following steps:</p>
+
+	<ol>
+	<li>If <term>pending-location</term> is null, terminate this
+	algorithm without performing any further steps.</li>
+
+	<li>Start the process of navigating to the absolute URI
+	reference specified by <term>pending-location</term>.</li>
+
+	<li>If <term>pending-navigation-type</term> is "reload", then
+	the load MUST result in a new document being created, even
+	though this is not normally the case for loads of the same
+	base location. <term>Conforming implementation</term>s MAY load
+	the document and referenced resources from origin, bypassing
+	normal caching rules.</li>
+
+	<li>Wait until enough of the document has loaded that the
+	<term>browsing context</term> is ready to start presenting
+	it.</li>
+
+	<li>If <term>pending-navigation-type</term> is "replace" or
+	"reload", then set
+	<term>session-history</term>[<term>current-history-position</term>]
+	to <term>pending-location</term>.</li>
+
+	<li>If <term>pending-navigation-type</term> is "history", then
+	set <term>current-history-position</term> to
+	<term>pending-history-position</term>.</li>
+
+	<li>If <term>pending-navigation-type</term> is "normal", then
+	remove all items in <term>session-history</term> after
+	<term>current-history-position</term>, append
+	<term>pending-location</term>, and increase
+	<term>current-history-position</term> by 1.</li>
+
+	<li>Set <term>pending-location</term> to null.</li>
+	</ol>
+
+	<p>When a <term>browsing context</term> is REQUIRED
+	to <dfn>navigate at the next opportunity</dfn> to an absolute
+	URI reference <var>new-uri</var>, it MUST perform the following
+	steps:</p>
+
+	<ol>
+	<li>Set <term>pending-location</term> to <var>new-uri</var>.</li>
+
+	<li>Set <term>pending-navigation-type</term> to "normal".</li>
+
+	<li>Complete execution of any currently in-progress event
+	dispatch [DOM3EV], timer callbacks, or execution of
+	scripts from markup elements, such as the HTML, XHTML or SVG
+	<code>script</code> element.</li>
+
+	<li>Ensure that no further inline script execution takes
+	place, no additional timers fire, no additional user events
+	are processed for the current document until the next step is
+	performed.</li>
+
+	<li><term>Actuate the pending navigation</term>.</li>
+	</ol>
+
+	<p>When a <term>browsing context</term> is REQUIRED to
+	<dfn>replace the curent location</dfn> with a specified URI
+	<var>new-uri</var>, it MUST perform the following steps:</p>
+
+	<ol>
+	<li>Set <term>pending-location</term> to <var>new-uri</var>.</li>
+
+	<li>Set <term>pending-navigation-type</term> to "replace".</li>
+
+	<li>Complete execution of any currently in-progress event
+	dispatch [DOM3EV], timer callbacks, or execution of
+	scripts from markup elements, such as the HTML, XHTML or SVG
+	<code>script</code> element.</li>
+
+	<li>Ensure that no further inline script execution takes
+	place, no additional timers fire, no additional user events
+	are processed for the current document until the next step is
+	performed.</li>
+
+	<li><term>Actuate the pending navigation</term>.</li>
+	</ol>
+
+	<p>When a <term>browsing context</term> is REQUIRED to
+	<dfn>reload the curent location</dfn>, it MUST perform the
+	following steps:</p>
+
+	<ol>
+	<li>Set <term>pending-location</term> to <term>current-location</term>.</li>
+
+	<li>Set <term>pending-navigation-type</term> to "reload".</li>
+
+	<li>Complete execution of any currently in-progress event
+	dispatch [DOM3EV], timer callbacks, or execution of
+	scripts from markup elements, such as the HTML, XHTML or SVG
+	<code>script</code> element.</li>
+
+	<li>Ensure that no further inline script execution takes
+	place, no additional timers fire, no additional user events
+	are processed for the current document until the next step is
+	performed.</li>
+
+	<li><term>Actuate the pending navigation</term>.</li>
+	</ol>
+
+	<p>When <term>browsing context</term>s it REQUIRED to
+	<dfn>change history position</dfn> by <var>delta</var> steps,
+	they MUST perform the following steps:</p>
+
+	<ol>
+	<li>If <var>delta</var> is 0, <term>reload the current location</term> and terminate.</li>
+
+	<li>Let <var>new-history-position</var> be <var>delta</var>
+	added to <term>current-history-position</term>.</li>
+
+	<li>If <var>new-history-position</var> is less than 0 or
+	greater than or equal to the number of entries in
+	<term>session-history</term>, then terminate.</li>
+
+	<li>Set <term>pending-history-position</term> to <var>new-history-position</var>.</li>
+
+	<li>Set <term>pending-location</term> to
+	<term>session-history</term>[<var>new-history-position</var>].</li>
+
+	<li>Set <term>pending-navigation-type</term> to "history".</li>
+
+	<li>Complete execution of any currently in-progress event
+	dispatch [DOM3EV], timer callbacks, or execution of
+	scripts from markup elements, such as the HTML, XHTML or SVG
+	<code>script</code> element.</li>
+
+	<li>Ensure that no further inline script execution takes
+	place, no additional timers fire, no additional user events
+	are processed for the current document until the next step is
+	performed.</li>
+
+	<li><term>Actuate the pending navigation</term>.</li>
+	</ol>
+
+	</section>
+
+    </section>
 
     <section xml:id='window-location'>
       <title>The <code>Window</code> Interface, Location Attributes</title>
@@ -448,6 +831,7 @@ interface Window : views::AbstractView {
     // read only. specifically, in ES a string URI can be assigned to location,
     // having the same effect as location.assign(URI)
     readonly attribute Location location;
+    readonly attribute History history;
 
     // ...
 };]]></idl></schema>
@@ -524,11 +908,9 @@ interface Location {
     attribute dom::DOMString protocol;
     attribute dom::DOMString search;
 
-    void assign(in dom::DOMString url);
-    void replace(in dom::DOMString url);
+    void assign(in dom::DOMString uri);
+    void replace(in dom::DOMString uri);
     void reload();
-
-    dom::DOMString toString();
 };</idl></schema>
 
       <section xml:id="location-attributes">
@@ -537,84 +919,182 @@ interface Location {
     <p><code>Location</code> objects MUST implement the following attributes:</p>
 
       <dl>
-        <dt><dfn>href</dfn></dt>
+        <dt><dfn><code>href</code></dfn></dt>
 
         <dd>
-          The value of the <code>href</code> attribute MUST be the
-          absolute URI reference [RFC2396] <ednote>use newer URI
-          RFC?</ednote> that is the Location's current location. When
-          the <code>href</code> attribute is set, the Location's
-          window MUST <em>navigate</em> to the newly set value.
-          <ednote>Must define the term navigate</ednote>
+          The value of the <term><code>href</code></term> attribute MUST be the
+          <term>browsing context</term>'s
+          <term>current-location</term>. When the <code>href</code>
+          attribute is set to a new value, the new value MUST not be
+          reflected immediately. Instead, the Location's <term>
+          browsing context</term> MUST <term>navigate at the next
+          opportunity</term> to the newly set value.
           <ednote>ISSUE-67: Should resolution of relative URI
           references sent to location be defined in JS bindings or
-          generally?</ednote> 
-        </dd>
+          generally?</ednote>
 
-        <dt><dfn>hash</dfn></dt>
+	</dd>
+
+        <dt><dfn><code>hash</code></dfn></dt>
         <dd>
-          If the absolute URI reference[RFC2396] for the Location's
-          current location has a fragment identifier[RFC2396], then
-          the value of the <code>hash</code> attribute the value of
-          this attribute MUST be the string concatenation of the hash
-          mark(#) and the fragment identifier. Otherwise, the value of
-          the <code>hash</code> attribute MUST be the empty
-          string. When this atribute is set to a new value <var>new-hash</var>, 
-	  user agents MUST perform the following steps:
+          The value of the <term><code>hash</code></term> attribute MUST be the
+          result of
+          <term>parseHash</term>(<term>current-location</term>, false).
+	  When this atribute is set to a new value
+          <var>new-hash</var>, user agents MUST NOT change the value
+          of the <term><code>hash</code></term> attribute but instead MUST perform
+          the following steps:
+
 	  <ol>
-	  <li>Give the hash attribute the value <var>new-hash</var>.</li>
-	  <li><em>Reconstruct the location URI</em><ednote>Need to define the
-	  term "reconstruct the location URI".</ednote></li>
-	  <li><em>Navigate</em> to the result of step 2.</li>
+	  <li>If <var>new-hash</var> does not start with a number sign
+	  (#), then let <var>processed-new-hash</var> be the concatenation of #
+	  and <var>new-hash</var>, otherwise let <var>processed-new-hash</var>
+	  be <var>new-hash</var>.</li>
+
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<term>parseScheme</term>(<term>current-location</term>),
+	  <term>parseHost</term>(<term>current-location</term>),
+	  <term>parsePathname</term>(<term>current-location</term>),
+	  <term>parseSearch</term>(<term>current-location</term>, true),
+	  <var>processed-new-hash</var>).
+	  </li>
+	  
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
 	  </ol>
+
         </dd>
 
-<ednote>The remainder of these attribute descriptions need to be
-rewritten to state conformance requirements. In the manner of the above.</ednote>
-
-        <dt><dfn>host</dfn></dt>
+        <dt><dfn><code>host</code></dfn></dt>
         <dd>
-          This attribute represents the network host of the Location's
-          URI. If the <code>port</code> attribute is not <code>null</code>
-          then the <code>host</code> attribute's value is the concatenation of
-          the <code>hostname</code> attribute, a colon (<code>:</code>) and the
-          <code>port</code> attribute. If the <code>port</code> attribute is
-          <code>null</code> then the <code>host</code> attribute's value is
-          identical to the <code>hostname</code> attribute.
+          The value of the <term><code>host</code></term> attribute
+          MUST be the result of
+          <term>parseHost</term>(<term>current-location</term>).
+
+	  When this atribute is set to a new value
+          <var>new-host</var>, user agents MUST NOT change the value
+          of the <term><code>host</code></term> attribute but instead MUST perform
+          the following steps:
+
+	  <ol>
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<term>parseScheme</term>(<term>current-location</term>),
+	  <var>new-host</var>,
+	  <term>parsePathname</term>(<term>current-location</term>),
+	  <term>parseSearch</term>(<term>current-location</term>, true),
+	  <term>parseHash</term>(<term>current-location</term>, true)).
+	  </li>
+	  
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
+	  </ol>
+
         </dd>
 
 
-        <dt><dfn>hostname</dfn></dt>
+        <dt><dfn><code>hostname</code></dfn></dt>
         <dd>
-          This attribute represents the name or IP address of the
-          network location without any port number.
+          The value of the <term><code>host</code></term> attribute
+          MUST be the result of
+          <term>parseHostname</term>(<term>current-location</term>).
+	  <ednote>Need to spec assigning this.</ednote>
         </dd>
 
-        <dt><dfn>pathname</dfn></dt>
+        <dt><dfn><code>pathname</code></dfn></dt>
         <dd>
-          This attribute represents the path component of the
-          Location's URI which consists of everything after the host
-          and port up to and excluding the first question mark (?) or
-          hash mark (#).
+          The value of the <term><code>pathname</code></term> attribute
+          MUST be the result of
+          <term>parsePathname</term>(<term>current-location</term>).
+
+	  When this atribute is set to a new value
+          <var>new-pathname</var>, user agents MUST NOT change the value
+          of the <term><code>pathname</code></term> attribute but instead MUST perform
+          the following steps:
+
+	  <ol>
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<term>parseScheme</term>(<term>current-location</term>),
+	  <term>parseHost</term>(<term>current-location</term>),
+	  <var>new-pathname</var>,
+	  <term>parseSearch</term>(<term>current-location</term>, true),
+	  <term>parseHash</term>(<term>current-location</term>, true)).
+	  </li>
+	  
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
+	  </ol>
+
         </dd>
 
-        <dt><dfn>port</dfn></dt>
+        <dt><dfn><code>port</code></dfn></dt>
         <dd>
-          This attribute represents the port number of the network
-          location.
+          The value of the <term><code>port</code></term> attribute
+          MUST be the result of
+          <term>parsePort</term>(<term>current-location</term>).
+	  <ednote>Need to spec assigning this.</ednote>
         </dd>
 
-        <dt><dfn>protocol</dfn></dt>
+        <dt><dfn><code>protocol</code></dfn></dt>
         <dd>
-          This attribute represents the scheme of the URI including
-          the trailing colon (:)
+          The value of the <term><code>protocol</code></term> attribute
+          MUST be the result of
+          <term>parseProtocol</term>(<term>current-location</term>).
+
+	  When this atribute is set to a new value
+          <var>new-protocol</var>, user agents MUST NOT change the value
+          of the <term><code>protocol</code></term> attribute but instead MUST perform
+          the following steps:
+
+	  <ol>
+	  <li>If <var>new-protocol</var> does not end with a colon
+	  (:), then let <var>processed-new-protocol</var> be the
+	  concatenation of <var>new-protocol</var> and a colon (:),
+	  otherwise let <var>processed-new-protocol</var> be
+	  <var>new-protocol</var>.</li>
+
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<var>processed-new-protocol</var>,
+	  <term>parseHost</term>(<term>current-location</term>),
+	  <term>parsePathname</term>(<term>current-location</term>),
+	    <term>parseSearch</term>(<term>current-location</term>, true),
+	  <term>parseHash</term>(<term>current-location</term>, true)).
+	  </li>
+	  
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
+	  </ol>
+
         </dd>
 
-        <dt><dfn>search</dfn></dt>
+        <dt><dfn><code>search</code></dfn></dt>
         <dd>
-          This attribute represents the query portion of a URI. It
-          consists of everything after the pathname up to and
-          excluding the first hash mark (#).
+          The value of the <term><code>search</code></term> attribute
+          MUST be the result of
+          <term>parseSearch</term>(<term>current-location</term>).
+
+	  When this atribute is set to a new value
+          <var>new-search</var>, user agents MUST NOT change the value
+          of the <term><code>search</code></term> attribute but instead MUST perform
+          the following steps:
+
+	  <ol>
+	  <li>If <var>new-search</var> does not start with a question mark
+	  (?), then let <var>processed-new-search</var> be the concatenation of ?
+	  and <var>new-search</var>, otherwise let <var>processed-new-search</var>
+	  be <var>new-search</var>.</li>
+
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<term>parseScheme</term>(<term>current-location</term>),
+	  <term>parseHost</term>(<term>current-location</term>),
+	  <term>parsePathname</term>(<term>current-location</term>),
+	  <var>processed-new-search</var>,
+	  <term>parseHash</term>(<term>current-location</term>, true)).
+	  </li>
+	  
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
+	  </ol>
+
        </dd>
      </dl>
 
@@ -625,30 +1105,84 @@ rewritten to state conformance requirements. In the manner of the above.</ednote
 
     <p><code>Location</code> objects MUST implement the following methods:</p>
 
-      <ednote>These all need to be rewritten to state conformance requirements.</ednote>
+      <dl>
+
+	<ednote>ISSUE-68: Should describe string conversion for
+	various language bindings.</ednote>
+
+        <dt><dfn><code>assign</code></dfn>(<var>uri</var>)</dt>
+
+        <dd>When <term><code>assign</code></term> is called, the
+        <term><code>Location</code> object</term> MUST
+        <term>navigate at the next opportunity</term> to
+        <var>uri</var>.</dd>
+
+        <dt><dfn><code>replace</code></dfn>(<var>uri</var>)</dt>
+
+        <dd>When <term><code>replace</code></term> is called, the
+        <term><code>Location</code> object</term> MUST <term>replace the
+        curent location</term> with <var>uri</var>.</dd>
+
+        <dt><dfn><code>reload</code></dfn>()</dt>
+        <dd>When <term><code>assign</code></term> is called, the
+        <term><code>Location</code> object</term> MUST <term>reload the
+        curent location</term>.</dd>
+
+     </dl>
+     </section>
+
+    </section>
+
+    <section xml:id='history'>
+      <title>The <code>History</code> Interface</title>
+
+      <schema>
+      <title></title>
+      <idl>
+
+interface History {
+  readonly attribute long length;
+  void go(in long delta);
+  void back();
+  void forward();
+};</idl></schema>
+
+      <section xml:id="history-attributes">
+        <title>Attributes</title>
+
+    <p><code>History</code> objects MUST implement the following attributes:</p>
+
+      <dl>
+        <dt><dfn><code>length</code></dfn></dt>
+        <dd>The value of the <term><code>length</code></term>
+        attribute MUST be the number of items in the <term>browsing
+        context</term>'s <term>session history</term>.</dd>
+      </dl>
+      </section>
+
+      <section xml:id="history-methods">
+        <title>Methods</title>
+       <p><code>History</code> objects MUST implement the following methods:</p>
 
       <dl>
 
-        <ednote>Need description for assign.</ednote>
+        <dt><dfn><code>go</code></dfn>(<var>delta</var>)</dt>
+        <dd>When <term><code>go</code></term> is called, the
+        <term>browsing context</term> MUST
+        <term>change history position</term> by
+        <var>delta</var> steps.<ednote>In ECMAScript, can also be called with no args.</ednote></dd>
 
-	<ednote>ISSUE-68: Need description for toString, if we specify that. It
-	has the same value as href; not all implementations have this
-	explicitly but toString is always available in ECMAScript, and
-	probably this should be explicit for the sake of Java. Or we
-	could skip it since it matches href, and define string
-	conversion in the JS bindings.</ednote>
+        <dt><dfn><code>back</code></dfn>()</dt>
+        <dd>When <term><code>back</code></term> is called, the
+        <term>browsing context</term> MUST <term>change history
+        position</term> by -1 steps.</dd>
 
-        <dt><dfn>replace(<var>url</var>)</dfn></dt>
-        <dd>This function replaces the current history entry with the
-         <var>url</var> specified. <ednote>ISSUE-59: we haven't specified history - but we
-         need to if we are to support this</ednote></dd>
-
-        <dt><dfn>reload()</dfn></dt>
-        <dd>This function forces the host application to reload the resource
-         identified by the Location. <ednote>ISSUE-69: Netscape used to allow a bool
-         argument to force an unconditional GET from the network</ednote></dd>
-     </dl>
-     </section>
+        <dt><dfn><code>back</code></dfn>()</dt>
+        <dd>When <term><code>forward</code></term> is called, the
+        <term>browsing context</term> MUST <term>change history
+        position</term> by +1 steps.</dd>
+	</dl>
+      </section>
 
     </section>
 
