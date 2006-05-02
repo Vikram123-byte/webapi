@@ -487,7 +487,7 @@ interface DocumentWindow : views::DocumentView {
     otherwise. Nothing in this section should be taken to require a
     linear user interface to <term>session history</term>, even though
     the processing model depends on a linear list. <term>Conforming
-    implementations</term> may use a tree or any other method of
+    implementation</term>s may use a tree or any other method of
     organizing what is presented to the user.</p>
 
     <ednote>use newer URI RFC?</ednote>
@@ -617,8 +617,25 @@ interface DocumentWindow : views::DocumentView {
         </dd>
 
 	<dt><dfn>reconstructURI</dfn>(<var>protocol</var>, <var>host</var>, <var>pathname</var>, <var>query</var>, <var>fragment</var>)</dt> 
-	<ednote>Need to define this algorithm</ednote>
+	
 	<dd>
+	<ol>
+	  <li>Let <var>recunstructed-URI</var> be the empty string.</li>
+	  <li>Append <var>protocol</var> to <var>reconstructed-URI</var>.</li>
+
+	  <li>If <var>host</var> is not the empty string, append the
+	  concatenation of "//" and <var>host</var> to
+	  <var>reconstructed-URI</var>.</li>
+
+	  <li>Append <var>pathname</var> to <var>recostructed-URI</var>.</li>
+
+	  <li>Append <var>query</var> to <var>recostructed-URI</var>.</li>
+
+	  <li>Append <var>fragment</var> to <var>recostructed-URI</var>.</li>
+
+	  <li>Return <var>recostructed-URI</var>.</li>
+	</ol>
+
 	</dd>
 
 	</dl>
@@ -711,6 +728,10 @@ interface DocumentWindow : views::DocumentView {
 
 	<li>Set <term>pending-location</term> to null.</li>
 	</ol>
+
+	<ednote>Navigation that only changes the hash may need to be
+	special-cased; it may need to take effect immediately. Need to
+	test.</ednote>
 
 	<p>When a <term>browsing context</term> is REQUIRED
 	to <dfn>navigate at the next opportunity</dfn> to an absolute
@@ -846,9 +867,17 @@ interface Window : views::AbstractView {
         <dt><dfn>location</dfn></dt>
         <dd>
           The value of the <code>location</code> attribute MUST be the
-          <code>Location</code> object that represents the window's current
-          location. <ednote>Need to define the term "current location"
-          in prose.</ednote>
+          <term><code>Location</code> object</term> associated with the
+          <term><code>Window</code> object</term>'s <term>browsing
+          context</term>.
+        </dd>
+
+        <dt><dfn>history</dfn></dt>
+        <dd>
+          The value of the <code>history</code> attribute MUST be the
+          <term><code>History</code> object</term> associated with the
+          <term><code>Window</code> object</term>'s <term>browsing
+          context</term>.
         </dd>
     </dl>
 
@@ -877,12 +906,15 @@ interface DocumentWindow  : views::DocumentView {
 
     <dl>
         <dt><dfn>location</dfn></dt>
-        <dd>The value of the <code>location</code> attribute MUST be a
-         <code>Location</code> object that represents the
-         <code>DocumentWindow</code>'s current location. The value MUST be the
-         same as the Location for all views of the document.
-         <ednote>Need to define the term
-        "current location" in prose.</ednote></dd>
+
+        <dd>The value of the <code>location</code> attribute MUST be
+          the <term><code>Location</code> object</term> associated
+          with the <term>browsing context</term> presenting the
+          document. The value MUST be the same as the
+          <term><code>Location</code> object</term> for all views of
+          the document.  
+	</dd>
+
     </dl>
 
     </section>
@@ -892,7 +924,20 @@ interface DocumentWindow  : views::DocumentView {
     <section xml:id='location'>
       <title>The <code>Location</code> Interface</title>
 
-      <schema>
+      <p>The <dfn><code>Location</code> interface</dfn> is defined by
+      the IDL interface below, which can also be found in the <a
+      href="#idl">IDL Definitions Appendix</a>.</p>
+
+      <p>An object that implements the <term><code>Location</code>
+      interface</term> is called a <dfn><code>Location</code>
+      object</dfn>.</p>
+
+      <p>Each <term><code>Location</code> object</term> is associated
+      with a <term>browsing context</term>. Many
+      <term><code>Location</code> object</term> methods and attributes
+      operate on the <term>browsing context</term></p>
+
+<schema> 
       <title></title>
       <idl>
 
@@ -984,7 +1029,6 @@ interface Location {
 	  <term>parseSearch</term>(<term>current-location</term>, true),
 	  <term>parseHash</term>(<term>current-location</term>, true)).
 	  </li>
-	  
 	  <li><term>Navigate at the next opportunity</term> to
 	  <var>new-uri</var>.</li> 
 	  </ol>
@@ -997,7 +1041,32 @@ interface Location {
           The value of the <term><code>host</code></term> attribute
           MUST be the result of
           <term>parseHostname</term>(<term>current-location</term>).
-	  <ednote>Need to spec assigning this.</ednote>
+
+	  When this atribute is set to a new value
+          <var>new-hostname</var>, user agents MUST NOT change the
+          value of the <term><code>hostname</code></term> attribute
+          but instead MUST perform the following steps:
+
+	  <ol>
+
+	  <li>Let <var>current-port</var> be the result of
+	  <term>parsePort</term>(<term>current-location</term>).</li>
+	  <li>If <var>current-port</var> is the empty string, then let
+	  <var>new-host</var> be <var>new-hostname</var>, otherwise let
+	  <var>new-host</var> be the concatentation of
+	  <var>new-host</var>, ":" and <var>current-port</var>.</li>
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<term>parseScheme</term>(<term>current-location</term>),
+	  <var>new-host</var>,
+	  <term>parsePathname</term>(<term>current-location</term>),
+	  <term>parseSearch</term>(<term>current-location</term>, true),
+	  <term>parseHash</term>(<term>current-location</term>, true)).
+	  </li>
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
+
+	  </ol>
+
         </dd>
 
         <dt><dfn><code>pathname</code></dfn></dt>
@@ -1031,7 +1100,29 @@ interface Location {
           The value of the <term><code>port</code></term> attribute
           MUST be the result of
           <term>parsePort</term>(<term>current-location</term>).
-	  <ednote>Need to spec assigning this.</ednote>
+
+	  When this atribute is set to a new value
+          <var>new-port</var>, user agents MUST NOT change the
+          value of the <term><code>port</code></term> attribute
+          but instead MUST perform the following steps:
+
+	  <ol>
+
+	  <li>Let <var>current-hostname</var> be the result of
+	  <term>parseHostname</term>(<term>current-location</term>).</li>
+	  <li>Let <var>new-host</var> be the concatentation of
+	  <var>current-hostname</var>, ":" and <var>new-port</var>.</li>
+	  <li>Let <var>new-uri</var> be the result of
+	  <term>reconstructURI</term>(<term>parseScheme</term>(<term>current-location</term>),
+	  <var>new-host</var>,
+	  <term>parsePathname</term>(<term>current-location</term>),
+	  <term>parseSearch</term>(<term>current-location</term>, true),
+	  <term>parseHash</term>(<term>current-location</term>, true)).
+	  </li>
+	  <li><term>Navigate at the next opportunity</term> to
+	  <var>new-uri</var>.</li> 
+
+	  </ol>
         </dd>
 
         <dt><dfn><code>protocol</code></dfn></dt>
@@ -1136,6 +1227,19 @@ interface Location {
     <section xml:id='history'>
       <title>The <code>History</code> Interface</title>
 
+      <p>The <dfn><code>History</code> interface</dfn> is defined by
+      the IDL interface below, which can also be found in the <a
+      href="#idl">IDL Definitions Appendix</a>.</p>
+
+      <p>An object that implements the <term><code>History</code>
+      interface</term> is called a <dfn><code>History</code>
+      object</dfn>.</p>
+
+      <p>Each <term><code>History</code> object</term> is associated
+      with a <term>browsing context</term>. Many
+      <term><code>History</code> object</term> methods and attributes
+      operate on the <term>browsing context</term></p>
+ 
       <schema>
       <title></title>
       <idl>
