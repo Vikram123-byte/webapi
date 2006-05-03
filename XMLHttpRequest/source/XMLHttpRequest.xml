@@ -32,7 +32,7 @@
    additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
    functionality for transferring data between a client and a server.</p>
   <ednote>
-   <p>Last update: $Id: XMLHttpRequest.xml,v 1.47 2006-05-03 05:48:42 avankest Exp $.</p>
+   <p>Last update: $Id: XMLHttpRequest.xml,v 1.48 2006-05-03 06:21:34 avankest Exp $.</p>
   </ednote>
  </section>
  <section xml:id="sotd" type="w3c-sotd">
@@ -98,6 +98,47 @@
    <p><em>This section is non-normative.</em></p>
    <p>Various examples are listed throughout the specification.</p>
    <ednote>Blah...</ednote>
+  </section>
+  <section xml:id="security">
+   <title>Security considerations</title>
+   <p><em>This section is non-normative.</em></p>
+   <p>Implementations that run code originating from untrusted sources will
+    probably want to place additional constraints on some of the features
+    defined in this specification. This is not required and an implementation is
+    free to ignore this section.</p>
+   <p>The restrictions are there to stop untrusted users of the API from using
+    the implementation to retrieve sensitive data. Specifically, an
+    implementation in a web browser will often want to restrict pages from a
+    website <var>A</var> to retrieve data from website <var>B</var>. The reason
+    for this is that website <var>B</var> could reside inside a corporate
+    firewall. If data could be retrieved from website <var>B</var> then website
+    <var>A</var> could use the browser effectively circumvent the firewall.</p>
+   <p>Another possible security attack exists if website <var>B</var> requires
+    authentication, like for example a web bank. If website <var>A</var> were
+    allowed to access data from website <var>B</var> and the user had recently
+    visited the bank and at that time logged in, the page from website
+    <var>A</var> would have access to private information like statements. If
+    correctly crafted, a page from website <var>A</var> could even initiate
+    transactions transferring money out of the browser-users bank account.</p>
+   <p>To stop these attacks the implementation should only allow a page loaded
+    from website <var>A</var> to access other pages on the same website. Two
+    websites are considered separate if they use separate DNS names, even if
+    these names refer to the same IP. This is because the two websites could be
+    hosted at a hosting service that place several websites on a single server
+    and then use the requested hostname to choose which website to serve.
+    Additionally, separate TCP port numbers or separate protocols (like http vs.
+    https) are considered as separate websites.</p>
+   <p>The implemtation must be careful to always restrict access to the same
+    website, not just during the initial HTTP request. For example if that
+    request results in a redirect the implemenation should check that the
+    redirect points to the same website and otherwise deny access.</p>
+   <p>Another feature that an implementation could limit is the
+    <code><term>setRequestHeader</term></code> method. If the implementation
+    allows the <code>Host</code> header to be set and two websites are hosted
+    on the same server one website might be able to access sensitive information
+    from the other website.</p>
+   <p>...</p>
+   <ednote>Has to address restrictions on methods as well, etc.</ednote>
   </section>
   <section xml:id="definitions">
    <title>Definitions</title>
@@ -516,13 +557,10 @@
    version of the specification only one event is defined.</p>
   <dl>
    <dt><dfn><code>readystatechange</code></dfn></dt>
-   <dd>
-    <p>The <code>readystatechange</code> event MUST be dispatched when
-     <code><term>readyState</term></code> changes value.</p>
-    <p>The <code>readystatechange</code> event MUST NOT bubble, MUST NOT be
-     cancelable and MUST implement the <code>Event</code> interface
-     [DOM3EV].</p>
-   </dd>
+   <dd>The <code>readystatechange</code> event MUST be dispatched when
+    <code><term>readyState</term></code> changes value. It MUST NOT bubble, MUST
+    NOT be cancelable and MUST implement the <code>Event</code> interface
+    [DOM3EV].</dd>
   </dl>
  </section>
  <section xml:id="bibref" type="appendix">
