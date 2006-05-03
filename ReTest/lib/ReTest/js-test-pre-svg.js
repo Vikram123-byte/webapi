@@ -1,9 +1,5 @@
 var svgNS = "http://www.w3.org/2000/svg";
 
-// FIXME: This test suite depends on the nonstandard innerHTML
-// property. It would be much better to use standards but the result
-// would be much more verbose.
-
 function description(message)
 {
     var description = document.getElementById("description");
