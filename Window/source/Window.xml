@@ -134,7 +134,7 @@
       </p>
 
       <ul>
-      <li>Access to frames by name <ednote>ISSUE-60: Should Window Object 1.0 include access to frames by name (window.frames)?</ednote></li>
+      <li>Access to frames by name</li>
       <li>Opening new windows</li>
       <li>Manipulating UI of existing windows</li>
       <li>Window size and position information</li>
@@ -232,42 +232,46 @@
   <section xml:id='browsing'>
     <title>Browsing Contexts</title>
 
-    <ednote>ACTION-130: Need to add definition of "document"</ednote>
-
     <p>
       A <dfn>browsing context</dfn> is a collection of one or more
-      views that present a document or a sequence of documents to the
-      user, using one or more views. Only one document of this
-      sequence is presented at a time. A <term>browsing context</term>
-      is said to <term>navigate</term> when it changes from presenting
-      one document to another, for example by following a
-      hyperlink. More is specified about navigation behavior in the <a
+      views that present a <term><code>Document</code></term> or a
+      sequence of <term><code>Document</code></term>s to the user,
+      using one or more views. Only one
+      <term><code>Document</code></term> of this sequence is presented
+      at a time. A <term>browsing context</term> is said to
+      <term>navigate</term> when it changes from presenting one
+      document to another or one fragment within the same document to
+      another, for example by following a hyperlink. More is specified
+      about navigation behavior in the <a
       href="#navigation">Navigation</a> section.
     </p>
 
     <p>
-      A visual user agent typically presents a document by rendering
-      it to a display. However, even non-visual agents could have a
-      <term>browsing context</term>. For example, a voice browser also presents
-      documents to the user. This also establishes a <term>browsing
-      context</term>.
+      The most familiar example of a <term>browsing context</term> is
+      a web browser window. Browsers, or more generally visual user
+      agents, typically present a document by rendering it to a
+      display. However, even non-visual agents could have a
+      <term>browsing context</term>. For example, a voice browser also
+      presents documents to the user. This also establishes a
+      <term>browsing context</term>.
+    </p>
+
+    <p> 
+      For purposes of this specification, a <dfn><code>Document</code></dfn> is 
+      an object that implements the DOM <code>Document</code> interface [DOM3Core].
+      A <term><code>Document</code></term> that is presented in a
+      <term>browsing context</term> MUST also implement the
+      <code>DocumentWindow</code> interface.
     </p>
 
     <p>
-      An object that implements the <code>Document</code> interface
-      [DOM3Core] and is presented in a <term>browsing context</term>
-      MUST also implement the <code>DocumentWindow</code> interface.
-    </p>
-
-    <p>
-      Each view of a <code>Document</code> presented in a
-      <term>browsing context</term> MUST be represented by an object
-      that implements the <term><code>Window</code> interface</term>. One of these
-      is the <dfn>default view</dfn>. The <term>default view</term> is
+      The main view of <term><code>Document</code></term> presented in
+      a <term>browsing context</term> is distinguished as the
+      <dfn>default view</dfn>. The <term>default view</term> is
       typically the primary mode of presentation to the user, and in
       interactive user agents, the primary means of interaction for
-      the user. <ednote>ISSUE-61: Should the Window spec drop any conformance 
-      requirements for AbstractViews besides the defaultView?</ednote>
+      the user. The <term>default view</term> MUST be represented by an object
+      that implements the <term><code>Window</code> interface</term>.
     </p>
 
     <p>
@@ -288,18 +292,6 @@
       Reference</a>.
     </p>
 
-    <p>
-      When an event implementing the <code>UIEvent</code> interface [DOM3EV]
-      is dispatched on any node in a <code>Document</code> presented in a
-      <term>browsing context</term>, the value of the <code>view</code> attribute of the
-      event MUST be the <code>Window</code> object where the user originated the
-      event. 
-
-<ednote>ISSUE-63: Should Window 1.0 drop the arguably redundant requirement on UIEvent.view?</ednote>
-
-<ednote>ISSUE-64: Should the Window spec define Window's place in DOM event flow?</ednote>
-    </p>
-
     <section xml:id='window'>
       <title>The <code>Window</code> Interface, Basic Attributes</title>
 
@@ -315,6 +307,10 @@
       from DOM Level 2 Views [DOM2Views], every
       <term><code>Window</code> object</term> MUST also implement the
       <code>ViewCSS</code> interface.</p>
+
+      <p>In implementations that support DOM Events [DOM3EV], every
+      <term><code>Window</code> object</term> MUST also implement the
+      <code>EventTarget</code> interface.</p>
 
       <schema>
       <title></title>
@@ -396,34 +392,112 @@ interface Window : views::AbstractView {
       defines only the most basic methods and attributes of the
       <code>Window</code> interface.</p>
 
-<ednote>ISSUE-65: Should we also specify the parentWindow property? It is
-effectively a synonym for defaultView but implemented by a different
-set of UAs.</ednote>
-
       <schema>
       <title></title>
       <idl>
 
 interface DocumentWindow : views::DocumentView {
     // ...
+    Window parentWindow;
+    // ...
 };</idl></schema>
 
       <p>
         The value of the <code>defaultView</code> attribute inherited
         by objects that implement the <code>DocumentWindow</code>
-        interface inherit from the <code>AbstractView</code> interface
-        MUST be the default view for the <term>browsing context</term> presenting
-        the document, if any. In addition to the
-        <code>AbstractView</code> interface, the default view MUST
-        implement the <code>Window</code> interface. If a document is
+        interface from the <code>AbstractView</code> interface
+        MUST be the <term>default view</term> for the <term>browsing context</term> presenting
+        the <term><code>Document</code></term>, if any. If a document is
 	not being presented in a <term>browsing context</term> but nonetheless
 	implements the DocumentWindow interface, the value of the
         <code>defaultView</code> attribute MUST be
-        <code>null</code>. <ednote>ISSUE-66: should Documents that
-        aren't being presented be required to have a null
-        defaultView?</ednote>
+        <code>null</code>.
       </p>
     </section>
+
+          <section xml:id="documentwindow-attributes">
+        <title>Attributes</title>
+
+        <p><term><code>Window</code> object</term>s MUST have the following
+         attributes:</p>
+
+       <dl>
+        <dt><dfn><code>parentWindow</code></dfn></dt>
+        <dd>
+          The value of the <term><code>parentWindow</code></term>
+	  attribute MUST be the <term>default view</term> for the
+	  <term>browsing context</term> presenting the
+	  <term><code>Document</code></term>, if any. If a document is
+	  not being presented in a <term>browsing context</term> but
+	  nonetheless implements the DocumentWindow interface, the
+	  value of the <code>defaultView</code> attribute MUST be
+	  <code>null</code>. Note: the <code>defaultView</code> and
+	  <term><code>parentWindow</code></term> attributes refer to
+	  the same object, but the former gives the
+	  <code>AbstractView</code> interface while the latter gives
+	  the <term><code>Window</code></term> interface.
+        </dd> 
+     </dl>
+           </section>
+
+  </section>
+
+  <section xml:id='events'>
+    <title>Events</title>
+
+    <p>
+      In implementations that support DOM Events [DOM3EV],
+      <term><code>Window</code> object</term>s provide the default
+      view for their contained <term><code>Document</code></term>s. In
+      such implementations, <term><code>Window</code> object</term>s
+      are also an event target and participate in the DOM event flow
+      [DOM3EV].
+    </p>
+
+    <p>
+      When an event implementing the <code>UIEvent</code> interface
+      [DOM3EV] that originates in the <term>default view</term> of a
+      <code>Document</code> presented in a <term>browsing
+      context</term>, the value of the <code>view</code> attribute of
+      the event is be the <code>Window</code> object where the user
+      originated the event. This is required by DOM Level 2 Views
+      [DOM2Views].
+    </p>
+
+    <p>
+      As an extension to the DOM event flow [DOM3EV] for
+      <term>conforming implementation</term>s, the
+      <term><code>Window</code> object</term> is added to the DOM
+      event flow. For all events that target the
+      <term><code>Document</code></term> or any of its descendant DOM
+      nodes, except "load" events in the null namespace,
+      <term>conforming implementations</term> MUST do both of the following:
+    </p>
+
+    <ul>
+      <li>In the capture phase, dispatch to the <term><code>Window</code>
+      object</term> before dispatching to the
+      <term><code>Document</code></term> in the capture or target
+      phase.</li>
+      <li>In the bubble phase, dispatchto the
+      <term><code>Window</code> object</term> after dispatching to the
+      <term><code>Document</code></term> in the bubble or target
+      phase.</li>
+    </ul>
+
+    <p>
+      However, <term>conforming implementations</term> MUST NOT
+      dispatch "load" events in the null namespace that target the
+      <term><code>Document</code></term> or any of its descendant DOM
+      nodes to the <term><code>Window</code> object</term>, in either
+      the capture or bubble phases. The reason for this exception is
+      historical. This was not done in some implementations, leading
+      to content that depends on "load" events on various DOM elements
+      not triggering "load" event listeners on the
+      <term><code>Window</code> object</term>. For compatibility, this
+      limitation is retained. Note: this does not affect "load" events that
+      dispatch directly on the <term><code>Window</code> object</term>.
+    </p>
 
   </section>
 
@@ -1038,7 +1112,7 @@ interface Location {
 
         <dt><dfn><code>hostname</code></dfn></dt>
         <dd>
-          The value of the <term><code>host</code></term> attribute
+          The value of the <term><code>hostname</code></term> attribute
           MUST be the result of
           <term>parseHostname</term>(<term>current-location</term>).
 
