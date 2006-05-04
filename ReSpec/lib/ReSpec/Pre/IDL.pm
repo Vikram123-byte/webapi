@@ -21,6 +21,7 @@ sub process {
                                   //r:idl/r:attribute        |
                                   //r:idl/r:method           |
                                   //r:idl/r:exception');
+    my $smallIF = 0;
     for my $obj (@idl) {
         # move the element to after <schema>
         my $idl = $obj->parentNode;
@@ -53,13 +54,35 @@ sub process {
         elsif ($objType eq 'exception') {
             addText($df, 'exception ');
             my $name = $obj->getAttributeNS(undef, 'name');
-            appendElement($df, NS, 'a', { href => '#idl-' . $modLink . $name }, $name);
+            #appendElement($df, NS, 'a', { href => '#idl-' . $modLink . $name }, $name);
+            appendElement($df, NS, 'a', { href => '#idl-if-' . $name }, $name);
             addText($df, " {\n  unsigned short   code;\n};\n");
         }
         elsif ($objType eq 'interface') {
+            $smallIF = $re->xc->findvalue('count(./r:*)', $obj) <= 5;
             addText($df, 'interface ');
-            appendElement($df, NS, 'a', { href => '#idl-' . $modLink . $ifName }, $ifName);
-            addText($df, " {\n\n");
+            #appendElement($df, NS, 'a', { href => '#idl-' . $modLink . $ifName }, $ifName);
+            appendElement($df, NS, 'a', { href => '#idl-if-' . $ifName }, $ifName);
+            #warn "Doing interface $ifName\n";
+            if ($obj->getAttributeNS(undef, 'extends')) {
+                #warn "Has extends\n";
+                addText($df, " : ");
+                my @inhs = split /\s+/, $obj->getAttributeNS(undef, 'extends');
+                for my $if (@inhs) {
+                    $if =~ m/([^:]+)$/;
+                    my $ifN = $1;
+                    if ($obj->ownerDocument->getElementById("idl-if-$if")) {
+                        appendElement($df, NS, 'a', { href => '#idl-if-' . $ifN }, $if);
+                    }
+                    else {
+                        addText($df, $if);
+                    }
+                    #appendElement($df, NS, 'if', $attr, $if);
+                    addText($df, ", ") unless $if eq $inhs[-1];
+                }
+            }
+            addText($df, " {\n");
+            addText($df, "\n") unless $smallIF;
             for my $dg ($re->xc->findnodes('.//r:definition-group', $obj)) {
                 processDefinitionGroup($re, $dg, $df, '  ');
                 addText($df, "\n");
@@ -141,8 +164,9 @@ sub processMethod {
     my $ifLink = shift;
     my $indent = shift;
 
+    my $baseLen = $re->xc->findnodes('.//r:attribute', $meth->parentNode) ? 'readonly attribute' : '';
     my $maxMethType = getMax(
-                          'readonly attribute',
+                          $baseLen,
                           map { $re->xc->findvalue('r:returns/@type', $_) || 'void' } 
                           $re->xc->findnodes('.//r:method', $meth->parentNode)
                         ) + 1;

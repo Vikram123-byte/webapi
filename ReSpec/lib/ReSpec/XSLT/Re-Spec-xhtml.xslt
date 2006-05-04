@@ -232,6 +232,28 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match='r:if'>
+    <xsl:choose>
+      <xsl:when test='//r:interface[@name = current()/text()]'>
+        <a href='#idl-if-{text()}' class='if-name'><xsl:apply-templates/></a>
+      </xsl:when>
+      <xsl:otherwise>
+        <span class='if-name'><xsl:apply-templates/></span>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template match='r:meth'>
+    <xsl:choose>
+      <xsl:when test='//r:method[@name = current()/text()]'>
+        <a href='#idl-meth-{text()}' class='meth-name'><xsl:apply-templates/></a>
+      </xsl:when>
+      <xsl:otherwise>
+        <span class='meth-name'><xsl:apply-templates/></span>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template match='r:bibliography'>
     <dl class='bibliography'>
       <xsl:apply-templates>
@@ -355,7 +377,7 @@
   </xsl:template>
 
   <xsl:template match='r:interface'>
-    <div class='section'>
+    <div class='section' id='idl-if-{@name}'>
       <xsl:apply-templates select='r:definition-group'/>
 
       <xsl:if test='r:attribute'>
@@ -441,7 +463,7 @@
     </dd>
   </xsl:template>
 
-  <xsl:template match='r:exception[r:code]'>
+  <xsl:template match='r:exception[parent::r:method or parent::r:attribute]'>
     <tr>
       <td>
         <xsl:choose>
@@ -450,9 +472,16 @@
         </xsl:choose>
       </td>
       <td>
-        <table>
-          <xsl:apply-templates/>
-        </table>
+        <xsl:choose>
+          <xsl:when test='r:code'>
+            <table>
+              <xsl:apply-templates/>
+            </table>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates/>
+          </xsl:otherwise>
+        </xsl:choose>
       </td>
     </tr>
   </xsl:template>
