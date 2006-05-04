@@ -28,10 +28,13 @@
   <section xml:id='abstract' type='w3c-abstract'>
     <title>Abstract</title>
     <p>
+      This specification provides an <acronym title='Application Programming Interface'>API</acronym>
+      used to prompt the user with a file selection dialogue and obtain the data contained in files
+      on the user's file system.
     </p>
     <ednote>
       <p>
-        Last update: $Id: FileUpload.xml,v 1.1 2006-05-03 07:45:08 rberjon Exp $.
+        Last update: $Id: FileUpload.xml,v 1.2 2006-05-04 00:35:21 rberjon Exp $.
       </p>
     </ednote>
   </section>
@@ -88,25 +91,265 @@
   <section xml:id='introduction'>
     <title>Introduction</title>
     <p>
+      It is desirable for Web applications to have the ability to manipulate as wide
+      as possible a range of user input, including files that a user may wish to upload 
+      to a remote server or manipulate inside a rich application. This interface 
+      provides application writers with the means to trigger a file selection prompt 
+      with which the user can select one or more files. Unlike the file upload forms 
+      control available to <acronym title='HyperText Markup Language'>HTML</acronym>, 
+      this API can be used for more than simply inserting a file into the content of a 
+      form being submitted but also allows client-side manipulation of the content, for 
+      instance to display an image or parse an <acronym title='eXtensible Markup Language'>XML</acronym>
+      document from disk.
     </p>
   </section>
 
-  <section xml:id='element-traversal'>
-    <title>The FileUpload interface</title>
+  <section xml:id='file-ex'>
+    <title>The FileException exception</title>
     <p>
-      
+      <ednote>This needs to be described, check existing stuff</ednote>
     </p>
 
     <schema>
-      <title>The FileUpload interface</title>
+      <title>The FileException exception</title>
       <idl>
-        <interface module='dom' name='FileUpload'>
+        <exception name='FileException'/>
+        <definition-group for='FileExceptionCode'>
+          <constant name='NOT_FOUND_ERR'>
+            The file that is trying to be read does not exist. This may be due
+            to it having been moved or deleted after a pointer to it was
+            acquired.
+          </constant>
+          <constant name='NOT_READABLE_ERR'>
+            The file cannot be read. This may be due to permission problems.
+          </constant>
+        </definition-group>
+      </idl>
+    </schema>
+  </section>
 
+  <section xml:id='dialog-if'>
+    <title>The FileDialog interface</title>
+    <p>
+      The purpose of the <if>FileDialog</if> interface is to control the apparition of a file dialogue, and to register the 
+      event listeners that will handle the selection of files. The <if>FileDialog</if> 
+      object inherits from <if>EventTarget</if> and it is this possible to attach event 
+      listeners to it using the <meth>addEventListener</meth> method.
+    </p>
+
+    <schema>
+      <title>The FileDialog interface</title>
+      <idl>
+        <interface module='webapi' name='FileDialog' extends='events::EventTarget'>
+          <method name='open'>
+            <p>
+              When called, this method MUST prompt the user with a means to select one 
+              or more files. The exact manner in which the user is prompted is implementation
+              dependent. On devices that have no file system, the user-agent MAY still open a
+              dialogue for data acquisition, for instance an interface to a built-in camera.
+            </p>
+            <p>
+              This method operates in an asynchronous manner such that the files which are 
+              selected will be communicated to handlers registered on the <if>FileDialog</if>
+              object instance to listen to the <ev>files-selected</ev> event. An example
+              follows in which when file selection is performed, the listener object will 
+              be called with a <if>FilesSelectionEvent</if> object.
+            </p>
+            <example>
+              <title>Basic FileDialog usage</title>
+              var fd = new FileDialog();
+              fd.addEventListenerNS("http://www.w3.org/2006/05/fs-event#", "files-selected", listener, false);
+              fd.open();
+            </example>
+          </method>
         </interface>
       </idl>
     </schema>
   </section>
 
+  <section xml:id='FileList-if'>
+    <title>The FileList interface</title>
+    <p>
+      This interface exposes the list of files that has been selected through the file
+      dialogue. When no file has been selected, its length is zero. It is possible that
+      some platforms will only allow for one file to be selected at a time, however when 
+      possible a user-agent SHOULD provide the option to select multiple files in one pass.
+    </p>
+
+    <schema>
+      <title>The FileList interface</title>
+      <idl>
+        <interface module='webapi' name='FileList'>
+          <attribute type='unsigned long' name='length' ro='true'>
+            <p>
+              The number of files in the list. The range of valid file indices is 0 to 
+              <code>length</code>-1 inclusive.
+            </p>
+          </attribute>
+          
+          <method name='item'>
+            <p>
+              Returns the <code>index</code>th item in the collection. If 
+              <code>index</code> is greater than or equal to the number of files in the
+              list, this returns <code>null</code>.
+            </p>
+            <param name='index' type='unsigned long'>
+              Index into the collection.
+            </param>
+            <returns type='File'>
+              The file at the <code>index</code>th position in the <if>FileList</if>, or <code>null</code>
+              if that is not a valid <code>index</code>.
+            </returns>
+          </method>
+          <method name='removeItem'>
+            <p>
+              Removes the <code>index</code>th item in the collection. If 
+              <code>index</code> is greater than or equal to the number of files in the
+              list, this does nothing. This can be used to filter out files that do not
+              match certain criteria (media type, file extension, etc.).
+            </p>
+            <param name='index' type='unsigned long'>
+              Index into the collection.
+            </param>
+            <returns type='File'>
+              The file that was removed from the <if>FileList</if>, or <code>null</code>
+              if that is not a valid <code>index</code>.
+            </returns>
+          </method>
+        </interface>
+      </idl>
+    </schema>
+  </section>
+
+  <section xml:id='File-if'>
+    <title>The File interface</title>
+    <p>
+      This interface describes a single file in a <if>FileList</if>, exposes 
+      its name and media type, and provides access its content.
+    </p>
+    <p>
+      Please note that in order to be memory-efficient, implementations are not
+      required to load the content of files into memory as soon as they have been 
+      selected, but only when their content is required by the application. When passing a
+      <if>File</if> object to network APIs such as <if>XMLHttpRequest</if> an 
+      implementation may stream the content of a file to a socket and never need 
+      to hold more than a few of its bytes in memory. Therefore one needs to be
+      aware that the content of the file may change or cease to be available between
+      the moment the file is selected and the moment it is accessed.
+    </p>
+
+    <schema>
+      <title>The File interface</title>
+      <idl>
+        <interface module='webapi' name='File'>
+          <attribute type='DOMString' name='fileName' ro='true'>
+            <p>
+              The name of the file, exclusive of its path.
+            </p>
+          </attribute>
+          <attribute type='DOMString' name='mediaType' ro='true'>
+            <p>
+              The media type of the file, if known to the user-agent.
+            </p>
+          </attribute>
+          <attribute type='DOMString' name='fileSize' ro='true'>
+            <p>
+              The size of the file, in bytes. Users should keep in mind that in certain
+              cases this information may not be available, and that it also may
+              vary as a file is being read.
+            </p>
+          </attribute>
+
+          <method name='getDataAsString'>
+            <p>
+              Returns the file's content as a string. An empty file returns an empty string.
+            </p>
+            <ednote>
+              <p>
+                This has any number of issues with encoding, binary data, etc.
+              </p>
+            </ednote>
+            <returns type='DOMString'>
+              The content of the file.
+            </returns>
+            <exception name='FileException'>
+              <p>
+                All codes apply.
+              </p>
+            </exception>
+          </method>
+
+          <method name='getDataAsBase64'>
+            <p>
+              Returns the file's content encoded using Base64. An empty file returns an empty string.
+              <ednote>Need ref</ednote>
+            </p>
+            <returns type='DOMString'>
+              The content of the file encoded in Base64.
+            </returns>
+            <exception name='FileException'>
+              <p>
+                All codes apply.
+              </p>
+            </exception>
+          </method>
+
+          <method name='getDataAsHexBinary'>
+            <p>
+              Returns the file's content encoded using hex-binary. An empty file returns an empty string.
+              <ednote>Need ref</ednote>
+            </p>
+            <returns type='DOMString'>
+              The content of the file encoded in hex-binary.
+            </returns>
+            <exception name='FileException'>
+              <p>
+                All codes apply.
+              </p>
+            </exception>
+          </method>
+        </interface>
+      </idl>
+    </schema>
+  </section>
+
+
+  <section xml:id='files-selected-event'>
+    <title>The <ev>files-selected</ev> Event</title>
+    <ednote>
+      <p>
+        Make full description of event as well as the interface.
+      </p>
+    </ednote>
+
+    <section xml:id='FilesSelectionEvent-if'>
+      <title>The FilesSelectionEvent interface</title>
+      <p>
+        ...
+      </p>
+
+      <schema>
+        <title>The FilesSelectionEvent interface</title>
+        <idl>
+          <interface module='webapi' name='FilesSelectionEvent' extends='events::Event'>
+            <attribute type='FileList' name='fileList' ro='true'>
+              <p>
+                The list of files that were selected. If the dialogue was cancelled
+                or no file was selected, the list MUST be empty.
+              </p>
+            </attribute>
+          </interface>
+        </idl>
+      </schema>
+    </section>
+  </section>
+
+  <section xml:id='xhr'>
+    <title>Integration with XMLHttpRequest</title>
+    <p>
+      
+    </p>
+  </section>
 
   <section xml:id='conform'>
     <title>Conformance</title>
