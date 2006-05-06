@@ -80,7 +80,6 @@
   <!-- **********************************************************************
       basic processing
   -->
-
   <xsl:template match='r:specification'>
         <xsl:comment>
           ******* WARNING ********
@@ -107,18 +106,18 @@
     <div class='section'>
       <xsl:element name='h{count(ancestor::r:section)+2}' namespace='http://www.w3.org/1999/xhtml'>
         <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
-				<xsl:choose>
-					<xsl:when test='not($noTOC/@key = @type)'>
+        <xsl:choose>
+          <xsl:when test='not($noTOC/@key = @type)'>
             <xsl:call-template name='get-section-number'>
               <xsl:with-param name='section' select='.'/>
             </xsl:call-template>
             <xsl:text> </xsl:text>
-					</xsl:when>
-					<xsl:when test='@type = "appendix"'>
+          </xsl:when>
+          <xsl:when test='@type = "appendix"'>
             <xsl:number format='A' value='count(preceding-sibling::r:section[@type = "appendix"]) + 1'/>
             <xsl:text>. </xsl:text>
-					</xsl:when>
-				</xsl:choose>
+          </xsl:when>
+        </xsl:choose>
         <xsl:apply-templates select='r:title/node()'/>
       </xsl:element>
       <xsl:if test='@normativity="informative"'>
@@ -165,6 +164,7 @@
   <xsl:template match='r:rfc2119'>
     <em class='rfc2119' title='Keyword in RFC 2119 context'><xsl:apply-templates/></em>
   </xsl:template>
+
 
   <xsl:template match='r:bibref'>
     <cite><a href='#{text()}' class='bibref'><xsl:apply-templates/></a></cite>
@@ -396,7 +396,7 @@
           <h4 class='idl-header'>Methods</h4>
           <dl class='idl-meth'>
             <xsl:apply-templates select='r:method'>
-              <xsl:sort select='@name'/>
+            <xsl:sort select='@name'/>
             </xsl:apply-templates>
           </dl>
         </div>
@@ -554,7 +554,7 @@
       <code><xsl:value-of select='@name'/></code>
       <xsl:choose>
         <xsl:when test='contains($type, "|")'>
-          of varying types (see IDL)
+        of varying types (see IDL)
         </xsl:when>
         <xsl:otherwise>
           of type
@@ -593,12 +593,12 @@
       </xsl:choose>
       <xsl:if test='$p/r:company'>
         <xsl:text> (</xsl:text>
-	      <xsl:choose>
-	        <xsl:when test='$p/r:company-url'>
-	          <a href='{$p/r:company-url}'><xsl:value-of select='$p/r:company'/></a>
-	        </xsl:when>
-	        <xsl:otherwise><xsl:value-of select='$p/r:company'/></xsl:otherwise>
-	      </xsl:choose>
+        <xsl:choose>
+          <xsl:when test='$p/r:company-url'>
+            <a href='{$p/r:company-url}'><xsl:value-of select='$p/r:company'/></a>
+          </xsl:when>
+          <xsl:otherwise><xsl:value-of select='$p/r:company'/></xsl:otherwise>
+        </xsl:choose>
         <xsl:text>)</xsl:text>
       </xsl:if>
       <xsl:if test='$p/r:email'>
@@ -623,11 +623,11 @@
           </a>
         </li>
         <xsl:if test='./r:section'>
-          <li>
-            <xsl:call-template name='table-of-content'>
-              <xsl:with-param name='ctx' select='.'/>
-            </xsl:call-template>
-          </li>
+        <li>
+          <xsl:call-template name='table-of-content'>
+            <xsl:with-param name='ctx' select='.'/>
+          </xsl:call-template>
+        </li>
         </xsl:if>
       </xsl:for-each>
     </ul>
@@ -652,7 +652,7 @@
           </a>
         </li>
         <!--
-          We don't currently descend into subsections of appendices
+        We don't currently descend into subsections of appendices
         -->
       </xsl:for-each>
     </ul>
