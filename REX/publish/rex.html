@@ -1,0 +1,2022 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+          ******* WARNING ********
+          This document was automatically generated using the Re-Spec specification
+          publishing system. Edits made here are likely to be lost when it is
+          regenerated.
+          ******* WARNING ********
+        --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Remote Events for XML (REX) 1.0</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-MO" type="text/css"></link><meta name="revision" content="$Id: rex.html,v 1.1 2006-05-06 19:32:44 rberjon Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Remote Events for XML (REX) 1.0</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>02 February 2006</em></h2><dl><dt>This version:</dt><dd><a href="http://www.w3.org/TR/2006/WD-rex-20060202">http://www.w3.org/TR/2006/WD-rex-20060202</a></dd><dt>Latest version:</dt><dd><a href="http://www.w3.org/TR/rex">http://www.w3.org/TR/rex</a></dd><dt>Editor:</dt><dd><span class="person"><a href="http://berjon.com/">Robin Berjon</a> (<a href="http://expway.com/">Expway</a>) &lt;<a href="mailto:robin.berjon@expway.fr">robin.berjon@expway.fr</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+        <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
+        (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
+        <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
+        <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and 
+        <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document  use</a> rules apply.
+      </p></div><hr></hr>
+  
+
+  <h2 id="specabstract">Abstract</h2><div class="section">
+    
+
+    <p>
+      This specification defines an <acronym title="Extensible Markup Language">XML</acronym>
+      [<cite><a href="#" class="bibref"><acronym title="Extensible Markup Language">XML</acronym></a></cite>] grammar intended for representing events as they are defined in
+      <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>], primarily
+      but not exclusively for purposes of transmission. It enables one endpoint to interact remotely with
+      another endpoint holding a <acronym title="Document Object Model">DOM</acronym> representation by sending it <acronym title="Document Object Model">DOM</acronym> Events as if they
+      had occurred directly at the same location.
+    </p>
+  </div>
+
+  <div class="section"><h2 id="sotd">Status of this Document</h2>
+    
+
+    
+  <p>
+    <em>This section describes the status of this document at the time of its publication.
+    Other documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the
+    latest revision of this technical report can be found in the 
+    <a href="http://www.w3.org/TR/"><acronym title="World Wide Web Consortium">W3C</acronym>
+    technical reports index</a> at http://www.w3.org/TR/.</em>
+  </p>
+
+    <p>
+      This document is a First Public Working Draft produced by a joint task force of the 
+      <a href="http://www.w3.org/Graphics/SVG/"><acronym title="Scalable Vector Graphics">SVG</acronym> 
+      <acronym title="Working Group">WG</acronym></a> (part of the 
+      <a href="http://www.w3.org/Graphics/Activity">Graphics Activity</a>) and the
+      <a href="http://www.w3.org/2006/webapi">Web API <acronym title="Working Group">WG</acronym></a> (part of the
+      <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>).
+      Please send comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
+      (<a href="http://lists.w3.org/Archives/Public/public-webapi/">Archive</a>), 
+      the public email list for issues related to Web APIs.
+    </p>
+    <p>
+      The patent policy for this document is the 
+      <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>.
+      Patent disclosures relevant to this specification may be found on the 
+      <a href="http://www.w3.org/Graphics/SVG/Disclosures" rel="disclosure"><acronym title="Scalable Vector Graphics">SVG</acronym> Working Group's patent disclosure page</a>
+      and <a href="http://www.w3.org/2004/01/pp-impl/38482/status" rel="disclosure">Web API Working Group's patent
+      disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes 
+      contains Essential Claim(s) with respect to this specification should disclose the information in
+      accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6
+      of the <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>.
+    </p>
+    
+  <p>
+    Publication as a Working Draft does not imply endorsement by the <acronym title="World Wide Web Consortium">W3C</acronym> Membership.
+    This is a draft document and may be updated, replaced or obsoleted by other 
+    documents at any time. It is inappropriate to cite this document as other than
+    work in progress.
+  </p>
+
+  </div>
+
+  <div class="section"><h2 id="contents">Table of Contents</h2>
+    
+    <ul class="toc"><li><a href="#overview">1. Overview</a></li><li><ul class="toc"><li><a href="#usage">1.1. Examples of usage</a></li><li><ul class="toc"><li><a href="#eg-setattr">1.1.1. Setting an attribute</a></li><li><a href="#eg-addelem">1.1.2. Inserting an element</a></li><li><a href="#eg-delelem">1.1.3. Removing an element</a></li><li><a href="#eg-repelem">1.1.4. Replacing an element</a></li><li><a href="#eg-newdoc">1.1.5. Replacing the entire document</a></li><li><a href="#eg-cdata">1.1.6. Updating text</a></li></ul></li></ul></li><li><a href="#structure">2. Structure of a <acronym title="Remote Events for XML">REX</acronym> message</a></li><li><ul class="toc"><li><a href="#elem-rex">2.1. The <code class="elem-name">&lt;rex&gt;</code> element</a></li><li><a href="#attr-ns">2.2. The 
+        '<code class="attr-name">ns</code>'
+       attribute</a></li><li><a href="#elem-event">2.3. The <code class="elem-name">&lt;event&gt;</code> element</a></li></ul></li><li><a href="#referencing">3. Referencing target nodes</a></li><li><ul class="toc"><li><a href="#processing-paths">3.1. Processing target paths</a></li><li><a href="#path-syntax">3.2. Path syntax</a></li></ul></li><li><a href="#processing">4. Processing model</a></li><li><ul class="toc"><li><a href="#proc-mapping-ev">4.1. Mapping <code class="elem-name">&lt;event&gt;</code> elements to Event objects</a></li><li><a href="#proc-ukn-ev">4.2. Processing unknown events</a></li><li><a href="#proc-ukn-nodes">4.3. Processing unsupported node types</a></li></ul></li><li><a href="#extensibility">5. Extensibility</a></li><li><ul class="toc"><li><a href="#ext-ukn-el">5.1. Unknown elements</a></li><li><a href="#ext-ukn-at">5.2. Unknown attributes on <acronym title="Remote Events for XML">REX</acronym> elements</a></li></ul></li><li><a href="#error">6. Error handling</a></li><li><ul class="toc"><li><a href="#error-target-doc">6.1. Errors specific to the <acronym title="Document Object Model">DOM</acronym> or to the target language</a></li><li><a href="#error-ignore">6.2. Ignored events and elements</a></li></ul></li><li><a href="#mutation">7. Encoding Mutation Events</a></li><li><ul class="toc"><li><a href="#mutation-mapping-ev">7.1. Mapping Mutation Events to objects</a></li><li><a href="#event-DOMSubtreeModified">7.2. The 
+        '<code class="event-name">DOMSubtreeModified</code>'
+       event</a></li><li><a href="#event-DOMNodeInserted">7.3. The 
+        '<code class="event-name">DOMNodeInserted</code>'
+       event</a></li><li><a href="#event-DOMNodeRemoved">7.4. The 
+        '<code class="event-name">DOMNodeRemoved</code>'
+       event</a></li><li><a href="#event-DOMNodeRemovedFromDocument">7.5. The 
+        '<code class="event-name">DOMNodeRemovedFromDocument</code>'
+       event</a></li><li><a href="#event-DOMNodeInsertedIntoDocument">7.6. The 
+        '<code class="event-name">DOMNodeInsertedIntoDocument</code>'
+       event</a></li><li><a href="#event-DOMAttrModified">7.7. The 
+        '<code class="event-name">DOMAttrModified</code>'
+       event</a></li><li><a href="#event-DOMCharacterDataModified">7.8. The 
+        '<code class="event-name">DOMCharacterDataModified</code>'
+       event</a></li><li><a href="#mutation-namechange">7.9. Mutation name events</a></li></ul></li><li><a href="#conformance">8. Conformance</a></li><li><ul class="toc"><li><a href="#attribute-values">8.1. Parsing attribute values</a></li><li><a href="#conform-checklist">8.2. Conformance to the QA Framework Specification Guidelines</a></li><li><a href="#optional-features">8.3. Optional features</a></li></ul></li><li><a href="#acknow">9. Acknowledgements</a></li></ul><ul class="toc"><li><a href="#media-type">A. Media Type registration for <code>application/rex+xml</code></a></li><li><a href="#changes">B. Changes since the last version</a></li><li><a href="#bibref">C. References</a></li></ul>
+  </div>
+
+  <div class="section"><h2 id="overview">1. Overview</h2><p><strong>This section is informative.</strong></p>
+    
+
+    <p>
+      The <strong>Remote Events for <acronym title="Extensible Markup Language">XML</acronym></strong> (<acronym title="Remote Events for XML">REX</acronym>) specification 
+      defines a transport agnostic <acronym title="Extensible Markup Language">XML</acronym> syntax for the transmission of <acronym title="Document Object Model">DOM</acronym> events as specified in the <acronym title="Document Object Model">DOM</acronym> 3 Events
+      specification [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>] in such a way as to be compatible with streaming protocols.
+    </p>
+    <p>
+      The first version of this specification deliberately restricts itself to the transmission of mutation
+      events so as to remain limited in scope and allow for progressive enhancements to implementations
+      over time rather than require a large specification to be deployed at once. The framework
+      specified here is however compatible with the transmission of any other event type, and
+      great care has been taken to ensure its extensibility and evolvability.
+    </p>
+    
+    <div class="section"><h3 id="usage">1.1. Examples of usage</h3>
+      
+
+      <p>
+        A variety of usage situations in for which <acronym title="Remote Events for XML">REX</acronym> can be used are exemplified
+        below, also showing some specific features available when using <acronym title="Remote Events for XML">REX</acronym>.
+      </p>
+      
+      <div class="section"><h4 id="eg-setattr">1.1.1. Setting an attribute</h4>
+        
+        <p>
+          The following <acronym title="Remote Events for XML">REX</acronym> message sets the <code>fetch</code> attribute to "ball"
+          on an element that has an ID of <code>spot</code>.
+        </p>
+
+        <div class="boxed"><div><span class="exampleTitle">Example: Setting an attribute</span></div><pre class="example" title="Setting an attribute">&lt;rex xmlns='http://www.w3.org/2006/rex'&gt;
+  &lt;event target='id("spot")/@fetch' name='DOMAttrModified' newValue='ball'/&gt;
+&lt;/rex&gt;</pre></div>
+        
+        <p>
+          Note that we do not specify the 
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+      
+          attribute since the default handles both modification and addition.
+          The event that will be dispatched will automatically reflect whether an
+          attribute had to be created or if it already existed and simply had its
+          value changed.
+        </p>
+      </div>
+
+      <div class="section"><h4 id="eg-addelem">1.1.2. Inserting an element</h4>
+        
+        <p>
+          The following <acronym title="Remote Events for XML">REX</acronym> message adds a row at the seventh position (that is,
+          after the current sixth and before the current seventh, which becomes the
+          eighth) in the second table contained in the document's body.
+        </p>
+
+        <div class="boxed"><div><span class="exampleTitle">Example: Inserting an element</span></div><pre class="example" title="Inserting an element">&lt;rex xmlns='http://www.w3.org/2006/rex' xmlns:x='http://www.w3.org/1999/xhtml'&gt;
+  &lt;event target='/x:html/x:body/x:table[2]' name='DOMNodeInserted' position='7'&gt;
+    &lt;tr xmlns='http://www.w3.org/1999/xhtml'&gt;
+      &lt;td&gt;Rover&lt;/td&gt;
+      &lt;td&gt;Alpine Labrador&lt;/td&gt;
+      &lt;td class='food'&gt;bone&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/event&gt;
+&lt;/rex&gt;</pre></div>
+      </div>
+
+      <div class="section"><h4 id="eg-delelem">1.1.3. Removing an element</h4>
+        
+        <p>
+          The following <acronym title="Remote Events for XML">REX</acronym> message removes <em>all</em> circle elements 
+          that are children of the element with id <code>poodle-stylist-location-layer</code>.
+        </p>
+
+        <div class="boxed"><div><span class="exampleTitle">Example: Removing several elements</span></div><pre class="example" title="Removing several elements">&lt;rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'&gt;
+  &lt;event target='id("poodle-stylist-location-layer")/svg:circle' name='DOMNodeRemoved'/&gt;
+&lt;/rex&gt;</pre></div>
+        
+        <p>
+          This shows how <acronym title="Remote Events for XML">REX</acronym> capitalises on the expressivity of XPath to perform 
+          multiple operations with a single command that is concise and network
+          efficient. This capability is not limited to node removal, the processing
+          model allows any event to be dispatched to multiple nodes.
+        </p>
+      </div>
+
+      <div class="section"><h4 id="eg-repelem">1.1.4. Replacing an element</h4>
+        
+        <p>
+          The following <acronym title="Remote Events for XML">REX</acronym> message replaces an element with ID <code>femur</code>
+          with the new one provided in the payload.
+        </p>
+
+        <div class="boxed"><div><span class="exampleTitle">Example: Replacing an element</span></div><pre class="example" title="Replacing an element">&lt;rex xmlns='http://www.w3.org/2006/rex'&gt;
+  &lt;event target='id("femur")' name='DOMNodeRemoved'&gt;
+    &lt;bone xmlns='http://example.org/BoneML' xml:id='tibia'&gt;
+      &lt;taste&gt;good&lt;/taste&gt;
+      &lt;smell&gt;excellent&lt;/smell&gt;
+      &lt;solidity&gt;medium&lt;/solidity&gt;
+      &lt;availability&gt;common&lt;/availability&gt;
+    &lt;/bone&gt;
+  &lt;/event&gt;
+&lt;/rex&gt;</pre></div>
+        
+        <p>
+          Replacement is expressed as a removal with a payload. The processing model
+          is exactly the same as if an event had been transmitted indicating removal,
+          followed by another indicating insertion (internally, a <acronym title="Remote Events for XML">REX</acronym> user-agent 
+          processes both in the exact same manner — which also matches the manner in
+          which a <acronym title="Document Object Model">DOM</acronym> implementation would perform this task) but this shorthand 
+          simplifies content generation and is more efficient both in bandwidth and
+          in processing time (since the target only needs to be resolved once).
+        </p>
+      </div>
+
+      <div class="section"><h4 id="eg-newdoc">1.1.5. Replacing the entire document</h4>
+        
+        <p>
+          The following <acronym title="Remote Events for XML">REX</acronym> message replaces an entire <acronym title="Scalable Vector Graphics">SVG</acronym> document with a new one.
+        </p>
+
+        <div class="boxed"><div><span class="exampleTitle">Example: Replacing an entire document</span></div><pre class="example" title="Replacing an entire document">&lt;rex xmlns='http://www.w3.org/2006/rex'&gt;
+  &lt;event target='/' name='DOMNodeRemoved'&gt;
+    &lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'&gt;
+      &lt;defs&gt;
+        &lt;!-- ... ---&gt;
+      &lt;/defs&gt;
+      &lt;g&gt;
+        &lt;rect x='42' y='27' width='100' height='200' fill='orange'/&gt;
+        &lt;!-- ... ---&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  &lt;/event&gt;
+&lt;/rex&gt;</pre></div>
+        
+        <p>
+          Again, XPath's simple modelling of a document hierarchy is used to
+          address the node we want to replace, in this case the document node
+          captured simply as "<code>/</code>".
+        </p>
+      </div>
+
+      <div class="section"><h4 id="eg-cdata">1.1.6. Updating text</h4>
+        
+        <p>
+          All nodes, including text, can be updated directly. However character
+          data has specific events in the <acronym title="Document Object Model">DOM</acronym> that are more straightforward and
+          can be more lightweight to use. <acronym title="Remote Events for XML">REX</acronym> supports encapsulating such
+          updates as well. The following example updates the seventh <code>tspan</code>
+          element's textual data with new text.
+        </p>
+
+        <div class="boxed"><div><span class="exampleTitle">Example: Updating character data directly</span></div><pre class="example" title="Updating character data directly">&lt;rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'&gt;
+  &lt;event target='/svg:svg/svg:g[2]/svg:tspan[7]/text()' name='DOMCharacterDataModified' newValue='Hello World!'/&gt;
+&lt;/rex&gt;</pre></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="structure">2. Structure of a <acronym title="Remote Events for XML">REX</acronym> message</h2>
+    
+
+    <p>
+      The namespace for the <acronym title="Remote Events for XML">REX</acronym> language is: <code>http://www.w3.org/2006/rex</code>.
+    </p>
+    <p>
+      Future versions of this specification will use the same namespace, unless the
+      language is changed in such radical ways that an implementation of previous versions would
+      not be able to process it in a meaningful manner. Implementations of this specification
+      therefore <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be able to process extensions to the syntax defined in this version,
+      as detailed in the <a href="#extensibility">Extensibility</a> section.
+    </p>
+    <p>
+      All <acronym title="Remote Events for XML">REX</acronym> messages <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be contained within a <a href="#elem-rex" class="elem-name">&lt;rex&gt;</a> element. <acronym title="Remote Events for XML">REX</acronym> messages <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be
+      contained within other <acronym title="Extensible Markup Language">XML</acronym> elements in other namespaces, but each <acronym title="Remote Events for XML">REX</acronym> fragment <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>
+      still have a <a href="#elem-rex" class="elem-name">&lt;rex&gt;</a> element as its root.
+    </p>
+
+    <div class="section"><h3 id="elem-rex">2.1. The <code class="elem-name">&lt;rex&gt;</code> element</h3>
+      
+
+      <p>
+        The <a href="#elem-rex" class="elem-name">&lt;rex&gt;</a> element serves as the root container for the entire <acronym title="Remote Events for XML">REX</acronym> message.
+        It <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be present, even if there is only one <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element. Elements in
+        the <acronym title="Remote Events for XML">REX</acronym> namespace that do not have a <a href="#elem-rex" class="elem-name">&lt;rex&gt;</a> ancestor <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored by
+        the user-agent.
+      </p>
+
+      <div class="boxed"><p><span class="schemaTitle">Element rex</span></p><pre class="schema" title="Element rex">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-rex" title="Definition of |rex|" class="rngref">rex</a>'&gt;
+  &lt;element name='<strong xmlns="http://www.w3.org/1999/xhtml">rex</strong>'&gt;
+    &lt;optional&gt;
+      &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">version</strong>'&gt;
+        &lt;value&gt;1.0&lt;/value&gt;
+      &lt;/attribute&gt;
+    &lt;/optional&gt;
+    &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-ns" title="Reference to the |ns| definition" class="rngref">ns</a>'/&gt;
+    &lt;oneOrMore&gt;
+      &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-event" title="Reference to the |event| definition" class="rngref">event</a>'/&gt;
+    &lt;/oneOrMore&gt;
+  &lt;/element&gt;
+&lt;/define&gt;
+</pre></div>
+
+      <h4 class="attrlist" id="attr-list-elem-rex">Attributes list</h4><dl class="attrlist">
+        <dt id="attr-rex-version">version</dt>
+        <dd>
+          Indicates the minimum version of the <acronym title="Remote Events for XML">REX</acronym> specification required to usefully process this message.
+          While the version value has the form of a float it is actually processed as a string and 
+          user-agents <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> therefore compare the provided 
+        '<a href="#attr-rex-version" class="attr-name">version</a>'
+       against the strings
+          of all versions that they know and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em> perform numeric comparisons. This entails that
+          <code>1.0</code>, <code>1</code>, or <code>1.00</code> are all different versions.
+          A user-agent supporting this version of the specification <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> accept version identifier
+          <code>1.0</code>. If the version number is not in the list of versions of this specification
+          supported by the user-agent, the user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> reject the message completely and
+          immediately, ignoring the entirety of its content.
+        </dd>
+        <dt>Other attributes</dt>
+        <dd>
+          See 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+      .
+        </dd>
+      </dl>
+      
+      <p>
+        The <a href="#elem-rex" class="elem-name">&lt;rex&gt;</a> element <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> contain one or more <a href="#elem-event" class="elem-name">&lt;event&gt;</a> elements. Otherwise,
+        the message is invalid and the user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> ignore it entirely.
+      </p>
+      
+      <div class="boxed"><div><span class="exampleTitle">Example: a complete REX message</span></div><pre class="example" title="a complete REX message">&lt;rex xmlns='http://www.w3.org/2006/rex'
+     xmlns:svg='http://www.w3.org/2000/svg'&gt;
+
+  &lt;event target='id("shiny-donkey")' name='DOMNodeRemoved'/&gt;
+  &lt;event target='/svg:svg/svg:g[5]/svg:a[2]' name='activate'/&gt;
+  &lt;event target='/svg:svg/svg:g[7]' name='DOMNodeInserted' position='9'&gt;
+    &lt;svg:rect x='9' y='42' width='432' height='217' fill='red'/&gt;
+  &lt;/event&gt;
+  &lt;event target='id("dahut")' name='DOMNodeRemoved'&gt;
+    &lt;svg:circle cx='19' cy='17' r='42' fill='orange'/&gt;
+  &lt;/event&gt;
+&lt;/rex&gt;</pre></div>
+    </div>
+
+
+    <div class="section"><h3 id="attr-ns">2.2. The 
+        '<code class="attr-name">ns</code>'
+       attribute</h3>
+      
+
+      <p>
+        The 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       attribute defines the namespace that applies to <acronym title="Document Object Model">DOM</acronym> event names within the
+        scope of the element on which it occurs. For any given <acronym title="Document Object Model">DOM</acronym> event name, if there is no
+        
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       attribute on any of its ancestor elements, that event name's IRI component is
+        <code>http://www.w3.org/2001/xml-events</code>. Otherwise, it will have the namespace 
+        component corresponding to the first 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       attribute found on its ancestor 
+        elements in reverse document order. The content of the 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       attribute is either
+        an IRI or the empty string. If the empty string then event names in its applicable 
+        scope will have no namespace IRI component.
+      </p>
+      <p>
+        If the 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       attribute contains a non-empty string and it is not a valid IRI then
+        processing of the entire subtree inclusive of the element on which the 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       
+        attribute occurs <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+      </p>
+
+      <div class="boxed"><p><span class="schemaTitle">Attribute ns</span></p><pre class="schema" title="Attribute ns">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-ns" title="Definition of |ns|" class="rngref">ns</a>'&gt;
+  &lt;optional&gt;
+    &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">ns</strong>'&gt;
+      &lt;choice&gt;
+        &lt;data type='anyURI'/&gt;
+        &lt;empty/&gt;
+      &lt;/choice&gt;
+    &lt;/attribute&gt;
+  &lt;/optional&gt;
+&lt;/define&gt;
+</pre></div>
+    </div>
+
+
+    <div class="section"><h3 id="elem-event">2.3. The <code class="elem-name">&lt;event&gt;</code> element</h3>
+      
+
+      <p>
+        The <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element is used to encode any kind of event that may be captured in <acronym title="Remote Events for XML">REX</acronym>.
+        While the 
+        '<a href="#attr-event-name" class="attr-name">name</a>'
+       and 
+        '<a href="#attr-event-target" class="attr-name">target</a>'
+       attributes <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> always be specified, the rest
+        of its content model depends on the event that it captures. Each <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element
+        <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> produce at least one corresponding <acronym title="Document Object Model">DOM</acronym> event (and on some occasions a modification 
+        of the <acronym title="Document Object Model">DOM</acronym> tree) unless it is ignored according to a part of this specification.
+      </p>
+
+      <div class="boxed"><p><span class="schemaTitle">Element event</span></p><pre class="schema" title="Element event">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-event" title="Definition of |event|" class="rngref">event</a>'&gt;
+  &lt;element name='<strong xmlns="http://www.w3.org/1999/xhtml">event</strong>'&gt;
+    &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-ns" title="Reference to the |ns| definition" class="rngref">ns</a>'/&gt;
+    &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">target</strong>'&gt;
+      &lt;text/&gt;
+    &lt;/attribute&gt;
+    &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">name</strong>'&gt;
+      &lt;data type='NMTOKEN'/&gt;
+    &lt;/attribute&gt;
+    &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">timeStamp</strong>'&gt;
+      &lt;text/&gt;
+    &lt;/attribute&gt;
+    &lt;choice&gt;
+      &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-DOMNodeInserted" title="Reference to the |DOMNodeInserted| definition" class="rngref">DOMNodeInserted</a>'/&gt;
+      &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-DOMNodeRemoved" title="Reference to the |DOMNodeRemoved| definition" class="rngref">DOMNodeRemoved</a>'/&gt;
+      &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-DOMAttrModified" title="Reference to the |DOMAttrModified| definition" class="rngref">DOMAttrModified</a>'/&gt;
+      &lt;ref name='<a xmlns="http://www.w3.org/1999/xhtml" href="#rng-DOMCharacterDataModified" title="Reference to the |DOMCharacterDataModified| definition" class="rngref">DOMCharacterDataModified</a>'/&gt;
+    &lt;/choice&gt;
+  &lt;/element&gt;
+&lt;/define&gt;
+</pre></div>
+  
+      <h4 class="attrlist" id="attr-list-elem-event">Attributes list</h4><dl class="attrlist">
+        <dt id="attr-event-name">name</dt>
+        <dd>
+          Contains the local name component of the name of the event represented by this <a href="#elem-event" class="elem-name">&lt;event&gt;</a>
+          element. The namespace IRI component of the event's name <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be resolved based on the 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+      
+          attribute.          
+        </dd>
+        <dt id="attr-event-target">target</dt>
+        <dd>
+          The 
+        '<a href="#attr-event-target" class="attr-name">target</a>'
+       attribute contains the target path
+          as described in the <a href="#referencing">Referencing target nodes</a> section.
+        </dd>
+        <dt id="attr-event-timeStamp">timeStamp</dt>
+        <dd>
+          Contains an integer in milliseconds relative to the epoch (defined to be 00:00:00 UTC 1st 
+          January 1970) at which the event is to be dispatched.
+          <div class="ednote">
+            This feature may be modified to specify a more useful (or generic)
+            epoch. Also, it has not yet been fully integrated into the processing
+            model (though the required changes are minor).
+          </div>
+        </dd>
+        <dt>Other attributes</dt>
+        <dd>
+          See 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+      .
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="referencing">3. Referencing target nodes</h2>
+    
+    
+    <p>
+      Target nodes are referenced using a <a href="#path-syntax">subset of XPath</a> [<cite><a href="#XPATH" class="bibref">XPATH</a></cite>] that corresponds to the 
+      level of expressivity that meets most needs while at the same time remaining easy 
+      to implement. There is never a need to resolve a relative path as they are always
+      anchored either at the root (absolute paths) or at an element ID.
+    </p>
+    
+    <div class="section"><h3 id="processing-paths">3.1. Processing target paths</h3>
+      
+      <p>
+        Target paths <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be processed as follows, even if internal details of implementation
+        differ. The result of evaluating the target path against the target document is
+        a node-set, ordered according to the axes used in the target path, as per XPath.
+        Note however that the limited set of axes available in this subset will always 
+        cause the node-set to be in document order.
+      </p>
+      <p>
+        If the size of the node-set is superior to one, the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be dispatched in the exact
+        same way to each node in the node-set in order, exactly <em>as if</em> the <a href="#elem-event" class="elem-name">&lt;event&gt;</a>
+        element had been copied multiple times in a row in the <acronym title="Remote Events for XML">REX</acronym> message, and each had had
+        its target path modified to match only the corresponding node in the node-set. If an
+        event in that expanded list is required by this specification to be ignored, only
+        that event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored, and the remaining expanded events <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be processed.
+      </p>
+      <p>
+        If the size of the node-set is zero, the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored and thus nothing happens.
+      </p>
+      <p>
+        The set of namespace declarations made available to the target path are those in scope
+        on the element on which the target path occurs; this includes the implicit declaration
+        of the prefix <code>xml</code> required by Namespaces in <acronym title="Extensible Markup Language">XML</acronym> [<cite><a href="#XMLNS" class="bibref">XMLNS</a></cite>]; the default namespace
+        (as declared by <code>xmlns</code>) is <em>not</em> part of this set.
+      </p>
+    </div>
+
+    <div class="section"><h3 id="path-syntax">3.2. Path syntax</h3>
+      
+      
+      <p>
+        The syntax for target paths is a very simple subset of XPath described by the following
+        syntax, in which the <code>Name</code> token is taken from the <acronym title="Extensible Markup Language">XML</acronym> specification [<cite><a href="#" class="bibref"><acronym title="Extensible Markup Language">XML</acronym></a></cite>]
+        and the <code>NCName</code> token is from the Namespaces in <acronym title="Extensible Markup Language">XML</acronym> specification [<cite><a href="#XMLNS" class="bibref">XMLNS</a></cite>].
+      </p>
+      
+      <div class="boxed"><p><span class="ebnfTitle">EBNF for target paths</span></p><pre class="ebnf" title="EBNF for target paths">FullPath  ::= RPath | Root | IDPath
+SubPath   ::= Step* FullTest
+RPath     ::= '/' SubPath
+Root      ::= '/'
+IDPath    ::= 'id(' NCNameStr ')' RPath?
+Step      ::= StepTest '/'
+StepTest  ::= Name ('[' Num ']')?
+FullTest  ::= (Name | 'text()' | '@' Name) ('[' Num ']')?
+NCNameStr ::= "'" NCName "'" | '"' NCName '"'
+Num       ::= [0-9]+
+</pre></div>
+      
+      <p>
+        User-agents <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> support a superset of this syntax so long as it is a valid instance of
+        the XPath language [<cite><a href="#XPATH" class="bibref">XPATH</a></cite>]. Content producers however <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em> use such extensions
+        as they hamper interoperability.
+      </p>
+      <p>
+        The subset of XPath normatively defined in the above grammar can be summarised by a
+        few general ideas. Target paths may only begin at the root or with an <code>id()</code>
+        function. The <code>id()</code> function itself is limited to a single string argument,
+        which in turn must contain exactly one identifier (as opposed to a white space separated
+        list in XPath). Only abbreviated axes are supported in the syntax. Following the
+        beginning of the path may be a list of steps, making use of either the child 
+        axis, which may only use element name tests. The final step in the list is more
+        powerful and may also reference text and attribute nodes. For each step a predicate may
+        be used, which is limited to only containing an integer indicating position.
+      </p>
+      <p>
+        Some examples of target paths include:
+      </p>
+      <ul>
+        <li><code>/svg:svg</code> will match the root <code>svg</code> element, in the namespace
+            that has been bound to the 'svg' prefix.</li>
+        <li><code>/lodges/donkey[8]</code> will match the eighth <code>donkey</code> element in the
+            <code>lodges</code> element with no namespace.</li>
+        <li><code>/</code> will match the root node, which is to say the document itself.</li>
+        <li><code>/foo/text()</code> will match all text nodes that are children of the
+            the <code>foo</code> element.</li>
+        <li><code>/xhtml:html/xhtml:body/svg:svg[3]/@width</code> will match the <code>width</code>
+            attribute of the third <code>svg</code> element that is a child of
+            the root <code>body</code> and then <code>html</code> elements.</li>
+        <li><code>id("dahut")</code> will match the element with ID 'dahut'.</li>
+        <li><code>id("dahut")/svg:circle/@cx</code> will match the <code>cx</code>
+            attribute of all the <code>circle</code> elements that are children of the
+            element with ID 'dahut'.</li>
+      </ul>
+      <p>
+        Note that it is possible using this syntax to produce target paths that will never match
+        anything (for instance <code>/element[2]</code>). Such constructions simply cause the 
+        event to be ignored.
+      </p>      
+    </div>
+  </div>
+
+  <div class="section"><h2 id="processing">4. Processing model</h2>
+    
+
+    <p>
+      This section defines how <acronym title="Remote Events for XML">REX</acronym> messages are processed by user-agents. Its intent is not to 
+      prescribe implementation details — the processing <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be implemented in ways that differ
+      from the steps described below, but if so the effect <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be exactly equivalent.
+    </p>
+    <p>
+      It is <em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em> that <acronym title="Remote Events for XML">REX</acronym> messages be processed in a streaming fashion, so that the user-agent
+      is not required to build a tree representation of the message. This is of particular importance
+      in that a single <acronym title="Remote Events for XML">REX</acronym> message <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> capture a very long list of individual events over a long
+      period of time, which would cause the resulting tree to consume potentially large amounts of
+      memory.
+    </p>
+    <p>
+      Implementations <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> dispatch events encoded in <acronym title="Remote Events for XML">REX</acronym> messages as soon as they have finished
+      parsing the corresponding <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element. Because of this a <acronym title="Remote Events for XML">REX</acronym> message containing
+      a well-formedness error <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em> still cause previous <a href="#elem-event" class="elem-name">&lt;event&gt;</a> elements to be
+      fully processed. Upon encountering a well-formedness error, a <acronym title="Remote Events for XML">REX</acronym> user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> stop processing
+      immediately such that the remainder of the <acronym title="Extensible Markup Language">XML</acronym> document <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored. If the well-formedness 
+      error is contained inside an <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element, the corresponding event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> also be ignored.
+    </p>
+    <p>
+      As soon as an <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element is parsed, and provided that it is not
+      ignored according to this specification, the following steps take place:
+    </p>
+    <ol>
+      <li>
+        an <code>Event</code> object (as defined in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>]) <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be created as defined
+        in the <a href="#proc-mapping-ev">Mapping event elements to Event objects</a>
+        section below. Note that in some cases, multiple <code>Event</code> objects may be created
+        by a single <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element (e.g. for the 
+        '<a href="#event-DOMNodeRemoved" class="event-name">DOMNodeRemoved</a>'
+       event).
+      </li>
+      <li>
+        the target path <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be resolved, as defined in <a href="#referencing">Referencing
+        target nodes</a>
+      </li>
+      <li>
+        for each node in the node-set returned by the previous step that is not ignored
+        according to this specification, the event or events initialised in step 1 <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>
+        be dispatched as if by a call to 
+        <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-EventTarget-dispatchEvent">EventTarget.dispatchEvent()</a>.
+        If the event is defined to have side-effect (such as modifying the <acronym title="Document Object Model">DOM</acronym> tree,
+        as is the case with <a href="#mutation">mutation events</a>), this is the moment
+        at which the side-effect <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> occur. Whether the side-effect occurs immediately
+        preceding or following the event being dispatched is specified for each such
+        event.
+      </li>
+    </ol>
+    <p>
+      As soon as an <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element has been processed, the implementation <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> discard it
+      from memory so as to consume fewer resources.
+    </p>
+    <p>
+      There is no requirement on the user-agent to support a <acronym title="Document Object Model">DOM</acronym> interface in order to still implement
+      events received through <acronym title="Remote Events for XML">REX</acronym> messages. For instance, specifications such as SMIL [<cite><a href="#SMIL2" class="bibref">SMIL2</a></cite>]
+      or <acronym title="Extensible Markup Language">XML</acronym> Events [<cite><a href="#XMLEV" class="bibref">XMLEV</a></cite>] may be handling events received through <acronym title="Remote Events for XML">REX</acronym> messages in the absence
+      of a <acronym title="Document Object Model">DOM</acronym> representation of the document tree.
+    </p>
+    
+    <div class="section"><h3 id="proc-mapping-ev">4.1. Mapping <code class="elem-name">&lt;event&gt;</code> elements to Event objects</h3>
+      
+      <p>
+        In processing <a href="#elem-event" class="elem-name">&lt;event&gt;</a> elements and converting them into Event objects,
+        the user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> inform the various fields of the object in the following manner:
+      </p>
+      <dl>
+        <dt>type</dt>
+        <dd>
+          Set to the 
+        '<a href="#attr-event-name" class="attr-name">name</a>'
+       attribute of the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element.
+        </dd>
+        <dt>namespaceURI</dt>
+        <dd>
+          Set to the value of the 
+        '<a href="#attr-ns" class="attr-name">ns</a>'
+       attribute, resolved as described in its
+          own section.
+        </dd>
+        <dt>target</dt>
+        <dd>
+          Set dynamically to be in turn each node in the node-set obtained by resolving
+          the target path.
+        </dd>
+        <dt>currentTarget</dt>
+        <dd>
+          Set dynamically as the event is being processed, as described in the
+          <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-flow"><acronym title="Document Object Model">DOM</acronym> event flow</a>.
+        </dd>
+        <dt>eventPhase</dt>
+        <dd>
+          Set dynamically depending on whether the event is currently progressing
+          through the capture, target, or bubble phase. Note that this specification
+          does not require that given phases be supported by the implementation, this
+          is left to the specifications with which it is used in conjunction to define.
+        </dd>
+        <dt>bubbles</dt>
+        <dd>
+          Specifies whether an event is one that bubbles or not. The implementation
+          sets that using its knowledge of the given event type.
+        </dd>
+        <dt>cancelable</dt>
+        <dd>
+          Specifies whether an event can have its default action prevented or not. 
+          The implementation sets that using its knowledge of the given event type.
+        </dd>
+        <dt>timeStamp</dt>
+        <dd>
+          If the implementation supports the 
+        '<a href="#attr-event-timeStamp" class="attr-name">timeStamp</a>'
+       attribute and it
+          has been set, this field specifies the time at which the event comes into
+          effect. As defined in the <acronym title="Document Object Model">DOM</acronym> 3 Events specification [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>] if this
+          field is not specified, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> always be set to zero.
+        </dd>
+      </dl>
+      <p>
+        When the event type is recognised by the processor, it needs to create an
+        object of the appropriate subclass of Event. The precise details of doing
+        so are defined in the sections that handle mappings of specific event
+        types. In this specification there is only one such section, 
+        <a href="#mutation">Encoding Mutation Events</a>.
+      </p>
+    </div>
+
+    <div class="section"><h3 id="proc-ukn-ev">4.2. Processing unknown events</h3>
+      
+
+      <p>
+        The are two types of unknown events:
+      </p>
+      
+      <ul>
+        <li>
+          Events the names of which do not match any known event in the version of the specification supported
+          by the user-agent.
+        </li>
+        <li>
+          Events which the user-agent understands as being defined in the specification but that have no
+          meaningful effect within the context in which the user-agent operates (e.g. a <code>mousemove</code>
+          event on a device that has no pointer device cursor).
+        </li>
+      </ul>
+      
+      <p>
+        When encountering an unknown even, a user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> ignore the entire <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element and
+        all its descendants.
+      </p>
+      <div class="ednote">
+        <p>
+          Note that we could make this extensible, but it would require adding a bunch of
+          attributes (bubbles, cancellable, etc.) so that unknown events could be processed.
+          This should be done in the next version.
+        </p>
+      </div>
+    </div>
+
+    <div class="section"><h3 id="proc-ukn-nodes">4.3. Processing unsupported node types</h3>
+      
+      
+      <p>
+        There is almost always a mismatch between the information that an <acronym title="Extensible Markup Language">XML</acronym> document
+        is able to capture and the information that an in-memory representation of the
+        same document is able to expose. In some cases, this mismatch is strong enough
+        that some major <acronym title="Extensible Markup Language">XML</acronym> constructs such as processing instructions or comments cannot
+        be represented. This section defines how a user-agent is to handle node types that
+        it is unable to produce a representation of.
+      </p>
+      <p>
+        It should be noted that there is no requirement that a node type captured in a <acronym title="Remote Events for XML">REX</acronym>
+        message have a corresponding object or interface in the <acronym title="Document Object Model">DOM</acronym> variant used by the
+        user-agent. For instance, the <acronym title="Scalable Vector Graphics">SVG</acronym> 1.2 MicroDOM [<cite><a href="#SVGT12" class="bibref">SVGT12</a></cite>] has no interface to 
+        represent text nodes but it is nevertheless able to store text content and even
+        mixed content. Therefore a user-agent using the MicroDOM will be able to process
+        text nodes that it receives from <acronym title="Remote Events for XML">REX</acronym> messages.
+      </p>
+      <p>
+        The are two situations in which unsupported node types may be encountered:
+      </p>
+      
+      <ul>
+        <li>
+          If the 
+        '<a href="#attr-event-target" class="attr-name">target</a>'
+       attribute points to one such node type, either directly (i.e. at the
+          end of the target path) or indirectly (i.e. as a step in the target path).
+        </li>
+        <li>
+          In the payload of the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element.
+        </li>
+      </ul>
+      
+      <p>
+        If the target path requires support for a node type that is not supported by the
+        implementation, then the user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> ignore the entire <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element and
+        all of its descendants.
+      </p>
+      <p>
+        If the payload of the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element contains node types that are not supported
+        by the user-agent's <acronym title="Document Object Model">DOM</acronym> implementation the payload <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be modified so that nodes
+        that have no usable representation in the user-agent's <acronym title="Document Object Model">DOM</acronym> implementation are removed.
+        For instance, given an <acronym title="Scalable Vector Graphics">SVG</acronym> Tiny 1.2 MicroDOM [<cite><a href="#SVGT12" class="bibref">SVGT12</a></cite>], processing instructions would be
+        removed as they can have no known impact or representation in the tree, but text nodes
+        would not: they may not have an object type corresponding to them but they are still
+        accessible through the <code>textContent</code> interface. If removing these nodes
+        from the payload causes the payload to become empty, then the entire <a href="#elem-event" class="elem-name">&lt;event&gt;</a>
+        element <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored since no useful Event object could be derived from it.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="extensibility">5. Extensibility</h2>
+    
+
+    <p>
+      In order for <acronym title="Remote Events for XML">REX</acronym> to be extensible, it is necessary to define a strict extensibility model
+      that allows future versions to introduce new constructs into messages that will still
+      be understood to the best of their abilities by older user-agents.
+    </p>
+    <p>
+      A <acronym title="Remote Events for XML">REX</acronym> message that is intended to be understood if and only if the user-agent supports
+      a minimal version of the <acronym title="Remote Events for XML">REX</acronym> specification <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> set the 
+        '<a href="#attr-rex-version" class="attr-name">version</a>'
+       attribute
+      correspondingly. A user-agent that does not support the required version <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> then discard
+      the entire message. Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> apply the following forward-compatibility rules.
+    </p>
+
+    <div class="section"><h3 id="ext-ukn-el">5.1. Unknown elements</h3>
+      
+
+      <p>
+        There are three categories of unknown elements:
+      </p>
+      
+      <ul>
+        <li>Elements in foreign namespaces (namespaces that are not the <acronym title="Remote Events for XML">REX</acronym> namespace)</li>
+        <li>Elements in the <acronym title="Remote Events for XML">REX</acronym> namespace with unknown local names</li>
+        <li>Elements in the <acronym title="Remote Events for XML">REX</acronym> namespace with known local names, but located in places where the grammar does not allow them</li>
+      </ul>        
+
+      <p>
+        Outside of <a href="#elem-event" class="elem-name">&lt;event&gt;</a> payloads, when encountering an unknown element a user-agent
+        <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> ignore it together with all of its attributes and descendant nodes.
+      </p>
+      <p>
+        Inside <a href="#elem-event" class="elem-name">&lt;event&gt;</a> payloads, all elements whether they are in the <acronym title="Remote Events for XML">REX</acronym> namespace
+        or not are considered to constitute the content of that event, and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be processed
+        as if they were in a foreign namespace. <acronym title="Remote Events for XML">REX</acronym> elements in event payloads <em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em> be
+        processed as <acronym title="Remote Events for XML">REX</acronym> elements.
+      </p>
+    </div>
+
+    <div class="section"><h3 id="ext-ukn-at">5.2. Unknown attributes on <acronym title="Remote Events for XML">REX</acronym> elements</h3>
+      
+
+      <p>
+        There are two types of unknown attributes that <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> occur on <acronym title="Remote Events for XML">REX</acronym> elements:
+      </p>
+      
+      <ul>
+        <li>Attributes in a namespace that is not the <acronym title="Extensible Markup Language">XML</acronym> namespace as defined in the Namespaces in <acronym title="Extensible Markup Language">XML</acronym> specification [<cite><a href="#XMLNS" class="bibref">XMLNS</a></cite>]</li>
+        <li>Attributes in no namespace that are not known to be allowed on the element on which they occur</li>
+      </ul>
+      
+      <p>
+        When encountering an unknown attribute, a user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> process the corresponding element as
+        if the attribute had not been specified at all.
+      </p>
+      <p>
+        Likewise, if a known attribute with an invalid value is encountered, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored
+        as if it had not been specified.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="error">6. Error handling</h2>
+    
+
+    <div class="section"><h3 id="error-target-doc">6.1. Errors specific to the <acronym title="Document Object Model">DOM</acronym> or to the target language</h3>
+      
+      <p>
+        Some of the events that can be captured in <acronym title="Remote Events for XML">REX</acronym> messages will cause the <acronym title="Document Object Model">DOM</acronym> tree
+        that they target to be modified. In addition to the specific error handling
+        specified in the respective event definitions, the following rules apply:
+      </p>
+      <dl>
+        <dt><acronym title="Document Object Model">DOM</acronym> errors</dt>
+        <dd>
+          If the modification corresponds to something that is invalid in the <acronym title="Document Object Model">DOM</acronym> 
+          (e.g. inserting an element after the root element node) then the event
+          is ignored.
+        </dd>
+        <dt>Target language errors</dt>
+        <dd>
+          If the modification causes the target language to find itself in a state
+          that is erroneous according to its specification, the modification takes place
+          regardless and it is up to the host language to handle the error, as if the 
+          modification had been performed through script manipulation of the <acronym title="Document Object Model">DOM</acronym>. The
+          exception to this rule is if such a modification being performed by using the
+          <acronym title="Document Object Model">DOM</acronym> directly had caused an exception to be raised: in that case the error
+          is treated as a <acronym title="Document Object Model">DOM</acronym> error, and the event is ignored.
+        </dd>
+      </dl>
+    </div>
+    
+    <div class="section"><h3 id="error-ignore">6.2. Ignored events and elements</h3>
+      
+      <p>
+        For every part of this specification for which a given event or element is
+        said to be <em>ignored</em>, a user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> skip it as if it had not at all occurred
+        within the <acronym title="Remote Events for XML">REX</acronym> message (and if the entire <acronym title="Remote Events for XML">REX</acronym> message is ignored, as if it
+        had never been received at all). The user <em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em> be informed of such
+        occurrences.
+      </p>
+      <p>
+        However if instead of a user-agent the <acronym title="Remote Events for XML">REX</acronym> processor is a content checker, then
+        each given occurrence of an item that is said to be <em>ignored</em> <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
+        considered to be an error. Such errors <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be reported to the user of the content
+        checker. More information is available on classes of <acronym title="Remote Events for XML">REX</acronym> processors in the
+        <a href="#conformance">Conformance section</a>.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="mutation">7. Encoding Mutation Events</h2>
+    
+
+    <p>
+      All <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-eventgroupings-mutationevents">mutations events</a>
+      are in the <code>http://www.w3.org/2001/xml-events</code> namespace. Only the following events are
+      supported by this specification: 
+        '<a href="#event-DOMNodeInserted" class="event-name">DOMNodeInserted</a>'
+      , 
+        '<a href="#event-DOMNodeRemoved" class="event-name">DOMNodeRemoved</a>'
+      ,
+      
+        '<a href="#event-DOMAttrModified" class="event-name">DOMAttrModified</a>'
+      , and 
+        '<a href="#event-DOMCharacterDataModified" class="event-name">DOMCharacterDataModified</a>'
+      .
+    </p>
+    <p>
+      Mutation events are specific in <acronym title="Remote Events for XML">REX</acronym> processing in that they cause the <acronym title="Document Object Model">DOM</acronym> tree to be modified.
+      When a user-agent processes a mutation event received in a <acronym title="Remote Events for XML">REX</acronym> message, in addition to dispatching
+      the event it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> also modify the tree (either before or after the event, as specified depending
+      on the event type) according to the event type.
+    </p>
+
+    <div class="section"><h3 id="mutation-mapping-ev">7.1. Mapping Mutation Events to objects</h3>
+      
+      <p>
+        In processing an <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element that captures a mutation event, the user-agent
+        <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> produce a <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-MutationEvent">MutationEvent</a>
+        object, and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> inform the fields of the object in the following manner:
+      </p>
+      <dl>
+        <dt>relatedNode</dt>
+        <dd>
+          Set dynamically by the user-agent according to the <acronym title="Document Object Model">DOM</acronym> 3 Events specification [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>].
+          For attribute modifications applying to <acronym title="Document Object Model">DOM</acronym> subsets that do not have a
+          representation for Attr nodes this field <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be null.          
+        </dd>
+        <dt>prevValue</dt>
+        <dd>
+          Set dynamically by the user-agent to hold the previous value for applicable events,
+          as per <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>].
+        </dd>
+        <dt>newValue</dt>
+        <dd>
+          Set to the value of the 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+       attribute for 
+          
+        '<a href="#event-DOMAttrModified" class="event-name">DOMAttrModified</a>'
+       and 
+        '<a href="#event-DOMCharacterDataModified" class="event-name">DOMCharacterDataModified</a>'
+       events.
+        </dd>
+        <dt>attrName</dt>
+        <dd>
+          The name of the attribute being added, changed, or removed 
+          for 
+        '<a href="#event-DOMAttrModified" class="event-name">DOMAttrModified</a>'
+      , as derived from the target path.
+        </dd>
+        <dt>attrChange</dt>
+        <dd>
+          Set to match the value of the 
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+       
+          attribute when applicable.
+        </dd>
+      </dl>
+    </div>
+
+
+
+    <div class="section"><h3 id="event-DOMSubtreeModified">7.2. The 
+        '<code class="event-name">DOMSubtreeModified</code>'
+       event</h3>
+      
+
+      <p>
+        The <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMSubtreeModified">DOMSubtreeModified</a>
+        is not supported. Implementations <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> process it as an unknown event.
+      </p>
+    </div>
+
+    <div class="section"><h3 id="event-DOMNodeInserted">7.3. The 
+        '<code class="event-name">DOMNodeInserted</code>'
+       event</h3>
+      
+
+      <p>
+        The <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInserted">DOMNodeInserted</a>
+        indicates that a node has been inserted into the <acronym title="Document Object Model">DOM</acronym> tree. The inserted node <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be either of an element,
+        a text node, a comment, or a processing instruction. The target path is used to specify the parent of
+        the node that is to be inserted, and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> point either to an element or to the document root. If the
+        element that it points to does not exist then the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+      </p>
+      <p>
+        After all direct child elements of the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element that are in the <acronym title="Remote Events for XML">REX</acronym> namespace
+        have been removed together with their descendants, the remaining child nodes constitute the event's
+        payload. If there is more than one remaining child node in the payload, they <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be inserted one after
+        the other in document order, as if a <acronym title="Document Object Model">DOM</acronym> DocumentFragment were being inserted. Each of
+        them in turn <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> produce a 
+        <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInserted">DOMNodeInserted</a>
+        event as if they had been transmitted in separate <a href="#elem-event" class="elem-name">&lt;event&gt;</a> elements, and the 
+        
+        '<a href="#attr-DOMNodeInserted-position" class="attr-name">position</a>'
+       <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be incremented by one for each.
+      </p>
+      <p>
+        Note that as specified in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>] this event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be dispatched <em>after</em> 
+        the node has been inserted.
+      </p>
+      <p>
+        When this event is transmitted, the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> allow arbitrary <acronym title="Extensible Markup Language">XML</acronym> as its content.
+        This is not specified in the schema fragment below but left to compounding schemata (e.g. defined
+        using NVDL) to define.
+      </p>
+      <div class="boxed"><p><span class="schemaTitle">DOMNodeInserted</span></p><pre class="schema" title="DOMNodeInserted">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-DOMNodeInserted" title="Definition of |DOMNodeInserted|" class="rngref">DOMNodeInserted</a>'&gt;
+  &lt;optional&gt;
+    &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">position</strong>'&gt;
+      &lt;data type='integer'/&gt;
+    &lt;/attribute&gt;
+  &lt;/optional&gt;
+&lt;/define&gt;
+</pre></div>
+      <h4 class="attrlist" id="attr-list-event-DOMNodeInserted">Attributes list</h4><dl class="attrlist">
+        <dt id="attr-DOMNodeInserted-position">position</dt>
+        <dd>
+          Specifies the position at which the payload <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be inserted in the target element's
+          child nodes such that a hypothetical call to <code>parent.childNodes.item(position)</code>
+          would return the first node of the payload. If position is not specified, or if the specified
+          value is higher than the number of item or lower than zero then the nodes <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be inserted
+          at the end of the list of child nodes.
+        </dd>
+      </dl>
+    </div>
+
+    <div class="section"><h3 id="event-DOMNodeRemoved">7.4. The 
+        '<code class="event-name">DOMNodeRemoved</code>'
+       event</h3>
+      
+
+      <p>
+        The <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeRemoved">DOMNodeRemoved</a> event
+        indicates that a node has been removed from the <acronym title="Document Object Model">DOM</acronym> tree. The target path <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> point to either an element,
+        a text node, a comment, or a processing instruction. If it points to an attribute the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be
+        ignored. If the node pointed to by the target path does not exist, then the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+      </p>
+      <p>
+        If the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element capturing this has a payload as defined in the 
+        '<a href="#event-DOMNodeInserted" class="event-name">DOMNodeInserted</a>'
+      
+        event, then a second event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be created and dispatched immediately after this event (if the target path
+        resolved to a node-set containing more than one item, then each generated event immediately
+        follows the one dispatched on a given node).
+      </p>
+      <p>
+        The following parameters <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set for the generated event. It is of type 
+        
+        '<a href="#event-DOMNodeInserted" class="event-name">DOMNodeInserted</a>'
+      . Its target node is the parent of the one pointed to
+        by the current 
+        '<a href="#event-DOMNodeRemoved" class="event-name">DOMNodeRemoved</a>'
+       event, unless the latter was pointing 
+        to the root node (using '<code>/</code>') in which case the generated event
+        also points to the root node. Its 
+        '<a href="#attr-DOMNodeInserted-position" class="attr-name">position</a>'
+       is 
+        that of the removed node within its siblings, in document order. Its payload 
+        is set to be that of the current event.
+      </p>
+      <p>
+        Note that the above processing is compatible with that of <acronym title="Document Object Model">DOM</acronym> 3 Core [<cite><a href="#DOM3" class="bibref">DOM3</a></cite>] 
+        <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-785887307">Node.replaceChild()</a>
+        but more powerful since it can also operate on the document itself.
+      </p>
+      <p>
+        Note that as specified in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>] this event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be dispatched <em>before</em>
+        the node is removed.
+      </p>
+      <p>
+        The event adds no attribute to the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element.
+      </p>
+      <div class="boxed"><p><span class="schemaTitle">DOMNodeRemoved</span></p><pre class="schema" title="DOMNodeRemoved">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-DOMNodeRemoved" title="Definition of |DOMNodeRemoved|" class="rngref">DOMNodeRemoved</a>'&gt;
+  &lt;empty/&gt;
+&lt;/define&gt;
+</pre></div>
+      <h4 class="attrlist" id="attr-list-event-DOMNodeRemoved">Attributes list</h4><dl class="attrlist">
+        <dt>No additional attributes</dt>
+      </dl>
+    </div>
+
+    <div class="section"><h3 id="event-DOMNodeRemovedFromDocument">7.5. The 
+        '<code class="event-name">DOMNodeRemovedFromDocument</code>'
+       event</h3>
+      
+
+      <p>
+        The <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeRemovedFromDocument">DOMNodeRemovedFromDocument</a>
+        is not supported. Implementations <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> process it as an unknown event. It is nevertheless dispatched after a DOMNodeRemoved event
+        as described in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>].
+      </p>
+    </div>
+
+    <div class="section"><h3 id="event-DOMNodeInsertedIntoDocument">7.6. The 
+        '<code class="event-name">DOMNodeInsertedIntoDocument</code>'
+       event</h3>
+      
+
+      <p>
+        The 
+        <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInsertedIntoDocument">DOMNodeInsertedIntoDocument</a>
+        is not supported. Implementations <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> process it as an unknown event. It is nevertheless dispatched after a DOMNodeInserted event
+        as described in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>].
+      </p>
+    </div>
+
+    <div class="section"><h3 id="event-DOMAttrModified">7.7. The 
+        '<code class="event-name">DOMAttrModified</code>'
+       event</h3>
+      
+
+      <p>
+        The <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMAttrModified">DOMAttrModified</a>
+        event indicates that an attribute has been modified, added, or removed.
+      </p>
+      <p>
+        When representing a 
+        '<a href="#event-DOMAttrModified" class="event-name">DOMAttrModified</a>'
+       event, the <a href="#elem-event" class="elem-name">&lt;event&gt;</a>
+        element's 
+        '<a href="#attr-event-target" class="attr-name">target</a>'
+       attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> have an attribute step as its last
+        step (i.e. the <a href="#path-syntax">FullStep</a> construct). If the
+        
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+       attribute is set to <code>removal</code>
+        then the attribute pointed to by the target path <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> exists, and if it does not 
+        the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored. If however it is set to <code>modification</code> or
+        <code>addition</code> then there are two possible options:
+      </p>
+      <ul>
+        <li>
+          if the attribute exists, then the value of 
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+      
+          <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to <code>modification</code>;
+        </li>
+        <li>
+          otherwise, its value <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be set to <code>addition</code>. The processing node-set
+          for that of the element <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> change to be that which would be obtained from
+          processing the same target path, but with the last step (i.e. the 
+          <a href="#path-syntax">FullStep</a> construct) removed. The namespace IRI and local name
+          of the attribute to be added <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be those of the attribute pointed to by the
+          <a href="#path-syntax">FullStep</a> part of the target path.
+        </li>
+      </ul>
+      <p>
+        Note that as specified in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>] this event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be dispatched <em>after</em>
+        the node has been modified.
+      </p>
+      <p>
+        The following attributes are added to the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element.
+      </p>
+      <div class="boxed"><p><span class="schemaTitle">DOMAttrModified</span></p><pre class="schema" title="DOMAttrModified">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-DOMAttrModified" title="Definition of |DOMAttrModified|" class="rngref">DOMAttrModified</a>'&gt;
+  &lt;group&gt;
+    &lt;optional&gt;
+      &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">attrChange</strong>'&gt;
+        &lt;choice&gt;
+          &lt;value&gt;modification&lt;/value&gt;
+          &lt;value&gt;addition&lt;/value&gt;
+          &lt;value&gt;removal&lt;/value&gt;
+        &lt;/choice&gt;
+      &lt;/attribute&gt;
+    &lt;/optional&gt;
+    &lt;optional&gt;
+      &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">newValue</strong>'&gt;
+        &lt;text/&gt;
+      &lt;/attribute&gt;
+    &lt;/optional&gt;
+  &lt;/group&gt;
+&lt;/define&gt;
+</pre></div>
+      <h4 class="attrlist" id="attr-list-event-DOMAttrModified">Attributes list</h4><dl class="attrlist">
+        <dt id="attr-DOMAttrModified-attrChange">attrChange</dt>
+        <dd>
+          Indicates the type of change that concerns this attribute, one of <code>modification</code>,
+          <code>addition</code>, or <code>removal</code>. The default value is <code>modification</code>.
+        </dd>
+        <dd>
+          If the value is <code>modification</code>, then the 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+      
+          attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be present, and the value of the target attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be changed to be 
+          that contained in 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+      . If 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+      
+          is not specified, the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored. If the target attribute does not exist, the event 
+          <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be processed as if 
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+       had had a value of <code>addition</code>.
+        </dd>
+        <dd>
+          If the value is <code>addition</code>, then the 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+       
+          attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be present, and the value of the target attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be created with 
+          a value being that contained in 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+      .  If 
+          
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+       is not specified, the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+          If the target attribute already exists, the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be processed as
+          if 
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+       had had a value of <code>modification</code>.
+        </dd>
+        <dd>
+          If the value is <code>removal</code>, then the target attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be removed. If the
+          target attribute is not present, then the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored. If 
+        '<a href="#attr-DOMAttrModified-newValue" class="attr-name">newValue</a>'
+       is
+          specified then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+        </dd>
+        <dt id="attr-DOMAttrModified-newValue">newValue</dt>
+        <dd>
+          Specifies the value that the attribute is set to, for values of 
+        '<a href="#attr-DOMAttrModified-attrChange" class="attr-name">attrChange</a>'
+       for which
+          a value is required.
+        </dd>
+      </dl>
+    </div>
+
+    <div class="section"><h3 id="event-DOMCharacterDataModified">7.8. The 
+        '<code class="event-name">DOMCharacterDataModified</code>'
+       event</h3>
+      
+
+      <p>
+        The <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMCharacterDataModified">DOMCharacterDataModified</a>
+        event indicates that character data has been modified, where that character data can be either a text node,
+        a comment node, or the data of a processing instruction node. When representing a 
+        '<a href="#event-DOMCharacterDataModified" class="event-name">DOMCharacterDataModified</a>'
+      
+        event, the <a href="#elem-event" class="elem-name">&lt;event&gt;</a> element's 
+        '<a href="#attr-event-target" class="attr-name">target</a>'
+       attribute <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> therefore point to a text node, a comment node,
+        or a processing instruction node. If the node pointed to by the target path does not exist then the
+        event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+      </p>
+      <p>
+        Note that as specified in <acronym title="Document Object Model">DOM</acronym> 3 Events [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>] this event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be dispatched <em>after</em>
+        the node has been modified.
+      </p>
+      <div class="boxed"><p><span class="schemaTitle">DOMCharacterDataModified</span></p><pre class="schema" title="DOMCharacterDataModified">&lt;define name='<a xmlns="http://www.w3.org/1999/xhtml" id="rng-DOMCharacterDataModified" title="Definition of |DOMCharacterDataModified|" class="rngref">DOMCharacterDataModified</a>'&gt;
+  &lt;attribute name='<strong xmlns="http://www.w3.org/1999/xhtml">newValue</strong>'&gt;
+    &lt;text/&gt;
+  &lt;/attribute&gt;
+&lt;/define&gt;
+</pre></div>
+      <h4 class="attrlist" id="attr-list-event-DOMCharacterDataModified">Attributes list</h4><dl class="attrlist">
+        <dt id="attr-DOMCharacterDataModified-newValue">newValue</dt>
+        <dd>
+          Specifies the value that the character data is set to. This attribute is required, if it is absent
+          the event <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored.
+        </dd>
+      </dl>
+    </div>
+
+    <div class="section"><h3 id="mutation-namechange">7.9. Mutation name events</h3>
+      
+
+      <p>
+        Neither of the mutation name events 
+        (<a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMElementNameChanged">DOMElementNameChanged</a> and 
+        <a href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMAttributeNameChanged">DOMAttributeNameChanged</a>)
+        is supported. Implementation <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> process them as unknown events.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="conformance">8. Conformance</h2>
+    
+
+    <p>
+      The key words "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL NOT</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em>",
+      "<em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em>", and "<em class="rfc2119" title="Keyword in RFC 2119 context">OPTIONAL</em>" in this document are to be interpreted as described in
+      RFC 2119 [<cite><a href="#RFC2119" class="bibref">RFC2119</a></cite>].
+    </p>
+    <p>
+      Unless otherwise specified immediately following the header, all sections in this
+      document — to the exclusion of examples which are all informative — are normative.
+    </p>
+    
+    <div class="section"><h3 id="attribute-values">8.1. Parsing attribute values</h3>
+      
+      <p>
+        The parsing of attribute values <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be performed as follows:
+      </p>
+      <ul>
+        <li>The white space in attribute values <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be normalised such that XXX.</li>
+        <li>
+          Attribute values are case-sensitive. If the value of an attribute can be
+          understood as being case-insensitive in a given vocabulary that they are
+          being applied to (e.g. a 
+        '<a href="#attr-event-target" class="attr-name">target</a>'
+       attribute's path applying
+          to an HTML document) then it is up to the user-agent to map the case-sensitive
+          value that it receives to one that may operate on the target vocabulary.
+        </li>
+      </ul>
+    </div>
+
+    <div class="ednote">
+      <p>
+        Things currently missing from this section:
+      </p>
+      <p>
+        GP1. Classes of products: content, content producers, user-agents. For UAs, two levels: one with
+        a <acronym title="Document Object Model">DOM</acronym> (indicate variations) and one without.
+      </p>
+      <p>
+        GP3. Not sure exactly how to best do this. Could be useful, need to ask for input.
+      </p>
+      <p>
+        GP4. Do this as soon as test are being written.
+      </p>
+      <p>
+        GP5. Delayed until GP3 &amp; GP4 are done.
+      </p>
+      <p>
+        GP7. Not sure if this is examples or if it's test suite. If former done, if latter
+        starting right after FPWD.
+      </p>
+      <p>
+        Req3. See GP1.
+      </p>
+      <p>
+        GP8. Once the text is a little bit more stable, go through the list of
+        bibrefs and check to see which ones are good.
+      </p>
+      <p>
+        Req5. Implement proper &lt;dfn&gt; support, and based on that do exactly this.
+      </p>
+      <p>
+        Req6. Do this as part of GP1.
+      </p>
+      <p>
+        GP9. Do this with Req5.
+      </p>
+      <p>
+        GP10. Left for later check (at FPWD time I would expect).
+      </p>
+      <p>
+        GP12. Testable assertions will need further checking. Do this as part of the
+        post FPWD work on testing.
+      </p>
+      <p>
+        GP19. Add some text in the section on extensibility to make sure implementers
+        understand how not to get extensibility wrong.
+      </p>
+    </div>
+    
+    <div class="section"><h3 id="conform-checklist">8.2. Conformance to the QA Framework Specification Guidelines</h3>
+      
+      <p>
+        This table is derived from the checklist of all defined requirements
+        and good practices from the <a href="http://www.w3.org/TR/qaframe-spec/">QA Framework:
+        Specification Guidelines</a> [<cite><a href="#QAF-SPEC" class="bibref">QAF-SPEC</a></cite>]. For each requirement and good
+        practice, the table links to the part of the <acronym title="Remote Events for XML">REX</acronym> specification that 
+        satisfies the requirement or best practice, except where the entry
+        corresponds to many parts of the specification, or even the specification
+        as a whole.
+      </p>
+  
+      <table border="1" class="qa">
+        <tr class="legend">
+          <th>Guidelines</th>
+          <th class="yes">YES</th>
+          <th class="no">NO</th>
+          <th class="na">N/A</th>
+          <th class="comment">Comments</th>
+        </tr>
+        <tr>
+          <th colspan="5">
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#specifying-conformance">2.1 Specifying Conformance</a>
+          </th>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#include-conformance-clause-principle">Requirement 01:
+  Include a conformance clause.</a>
+          </td>
+          <td class="yes"><a href="#conformance">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#conformance-model-gp">Good Practice 01:
+  Define the specification's conformance model in the conformance clause.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#norm-informative-gp">Good Practice 02:
+  Specify in the conformance clause how to distinguish normative from informative content.</a>
+          </td>
+          <td class="yes"><a href="#conformance">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#conformance-claim-gp">Good Practice 03:
+  Provide the wording for conformance claims.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ics-gp">Good Practice 04:
+   Provide an Implementation Conformance Statement Pro Forma.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ics-claim-gp">Good Practice 05: 
+  Require an Implementation Conformance Statement  as part of conformance claims.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr>
+          <th colspan="5">
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#nature">2.2 Setting up ground rules</a>
+          </th>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-scope-principle">Requirement 02: Define the scope.</a>
+          </td>
+          <td class="yes"><a href="#overview">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#use-example-gp">Good Practice 06:
+  Provide examples, use cases, and graphics.</a>
+          </td>
+          <td class="yes"><a href="#usage">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#write-sample-gp">Good Practice 07: Write sample code or tests.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#implement-principle">Requirement 03:
+  Identify who and/or what will implement the specification.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ref-norm-principle">Requirement 04: Make a list of normative references.</a>
+          </td>
+          <td class="yes"><a href="#bibref">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ref-define-practice">Good Practice 08: When imposing requirements by normative references, address conformance dependencies.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr>
+          <th colspan="5">
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#specify-conformance-need">2.3 Defining and using terminology</a>
+          </th>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-terms-principle">Requirement 05: 
+  Define the terms used in the normative parts of the specification.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#conf-label-principle">Requirement 06:
+  Create conformance labels for each part of the conformance model.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-terms-inline-gp">Good Practice 09: 
+  Define unfamiliar terms in-line and consolidate the definitions in a glossary section.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#reuse-terms-gp">Good Practice 10:
+  Use terms already defined without changing their definition.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#consistent-style-principle">Requirement 07:
+  Use a consistent style for conformance requirements and explain how to distinguish them.</a>
+          </td>
+          <td class="yes"><a href="#conformance">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#req-opt-conf-principle">Requirement 08:
+  Indicate which conformance requirements are mandatory, which are recommended, and which are optional.</a>
+          </td>
+          <td class="yes">YES</td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#formal-language-gp">Good Practice 11:
+   Use formal languages when possible.</a>
+          </td>
+          <td class="yes">YES</td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment">
+            A RelaxNG schema is provided both as fragments for each item being defined and as
+            a separate complete schema.
+          </td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#write-assertion-gp">Good Practice 12:
+  Write Test Assertions.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr>
+          <th colspan="5">
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#variability">2.4 Managing Variability</a>
+          </th>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#subdivide-foster-gp">Good Practice 13:
+  Create subdivisions of the technology when warranted.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">
+            While there is optionality, it is insufficient to justify the cost of introducing subdivisions.
+          </td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#subdivide-mandatory-principle">Requirement 09:
+  If the technology is subdivided, then indicate which subdivisions are mandatory for conformance.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">The technology is not subdivided.</td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#subdiv-constraints-principle">Requirement 10:
+  If the technology is subdivided, then address subdivision constraints.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">The technology is not subdivided.</td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#rules-profiles-gp">Good Practice  14:
+  If the technology is profiled, define rules for creating new profiles.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">The technology is not profiled.</td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#need-option-gp">Good Practice 15:Use optional features as warranted.</a>
+          </td>
+          <td class="yes">YES</td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment">
+            See the <a href="#optional-features">list of optional features</a>.
+          </td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#label-options-gp">Good Practice 16: 
+  Clearly identify optional features.</a>
+          </td>
+          <td class="yes"><a href="#optional-features">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#constraints-gp">Good Practice 17:
+   Indicate any limitations or constraints on optional features.</a>
+          </td>
+          <td class="yes"><a href="#optional-features">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#likehood-extension-principle">Requirement 11:
+  Address Extensibility.</a>
+          </td>
+          <td class="yes"><a href="#extensibility">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#extensions-prohibited-gp">Good Practice 18:
+  If extensibility is allowed, define an extension mechanism.</a>
+          </td>
+          <td class="yes"><a href="#extensibility">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#breaking-conformance-gp">Good Practice 19:
+    Warn extension creators to create extensions that do not interfere with conformance.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-error-gp">Good Practice 20:
+  Define error-handling for unknown extensions.</a>
+          </td>
+          <td class="yes"><a href="#extensibility">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#deprecated-feature-principle">Requirement 12:
+   Identify deprecated features.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">This is the first version, there is nothing to deprecate.</td>
+        </tr>
+        <tr class="principle">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#degree-support-principle">Requirement 13:
+  Define how each class of product handles each deprecated feature.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">This is the first version, there is nothing to deprecate.</td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#workaround-gp">Good Practice 21:
+  Explain how to avoid using a deprecated feature.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">This is the first version there is nothing to deprecate.</td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#obsolete-gp">Good Practice 22:
+  Identify obsolete features.</a>
+          </td>
+          <td class="yes"></td>
+          <td class="no"></td>
+          <td class="na">n/a</td>
+          <td class="comment">This is the first version, there are no obsolete features.</td>
+        </tr>
+        <tr class="practice">
+          <td>
+            <a href="http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#error-handling-gp">Good Practice 23:
+  Define an error handling mechanism.</a>
+          </td>
+          <td class="yes"><a href="#error">YES</a></td>
+          <td class="no"></td>
+          <td class="na"></td>
+          <td class="comment"></td>
+        </tr>
+      </table>
+    </div>
+    
+    <div class="section"><h3 id="optional-features">8.3. Optional features</h3>
+      
+      <p>
+        There are two features for which optionality is to be found:
+      </p>
+      <dl>
+        <dt>Processing <acronym title="Extensible Markup Language">XML</acronym> as a stream</dt>
+        <dd>
+          There are two major manners in which <acronym title="Extensible Markup Language">XML</acronym> may be processed: either the
+          processor performs actions as soon as a given token in the source is
+          parsed (this is generally referred to as processing in a "streaming"
+          fashion), or the entire document is first parsed into an in-memory
+          representation and then walked through to perform actions (a.k.a. 
+          tree-based processing). The major difference between the two as far
+          as this specification is concerned is that an implementation processing
+          <acronym title="Extensible Markup Language">XML</acronym> in a streaming fashion will dispatch events that it has parsed in
+          their entirety immediately even if there is an <acronym title="Extensible Markup Language">XML</acronym> well-formedness error
+          further into the document, whereas tree-based processing will detect the
+          well-formedness problem before any action is taken. Since it is
+          preferable at least for performance reasons to process documents in a 
+          streaming manner, the specification recommends that approach but does not
+          mandate it. We did not wish to enforce only one kind, as both may be 
+          impractical, if only because some constrained devices will only have 
+          one type of processing or the other.
+        </dd>
+        <dt>Support for varied <acronym title="Document Object Model">DOM</acronym> representations</dt>
+        <dd>
+          This specification has be created with the goal of being reusable in
+          many situations, notably in case in which the <acronym title="Document Object Model">DOM</acronym> support of the
+          user-agent may vary greatly, and in fact in some cases be to some
+          degree absent (which is to say, there needs to be a tree representation
+          that can usefully be understood as a <acronym title="Document Object Model">DOM</acronym>, but it need not be exposed for
+          instance to scripting). To enforce this would have severely reduced the
+          applicability of this specification. Instead, it describes normatively
+          how to handle node types that cannot be usefully represented in the
+          user-agent's <acronym title="Document Object Model">DOM</acronym> of choice.
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="acknow">9. Acknowledgements</h2>
+    
+
+    <p>
+      The editor would like to thank Dave Raggett for his excellent input and comments. This
+      specification is a collective work that derives from other solutions in the domain. Notable 
+      amongst the influences are an input document from Nokia the ideas from which were
+      incorporated into this specification, <a href="http://xmldb-org.sourceforge.net/xupdate/">XUpdate</a>
+      which has been a major de facto solution since the year 2000 and was influential in
+      <acronym title="Remote Events for XML">REX</acronym>'s technical design, and the 
+      <a href="http://www.ietf.org/html.charters/widex-charter.html">IETF WiDeX Working Group</a>.
+    </p>
+  </div>
+
+  <div class="section"><h2 id="media-type">A. Media Type registration for <code>application/rex+xml</code></h2>
+    
+    
+    <div class="section"><h3 id="media-intro">10.1. Introduction</h3>
+      
+      <p>
+        This appendix registers a new MIME media type, "<code>application/rex+xml</code>" 
+        in conformance with 
+        <a href="http://www.ietf.org/rfc/rfc4288.txt">RegMedia</a> and
+        <a href="http://www.w3.org/2002/06/registering-mediatype.html">W3CRegMedia</a>. 
+      </p>
+    </div>
+
+    <div class="section"><h3 id="media-registration">10.2. Registration of Media Type <code>application/rex+xml</code></h3>
+      
+      
+      <dl>
+        <dt>MIME media type name:</dt>
+        <dd>
+          application
+        </dd>
+        
+        <dt>MIME subtype name:</dt>
+        <dd>
+          rex+xml
+        </dd>
+
+        <dt>Required parameters:</dt>
+        <dd>
+          None. 
+        </dd>
+
+        <dt>Optional parameters:</dt>
+        <dd>
+          <p>
+            None 
+          </p>
+          <p>
+            The encoding of a <acronym title="Remote Events for XML">REX</acronym> document <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be determined by the <acronym title="Extensible Markup Language">XML</acronym>
+            encoding declaration. This has identical semantics to the 
+            application/xml media type in the case where the charset 
+            parameter is omitted, as specified in RFC 3023 [<cite><a href="#RFC3023" class="bibref">RFC3023</a></cite>] sections
+            8.9, 8.10 and 8.11. 
+          </p>
+        </dd>
+
+        <dt>Encoding considerations:</dt>
+        <dd>
+          Same as for application/xml. See RFC 3023 [<cite><a href="#RFC3023" class="bibref">RFC3023</a></cite>], section 3.2. 
+        </dd>
+
+        <dt>Restrictions on usage:</dt>
+        <dd>
+          None 
+        </dd>
+
+        <dt>Security considerations:</dt>
+        <dd>
+          <p>
+            As with other <acronym title="Extensible Markup Language">XML</acronym> types and as noted in RFC 3023 [<cite><a href="#RFC3023" class="bibref">RFC3023</a></cite>] section 10,
+            repeated expansion of maliciously constructed <acronym title="Extensible Markup Language">XML</acronym> entities can be used
+            to consume large amounts of memory, which may cause <acronym title="Extensible Markup Language">XML</acronym> processors in
+            some environments to fail. 
+          </p>
+          <p>
+            <acronym title="Remote Events for XML">REX</acronym> documents may be transmitted in compressed form using gzip compression.
+            For systems which employ MIME-like mechanisms, such as HTTP, this is 
+            indicated by the Content-Encoding header; for systems which do not, 
+            such as direct file system access, this is indicated by the file name 
+            extension or file metadata. In addition, gzip compressed content is 
+            readily recognised by the initial byte sequence as described in 
+            RFC 1952 [<cite><a href="#RFC1952" class="bibref">RFC1952</a></cite>] section 2.3.1. 
+          </p>
+          
+          <p>
+            It must be noted that <acronym title="Remote Events for XML">REX</acronym> events <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> be used to modify the document that
+            they target, and in fact that is the primary functionality that they expose
+            in version 1.0. Such modifications may cause security issues with the processor
+            of the target document, but those issues are outside the scope of this 
+            registration document.
+          </p>
+
+          <p>
+            In addition, because of the extensibility features for <acronym title="Remote Events for XML">REX</acronym> and of <acronym title="Extensible Markup Language">XML</acronym> in
+            general, it is possible that "<code>application/rex+xml</code>" may describe
+            content that has security implications beyond those described here. However,
+            if the processor follows only the normative semantics of this specification,
+            this content will be outside the <acronym title="Remote Events for XML">REX</acronym> namespace and <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be ignored. Only in 
+            the case where the processor recognises and processes the additional content,
+            or where further processing of that content is dispatched to other processors,
+            would security issues potentially arise. And in that case, they would fall 
+            outside the domain of this registration document. 
+          </p>
+
+        </dd>
+
+        <dt>Interoperability considerations:</dt>
+        <dd>
+          <p>
+            This specification describes processing semantics that dictate behaviour that
+            must be followed when dealing with, among other things, unrecognised elements,
+            events, and attributes, both in the <acronym title="Remote Events for XML">REX</acronym> and <acronym title="Extensible Markup Language">XML</acronym> Events namespaces and in other 
+            namespaces. 
+          </p>
+
+          <p>
+            Because <acronym title="Remote Events for XML">REX</acronym> is extensible, conformant "<code>application/rex+xml</code>" 
+            processors <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> expect that content received is well-formed <acronym title="Extensible Markup Language">XML</acronym>, but it 
+            cannot be guaranteed that the content is valid to a particular grammar, 
+            or that the processor will recognise all of the elements and attributes 
+            in the document — in fact it will likely not recognise the payload. Rules
+            are defined so that such extended documents are guaranteed to be processed
+            in an interoperable manner.
+          </p>
+
+          <p>
+            <acronym title="Remote Events for XML">REX</acronym> has a published Test Suite and associated implementation report showing
+            which implementations passed which tests at the time of the report. This 
+            information is periodically updated as new tests are added or as 
+            implementations improve.   
+          </p>
+
+        </dd>
+
+        <dt>Published specification:</dt>
+        <dd>
+          <p>
+            This media type registration is extracted from Appendix A of the 
+            <a href="http://www.w3.org/TR/rex"><acronym title="Remote Events for XML">REX</acronym> 1.0 specification</a>. 
+          </p>
+        </dd>
+
+        <dt>Additional information:</dt>
+        <dd>
+          n/a
+        </dd>  
+
+        <dt>Person &amp; email address to contact for further information:</dt>
+        <dd>
+          Robin Berjon (<a href="mailto:member-rex-media-type@w3.org">member-rex-media-type@w3.org</a>).
+        </dd>
+
+        <dt>Intended usage:</dt>
+        <dd>
+          COMMON 
+        </dd>
+
+        <dt>Author/Change controller:</dt>
+        <dd>
+          The <acronym title="Remote Events for XML">REX</acronym> specification is a joint work product of the World Wide Web Consortium's
+          <acronym title="Scalable Vector Graphics">SVG</acronym> and Web APIs Working Groups. The <acronym title="World Wide Web Consortium">W3C</acronym> has change control over this 
+          specification.
+        </dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="changes">B. Changes since the last version</h2><p><strong>This section is informative.</strong></p>
+    
+
+    <p>
+      This sections lists the changes that were made to this specification since it
+      was last published. Many thanks too all those who have provided feedback.
+    </p>
+    <ul>
+      <li>
+        miscellaneous fixes to the comments, as reported by 
+        <a href="http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0001.html">Fabrice Desré (France Telecom R&amp;D)</a>,
+        and <a href="http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0004.html">Elliotte Harold (UNC)</a>
+      </li>
+      <li>
+        a number of typos, spotted by
+        <a href="http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0005.html">Elliotte Harold (UNC)</a>, and 
+        <a href="http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0011.html">Ruud Steltenpool (University of Twente)</a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="section"><h2 id="bibref">C. References</h2>
+    
+
+    <dl class="bibliography"><dt id="DOM3">DOM3</dt><dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core/">Document Object Model (DOM) Level 3 Core Specification</a></cite>,
+    <span class="person">Arnaud Le Hors (IBM)</span>, <span class="person">Philippe Le Hégaret (W3C)</span>, <span class="person">Lauren Wood (SoftQuad, Inc.)</span>, <span class="person">Gavin Nicol (Inso EPS)</span>, <span class="person">Jonathan Robie (Texcel Research and Software AG)</span>, <span class="person">Mike Champion (Arbortext and Software AG)</span>, and <span class="person">Steve Byrne (JavaSoft)</span>.</dd><dt id="DOM3EV">DOM3EV</dt><dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document Object Model (DOM) Level 3 Events Specification</a></cite>,
+    <span class="person">Philippe Le Hégaret (W3C)</span>, and <span class="person">Tom Pixley (Netscape Communications Corporation)</span>.</dd><dt id="QAF-SPEC">QAF-SPEC</dt><dd><cite><a href="http://www.w3.org/TR/qaframe-spec/">QA Framework: Specification Guidelines</a></cite>,
+    <span class="person">Karl Dubost</span>, <span class="person">Lynne Rosenthal</span>, <span class="person">Dominique Hazaël-Massieux</span>, and <span class="person">Lofton Henderson</span>.</dd><dt id="RFC1952">RFC1952</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc1952.txt">GZIP file format specification version 4.3</a></cite>,
+    <span class="person">P. Deutsch</span>.</dd><dt id="RFC2119">RFC2119</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
+    <span class="person">S. Bradner</span>.</dd><dt id="RFC3023">RFC3023</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc3023.txt">XML Media Types</a></cite>,
+    <span class="person">M. Murata</span>, <span class="person">S. St.Laurent</span>, and <span class="person">D. Kohn</span>.</dd><dt id="SMIL2">SMIL2</dt><dd><cite><a href="http://www.w3.org/TR/SMIL2/">Synchronized Multimedia Integration Language (SMIL 2.1)</a></cite>,
+    <span class="person">Dick Bulterman (CWI)</span>, <span class="person">Guido Grassel (Nokia)</span>, <span class="person">Jack Jansen (CWI)</span>, <span class="person">Antti Koivisto (Nokia)</span>, <span class="person">Nabil Layaïda (INRIA)</span>, <span class="person">Thierry Michel (W3C)</span>, <span class="person">Sjoerd Mullender (CWI)</span>, and <span class="person">Daniel Zucker (Access Co., Ltd.)</span>.</dd><dt id="SVGT12">SVGT12</dt><dd><cite><a href="http://www.w3.org/TR/SVGMobile12/">Scalable Vector Graphics (SVG) Tiny 1.2 Specification</a></cite>,
+    <span class="person">Ola Andersson &lt;<a href="mailto:ola.andersson@ikivo.com">ola.andersson@ikivo.com</a>&gt;</span>, <span class="person">Robin Berjon &lt;<a href="mailto:robin.berjon@expway.fr">robin.berjon@expway.fr</a>&gt;</span>, <span class="person">Jon Ferraiolo &lt;<a href="mailto:jon.ferraiolo@adobe.com">jon.ferraiolo@adobe.com</a>&gt;</span>, <span class="person">Vincent Hardy &lt;<a href="mailto:vincent.hardy@sun.com">vincent.hardy@sun.com</a>&gt;</span>, <span class="person">Scott Hayman</span>, <span class="person">Dean Jackson &lt;<a href="mailto:dean@w3.org">dean@w3.org</a>&gt;</span>, <span class="person">Craig Northway &lt;<a href="mailto:craign@cisra.canon.com.au">craign@cisra.canon.com.au</a>&gt;</span>, and <span class="person">Antoine Quint &lt;<a href="mailto:aq@fuchsia-design.com">aq@fuchsia-design.com</a>&gt;</span>.</dd><dt id="XML">XML</dt><dd>
+                            All references to <acronym title="Extensible Markup Language">XML</acronym> in this specification refer to both <acronym title="Extensible Markup Language">XML</acronym> 1.0 and <acronym title="Extensible Markup Language">XML</acronym> 1.1.
+                          </dd><dd><ul><li><cite><a href="http://www.w3.org/TR/REC-xml/">Extensible Markup Language (XML) 1.0 (Third Edition)</a></cite>,
+    <span class="person">Tim Bray &lt;<a href="mailto:tbray@textuality.com">tbray@textuality.com</a>&gt;</span>, <span class="person">Jean Paoli &lt;<a href="mailto:jeanpa@microsoft.com">jeanpa@microsoft.com</a>&gt;</span>, <span class="person">C. M. Sperberg-McQueen &lt;<a href="mailto:cmsmcq@w3.org">cmsmcq@w3.org</a>&gt;</span>, <span class="person">Eve Maler &lt;<a href="mailto:eve.maler@east.sun.com">eve.maler@east.sun.com</a>&gt;</span>, and <span class="person">François Yergeau &lt;<a href="mailto:fyergeau@alis.com">fyergeau@alis.com</a>&gt;</span>.</li><li><cite><a href="http://www.w3.org/TR/xml11/">Extensible Markup Language (XML) 1.1</a></cite>,
+    <span class="person">Tim Bray &lt;<a href="mailto:tbray@textuality.com">tbray@textuality.com</a>&gt;</span>, <span class="person">Jean Paoli &lt;<a href="mailto:jeanpa@microsoft.com">jeanpa@microsoft.com</a>&gt;</span>, <span class="person">C. M. Sperberg-McQueen &lt;<a href="mailto:cmsmcq@w3.org">cmsmcq@w3.org</a>&gt;</span>, <span class="person">Eve Maler &lt;<a href="mailto:eve.maler@east.sun.com">eve.maler@east.sun.com</a>&gt;</span>, <span class="person">François Yergeau &lt;<a href="mailto:fyergeau@alis.com">fyergeau@alis.com</a>&gt;</span>, and <span class="person">John Cowan &lt;<a href="mailto:cowan@ccil.org">cowan@ccil.org</a>&gt;</span>.</li></ul></dd><dt id="XMLEV">XMLEV</dt><dd><cite><a href="http://www.w3.org/TR/xml-events/">XML Events</a></cite>,
+    <span class="person">Shane McCarron (Applied Testing and Technology, Inc.)</span>, <span class="person">Steven Pemberton (CWI/W3C®)</span>, and <span class="person">T. V. Raman (IBM Corporation)</span>.</dd><dt id="XMLNS">XMLNS</dt><dd>
+                            All references to Namespaces in <acronym title="Extensible Markup Language">XML</acronym> in this specification refer both to
+                            versions 1.0 and 1.1, applying respectively to <acronym title="Extensible Markup Language">XML</acronym> 1.0 and <acronym title="Extensible Markup Language">XML</acronym> 1.1.
+                          </dd><dd><ul><li><cite><a href="http://www.w3.org/TR/REC-xml-names/">Namespaces in XML</a></cite>,
+    <span class="person">Tim Bray &lt;<a href="mailto:tbray@textuality.com">tbray@textuality.com</a>&gt;</span>, <span class="person">Dave Hollander &lt;<a href="mailto:dmh@contivo.com">dmh@contivo.com</a>&gt;</span>, and <span class="person">Andrew Layman &lt;<a href="mailto:andrewl@microsoft.com">andrewl@microsoft.com</a>&gt;</span>.</li><li><cite><a href="http://www.w3.org/TR/xml-names11">Namespaces in XML 1.1</a></cite>,
+    <span class="person">Tim Bray &lt;<a href="mailto:tbray@textuality.com">tbray@textuality.com</a>&gt;</span>, <span class="person">Dave Hollander &lt;<a href="mailto:dmh@contivo.com">dmh@contivo.com</a>&gt;</span>, <span class="person">Andrew Layman &lt;<a href="mailto:andrewl@microsoft.com">andrewl@microsoft.com</a>&gt;</span>, and <span class="person">Richard Tobin &lt;<a href="mailto:richard@cogsci.ed.ac.uk">richard@cogsci.ed.ac.uk</a>&gt;</span>.</li></ul></dd><dt id="XPATH">XPATH</dt><dd><cite><a href="http://www.w3.org/TR/xpath">XML Path Language (XPath)</a></cite>,
+    <span class="person">James Clark &lt;<a href="mailto:jjc@jclark.com">jjc@jclark.com</a>&gt;</span>, and <span class="person">Steve DeRose &lt;<a href="mailto:Steven_DeRose@Brown.edu">Steven_DeRose@Brown.edu</a>&gt;</span>.</dd></dl>
+  </div>
+</body></html>

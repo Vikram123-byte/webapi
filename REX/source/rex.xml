@@ -1,0 +1,1844 @@
+
+<specification xmlns='http://berjon.com/ns/re-spec/'
+               xmlns:rs='http://berjon.com/ns/re-spec/'
+               version='1.0'
+               xml:lang='en'>
+  <metadata>
+    <title>Remote Events for XML (REX) 1.0</title>
+    <styling type='W3C' status='EDMO'/>
+    <date year='2006' month='02' day='02'/>
+    <editors>
+      <person>
+        <name>Robin Berjon</name>
+        <email>robin.berjon@expway.fr</email>
+        <url>http://berjon.com/</url>
+        <company>Expway</company>
+        <company-url>http://expway.com/</company-url>
+      </person>
+    </editors>
+    <versions>
+      <current>http://www.w3.org/TR/2006/WD-rex-20060202</current>
+      <latest>http://www.w3.org/TR/rex</latest>
+      <!-- <previous>http://www.w3.org/TR/200Y/WD-rex-20060202</previous> -->
+    </versions>
+  </metadata>
+
+  <section xml:id='abstract' type='w3c-abstract'>
+    <title>Abstract</title>
+
+    <p>
+      This specification defines an <acronym title='Extensible Markup Language'>XML</acronym>
+      [XML] grammar intended for representing events as they are defined in
+      <acronym title='Document Object Model'>DOM</acronym> 3 Events [DOM3EV], primarily
+      but not exclusively for purposes of transmission. It enables one endpoint to interact remotely with
+      another endpoint holding a DOM representation by sending it DOM Events as if they
+      had occurred directly at the same location.
+    </p>
+  </section>
+
+  <section xml:id='sotd' type='w3c-sotd'>
+    <title>Status of this Document</title>
+
+    <include href='respec:sotd-head.tpl'/>
+    <p>
+      This document is a First Public Working Draft produced by a joint task force of the 
+      <a href='http://www.w3.org/Graphics/SVG/'><acronym title='Scalable Vector Graphics'>SVG</acronym> 
+      <acronym title='Working Group'>WG</acronym></a> (part of the 
+      <a href='http://www.w3.org/Graphics/Activity'>Graphics Activity</a>) and the
+      <a href='http://www.w3.org/2006/webapi'>Web API WG</a> (part of the
+      <a href='http://www.w3.org/2006/rwc/Activity'>Rich Web Clients Activity</a>).
+      Please send comments to <a href='mailto:public-webapi@w3.org'>public-webapi@w3.org</a>
+      (<a href='http://lists.w3.org/Archives/Public/public-webapi/'>Archive</a>), 
+      the public email list for issues related to Web APIs.
+    </p>
+    <p>
+      The patent policy for this document is the 
+      <a href='http://www.w3.org/Consortium/Patent-Policy-20040205/'>5 February 2004 W3C Patent Policy</a>.
+      Patent disclosures relevant to this specification may be found on the 
+      <a href='http://www.w3.org/Graphics/SVG/Disclosures' rel='disclosure'>SVG Working Group's patent disclosure page</a>
+      and <a href='http://www.w3.org/2004/01/pp-impl/38482/status' rel='disclosure'>Web API Working Group's patent
+      disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes 
+      contains Essential Claim(s) with respect to this specification should disclose the information in
+      accordance with <a href='http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure'>section 6
+      of the W3C Patent Policy</a>.
+    </p>
+    <include href='respec:sotd-endorse.tpl'/>
+  </section>
+
+  <section xml:id='contents' type='toc'>
+    <title>Table of Contents</title>
+    <?respec-toc?>
+  </section>
+
+  <section xml:id='overview' normativity='informative'>
+    <title>Overview</title>
+
+    <p>
+      The <strong>Remote Events for XML</strong> (<acronym title='Remote Events for XML'>REX</acronym>) specification 
+      defines a transport agnostic XML syntax for the transmission of DOM events as specified in the DOM 3 Events
+      specification [DOM3EV] in such a way as to be compatible with streaming protocols.
+    </p>
+    <p>
+      The first version of this specification deliberately restricts itself to the transmission of mutation
+      events so as to remain limited in scope and allow for progressive enhancements to implementations
+      over time rather than require a large specification to be deployed at once. The framework
+      specified here is however compatible with the transmission of any other event type, and
+      great care has been taken to ensure its extensibility and evolvability.
+    </p>
+    
+    <section xml:id='usage'>
+      <title>Examples of usage</title>
+
+      <p>
+        A variety of usage situations in for which REX can be used are exemplified
+        below, also showing some specific features available when using REX.
+      </p>
+      
+      <section xml:id='eg-setattr'>
+        <title>Setting an attribute</title>
+        <p>
+          The following REX message sets the <code>fetch</code> attribute to "ball"
+          on an element that has an ID of <code>spot</code>.
+        </p>
+
+        <example>
+          <title>Setting an attribute</title>
+          <![CDATA[
+          <rex xmlns='http://www.w3.org/2006/rex'>
+            <event target='id("spot")/@fetch' name='DOMAttrModified' newValue='ball'/>
+          </rex>
+          ]]>
+        </example>
+        
+        <p>
+          Note that we do not specify the <at el='DOMAttrModified'>attrChange</at>
+          attribute since the default handles both modification and addition.
+          The event that will be dispatched will automatically reflect whether an
+          attribute had to be created or if it already existed and simply had its
+          value changed.
+        </p>
+      </section>
+
+      <section xml:id='eg-addelem'>
+        <title>Inserting an element</title>
+        <p>
+          The following REX message adds a row at the seventh position (that is,
+          after the current sixth and before the current seventh, which becomes the
+          eighth) in the second table contained in the document's body.
+        </p>
+
+        <example>
+          <title>Inserting an element</title>
+          <![CDATA[
+          <rex xmlns='http://www.w3.org/2006/rex' xmlns:x='http://www.w3.org/1999/xhtml'>
+            <event target='/x:html/x:body/x:table[2]' name='DOMNodeInserted' position='7'>
+              <tr xmlns='http://www.w3.org/1999/xhtml'>
+                <td>Rover</td>
+                <td>Alpine Labrador</td>
+                <td class='food'>bone</td>
+              </tr>
+            </event>
+          </rex>
+          ]]>
+        </example>
+      </section>
+
+      <section xml:id='eg-delelem'>
+        <title>Removing an element</title>
+        <p>
+          The following REX message removes <em>all</em> circle elements 
+          that are children of the element with id <code>poodle-stylist-location-layer</code>.
+        </p>
+
+        <example>
+          <title>Removing several elements</title>
+          <![CDATA[
+          <rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'>
+            <event target='id("poodle-stylist-location-layer")/svg:circle' name='DOMNodeRemoved'/>
+          </rex>
+          ]]>
+        </example>
+        
+        <p>
+          This shows how REX capitalises on the expressivity of XPath to perform 
+          multiple operations with a single command that is concise and network
+          efficient. This capability is not limited to node removal, the processing
+          model allows any event to be dispatched to multiple nodes.
+        </p>
+      </section>
+
+      <section xml:id='eg-repelem'>
+        <title>Replacing an element</title>
+        <p>
+          The following REX message replaces an element with ID <code>femur</code>
+          with the new one provided in the payload.
+        </p>
+
+        <example>
+          <title>Replacing an element</title>
+          <![CDATA[
+          <rex xmlns='http://www.w3.org/2006/rex'>
+            <event target='id("femur")' name='DOMNodeRemoved'>
+              <bone xmlns='http://example.org/BoneML' xml:id='tibia'>
+                <taste>good</taste>
+                <smell>excellent</smell>
+                <solidity>medium</solidity>
+                <availability>common</availability>
+              </bone>
+            </event>
+          </rex>
+          ]]>
+        </example>
+        
+        <p>
+          Replacement is expressed as a removal with a payload. The processing model
+          is exactly the same as if an event had been transmitted indicating removal,
+          followed by another indicating insertion (internally, a REX user-agent 
+          processes both in the exact same manner — which also matches the manner in
+          which a DOM implementation would perform this task) but this shorthand 
+          simplifies content generation and is more efficient both in bandwidth and
+          in processing time (since the target only needs to be resolved once).
+        </p>
+      </section>
+
+      <section xml:id='eg-newdoc'>
+        <title>Replacing the entire document</title>
+        <p>
+          The following REX message replaces an entire SVG document with a new one.
+        </p>
+
+        <example>
+          <title>Replacing an entire document</title>
+          <![CDATA[
+          <rex xmlns='http://www.w3.org/2006/rex'>
+            <event target='/' name='DOMNodeRemoved'>
+              <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'>
+                <defs>
+                  <!-- ... --->
+                </defs>
+                <g>
+                  <rect x='42' y='27' width='100' height='200' fill='orange'/>
+                  <!-- ... --->
+                </g>
+              </svg>
+            </event>
+          </rex>
+          ]]>
+        </example>
+        
+        <p>
+          Again, XPath's simple modelling of a document hierarchy is used to
+          address the node we want to replace, in this case the document node
+          captured simply as "<code>/</code>".
+        </p>
+      </section>
+
+      <section xml:id='eg-cdata'>
+        <title>Updating text</title>
+        <p>
+          All nodes, including text, can be updated directly. However character
+          data has specific events in the DOM that are more straightforward and
+          can be more lightweight to use. REX supports encapsulating such
+          updates as well. The following example updates the seventh <code>tspan</code>
+          element's textual data with new text.
+        </p>
+
+        <example>
+          <title>Updating character data directly</title>
+          <![CDATA[
+          <rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'>
+            <event target='/svg:svg/svg:g[2]/svg:tspan[7]/text()' name='DOMCharacterDataModified' newValue='Hello World!'/>
+          </rex>
+          ]]>
+        </example>
+      </section>
+    </section>
+  </section>
+
+  <section xml:id='structure'>
+    <title>Structure of a REX message</title>
+
+    <p>
+      The namespace for the REX language is: <code>http://www.w3.org/2006/rex</code>.
+    </p>
+    <p>
+      Future versions of this specification will use the same namespace, unless the
+      language is changed in such radical ways that an implementation of previous versions would
+      not be able to process it in a meaningful manner. Implementations of this specification
+      therefore MUST be able to process extensions to the syntax defined in this version,
+      as detailed in the <a href='#extensibility'>Extensibility</a> section.
+    </p>
+    <p>
+      All REX messages MUST be contained within a <el>rex</el> element. REX messages MAY be
+      contained within other XML elements in other namespaces, but each REX fragment MUST
+      still have a <el>rex</el> element as its root.
+    </p>
+
+    <section xml:id='elem-rex'>
+      <title>The <el>rex</el> element</title>
+
+      <p>
+        The <el>rex</el> element serves as the root container for the entire REX message.
+        It MUST be present, even if there is only one <el>event</el> element. Elements in
+        the REX namespace that do not have a <el>rex</el> ancestor MUST be ignored by
+        the user-agent.
+      </p>
+
+      <schema>
+        <title>Element rex</title>
+        <include href='rex.rng#rex'/>
+      </schema>
+
+      <dl type='attr-list'>
+        <dt id='attr-rex-version'>version</dt>
+        <dd>
+          Indicates the minimum version of the REX specification required to usefully process this message.
+          While the version value has the form of a float it is actually processed as a string and 
+          user-agents MUST therefore compare the provided <at el='rex'>version</at> against the strings
+          of all versions that they know and MUST NOT perform numeric comparisons. This entails that
+          <code>1.0</code>, <code>1</code>, or <code>1.00</code> are all different versions.
+          A user-agent supporting this version of the specification MUST accept version identifier
+          <code>1.0</code>. If the version number is not in the list of versions of this specification
+          supported by the user-agent, the user-agent MUST reject the message completely and
+          immediately, ignoring the entirety of its content.
+        </dd>
+        <dt>Other attributes</dt>
+        <dd>
+          See <at>ns</at>.
+        </dd>
+      </dl>
+      
+      <p>
+        The <el>rex</el> element MUST contain one or more <el>event</el> elements. Otherwise,
+        the message is invalid and the user-agent MUST ignore it entirely.
+      </p>
+      
+      <example>
+        <title>a complete REX message</title>
+        <![CDATA[
+        <rex xmlns='http://www.w3.org/2006/rex'
+             xmlns:svg='http://www.w3.org/2000/svg'>
+
+          <event target='id("shiny-donkey")' name='DOMNodeRemoved'/>
+          <event target='/svg:svg/svg:g[5]/svg:a[2]' name='activate'/>
+          <event target='/svg:svg/svg:g[7]' name='DOMNodeInserted' position='9'>
+            <svg:rect x='9' y='42' width='432' height='217' fill='red'/>
+          </event>
+          <event target='id("dahut")' name='DOMNodeRemoved'>
+            <svg:circle cx='19' cy='17' r='42' fill='orange'/>
+          </event>
+        </rex>
+        ]]>
+      </example>
+    </section>
+
+
+    <section xml:id='attr-ns'>
+      <title>The <at>ns</at> attribute</title>
+
+      <p>
+        The <at>ns</at> attribute defines the namespace that applies to DOM event names within the
+        scope of the element on which it occurs. For any given DOM event name, if there is no
+        <at>ns</at> attribute on any of its ancestor elements, that event name's IRI component is
+        <code>http://www.w3.org/2001/xml-events</code>. Otherwise, it will have the namespace 
+        component corresponding to the first <at>ns</at> attribute found on its ancestor 
+        elements in reverse document order. The content of the <at>ns</at> attribute is either
+        an IRI or the empty string. If the empty string then event names in its applicable 
+        scope will have no namespace IRI component.
+      </p>
+      <p>
+        If the <at>ns</at> attribute contains a non-empty string and it is not a valid IRI then
+        processing of the entire subtree inclusive of the element on which the <at>ns</at> 
+        attribute occurs MUST be ignored.
+      </p>
+
+      <schema>
+        <title>Attribute ns</title>
+        <include href='rex.rng#ns'/>
+      </schema>
+    </section>
+
+
+    <section xml:id='elem-event'>
+      <title>The <el>event</el> element</title>
+
+      <p>
+        The <el>event</el> element is used to encode any kind of event that may be captured in REX.
+        While the <at el='event'>name</at> and <at el='event'>target</at> attributes MUST always be specified, the rest
+        of its content model depends on the event that it captures. Each <el>event</el> element
+        MUST produce at least one corresponding DOM event (and on some occasions a modification 
+        of the DOM tree) unless it is ignored according to a part of this specification.
+      </p>
+
+      <schema>
+        <title>Element event</title>
+        <include href='rex.rng#event'/>
+      </schema>
+  
+      <dl type='attr-list'>
+        <dt id='attr-event-name'>name</dt>
+        <dd>
+          Contains the local name component of the name of the event represented by this <el>event</el>
+          element. The namespace IRI component of the event's name MUST be resolved based on the <at>ns</at>
+          attribute.          
+        </dd>
+        <dt id='attr-event-target'>target</dt>
+        <dd>
+          The <at el='event'>target</at> attribute contains the target path
+          as described in the <a href='#referencing'>Referencing target nodes</a> section.
+        </dd>
+        <dt id='attr-event-timeStamp'>timeStamp</dt>
+        <dd>
+          Contains an integer in milliseconds relative to the epoch (defined to be 00:00:00 UTC 1st 
+          January 1970) at which the event is to be dispatched.
+          <ednote>
+            This feature may be modified to specify a more useful (or generic)
+            epoch. Also, it has not yet been fully integrated into the processing
+            model (though the required changes are minor).
+          </ednote>
+        </dd>
+        <dt>Other attributes</dt>
+        <dd>
+          See <at>ns</at>.
+        </dd>
+      </dl>
+    </section>
+  </section>
+
+  <section xml:id='referencing'>
+    <title>Referencing target nodes</title>
+    
+    <p>
+      Target nodes are referenced using a <a href='#path-syntax'>subset of XPath</a> [XPATH] that corresponds to the 
+      level of expressivity that meets most needs while at the same time remaining easy 
+      to implement. There is never a need to resolve a relative path as they are always
+      anchored either at the root (absolute paths) or at an element ID.
+    </p>
+    
+    <section xml:id='processing-paths'>
+      <title>Processing target paths</title>
+      <p>
+        Target paths MUST be processed as follows, even if internal details of implementation
+        differ. The result of evaluating the target path against the target document is
+        a node-set, ordered according to the axes used in the target path, as per XPath.
+        Note however that the limited set of axes available in this subset will always 
+        cause the node-set to be in document order.
+      </p>
+      <p>
+        If the size of the node-set is superior to one, the event MUST be dispatched in the exact
+        same way to each node in the node-set in order, exactly <em>as if</em> the <el>event</el>
+        element had been copied multiple times in a row in the REX message, and each had had
+        its target path modified to match only the corresponding node in the node-set. If an
+        event in that expanded list is required by this specification to be ignored, only
+        that event MUST be ignored, and the remaining expanded events MUST be processed.
+      </p>
+      <p>
+        If the size of the node-set is zero, the event MUST be ignored and thus nothing happens.
+      </p>
+      <p>
+        The set of namespace declarations made available to the target path are those in scope
+        on the element on which the target path occurs; this includes the implicit declaration
+        of the prefix <code>xml</code> required by Namespaces in XML [XMLNS]; the default namespace
+        (as declared by <code>xmlns</code>) is <em>not</em> part of this set.
+      </p>
+    </section>
+
+    <section xml:id='path-syntax'>
+      <title>Path syntax</title>
+      
+      <p>
+        The syntax for target paths is a very simple subset of XPath described by the following
+        syntax, in which the <code>Name</code> token is taken from the XML specification [XML]
+        and the <code>NCName</code> token is from the Namespaces in XML specification [XMLNS].
+      </p>
+      
+      <schema>
+        <title>EBNF for target paths</title>
+        <ebnf>
+          FullPath  ::= RPath | Root | IDPath
+          SubPath   ::= Step* FullTest
+          RPath     ::= '/' SubPath
+          Root      ::= '/'
+          IDPath    ::= 'id(' NCNameStr ')' RPath?
+          Step      ::= StepTest '/'
+          StepTest  ::= Name ('[' Num ']')?
+          FullTest  ::= (Name | 'text()' | '@' Name) ('[' Num ']')?
+          NCNameStr ::= "'" NCName "'" | '"' NCName '"'
+          Num       ::= [0-9]+
+        </ebnf>
+      </schema>
+      
+      <p>
+        User-agents MAY support a superset of this syntax so long as it is a valid instance of
+        the XPath language [XPATH]. Content producers however SHOULD NOT use such extensions
+        as they hamper interoperability.
+      </p>
+      <p>
+        The subset of XPath normatively defined in the above grammar can be summarised by a
+        few general ideas. Target paths may only begin at the root or with an <code>id()</code>
+        function. The <code>id()</code> function itself is limited to a single string argument,
+        which in turn must contain exactly one identifier (as opposed to a white space separated
+        list in XPath). Only abbreviated axes are supported in the syntax. Following the
+        beginning of the path may be a list of steps, making use of either the child 
+        axis, which may only use element name tests. The final step in the list is more
+        powerful and may also reference text and attribute nodes. For each step a predicate may
+        be used, which is limited to only containing an integer indicating position.
+      </p>
+      <p>
+        Some examples of target paths include:
+      </p>
+      <ul>
+        <li><code>/svg:svg</code> will match the root <code>svg</code> element, in the namespace
+            that has been bound to the 'svg' prefix.</li>
+        <li><code>/lodges/donkey[8]</code> will match the eighth <code>donkey</code> element in the
+            <code>lodges</code> element with no namespace.</li>
+        <li><code>/</code> will match the root node, which is to say the document itself.</li>
+        <li><code>/foo/text()</code> will match all text nodes that are children of the
+            the <code>foo</code> element.</li>
+        <li><code>/xhtml:html/xhtml:body/svg:svg[3]/@width</code> will match the <code>width</code>
+            attribute of the third <code>svg</code> element that is a child of
+            the root <code>body</code> and then <code>html</code> elements.</li>
+        <li><code>id("dahut")</code> will match the element with ID 'dahut'.</li>
+        <li><code>id("dahut")/svg:circle/@cx</code> will match the <code>cx</code>
+            attribute of all the <code>circle</code> elements that are children of the
+            element with ID 'dahut'.</li>
+      </ul>
+      <p>
+        Note that it is possible using this syntax to produce target paths that will never match
+        anything (for instance <code>/element[2]</code>). Such constructions simply cause the 
+        event to be ignored.
+      </p>      
+    </section>
+  </section>
+
+  <section xml:id='processing'>
+    <title>Processing model</title>
+
+    <p>
+      This section defines how REX messages are processed by user-agents. Its intent is not to 
+      prescribe implementation details — the processing MAY be implemented in ways that differ
+      from the steps described below, but if so the effect MUST be exactly equivalent.
+    </p>
+    <p>
+      It is RECOMMENDED that REX messages be processed in a streaming fashion, so that the user-agent
+      is not required to build a tree representation of the message. This is of particular importance
+      in that a single REX message MAY capture a very long list of individual events over a long
+      period of time, which would cause the resulting tree to consume potentially large amounts of
+      memory.
+    </p>
+    <p>
+      Implementations SHOULD dispatch events encoded in REX messages as soon as they have finished
+      parsing the corresponding <el>event</el> element. Because of this a REX message containing
+      a well-formedness error SHOULD still cause previous <el>event</el> elements to be
+      fully processed. Upon encountering a well-formedness error, a REX user-agent MUST stop processing
+      immediately such that the remainder of the XML document MUST be ignored. If the well-formedness 
+      error is contained inside an <el>event</el> element, the corresponding event MUST also be ignored.
+    </p>
+    <p>
+      As soon as an <el>event</el> element is parsed, and provided that it is not
+      ignored according to this specification, the following steps take place:
+    </p>
+    <ol>
+      <li>
+        an <code>Event</code> object (as defined in DOM 3 Events [DOM3EV]) MUST be created as defined
+        in the <a href='#proc-mapping-ev'>Mapping event elements to Event objects</a>
+        section below. Note that in some cases, multiple <code>Event</code> objects may be created
+        by a single <el>event</el> element (e.g. for the <ev>DOMNodeRemoved</ev> event).
+      </li>
+      <li>
+        the target path MUST be resolved, as defined in <a href='#referencing'>Referencing
+        target nodes</a>
+      </li>
+      <li>
+        for each node in the node-set returned by the previous step that is not ignored
+        according to this specification, the event or events initialised in step 1 MUST
+        be dispatched as if by a call to 
+        <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-EventTarget-dispatchEvent'>EventTarget.dispatchEvent()</a>.
+        If the event is defined to have side-effect (such as modifying the DOM tree,
+        as is the case with <a href='#mutation'>mutation events</a>), this is the moment
+        at which the side-effect MUST occur. Whether the side-effect occurs immediately
+        preceding or following the event being dispatched is specified for each such
+        event.
+      </li>
+    </ol>
+    <p>
+      As soon as an <el>event</el> element has been processed, the implementation MAY discard it
+      from memory so as to consume fewer resources.
+    </p>
+    <p>
+      There is no requirement on the user-agent to support a DOM interface in order to still implement
+      events received through REX messages. For instance, specifications such as SMIL [SMIL2]
+      or XML Events [XMLEV] may be handling events received through REX messages in the absence
+      of a DOM representation of the document tree.
+    </p>
+    
+    <section xml:id='proc-mapping-ev'>
+      <title>Mapping <el>event</el> elements to Event objects</title>
+      <p>
+        In processing <el>event</el> elements and converting them into Event objects,
+        the user-agent MUST inform the various fields of the object in the following manner:
+      </p>
+      <dl>
+        <dt>type</dt>
+        <dd>
+          Set to the <at el='event'>name</at> attribute of the <el>event</el> element.
+        </dd>
+        <dt>namespaceURI</dt>
+        <dd>
+          Set to the value of the <at>ns</at> attribute, resolved as described in its
+          own section.
+        </dd>
+        <dt>target</dt>
+        <dd>
+          Set dynamically to be in turn each node in the node-set obtained by resolving
+          the target path.
+        </dd>
+        <dt>currentTarget</dt>
+        <dd>
+          Set dynamically as the event is being processed, as described in the
+          <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-flow'>DOM event flow</a>.
+        </dd>
+        <dt>eventPhase</dt>
+        <dd>
+          Set dynamically depending on whether the event is currently progressing
+          through the capture, target, or bubble phase. Note that this specification
+          does not require that given phases be supported by the implementation, this
+          is left to the specifications with which it is used in conjunction to define.
+        </dd>
+        <dt>bubbles</dt>
+        <dd>
+          Specifies whether an event is one that bubbles or not. The implementation
+          sets that using its knowledge of the given event type.
+        </dd>
+        <dt>cancelable</dt>
+        <dd>
+          Specifies whether an event can have its default action prevented or not. 
+          The implementation sets that using its knowledge of the given event type.
+        </dd>
+        <dt>timeStamp</dt>
+        <dd>
+          If the implementation supports the <at el='event'>timeStamp</at> attribute and it
+          has been set, this field specifies the time at which the event comes into
+          effect. As defined in the DOM 3 Events specification [DOM3EV] if this
+          field is not specified, it MUST always be set to zero.
+        </dd>
+      </dl>
+      <p>
+        When the event type is recognised by the processor, it needs to create an
+        object of the appropriate subclass of Event. The precise details of doing
+        so are defined in the sections that handle mappings of specific event
+        types. In this specification there is only one such section, 
+        <a href='#mutation'>Encoding Mutation Events</a>.
+      </p>
+    </section>
+
+    <section xml:id='proc-ukn-ev'>
+      <title>Processing unknown events</title>
+
+      <p>
+        The are two types of unknown events:
+      </p>
+      
+      <ul>
+        <li>
+          Events the names of which do not match any known event in the version of the specification supported
+          by the user-agent.
+        </li>
+        <li>
+          Events which the user-agent understands as being defined in the specification but that have no
+          meaningful effect within the context in which the user-agent operates (e.g. a <code>mousemove</code>
+          event on a device that has no pointer device cursor).
+        </li>
+      </ul>
+      
+      <p>
+        When encountering an unknown even, a user-agent MUST ignore the entire <el>event</el> element and
+        all its descendants.
+      </p>
+      <ednote>
+        <p>
+          Note that we could make this extensible, but it would require adding a bunch of
+          attributes (bubbles, cancellable, etc.) so that unknown events could be processed.
+          This should be done in the next version.
+        </p>
+      </ednote>
+    </section>
+
+    <section xml:id='proc-ukn-nodes'>
+      <title>Processing unsupported node types</title>
+      
+      <p>
+        There is almost always a mismatch between the information that an XML document
+        is able to capture and the information that an in-memory representation of the
+        same document is able to expose. In some cases, this mismatch is strong enough
+        that some major XML constructs such as processing instructions or comments cannot
+        be represented. This section defines how a user-agent is to handle node types that
+        it is unable to produce a representation of.
+      </p>
+      <p>
+        It should be noted that there is no requirement that a node type captured in a REX
+        message have a corresponding object or interface in the DOM variant used by the
+        user-agent. For instance, the SVG 1.2 MicroDOM [SVGT12] has no interface to 
+        represent text nodes but it is nevertheless able to store text content and even
+        mixed content. Therefore a user-agent using the MicroDOM will be able to process
+        text nodes that it receives from REX messages.
+      </p>
+      <p>
+        The are two situations in which unsupported node types may be encountered:
+      </p>
+      
+      <ul>
+        <li>
+          If the <at el='event'>target</at> attribute points to one such node type, either directly (i.e. at the
+          end of the target path) or indirectly (i.e. as a step in the target path).
+        </li>
+        <li>
+          In the payload of the <el>event</el> element.
+        </li>
+      </ul>
+      
+      <p>
+        If the target path requires support for a node type that is not supported by the
+        implementation, then the user-agent MUST ignore the entire <el>event</el> element and
+        all of its descendants.
+      </p>
+      <p>
+        If the payload of the <el>event</el> element contains node types that are not supported
+        by the user-agent's DOM implementation the payload MUST be modified so that nodes
+        that have no usable representation in the user-agent's DOM implementation are removed.
+        For instance, given an SVG Tiny 1.2 MicroDOM [SVGT12], processing instructions would be
+        removed as they can have no known impact or representation in the tree, but text nodes
+        would not: they may not have an object type corresponding to them but they are still
+        accessible through the <code>textContent</code> interface. If removing these nodes
+        from the payload causes the payload to become empty, then the entire <el>event</el>
+        element MUST be ignored since no useful Event object could be derived from it.
+      </p>
+    </section>
+  </section>
+
+  <section xml:id='extensibility'>
+    <title>Extensibility</title>
+
+    <p>
+      In order for REX to be extensible, it is necessary to define a strict extensibility model
+      that allows future versions to introduce new constructs into messages that will still
+      be understood to the best of their abilities by older user-agents.
+    </p>
+    <p>
+      A REX message that is intended to be understood if and only if the user-agent supports
+      a minimal version of the REX specification MUST set the <at el='rex'>version</at> attribute
+      correspondingly. A user-agent that does not support the required version MUST then discard
+      the entire message. Otherwise, it MUST apply the following forward-compatibility rules.
+    </p>
+
+    <section xml:id='ext-ukn-el'>
+      <title>Unknown elements</title>
+
+      <p>
+        There are three categories of unknown elements:
+      </p>
+      
+      <ul>
+        <li>Elements in foreign namespaces (namespaces that are not the REX namespace)</li>
+        <li>Elements in the REX namespace with unknown local names</li>
+        <li>Elements in the REX namespace with known local names, but located in places where the grammar does not allow them</li>
+      </ul>        
+
+      <p>
+        Outside of <el>event</el> payloads, when encountering an unknown element a user-agent
+        MUST ignore it together with all of its attributes and descendant nodes.
+      </p>
+      <p>
+        Inside <el>event</el> payloads, all elements whether they are in the REX namespace
+        or not are considered to constitute the content of that event, and MUST be processed
+        as if they were in a foreign namespace. REX elements in event payloads MUST NOT be
+        processed as REX elements.
+      </p>
+    </section>
+
+    <section xml:id='ext-ukn-at'>
+      <title>Unknown attributes on REX elements</title>
+
+      <p>
+        There are two types of unknown attributes that MAY occur on REX elements:
+      </p>
+      
+      <ul>
+        <li>Attributes in a namespace that is not the XML namespace as defined in the Namespaces in XML specification [XMLNS]</li>
+        <li>Attributes in no namespace that are not known to be allowed on the element on which they occur</li>
+      </ul>
+      
+      <p>
+        When encountering an unknown attribute, a user-agent MUST process the corresponding element as
+        if the attribute had not been specified at all.
+      </p>
+      <p>
+        Likewise, if a known attribute with an invalid value is encountered, it MUST be ignored
+        as if it had not been specified.
+      </p>
+    </section>
+  </section>
+
+  <section xml:id='error'>
+    <title>Error handling</title>
+
+    <section xml:id='error-target-doc'>
+      <title>Errors specific to the DOM or to the target language</title>
+      <p>
+        Some of the events that can be captured in REX messages will cause the DOM tree
+        that they target to be modified. In addition to the specific error handling
+        specified in the respective event definitions, the following rules apply:
+      </p>
+      <dl>
+        <dt>DOM errors</dt>
+        <dd>
+          If the modification corresponds to something that is invalid in the DOM 
+          (e.g. inserting an element after the root element node) then the event
+          is ignored.
+        </dd>
+        <dt>Target language errors</dt>
+        <dd>
+          If the modification causes the target language to find itself in a state
+          that is erroneous according to its specification, the modification takes place
+          regardless and it is up to the host language to handle the error, as if the 
+          modification had been performed through script manipulation of the DOM. The
+          exception to this rule is if such a modification being performed by using the
+          DOM directly had caused an exception to be raised: in that case the error
+          is treated as a DOM error, and the event is ignored.
+        </dd>
+      </dl>
+    </section>
+    
+    <section xml:id='error-ignore'>
+      <title>Ignored events and elements</title>
+      <p>
+        For every part of this specification for which a given event or element is
+        said to be <em>ignored</em>, a user-agent MUST skip it as if it had not at all occurred
+        within the REX message (and if the entire REX message is ignored, as if it
+        had never been received at all). The user SHOULD NOT be informed of such
+        occurrences.
+      </p>
+      <p>
+        However if instead of a user-agent the REX processor is a content checker, then
+        each given occurrence of an item that is said to be <em>ignored</em> MUST be
+        considered to be an error. Such errors MUST be reported to the user of the content
+        checker. More information is available on classes of REX processors in the
+        <a href='#conformance'>Conformance section</a>.
+      </p>
+    </section>
+  </section>
+
+  <section xml:id='mutation'>
+    <title>Encoding Mutation Events</title>
+
+    <p>
+      All <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-eventgroupings-mutationevents'>mutations events</a>
+      are in the <code>http://www.w3.org/2001/xml-events</code> namespace. Only the following events are
+      supported by this specification: <ev>DOMNodeInserted</ev>, <ev>DOMNodeRemoved</ev>,
+      <ev>DOMAttrModified</ev>, and <ev>DOMCharacterDataModified</ev>.
+    </p>
+    <p>
+      Mutation events are specific in REX processing in that they cause the DOM tree to be modified.
+      When a user-agent processes a mutation event received in a REX message, in addition to dispatching
+      the event it MUST also modify the tree (either before or after the event, as specified depending
+      on the event type) according to the event type.
+    </p>
+
+    <section xml:id='mutation-mapping-ev'>
+      <title>Mapping Mutation Events to objects</title>
+      <p>
+        In processing an <el>event</el> element that captures a mutation event, the user-agent
+        MUST produce a <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-MutationEvent'>MutationEvent</a>
+        object, and MUST inform the fields of the object in the following manner:
+      </p>
+      <dl>
+        <dt>relatedNode</dt>
+        <dd>
+          Set dynamically by the user-agent according to the DOM 3 Events specification [DOM3EV].
+          For attribute modifications applying to DOM subsets that do not have a
+          representation for Attr nodes this field MUST be null.          
+        </dd>
+        <dt>prevValue</dt>
+        <dd>
+          Set dynamically by the user-agent to hold the previous value for applicable events,
+          as per DOM 3 Events [DOM3EV].
+        </dd>
+        <dt>newValue</dt>
+        <dd>
+          Set to the value of the <at el='DOMAttrModified'>newValue</at> attribute for 
+          <ev>DOMAttrModified</ev> and <ev>DOMCharacterDataModified</ev> events.
+        </dd>
+        <dt>attrName</dt>
+        <dd>
+          The name of the attribute being added, changed, or removed 
+          for <ev>DOMAttrModified</ev>, as derived from the target path.
+        </dd>
+        <dt>attrChange</dt>
+        <dd>
+          Set to match the value of the <at el='DOMAttrModified'>attrChange</at> 
+          attribute when applicable.
+        </dd>
+      </dl>
+    </section>
+
+
+
+    <section xml:id='event-DOMSubtreeModified'>
+      <title>The <ev>DOMSubtreeModified</ev> event</title>
+
+      <p>
+        The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMSubtreeModified'>DOMSubtreeModified</a>
+        is not supported. Implementations MUST process it as an unknown event.
+      </p>
+    </section>
+
+    <section xml:id='event-DOMNodeInserted'>
+      <title>The <ev>DOMNodeInserted</ev> event</title>
+
+      <p>
+        The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInserted'>DOMNodeInserted</a>
+        indicates that a node has been inserted into the DOM tree. The inserted node MUST be either of an element,
+        a text node, a comment, or a processing instruction. The target path is used to specify the parent of
+        the node that is to be inserted, and MUST point either to an element or to the document root. If the
+        element that it points to does not exist then the event MUST be ignored.
+      </p>
+      <p>
+        After all direct child elements of the <el>event</el> element that are in the REX namespace
+        have been removed together with their descendants, the remaining child nodes constitute the event's
+        payload. If there is more than one remaining child node in the payload, they MUST be inserted one after
+        the other in document order, as if a DOM DocumentFragment were being inserted. Each of
+        them in turn MUST produce a 
+        <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInserted'>DOMNodeInserted</a>
+        event as if they had been transmitted in separate <el>event</el> elements, and the 
+        <at el='DOMNodeInserted'>position</at> MUST be incremented by one for each.
+      </p>
+      <p>
+        Note that as specified in DOM 3 Events [DOM3EV] this event MUST be dispatched <em>after</em> 
+        the node has been inserted.
+      </p>
+      <p>
+        When this event is transmitted, the <el>event</el> element MUST allow arbitrary XML as its content.
+        This is not specified in the schema fragment below but left to compounding schemata (e.g. defined
+        using NVDL) to define.
+      </p>
+      <schema>
+        <title>DOMNodeInserted</title>
+        <include href='rex.rng#DOMNodeInserted'/>
+      </schema>
+      <dl type='attr-list'>
+        <dt id='attr-DOMNodeInserted-position'>position</dt>
+        <dd>
+          Specifies the position at which the payload MUST be inserted in the target element's
+          child nodes such that a hypothetical call to <code>parent.childNodes.item(position)</code>
+          would return the first node of the payload. If position is not specified, or if the specified
+          value is higher than the number of item or lower than zero then the nodes MUST be inserted
+          at the end of the list of child nodes.
+        </dd>
+      </dl>
+    </section>
+
+    <section xml:id='event-DOMNodeRemoved'>
+      <title>The <ev>DOMNodeRemoved</ev> event</title>
+
+      <p>
+        The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeRemoved'>DOMNodeRemoved</a> event
+        indicates that a node has been removed from the DOM tree. The target path MUST point to either an element,
+        a text node, a comment, or a processing instruction. If it points to an attribute the event MUST be
+        ignored. If the node pointed to by the target path does not exist, then the event MUST be ignored.
+      </p>
+      <p>
+        If the <el>event</el> element capturing this has a payload as defined in the <ev>DOMNodeInserted</ev>
+        event, then a second event MUST be created and dispatched immediately after this event (if the target path
+        resolved to a node-set containing more than one item, then each generated event immediately
+        follows the one dispatched on a given node).
+      </p>
+      <p>
+        The following parameters MUST be set for the generated event. It is of type 
+        <ev>DOMNodeInserted</ev>. Its target node is the parent of the one pointed to
+        by the current <ev>DOMNodeRemoved</ev> event, unless the latter was pointing 
+        to the root node (using '<code>/</code>') in which case the generated event
+        also points to the root node. Its <at el='DOMNodeInserted'>position</at> is 
+        that of the removed node within its siblings, in document order. Its payload 
+        is set to be that of the current event.
+      </p>
+      <p>
+        Note that the above processing is compatible with that of DOM 3 Core [DOM3] 
+        <a href='http://www.w3.org/TR/DOM-Level-3-Core/core.html#ID-785887307'>Node.replaceChild()</a>
+        but more powerful since it can also operate on the document itself.
+      </p>
+      <p>
+        Note that as specified in DOM 3 Events [DOM3EV] this event MUST be dispatched <em>before</em>
+        the node is removed.
+      </p>
+      <p>
+        The event adds no attribute to the <el>event</el> element.
+      </p>
+      <schema>
+        <title>DOMNodeRemoved</title>
+        <include href='rex.rng#DOMNodeRemoved'/>
+      </schema>
+      <dl type='attr-list'>
+        <dt>No additional attributes</dt>
+      </dl>
+    </section>
+
+    <section xml:id='event-DOMNodeRemovedFromDocument'>
+      <title>The <ev>DOMNodeRemovedFromDocument</ev> event</title>
+
+      <p>
+        The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeRemovedFromDocument'>DOMNodeRemovedFromDocument</a>
+        is not supported. Implementations MUST process it as an unknown event. It is nevertheless dispatched after a DOMNodeRemoved event
+        as described in DOM 3 Events [DOM3EV].
+      </p>
+    </section>
+
+    <section xml:id='event-DOMNodeInsertedIntoDocument'>
+      <title>The <ev>DOMNodeInsertedIntoDocument</ev> event</title>
+
+      <p>
+        The 
+        <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInsertedIntoDocument'>DOMNodeInsertedIntoDocument</a>
+        is not supported. Implementations MUST process it as an unknown event. It is nevertheless dispatched after a DOMNodeInserted event
+        as described in DOM 3 Events [DOM3EV].
+      </p>
+    </section>
+
+    <section xml:id='event-DOMAttrModified'>
+      <title>The <ev>DOMAttrModified</ev> event</title>
+
+      <p>
+        The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMAttrModified'>DOMAttrModified</a>
+        event indicates that an attribute has been modified, added, or removed.
+      </p>
+      <p>
+        When representing a <ev>DOMAttrModified</ev> event, the <el>event</el>
+        element's <at el='event'>target</at> attribute MUST have an attribute step as its last
+        step (i.e. the <a href='#path-syntax'>FullStep</a> construct). If the
+        <at el='DOMAttrModified'>attrChange</at> attribute is set to <code>removal</code>
+        then the attribute pointed to by the target path MUST exists, and if it does not 
+        the event MUST be ignored. If however it is set to <code>modification</code> or
+        <code>addition</code> then there are two possible options:
+      </p>
+      <ul>
+        <li>
+          if the attribute exists, then the value of <at el='DOMAttrModified'>attrChange</at>
+          MUST be set to <code>modification</code>;
+        </li>
+        <li>
+          otherwise, its value MUST be set to <code>addition</code>. The processing node-set
+          for that of the element MUST change to be that which would be obtained from
+          processing the same target path, but with the last step (i.e. the 
+          <a href='#path-syntax'>FullStep</a> construct) removed. The namespace IRI and local name
+          of the attribute to be added MUST be those of the attribute pointed to by the
+          <a href='#path-syntax'>FullStep</a> part of the target path.
+        </li>
+      </ul>
+      <p>
+        Note that as specified in DOM 3 Events [DOM3EV] this event MUST be dispatched <em>after</em>
+        the node has been modified.
+      </p>
+      <p>
+        The following attributes are added to the <el>event</el> element.
+      </p>
+      <schema>
+        <title>DOMAttrModified</title>
+        <include href='rex.rng#DOMAttrModified'/>
+      </schema>
+      <dl type='attr-list'>
+        <dt id='attr-DOMAttrModified-attrChange'>attrChange</dt>
+        <dd>
+          Indicates the type of change that concerns this attribute, one of <code>modification</code>,
+          <code>addition</code>, or <code>removal</code>. The default value is <code>modification</code>.
+        </dd>
+        <dd>
+          If the value is <code>modification</code>, then the <at el='DOMAttrModified'>newValue</at>
+          attribute MUST be present, and the value of the target attribute MUST be changed to be 
+          that contained in <at el='DOMAttrModified'>newValue</at>. If <at el='DOMAttrModified'>newValue</at>
+          is not specified, the event MUST be ignored. If the target attribute does not exist, the event 
+          MUST be processed as if <at el='DOMAttrModified'>attrChange</at> had had a value of <code>addition</code>.
+        </dd>
+        <dd>
+          If the value is <code>addition</code>, then the <at el='DOMAttrModified'>newValue</at> 
+          attribute MUST be present, and the value of the target attribute MUST be created with 
+          a value being that contained in <at el='DOMAttrModified'>newValue</at>.  If 
+          <at el='DOMAttrModified'>newValue</at> is not specified, the event MUST be ignored.
+          If the target attribute already exists, the event MUST be processed as
+          if <at el='DOMAttrModified'>attrChange</at> had had a value of <code>modification</code>.
+        </dd>
+        <dd>
+          If the value is <code>removal</code>, then the target attribute MUST be removed. If the
+          target attribute is not present, then the event MUST be ignored. If <at el='DOMAttrModified'>newValue</at> is
+          specified then it MUST be ignored.
+        </dd>
+        <dt id='attr-DOMAttrModified-newValue'>newValue</dt>
+        <dd>
+          Specifies the value that the attribute is set to, for values of <at el='DOMAttrModified'>attrChange</at> for which
+          a value is required.
+        </dd>
+      </dl>
+    </section>
+
+    <section xml:id='event-DOMCharacterDataModified'>
+      <title>The <ev>DOMCharacterDataModified</ev> event</title>
+
+      <p>
+        The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMCharacterDataModified'>DOMCharacterDataModified</a>
+        event indicates that character data has been modified, where that character data can be either a text node,
+        a comment node, or the data of a processing instruction node. When representing a <ev>DOMCharacterDataModified</ev>
+        event, the <el>event</el> element's <at el='event'>target</at> attribute MUST therefore point to a text node, a comment node,
+        or a processing instruction node. If the node pointed to by the target path does not exist then the
+        event MUST be ignored.
+      </p>
+      <p>
+        Note that as specified in DOM 3 Events [DOM3EV] this event MUST be dispatched <em>after</em>
+        the node has been modified.
+      </p>
+      <schema>
+        <title>DOMCharacterDataModified</title>
+        <include href='rex.rng#DOMCharacterDataModified'/>
+      </schema>
+      <dl type='attr-list'>
+        <dt id='attr-DOMCharacterDataModified-newValue'>newValue</dt>
+        <dd>
+          Specifies the value that the character data is set to. This attribute is required, if it is absent
+          the event MUST be ignored.
+        </dd>
+      </dl>
+    </section>
+
+    <section xml:id='mutation-namechange'>
+      <title>Mutation name events</title>
+
+      <p>
+        Neither of the mutation name events 
+        (<a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMElementNameChanged'>DOMElementNameChanged</a> and 
+        <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMAttributeNameChanged'>DOMAttributeNameChanged</a>)
+        is supported. Implementation MUST process them as unknown events.
+      </p>
+    </section>
+  </section>
+
+  <section xml:id='conformance'>
+    <title>Conformance</title>
+
+    <p>
+      The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT",
+      "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in
+      RFC 2119 [RFC2119].
+    </p>
+    <p>
+      Unless otherwise specified immediately following the header, all sections in this
+      document — to the exclusion of examples which are all informative — are normative.
+    </p>
+    
+    <section xml:id='attribute-values'>
+      <title>Parsing attribute values</title>
+      <p>
+        The parsing of attribute values MUST be performed as follows:
+      </p>
+      <ul>
+        <li>The white space in attribute values MUST be normalised such that XXX.</li>
+        <li>
+          Attribute values are case-sensitive. If the value of an attribute can be
+          understood as being case-insensitive in a given vocabulary that they are
+          being applied to (e.g. a <at el='event'>target</at> attribute's path applying
+          to an HTML document) then it is up to the user-agent to map the case-sensitive
+          value that it receives to one that may operate on the target vocabulary.
+        </li>
+      </ul>
+    </section>
+
+    <ednote>
+      <p>
+        Things currently missing from this section:
+      </p>
+      <p>
+        GP1. Classes of products: content, content producers, user-agents. For UAs, two levels: one with
+        a DOM (indicate variations) and one without.
+      </p>
+      <p>
+        GP3. Not sure exactly how to best do this. Could be useful, need to ask for input.
+      </p>
+      <p>
+        GP4. Do this as soon as test are being written.
+      </p>
+      <p>
+        GP5. Delayed until GP3 &amp; GP4 are done.
+      </p>
+      <p>
+        GP7. Not sure if this is examples or if it's test suite. If former done, if latter
+        starting right after FPWD.
+      </p>
+      <p>
+        Req3. See GP1.
+      </p>
+      <p>
+        GP8. Once the text is a little bit more stable, go through the list of
+        bibrefs and check to see which ones are good.
+      </p>
+      <p>
+        Req5. Implement proper &lt;dfn&gt; support, and based on that do exactly this.
+      </p>
+      <p>
+        Req6. Do this as part of GP1.
+      </p>
+      <p>
+        GP9. Do this with Req5.
+      </p>
+      <p>
+        GP10. Left for later check (at FPWD time I would expect).
+      </p>
+      <p>
+        GP12. Testable assertions will need further checking. Do this as part of the
+        post FPWD work on testing.
+      </p>
+      <p>
+        GP19. Add some text in the section on extensibility to make sure implementers
+        understand how not to get extensibility wrong.
+      </p>
+    </ednote>
+    
+    <section xml:id='conform-checklist'>
+      <title>Conformance to the QA Framework Specification Guidelines</title>
+      <p>
+        This table is derived from the checklist of all defined requirements
+        and good practices from the <a href='http://www.w3.org/TR/qaframe-spec/'>QA Framework:
+        Specification Guidelines</a> [QAF-SPEC]. For each requirement and good
+        practice, the table links to the part of the REX specification that 
+        satisfies the requirement or best practice, except where the entry
+        corresponds to many parts of the specification, or even the specification
+        as a whole.
+      </p>
+  
+      <table border='1' class='qa'>
+        <tr class='legend'>
+          <th>Guidelines</th>
+          <th class='yes'>YES</th>
+          <th class='no'>NO</th>
+          <th class='na'>N/A</th>
+          <th class='comment'>Comments</th>
+        </tr>
+        <tr>
+          <th colspan='5'>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#specifying-conformance'>2.1 Specifying Conformance</a>
+          </th>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#include-conformance-clause-principle'>Requirement 01:
+  Include a conformance clause.</a>
+          </td>
+          <td class='yes'><a href='#conformance'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#conformance-model-gp'>Good Practice 01:
+  Define the specification's conformance model in the conformance clause.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#norm-informative-gp'>Good Practice 02:
+  Specify in the conformance clause how to distinguish normative from informative content.</a>
+          </td>
+          <td class='yes'><a href='#conformance'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#conformance-claim-gp'>Good Practice 03:
+  Provide the wording for conformance claims.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ics-gp'>Good Practice 04:
+   Provide an Implementation Conformance Statement Pro Forma.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ics-claim-gp'>Good Practice 05: 
+  Require an Implementation Conformance Statement  as part of conformance claims.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr>
+          <th colspan='5'>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#nature'>2.2 Setting up ground rules</a>
+          </th>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-scope-principle'>Requirement 02: Define the scope.</a>
+          </td>
+          <td class='yes'><a href='#overview'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#use-example-gp'>Good Practice 06:
+  Provide examples, use cases, and graphics.</a>
+          </td>
+          <td class='yes'><a href='#usage'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#write-sample-gp'>Good Practice 07: Write sample code or tests.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#implement-principle'>Requirement 03:
+  Identify who and/or what will implement the specification.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ref-norm-principle'>Requirement 04: Make a list of normative references.</a>
+          </td>
+          <td class='yes'><a href='#bibref'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#ref-define-practice'>Good Practice 08: When imposing requirements by normative references, address conformance dependencies.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr>
+          <th colspan='5'>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#specify-conformance-need'>2.3 Defining and using terminology</a>
+          </th>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-terms-principle'>Requirement 05: 
+  Define the terms used in the normative parts of the specification.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#conf-label-principle'>Requirement 06:
+  Create conformance labels for each part of the conformance model.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-terms-inline-gp'>Good Practice 09: 
+  Define unfamiliar terms in-line and consolidate the definitions in a glossary section.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#reuse-terms-gp'>Good Practice 10:
+  Use terms already defined without changing their definition.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#consistent-style-principle'>Requirement 07:
+  Use a consistent style for conformance requirements and explain how to distinguish them.</a>
+          </td>
+          <td class='yes'><a href='#conformance'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#req-opt-conf-principle'>Requirement 08:
+  Indicate which conformance requirements are mandatory, which are recommended, and which are optional.</a>
+          </td>
+          <td class='yes'>YES</td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#formal-language-gp'>Good Practice 11:
+   Use formal languages when possible.</a>
+          </td>
+          <td class='yes'>YES</td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'>
+            A RelaxNG schema is provided both as fragments for each item being defined and as
+            a separate complete schema.
+          </td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#write-assertion-gp'>Good Practice 12:
+  Write Test Assertions.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr>
+          <th colspan='5'>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#variability'>2.4 Managing Variability</a>
+          </th>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#subdivide-foster-gp'>Good Practice 13:
+  Create subdivisions of the technology when warranted.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>
+            While there is optionality, it is insufficient to justify the cost of introducing subdivisions.
+          </td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#subdivide-mandatory-principle'>Requirement 09:
+  If the technology is subdivided, then indicate which subdivisions are mandatory for conformance.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>The technology is not subdivided.</td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#subdiv-constraints-principle'>Requirement 10:
+  If the technology is subdivided, then address subdivision constraints.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>The technology is not subdivided.</td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#rules-profiles-gp'>Good Practice  14:
+  If the technology is profiled, define rules for creating new profiles.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>The technology is not profiled.</td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#need-option-gp'>Good Practice 15:Use optional features as warranted.</a>
+          </td>
+          <td class='yes'>YES</td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'>
+            See the <a href='#optional-features'>list of optional features</a>.
+          </td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#label-options-gp'>Good Practice 16: 
+  Clearly identify optional features.</a>
+          </td>
+          <td class='yes'><a href='#optional-features'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#constraints-gp'>Good Practice 17:
+   Indicate any limitations or constraints on optional features.</a>
+          </td>
+          <td class='yes'><a href='#optional-features'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#likehood-extension-principle'>Requirement 11:
+  Address Extensibility.</a>
+          </td>
+          <td class='yes'><a href='#extensibility'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#extensions-prohibited-gp'>Good Practice 18:
+  If extensibility is allowed, define an extension mechanism.</a>
+          </td>
+          <td class='yes'><a href='#extensibility'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#breaking-conformance-gp'>Good Practice 19:
+    Warn extension creators to create extensions that do not interfere with conformance.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#define-error-gp'>Good Practice 20:
+  Define error-handling for unknown extensions.</a>
+          </td>
+          <td class='yes'><a href='#extensibility'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#deprecated-feature-principle'>Requirement 12:
+   Identify deprecated features.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>This is the first version, there is nothing to deprecate.</td>
+        </tr>
+        <tr class='principle'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#degree-support-principle'>Requirement 13:
+  Define how each class of product handles each deprecated feature.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>This is the first version, there is nothing to deprecate.</td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#workaround-gp'>Good Practice 21:
+  Explain how to avoid using a deprecated feature.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>This is the first version there is nothing to deprecate.</td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#obsolete-gp'>Good Practice 22:
+  Identify obsolete features.</a>
+          </td>
+          <td class='yes'></td>
+          <td class='no'></td>
+          <td class='na'>n/a</td>
+          <td class='comment'>This is the first version, there are no obsolete features.</td>
+        </tr>
+        <tr class='practice'>
+          <td>
+            <a href='http://www.w3.org/TR/2005/REC-qaframe-spec-20050817/#error-handling-gp'>Good Practice 23:
+  Define an error handling mechanism.</a>
+          </td>
+          <td class='yes'><a href='#error'>YES</a></td>
+          <td class='no'></td>
+          <td class='na'></td>
+          <td class='comment'></td>
+        </tr>
+      </table>
+    </section>
+    
+    <section xml:id='optional-features'>
+      <title>Optional features</title>
+      <p>
+        There are two features for which optionality is to be found:
+      </p>
+      <dl>
+        <dt>Processing XML as a stream</dt>
+        <dd>
+          There are two major manners in which XML may be processed: either the
+          processor performs actions as soon as a given token in the source is
+          parsed (this is generally referred to as processing in a "streaming"
+          fashion), or the entire document is first parsed into an in-memory
+          representation and then walked through to perform actions (a.k.a. 
+          tree-based processing). The major difference between the two as far
+          as this specification is concerned is that an implementation processing
+          XML in a streaming fashion will dispatch events that it has parsed in
+          their entirety immediately even if there is an XML well-formedness error
+          further into the document, whereas tree-based processing will detect the
+          well-formedness problem before any action is taken. Since it is
+          preferable at least for performance reasons to process documents in a 
+          streaming manner, the specification recommends that approach but does not
+          mandate it. We did not wish to enforce only one kind, as both may be 
+          impractical, if only because some constrained devices will only have 
+          one type of processing or the other.
+        </dd>
+        <dt>Support for varied DOM representations</dt>
+        <dd>
+          This specification has be created with the goal of being reusable in
+          many situations, notably in case in which the DOM support of the
+          user-agent may vary greatly, and in fact in some cases be to some
+          degree absent (which is to say, there needs to be a tree representation
+          that can usefully be understood as a DOM, but it need not be exposed for
+          instance to scripting). To enforce this would have severely reduced the
+          applicability of this specification. Instead, it describes normatively
+          how to handle node types that cannot be usefully represented in the
+          user-agent's DOM of choice.
+        </dd>
+      </dl>
+    </section>
+  </section>
+
+  <section xml:id='acknow'>
+    <title>Acknowledgements</title>
+
+    <p>
+      The editor would like to thank Dave Raggett for his excellent input and comments. This
+      specification is a collective work that derives from other solutions in the domain. Notable 
+      amongst the influences are an input document from Nokia the ideas from which were
+      incorporated into this specification, <a href='http://xmldb-org.sourceforge.net/xupdate/'>XUpdate</a>
+      which has been a major de facto solution since the year 2000 and was influential in
+      REX's technical design, and the 
+      <a href='http://www.ietf.org/html.charters/widex-charter.html'>IETF WiDeX Working Group</a>.
+    </p>
+  </section>
+
+  <section xml:id='media-type' type='appendix'>
+    <title>Media Type registration for <code>application/rex+xml</code></title>
+    
+    <section xml:id='media-intro'>
+      <title>Introduction</title>
+      <p>
+        This appendix registers a new MIME media type, "<code>application/rex+xml</code>" 
+        in conformance with 
+        <a href='http://www.ietf.org/rfc/rfc4288.txt'>RegMedia</a> and
+        <a href='http://www.w3.org/2002/06/registering-mediatype.html'>W3CRegMedia</a>. 
+      </p>
+    </section>
+
+    <section xml:id='media-registration'>
+      <title>Registration of Media Type <code>application/rex+xml</code></title>
+      
+      <dl>
+        <dt>MIME media type name:</dt>
+        <dd>
+          application
+        </dd>
+        
+        <dt>MIME subtype name:</dt>
+        <dd>
+          rex+xml
+        </dd>
+
+        <dt>Required parameters:</dt>
+        <dd>
+          None. 
+        </dd>
+
+        <dt>Optional parameters:</dt>
+        <dd>
+          <p>
+            None 
+          </p>
+          <p>
+            The encoding of a REX document MUST be determined by the XML
+            encoding declaration. This has identical semantics to the 
+            application/xml media type in the case where the charset 
+            parameter is omitted, as specified in RFC 3023 [RFC3023] sections
+            8.9, 8.10 and 8.11. 
+          </p>
+        </dd>
+
+        <dt>Encoding considerations:</dt>
+        <dd>
+          Same as for application/xml. See RFC 3023 [RFC3023], section 3.2. 
+        </dd>
+
+        <dt>Restrictions on usage:</dt>
+        <dd>
+          None 
+        </dd>
+
+        <dt>Security considerations:</dt>
+        <dd>
+          <p>
+            As with other XML types and as noted in RFC 3023 [RFC3023] section 10,
+            repeated expansion of maliciously constructed XML entities can be used
+            to consume large amounts of memory, which may cause XML processors in
+            some environments to fail. 
+          </p>
+          <p>
+            REX documents may be transmitted in compressed form using gzip compression.
+            For systems which employ MIME-like mechanisms, such as HTTP, this is 
+            indicated by the Content-Encoding header; for systems which do not, 
+            such as direct file system access, this is indicated by the file name 
+            extension or file metadata. In addition, gzip compressed content is 
+            readily recognised by the initial byte sequence as described in 
+            RFC 1952 [RFC1952] section 2.3.1. 
+          </p>
+          
+          <p>
+            It must be noted that REX events MAY be used to modify the document that
+            they target, and in fact that is the primary functionality that they expose
+            in version 1.0. Such modifications may cause security issues with the processor
+            of the target document, but those issues are outside the scope of this 
+            registration document.
+          </p>
+
+          <p>
+            In addition, because of the extensibility features for REX and of XML in
+            general, it is possible that "<code>application/rex+xml</code>" may describe
+            content that has security implications beyond those described here. However,
+            if the processor follows only the normative semantics of this specification,
+            this content will be outside the REX namespace and MUST be ignored. Only in 
+            the case where the processor recognises and processes the additional content,
+            or where further processing of that content is dispatched to other processors,
+            would security issues potentially arise. And in that case, they would fall 
+            outside the domain of this registration document. 
+          </p>
+
+        </dd>
+
+        <dt>Interoperability considerations:</dt>
+        <dd>
+          <p>
+            This specification describes processing semantics that dictate behaviour that
+            must be followed when dealing with, among other things, unrecognised elements,
+            events, and attributes, both in the REX and XML Events namespaces and in other 
+            namespaces. 
+          </p>
+
+          <p>
+            Because REX is extensible, conformant "<code>application/rex+xml</code>" 
+            processors MUST expect that content received is well-formed XML, but it 
+            cannot be guaranteed that the content is valid to a particular grammar, 
+            or that the processor will recognise all of the elements and attributes 
+            in the document — in fact it will likely not recognise the payload. Rules
+            are defined so that such extended documents are guaranteed to be processed
+            in an interoperable manner.
+          </p>
+
+          <p>
+            REX has a published Test Suite and associated implementation report showing
+            which implementations passed which tests at the time of the report. This 
+            information is periodically updated as new tests are added or as 
+            implementations improve.   
+          </p>
+
+        </dd>
+
+        <dt>Published specification:</dt>
+        <dd>
+          <p>
+            This media type registration is extracted from Appendix A of the 
+            <a href='http://www.w3.org/TR/rex'>REX 1.0 specification</a>. 
+          </p>
+        </dd>
+
+        <dt>Additional information:</dt>
+        <dd>
+          n/a
+        </dd>  
+
+        <dt>Person &amp; email address to contact for further information:</dt>
+        <dd>
+          Robin Berjon (<a href='mailto:member-rex-media-type@w3.org'>member-rex-media-type@w3.org</a>).
+        </dd>
+
+        <dt>Intended usage:</dt>
+        <dd>
+          COMMON 
+        </dd>
+
+        <dt>Author/Change controller:</dt>
+        <dd>
+          The REX specification is a joint work product of the World Wide Web Consortium's
+          SVG and Web APIs Working Groups. The W3C has change control over this 
+          specification.
+        </dd>
+      </dl>
+    </section>
+  </section>
+
+  <section xml:id='changes' type='appendix' normativity='informative'>
+    <title>Changes since the last version</title>
+
+    <p>
+      This sections lists the changes that were made to this specification since it
+      was last published. Many thanks too all those who have provided feedback.
+    </p>
+    <ul>
+      <li>
+        miscellaneous fixes to the comments, as reported by 
+        <a href='http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0001.html'>Fabrice Desré (France Telecom R&amp;D)</a>,
+        and <a href='http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0004.html'>Elliotte Harold (UNC)</a>
+      </li>
+      <li>
+        a number of typos, spotted by
+        <a href='http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0005.html'>Elliotte Harold (UNC)</a>, and 
+        <a href='http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0011.html'>Ruud Steltenpool (University of Twente)</a>
+      </li>
+    </ul>
+  </section>
+
+  <section xml:id='bibref' type='appendix'>
+    <title>References</title>
+
+    <bibliography/>
+  </section>
+</specification>

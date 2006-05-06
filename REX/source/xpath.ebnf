@@ -1,0 +1,98 @@
+LocationPath            =    RelativeLocationPath
+                                   | AbsoluteLocationPath.
+AbsoluteLocationPath    =    '/' RelativeLocationPath?
+                                       | AbbreviatedAbsoluteLocationPath.
+RelativeLocationPath    =    Step
+                                   | RelativeLocationPath '/' Step
+                                   | AbbreviatedRelativeLocationPath.
+
+Step             =    AxisSpecifier NodeTest Predicate*
+                            | AbbreviatedStep.
+AxisSpecifier    =    AxisName '::'
+                            | AbbreviatedAxisSpecifier.
+
+AxisName    =    'ancestor'    | 'ancestor-or-self'
+                        | 'attribute'
+                        | 'child'
+                        | 'descendant'  | 'descendant-or-self'
+                        | 'following'   | 'following-sibling'
+                        | 'namespace'
+                        | 'parent'
+                        | 'preceding'   | 'preceding-sibling'
+                        | 'self'.
+NodeTest    =    WildcardName | NodeType '(' ')'
+                       | 'processing-instruction' '(' Literal ')'.
+Predicate        =    '[' PredicateExpr ']'.
+PredicateExpr    =    Expr.
+AbbreviatedAbsoluteLocationPath    =    '//'
+                   RelativeLocationPath.
+AbbreviatedRelativeLocationPath    =    RelativeLocationPath
+                                                 '//' Step.
+AbbreviatedStep                    =    '.' | '..'.
+AbbreviatedAxisSpecifier           =    '@'?.
+
+Expr           =    OrExpr.
+PrimaryExpr    =    VariableReference
+                           | '(' Expr ')'     | Literal
+                           | Number           | FunctionCall.
+FunctionCall    =    FunctionName '(' ( Argument ( ','
+                              Argument)*)? ')'.
+Argument        =    Expr.
+UnionExpr     =    PathExpr | UnionExpr '|' PathExpr.
+PathExpr      =    LocationPath
+                          | FilterExpr
+                          | FilterExpr '/' RelativeLocationPath
+                          | FilterExpr '//' RelativeLocationPath.
+FilterExpr    =    PrimaryExpr | FilterExpr Predicate.
+OrExpr            =    AndExpr | OrExpr 'or' AndExpr.
+AndExpr           =    EqualityExpr
+                  | AndExpr 'and' EqualityExpr.
+EqualityExpr      =    RelationalExpr
+                              | EqualityExpr '=' RelationalExpr
+                              | EqualityExpr '!=' RelationalExpr.
+RelationalExpr    =    AdditiveExpr
+                              | RelationalExpr '<' AdditiveExpr
+                              | RelationalExpr '>' AdditiveExpr
+                              | RelationalExpr '<=' AdditiveExpr
+                              | RelationalExpr '>=' AdditiveExpr.
+AdditiveExpr          =    MultiplicativeExpr
+                                  | AdditiveExpr '+' MultiplicativeExpr
+                                  | AdditiveExpr '-' MultiplicativeExpr.
+MultiplicativeExpr    =    UnaryExpr
+                                  | MultiplicativeExpr MultiplyOperator
+                                    UnaryExpr
+                                  | MultiplicativeExpr 'div' UnaryExpr
+                                  | MultiplicativeExpr 'mod' UnaryExpr.
+UnaryExpr             =    UnionExpr
+                                  | '-' UnaryExpr.
+ExprToken            =    '(' | ')' | '[' | ']' | '.' | '..' |
+                                   '@' | ',' | '::'
+                                 | WildcardName
+                                 | NodeType
+                                 | Operator
+                                 | FunctionName
+                                 | AxisName
+                                 | Literal
+                                 | Number
+                                 | VariableReference.
+
+Literal              =    '"' StringWithoutQuote '"'
+                                 | "'" StringWithoutApostrophe "'".
+Number               =    Digits ('.' Digits?)?
+                                 | '.' Digits.
+Operator             =    OperatorName
+                                 | MultiplyOperator
+                                 | '/'  | '//' | '|'  | '+' | '-' | '='
+                                 | '!=' | '<'  | '<=' | '>' | '>='.
+OperatorName         =    'and' | 'or' | 'mod' | 'div'.
+MultiplyOperator     =    '*'.
+FunctionName         =    QNameButNotNodeType.
+VariableReference    =    '$' QName.
+WildcardName         =    '*'
+                                 | NCName ':' '*'
+                                 | QName.
+NodeType             =    'comment'
+                                 | 'text'
+                                 | 'processing-instruction'
+                                 | 'node'.
+ExprWhitespace       =    S.

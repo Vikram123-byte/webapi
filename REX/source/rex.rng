@@ -1,0 +1,106 @@
+<grammar ns='http://www.w3.org/2006/rex'
+         xml:lang='en'
+         datatypeLibrary='http://www.w3.org/2001/XMLSchema-datatypes'
+         xmlns='http://relaxng.org/ns/structure/1.0'>
+
+  <start>
+    <ref name='rex'/>
+  </start>
+  
+  <div xml:id='rex'>
+    <define name='rex'>
+      <element name='rex'>
+        <optional>
+          <attribute name='version'>
+            <value>1.0</value>
+          </attribute>
+        </optional>
+        <ref name='ns'/>
+        <oneOrMore>
+          <ref name='event'/>
+        </oneOrMore>
+      </element>
+    </define>
+  </div>
+
+  <div xml:id='ns'>
+    <define name='ns'>
+      <optional>
+        <attribute name='ns'>
+          <choice>
+            <data type='anyURI'/>
+            <empty/>
+          </choice>
+        </attribute>
+      </optional>
+    </define>
+  </div>
+
+  <div xml:id='event'>
+    <define name='event'>
+      <element name='event'>
+        <ref name='ns'/>
+        <attribute name='target'>
+          <text/>
+        </attribute>
+        <attribute name='name'>
+          <data type='NMTOKEN'/>
+        </attribute>
+        <attribute name='timeStamp'>
+          <text/>
+        </attribute>
+        <choice>
+          <ref name='DOMNodeInserted'/>
+          <ref name='DOMNodeRemoved'/>
+          <ref name='DOMAttrModified'/>
+          <ref name='DOMCharacterDataModified'/>
+        </choice>
+      </element>
+    </define>
+  </div>
+
+  <div xml:id='DOMNodeInserted'>
+    <define name='DOMNodeInserted'>
+      <optional>
+        <attribute name='position'>
+          <data type='integer'/>
+        </attribute>
+      </optional>
+    </define>
+  </div>
+
+  <div xml:id='DOMNodeRemoved'>
+    <define name='DOMNodeRemoved'>
+      <empty/>
+    </define>
+  </div>
+
+  <div xml:id='DOMAttrModified'>
+    <define name='DOMAttrModified'>
+      <group>
+        <optional>
+          <attribute name='attrChange'>
+            <choice>
+              <value>modification</value>
+              <value>addition</value>
+              <value>removal</value>
+            </choice>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name='newValue'>
+            <text/>
+          </attribute>
+        </optional>
+      </group>
+    </define>
+  </div>
+
+  <div xml:id='DOMCharacterDataModified'>
+    <define name='DOMCharacterDataModified'>
+      <attribute name='newValue'>
+        <text/>
+      </attribute>
+    </define>
+  </div>
+</grammar>
