@@ -2,7 +2,7 @@
  <metadata>
   <title>The XMLHttpRequest Object</title> <!-- please don't call it 1.0 -->
   <styling type="W3C" status="ED"/>
-  <date year="2006" month="05" day="03"/>
+  <date year="2006" month="05" day="14"/>
   <editors>
    <person>
     <name>Anne van Kesteren</name>
@@ -32,7 +32,7 @@
    additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
    functionality for transferring data between a client and a server.</p>
   <ednote>
-   <p>Last update: $Id: XMLHttpRequest.xml,v 1.49 2006-05-03 07:31:16 avankest Exp $.</p>
+   <p>Last update: $Id: XMLHttpRequest.xml,v 1.50 2006-05-14 12:28:33 avankest Exp $.</p>
   </ednote>
  </section>
  <section xml:id="sotd" type="w3c-sotd">
@@ -149,9 +149,9 @@
     used.</p>
    <p>The <dfn>cached base URI</dfn> MUST be
     <code>window.document.baseURI</code> once an <code>XMLHttpRequest</code>
-    object is initialized. Specifically, the <code>Window</code> that the
+    object is initialized. Specifically, the <code>window</code> that the
     <code>XMLHttpRequest</code> constructor comes from, not the calling
-    <code>Window</code>.</p>
+    <code>window</code> [Window].</p>
   </section>
   <section xml:id="conformance">
    <title>Conformance</title>
@@ -179,31 +179,22 @@
     <code>FooFollowRedirect(<var>boolean</var>)</code> method for example.</p>
    <p>Authors MAY use extension mechanisms specific to the host language, like
     <code>.prototype</code> in ECMAScript.</p>
+   <ednote>This should be in DOM Level 3 Core I suppose.</ednote>
   </section>
   <section xml:id="issues">
    <title>Outstanding issues</title>
    <p><em>This section is non-normative.</em></p>
    <ul>
-    <li><a href="http://www.w3.org/2006/webapi/track/issues/29">ISSUE-29 - how
-     is uri parameter of the open() method resolved</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/31">ISSUE-31 - 
      invalid bytes and default character encoding</a></li>
-    <li><a href="http://www.w3.org/2006/webapi/track/issues/34">ISSUE-34 - XHR:
-     Should synchronous loading call onreadystatechange</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/39">ISSUE-39 - 
      Errors in XHR requests</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/42">ISSUE-42 -
      missing text for arguments and return values</a></li>
-    <li><a href="http://www.w3.org/2006/webapi/track/issues/43">ISSUE-43 -
-     change to "common baseline"?</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/44">ISSUE-44 - XHR:
      Overloading in the IDL</a></li>
-    <li><a href="http://www.w3.org/2006/webapi/track/issues/47">ISSUE-47 -
-     responseText is not always accessible when readyState &lt; 3</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/71">ISSUE-71 -
      setRequestHeader has too many header restrictions</a></li>
-    <li><a href="http://www.w3.org/2006/webapi/track/issues/72">ISSUE-72 -
-     should XMLHttpRequest be an EventTarget?</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/73">ISSUE-73 - Are
      we going to support non-ECMAScript languages?</a></li>
     <li><a href="http://www.w3.org/2006/webapi/track/issues/74">ISSUE-74 - what
@@ -306,15 +297,10 @@
        <code>HEAD</code> values MUST be supported [RFC2616].</param>
       <param name='uri'>A URI, which MUST be resolved to an absolute URI using
        the <term>cached base URI</term>.</param>
-      <param name='async' type='boolean' optional='true'>
-       @XXX TBD@
-      </param>
-      <param name='user' optional='true'>
-       @XXX TBD@
-      </param>
-      <param name='password' optional='true'>
-       @XXX TBD@
-      </param>
+      <param name='async' type='boolean' optional='true'>Whether or not script
+       execution can continue.</param>
+      <param name='user' optional='true'>Username.</param>
+      <param name='password' optional='true'>Password.</param>
      </method>
      <method name='setRequestHeader'>
       <p>If the <code><term>readyState</term></code> attribute has a value other
@@ -386,8 +372,8 @@
       <p>In particular, UAs MUST NOT automatically set the
        <code>Cache-Control</code> or <code>Pragma</code> headers to defeat
        caching [RFC2616].</p>
-      <param name='header'>@XXX TDB@</param>
-      <param name='value'>@XXX TDB@</param>
+      <param name='header'>Name of the HTTP header.</param>
+      <param name='value'>Value of the HTTP header.</param>
       <exception name='DOMException'>
        <code name='INVALID_STATE_ERR'>MUST be raised if
         <code><term>readyState</term></code> has an inappropriate value. (See
@@ -412,9 +398,11 @@
        or UTF-8 otherwise [DOM3]. If <var>data</var> is not a
        <code>Document</code> or a <code>DOMString</code> the host language MUST
        use the stringification mechanisms on the argument that was passed.</p>
-      <p>Invoking <code>send()</code> without the <var>data</var> argument MUST
+      <p>Invoking <code>send</code> without the <var>data</var> argument MUST
        give the same result as if it was invoked with <code>null</code> as
-       argument.</p>
+       argument. Authors SHOULD specify the <code>Content-Type</code> header via
+       <code><term>setRequestHeader</term></code> before invoking
+       <code>send</code> with an argument.</p>
       <p>If the response is an HTTP redirect (status code 301, 302, 303 or 307),
        then it MUST be transparently followed (unless it violates security or
        infinite loop precautions). Note that HTTP [RFC2616] places requirements
@@ -435,18 +423,18 @@
        <code><term>readyState</term></code> attribute MUST be set to 4 (Loaded).
        In case of a HEAD request <code><term>readyState</term></code> MUST be
        set to 4 (Loaded) immediatly after having gone to 3 (Receiving).</p>
-      <param name='data' type='Document | DOMString'>@XXX TDB@</param>
+      <param name='data' type='Document | DOMString'>Data to send.</param>
       <exception name='DOMException'>
        <code name='INVALID_STATE_ERR' on='retrieval'>MUST be raised if this
        method is called when <code><term>readyState</term></code> has an
        inappropriate value.</code>
       </exception>
      </method>
-     <method name='abort'>
+     <method name="abort">
       <p>When invoked, this method MUST cancel any network activity for which
-       the object is responsible and reset the object.</p>
+       the object is responsible and <term>reset</term> the object.</p>
      </method>
-     <method name='getAllResponseHeaders'>
+     <method name="getAllResponseHeaders">
       <p>If the <code><term>readyState</term></code> attribute has a value other
        than 3 (Receiving) or 4 (Loaded), it MUST return <code>null</code>.
        Otherwise, it MUST return all the HTTP headers, as a single string, with
@@ -494,8 +482,8 @@
        // ...should output something similar to the following text:
        Content-Type: text/plain; charset=utf-8
       </example>
-      <returns type='DOMString'>@XXX TBD@</returns>
-      <param name='header'>@XXX TDB@</param>
+      <returns type='DOMString'>Value of the given HTTP header.</returns>
+      <param name='header'>Name of the HTTP header.</param>
      </method>
      <attribute name="responseText">
       <p>If the <code><term>readyState</term></code> attribute has a value other
@@ -503,11 +491,16 @@
        it MUST be the fragment of the entity body received so far (when
        <code><term>readyState</term></code> is 3 (Receiving)) or the entity body
        (when <code><term>readyState</term></code> is 4 (Loaded)), interpreted
-       using the character encoding specified in the response, or UTF-8 if no
-       character encoding was specified. Invalid bytes MUST be converted to
-       U+FFFD REPLACEMENT CHARACTER.</p>
+       as a stream of characters.</p>
+      <p>If the response includes a <code>Content-Type</code> understood by the
+       UA, with the exception that the rule in the final paragraph of section
+       3.7.1 of [RFC2616], and the rules in section 4.1.2 of [RFC2046] MUST be
+       treated as if they specified the default character encoding as being
+       UTF-8. Invalid bytes MUST be converted to U+FFFD REPLACEMENT CHARACTER.
+       If the UA can't derive a character stream in accord with the media type
+       specification, <code>reponseText</code> MUST be <code>null</code>.</p>
      </attribute>
-     <attribute name='responseXML' type='Document'>
+     <attribute name="responseXML" type="Document">
       <p>If the <code><term>readyState</term></code> attribute has a value other
        than 4 (Loaded), it MUST be <code>null</code>. Otherwise, if the
        <code>Content-Type</code> header contains a media type (ignoring any
