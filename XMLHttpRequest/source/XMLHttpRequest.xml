@@ -32,7 +32,7 @@
    additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
    functionality for transferring data between a client and a server.</p>
   <ednote>
-   <p>Last update: $Id: XMLHttpRequest.xml,v 1.50 2006-05-14 12:28:33 avankest Exp $.</p>
+   <p>Last update: $Id: XMLHttpRequest.xml,v 1.51 2006-05-14 19:15:49 avankest Exp $.</p>
   </ednote>
  </section>
  <section xml:id="sotd" type="w3c-sotd">
@@ -77,9 +77,10 @@
    name of the object starts with "XML", it supports the transport of other
    data formats in addition to
    <abbr title="Extensible Markup Language">XML</abbr>.  Also, some
-   implementation support other protocols besides HTTP opposed to what "Http" in
-   the name suggests (that functionality is not covered in this specification
-   though).</p>
+   implementations support other protocols besides HTTP opposed to what "Http"
+   in the name suggests (that functionality is not covered in this specification
+   though). Furthermore, the API supports sending data as well opposed to what
+   "Request" in the name suggests.</p>
   <p>The <code>XMLHttpRequest</code> object is implemented today, in some form, by
    many popular Web browsers. Unfortunately the implementations are not
    completely interoperable. The goal of this specification is to document a
@@ -239,10 +240,8 @@
   <p>A more complete description of what can be done with
    <code>XMLHttpRequest</code> can be found in the
    <abbr title="Interface Definition Language">IDL</abbr> below and its
-   associated details. Note that this IDL is non-normative. Only the language
-   bindings are normative.</p>
-  <ednote>Need to define which IDL specification we are going to conform to, if
-   any. Robin suggested drafting up a Note...</ednote>
+   associated details. The IDL is non-normative and does not intend to conform
+   to [OMGIDL]. Only the language bindings are normative.</p>
   <schema>
    <title>The XMLHttpRequest interface</title>
    <idl>
@@ -303,23 +302,22 @@
       <param name='password' optional='true'>Password.</param>
      </method>
      <method name='setRequestHeader'>
-      <p>If the <code><term>readyState</term></code> attribute has a value other
-       than 1 (Open), an exception MUST be raised. If the <var>header</var> or
-       <var>value</var> arguments contain any U+000A LINE FEED or U+000D
-       CARRIAGE RETURN characters, or if the <var>header</var> argument contains
-       any U+0020 SPACE or U+003A COLON characters, nothing MUST be done.
-       Otherwise, the nominated request header (<var>header</var>) field value
-       MUST be set to <var>value</var>. If the nominated request header field
-       already has a value, the new value SHOULD be combined with the existing
-       value ([RFC2616], section 4.2). Implementations MAY replace an existing
-       value (instead of combining it with the new value) if the nominated
-       request header field value is not specified as a comma-separated
-       list.</p>
-       <!--Otherwise, the request header <var>header</var> MUST be set to
-       <var>value</var>. If the request header <var>header</var> had already
-       been set, then the new <var>value</var> MUST be concatenated to the
-       existing value using a U+002C COMMA followed by a U+0020 SPACE for
-       separation.</p>-->
+      <p>The nominated request header (<var>header</var>) field value MUST be
+       set to <var>value</var>, with the following exceptions:</p>
+      <ul>
+       <li>If the <code><term>readyState</term></code> attribute has a value
+        other than 1 (Open), an exception MUST be raised.</li>
+       <li>Nothing MUST be done if the <var>header</var> or <var>value</var>
+        arguments contain any U+000A LINE FEED or U+000D CARRIAGE RETURN
+        characters, or if the <var>header</var> argument contains any
+        U+0020 SPACE or U+003A COLON charecters.</li>
+       <li>Nothing MUST be done if the <var>header</var> argument matches
+        <code>Accept-Charset</code>, <code>Accept-Encoding</code>,
+        <code>Content-Length</code>, <code>Expect</code>, <code>Date</code>,
+        <code>Host</code>, <code>Keep-Alive</code>, <code>Referer</code>,
+        <code>TE</code>, <code>Trailer</code>, <code>Transfer-Encoding</code> or
+        <code>Upgrade</code> case-insensitively.</li>
+      </ul>
       <example>
        <title>Setting a request header</title>
        // The following script:
@@ -334,44 +332,25 @@
        X-Test: one, two
        ...
       </example>
-      <p>The list of request headers MUST be reset when the
+      <p>Implementations MUST replace any existing value if the nominated
+       request header field value is one of: <code>Authorization</code>,
+       <code>Content-Base</code>, <code>Content-Location</code>,
+       <code>Content-MD5</code>, <code>Content-Range</code>,
+       <code>Content-Type</code>, <code>Content-Version</code>,
+       <code>Delta-Base</code>, <code>Depth</code>, <code>Destinaion</code>,
+       <code>ETag</code>, <code>Expect</code>, <code>From</code>,
+       <code>If-Modified-Since</code>, <code>If-Range</code>,
+       <code>If-Unmodified-Since</code>, <code>Max-Forwards</code>,
+       <code>MIME-Version</code>, <code>Overwrite</code>,
+       <code>Proxy-Authorization</code>, <code>SOAPAction</code> or
+       <code>Timeout</code>.</p>
+      <p>Otherwise, if the nominated request header field already has a value,
+       the new value MUST be combined with the existing value (section 4.2,
+       [RFC2616]). See also the <code><term>send()</term></code> method
+       regarding UA header handling for caching, authentication, proxies, and
+       cookies.</p>
+      <p>The list of request headers must be reset when the
        <code><term>open()</term></code> method is called.</p>
-      <p>User agents SHOULD NOT set any headers other than the headers set by
-       the author using this method, with the following exceptions:</p>
-      <ul>
-       <li>UAs MUST set the <code>Host</code> header appropriately (see
-        <code><term>open()</term></code>) and not allow it to be
-        overridden.</li>
-       <li>UAs MAY set the Authorization header, based upon the operation of
-        HTTP Authentication [RFC2617]. If a challenge from the server is
-        encountered, credentials SHOULD be generated based upon the values of
-        the username and password specified by open(). UAs MUST NOT set the
-        Authorization header solely because open() contains a username/password;
-        it should only be set as part of the protocol described by HTTP
-        Authentication [RFC2617]. <ednote>This needs rewording...</ednote></li>
-       <!--<li>UAs MUST set the <code>Authorization</code> header according to the
-        values passed to the <code><term>open()</term></code> method (but MUST
-        allow calls to <code><term>setRequestHeader()</term></code> to append
-        values to it).</li>-->
-       <li>UAs MAY set the <code>Accept-Charset</code>,
-        <code>Accept-Encoding</code> and <code>TE</code> headers and MUST NOT
-        allow them to be overridden.</li>
-       <li>UAs MUST set the <code>Connection</code> and <code>Keep-Alive</code>
-        headers as described by the HTTP specification, and MUST NOT allow those
-        headers to be overridden.</li>
-       <li>UAs SHOULD set the proxy-related headers according to proxy settings
-        of the environment, and MUST NOT allow those headers to be overridden.
-        <ednote>Perhaps this should be more explicit. Only <code>Via</code>
-        comes to mind though...</ednote></li>
-       <li>UAs MAY give the <code>User-Agent</code> header an initial value, but
-        MUST allow authors to append values to it.</li>
-       <li>UAs SHOULD set <code>Cookie</code> and <code>Cookie2</code> headers
-        appropriately for the given URI and given the user's current cookies,
-        and MUST allow authors to append values to these headers.</li>
-      </ul>
-      <p>In particular, UAs MUST NOT automatically set the
-       <code>Cache-Control</code> or <code>Pragma</code> headers to defeat
-       caching [RFC2616].</p>
       <param name='header'>Name of the HTTP header.</param>
       <param name='value'>Value of the HTTP header.</param>
       <exception name='DOMException'>
@@ -384,45 +363,75 @@
       <p>If the <code><term>readyState</term></code> attribute has a value other
        than 1 (Open), an exception MUST be raised. Otherwise, the
        <code><term>readyState</term></code> attribute MUST be set to 2 (Sent)
-       and a request to <var>uri</var> using method <var>method</var>,
-       authenticating using <var>user</var> and <var>password</var> as
-       appropriate is sent. If the <var>async</var> flag is set to false, then
-       the method MUST not return until the request has completed. Otherwise, it
-       MUST return immediately. (See: <code><term>open()</term></code>.)</p>
-      <p>If the <var>method</var> is <code>POST</code> or <code>PUT</code>,
-       then the <var>data</var> passed to the <code>send()</code> method MUST be
-       used for the entity body. If <var>data</var> is a string, the data MUST
-       be encoded as UTF-8 for transmission. If the <var>data</var> is a
-       <code>Document</code>, then the document MUST be serialized using the
-       encoding given by <code><var>data</var>.xmlEncoding</code>, if specified,
-       or UTF-8 otherwise [DOM3]. If <var>data</var> is not a
-       <code>Document</code> or a <code>DOMString</code> the host language MUST
-       use the stringification mechanisms on the argument that was passed.</p>
+       and a request to <var>uri</var> using method <var>method</var> is sent.
+       If the <var>async</var> flag is set to false, then the method MUST not
+       return until the request has completed. Otherwise, it MUST return
+       immediately. (See: <code><term>open()</term></code>.)</p>
+      <p>If <var>data</var> passed to the <code>send()</code> method it MUST be
+       used for the entity body following these rules:</p>
+      <ul>
+       <li>If <var>data</var> is a <code>DOMString</code>, it MUST be encoded as
+        UTF-8 for transmission.</li>
+       <li>If the <var>data</var> is a <code>Document</code>, it MUST be
+        serialized using the encoding given by
+        <code><var>data</var>.xmlEncoding</code>, if specified and supported, or
+        UTF-8 otherwise [DOM3].</li>
+       <li>If <var>data</var> is not a <code>DOMString</code> or a
+        <code>Document</code> the host language its stringification mechanisms
+        MUST be used on the argument that was passed and the result MUST be
+        encoded as UTF-8 for transmission.</li>
+      </ul>
       <p>Invoking <code>send</code> without the <var>data</var> argument MUST
        give the same result as if it was invoked with <code>null</code> as
        argument. Authors SHOULD specify the <code>Content-Type</code> header via
        <code><term>setRequestHeader</term></code> before invoking
        <code>send</code> with an argument.</p>
       <p>If the response is an HTTP redirect (status code 301, 302, 303 or 307),
-       then it MUST be transparently followed (unless it violates security or
-       infinite loop precautions). Note that HTTP [RFC2616] places requirements
-       on UAs regarding the preservation of the request method during redirects,
-       and also requires users to be notified of certain kinds of automatic
-       redirections. Any other error (including a 401) MUST cause the object to
-       use that error page as the response.</p>
-      <p>If the author performed a conditional GET request (setting the relevant
-       headers using <code><term>setRequestHeader()</term></code>) and the
-       resulting response is a 304 the UA MUST return a 304 and it is expected
-       the page author can deal with that. Otherwise, if the UA performed a
-       conditional GET request and the response is a 304 the UA MUST return a
-       200 (using the relevant cached file).</p>
-      <ednote>What about DNS errors?</ednote>
+       then it MUST be transparently followed (unless it violates security,
+       infinite loop precautions or the scheme isn't supported). Note that HTTP
+       [RFC2616] places requirements on UAs regarding the preservation of the
+       request method during redirects, and also requires users to be notified
+       of certain kinds of automatic redirections.</p>
+      <p>If the UA allows the specification of a proxy it SHOULD modify the
+       request appropriately; <abbr title="in other words">i.e.</abbr>, connect
+       to the proxy host instead of the origin server, modify the
+       <code>Request-Line</code> and send <code>Proxy-Authorization</code>
+       headers as specified.</p>
+      <p>If the UA supports HTTP Authentication [RFC2617] it SHOULD consider
+       requests originating from this object to be part of the protection space
+       that includes the accessed URIs and send <code>Authorization</code>
+       headers and handle 401 Unauthorised requests appropriately. if
+       authentication fails, UAs should prompt the users for credentials.</p>
+      <p>If the UA supports HTTP State Mangement [RFC2109][RFC2965] it should
+       persist, discard and send cookies (as received in the
+       <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers,
+       and sent in the <code>Cookie</code> header) as applicable.</p>
+      <p>If the UA implements a HTTP cache [RFC2616] it should respect 
+       <code>Cache-Control</code> request headers set by the author
+       (<abbr title="for example">e.g.</abbr>,
+       <code>Cache-Control: no-cache</code> bypasses the cache). It MUST NOT
+       send <code>Cache-Control</code> or <code>Pragma</code> request headers
+       automatically unless the user explicitly requests such behaviour (e.g.,
+       by (force-)reloading the page). 304 Not Modified responses that are a
+       result of a UA-generated conditional request MUST be presented as 200 OK
+       responses with the appropriate content. Such UAs MUST allow authors to
+       override automatic cache validation by setting request headers (e.g.,
+       <code>If-None-Match</code>, <code>If-Modified-Since</code>), in which
+       case 304 Not Modified responses MUST be passed through.</p>
+      <p>If the UA implements server-driven content-negotiation [RFC2616], it
+       SHOULD set <code>Accept-Language</code>, <code>Accept-Encoding</code> and
+       <code>Accept-Charset</code> headers as appropriate; it MUST NOT
+       automatically set the <code>Accept</code> header. Responses to such
+       requests MUST have content-codings automatically removed.</p>
       <p>Immediately before receiving the message body (if any), the
        <code><term>readyState</term></code> attribute MUST be set to to 3
        (Receiving). When the request has completed loading, the
        <code><term>readyState</term></code> attribute MUST be set to 4 (Loaded).
        In case of a HEAD request <code><term>readyState</term></code> MUST be
        set to 4 (Loaded) immediatly after having gone to 3 (Receiving).</p>
+      <p>If the UA supports Expect/Continue for request bodies [RFC2616] it
+       SHOULD insert <code>Expect</code> headers and handle 100 Continue
+       responses appropriately.</p>
       <param name='data' type='Document | DOMString'>Data to send.</param>
       <exception name='DOMException'>
        <code name='INVALID_STATE_ERR' on='retrieval'>MUST be raised if this
@@ -459,7 +468,7 @@
       <returns type='DOMString'>A single string consisting of all HTTP headers.
        See prose for details.</returns>
      </method>
-     <method name='getResponseHeader'>
+     <method name="getResponseHeader">
       <p>If the <code><term>readyState</term></code> attribute has a value other
        than 3 (Receiving) or 4 (Loaded), it MUST return the empty string.
        Otherwise, it MUST represent the value of the given HTTP header in the
@@ -468,7 +477,7 @@
        be concatenated, separated from each other by an U+002C COMMA followed by
        an U+0020 SPACE. If no headers of that name were received, then it MUST
        return the empty string. Header names MUST be compared case-insensitively
-       to the method argument (<var>header</var>).</p>
+       to the method its argument (<var>header</var>).</p>
       <ednote>Case-insensitively how?</ednote>
       <ednote>Needs to be revised largely based on Mark's comments.</ednote>
       <example>
@@ -511,10 +520,6 @@
        media type, or if the document could not be parsed (due to an XML
        well-formedness error or unsupported character encoding, for instance),
        it MUST be <code>null</code>.</p>
-      <ednote>Because of nonsense like
-       <code>r.responseXML.getElementsByTagName()</code> this might have to
-       return an empty document node instead. It seems to be what
-       implementations do in a lot of cases anyway...</ednote>
      </attribute>
      <attribute name='status' type='unsigned short'>
       <p>If the <code>status</code> attribute is not available it MUST raise an
