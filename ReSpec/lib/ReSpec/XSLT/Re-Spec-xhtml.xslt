@@ -124,7 +124,7 @@
         <p><strong>This section is informative.</strong></p>
       </xsl:if>
       <xsl:if test='@normativity="not normative"'>
-        <p><strong>This section is not normative normative.</strong></p>
+        <p><strong>This section is not normative.</strong></p>
       </xsl:if>
       <xsl:apply-templates/>
     </div>
@@ -148,10 +148,13 @@
   </xsl:template>
 
   <!-- the HTML elements -->
-  <xsl:template match='r:p | r:a | r:abbr | r:acronym | r:code | r:dl | r:dd |
+  <xsl:template match='r:p | r:a | r:abbr | r:acronym | r:code | r:dl | r:dd | r:img |
                        r:dt | r:ol | r:ul | r:li | r:table | r:thead | r:tbody | r:tfoot |
                        r:caption | r:tr | r:th | r:td | r:em | r:strong | r:br | r:cite | r:q |
-                       r:span | r:var | r:pre'>
+                       r:span | r:var | r:pre | r:div | r:span | r:address | r:hr | r:blockquote |
+                       r:ins | r:del | r:bdo | r:samp | r:kbd | r:sub | r:sup | r:object | r:map |
+                       r:area | r:form | r:label | r:input | r:fieldset | r:button | r:textarea | 
+                       r:select | r:legend'>
     <xsl:element name='{local-name()}' namespace='http://www.w3.org/1999/xhtml'>
       <xsl:if test='@xml:id'>
         <xsl:attribute name='id'><xsl:value-of select='@xml:id'/></xsl:attribute>
