@@ -6,7 +6,7 @@
   <metadata>
     <title>Remote Events for XML (REX) 1.0</title>
     <styling type='W3C' status='EDMO'/>
-    <date year='2006' month='02' day='02'/>
+    <date year='2006' month='05' day='28'/>
     <editors>
       <person>
         <name>Robin Berjon</name>
@@ -75,8 +75,11 @@
 
     <p>
       The <strong>Remote Events for XML</strong> (<acronym title='Remote Events for XML'>REX</acronym>) specification 
-      defines a transport agnostic XML syntax for the transmission of DOM events as specified in the DOM 3 Events
-      specification [DOM3EV] in such a way as to be compatible with streaming protocols.
+      defines a <a href='http://www.w3.org/TR/xbc-properties/#transport-independence'>transport agnostic</a> 
+      XML syntax for the transmission of DOM events as specified in the DOM 3 Events
+      specification [DOM3EV] in such a way as to be compatible with streaming protocols. REX assumes that the transport
+      provides for reliable, timely and in sequence delivery of REX messages. REX does not cover the process of session 
+      initiation and termination which are presumed to be handled by other means.
     </p>
     <p>
       The first version of this specification deliberately restricts itself to the transmission of mutation
@@ -290,17 +293,30 @@
       </schema>
 
       <dl type='attr-list'>
-        <dt id='attr-rex-version'>version</dt>
+        <dt id='attr-rex-minimal-version'>minimal-version</dt>
         <dd>
           Indicates the minimum version of the REX specification required to usefully process this message.
           While the version value has the form of a float it is actually processed as a string and 
-          user-agents MUST therefore compare the provided <at el='rex'>version</at> against the strings
+          user-agents MUST therefore compare the provided <at el='rex'>minimal-version</at> against the strings
           of all versions that they know and MUST NOT perform numeric comparisons. This entails that
           <code>1.0</code>, <code>1</code>, or <code>1.00</code> are all different versions.
           A user-agent supporting this version of the specification MUST accept version identifier
           <code>1.0</code>. If the version number is not in the list of versions of this specification
           supported by the user-agent, the user-agent MUST reject the message completely and
           immediately, ignoring the entirety of its content.
+        </dd>
+        <dt id='attr-rex-target-document'>target-document</dt>
+        <dd>
+          In some cases a user-agent may have multiple document in memory, or even inside
+          the current view. The <at>target-document</at> attribute is used to identify
+          which document is being addressed by this given REX message. Its content is an
+          opaque string, and the manner in which the user-agent maps such identifiers to
+          the documents that it contains as well as the absence of a <at>target-document</at>
+          identifier to a "default" or "active" document is left for the target environments 
+          to define. An empty <at>target-document</at> MUST be processed as if the attribute
+          had not been specified. If a user-agent receives a REX message with a 
+          <at>target-document</at> that it cannot map onto a document then the entire REX
+          message MUST be ignored.
         </dd>
         <dt>Other attributes</dt>
         <dd>
@@ -339,17 +355,19 @@
       <p>
         The <at>ns</at> attribute defines the namespace that applies to DOM event names within the
         scope of the element on which it occurs. For any given DOM event name, if there is no
-        <at>ns</at> attribute on any of its ancestor elements, that event name's IRI component is
-        <code>http://www.w3.org/2001/xml-events</code>. Otherwise, it will have the namespace 
+        <at>ns</at> attribute on any of its ancestor elements, that event name's URI component is
+        the empty string. Otherwise, it will have the namespace 
         component corresponding to the first <at>ns</at> attribute found on its ancestor 
         elements in reverse document order. The content of the <at>ns</at> attribute is either
         an IRI or the empty string. If the empty string then event names in its applicable 
-        scope will have no namespace IRI component.
+        scope will have no namespace URI component.
       </p>
       <p>
-        If the <at>ns</at> attribute contains a non-empty string and it is not a valid IRI then
-        processing of the entire subtree inclusive of the element on which the <at>ns</at> 
-        attribute occurs MUST be ignored.
+        If the <at>ns</at> attribute contains a non-empty string, then it SHOULD be a valid IRI.
+        However, given the complexity involved in checking IRI validity it is NOT RECOMMENDED
+        that user-agents validate them. If however IRI validation is performed and the IRI value
+        of the <at>ns</at> attribute is found to be false, then the entire subtree inclusive of 
+        the element on which the <at>ns</at> attribute occurs MUST be ignored.
       </p>
 
       <schema>
@@ -379,23 +397,13 @@
         <dt id='attr-event-name'>name</dt>
         <dd>
           Contains the local name component of the name of the event represented by this <el>event</el>
-          element. The namespace IRI component of the event's name MUST be resolved based on the <at>ns</at>
+          element. The namespace URI component of the event's name MUST be resolved based on the <at>ns</at>
           attribute.          
         </dd>
         <dt id='attr-event-target'>target</dt>
         <dd>
           The <at el='event'>target</at> attribute contains the target path
           as described in the <a href='#referencing'>Referencing target nodes</a> section.
-        </dd>
-        <dt id='attr-event-timeStamp'>timeStamp</dt>
-        <dd>
-          Contains an integer in milliseconds relative to the epoch (defined to be 00:00:00 UTC 1st 
-          January 1970) at which the event is to be dispatched.
-          <ednote>
-            This feature may be modified to specify a more useful (or generic)
-            epoch. Also, it has not yet been fully integrated into the processing
-            model (though the required changes are minor).
-          </ednote>
         </dd>
         <dt>Other attributes</dt>
         <dd>
@@ -409,10 +417,10 @@
     <title>Referencing target nodes</title>
     
     <p>
-      Target nodes are referenced using a <a href='#path-syntax'>subset of XPath</a> [XPATH] that corresponds to the 
-      level of expressivity that meets most needs while at the same time remaining easy 
-      to implement. There is never a need to resolve a relative path as they are always
-      anchored either at the root (absolute paths) or at an element ID.
+      Target nodes are referenced using a <a href='#path-syntax'>subset of XPath</a> [XPATH]
+      that corresponds to the level of expressivity that meets most needs while at the same 
+      time remaining easy to implement. There is never a need to resolve a relative path as 
+      they are always anchored either at the root (absolute paths) or at an element ID.
     </p>
     
     <section xml:id='processing-paths'>
@@ -422,8 +430,14 @@
         differ. The result of evaluating the target path against the target document is
         a node-set, ordered according to the axes used in the target path, as per XPath.
         Note however that the limited set of axes available in this subset will always 
-        cause the node-set to be in document order.
+        cause the node-set to be in document order unless a superset of the minimal
+        syntax is used.
       </p>
+      <p>
+        If the size of the node-set is superior to one, only the first item in that node-set
+        MUST be considered for processing, and the rest MUST be discarded.
+      </p>
+      <!--
       <p>
         If the size of the node-set is superior to one, the event MUST be dispatched in the exact
         same way to each node in the node-set in order, exactly <em>as if</em> the <el>event</el>
@@ -432,6 +446,7 @@
         event in that expanded list is required by this specification to be ignored, only
         that event MUST be ignored, and the remaining expanded events MUST be processed.
       </p>
+      -->
       <p>
         If the size of the node-set is zero, the event MUST be ignored and thus nothing happens.
       </p>
@@ -462,7 +477,7 @@
           IDPath    ::= 'id(' NCNameStr ')' RPath?
           Step      ::= StepTest '/'
           StepTest  ::= Name ('[' Num ']')?
-          FullTest  ::= (Name | 'text()' | '@' Name) ('[' Num ']')?
+          FullTest  ::= (Name | 'text()') ('[' Num ']')?
           NCNameStr ::= "'" NCName "'" | '"' NCName '"'
           Num       ::= [0-9]+
         </ebnf>
@@ -479,29 +494,42 @@
         function. The <code>id()</code> function itself is limited to a single string argument,
         which in turn must contain exactly one identifier (as opposed to a white space separated
         list in XPath). Only abbreviated axes are supported in the syntax. Following the
-        beginning of the path may be a list of steps, making use of either the child 
-        axis, which may only use element name tests. The final step in the list is more
-        powerful and may also reference text and attribute nodes. For each step a predicate may
+        beginning of the path may be a list of steps, making use only of the child 
+        axis, and only element name tests. The final step in the list is more
+        powerful and may also reference text nodes. For each step a predicate may
         be used, which is limited to only containing an integer indicating position.
       </p>
       <p>
         Some examples of target paths include:
       </p>
       <ul>
-        <li><code>/svg:svg</code> will match the root <code>svg</code> element, in the namespace
-            that has been bound to the 'svg' prefix.</li>
-        <li><code>/lodges/donkey[8]</code> will match the eighth <code>donkey</code> element in the
-            <code>lodges</code> element with no namespace.</li>
-        <li><code>/</code> will match the root node, which is to say the document itself.</li>
-        <li><code>/foo/text()</code> will match all text nodes that are children of the
-            the <code>foo</code> element.</li>
-        <li><code>/xhtml:html/xhtml:body/svg:svg[3]/@width</code> will match the <code>width</code>
-            attribute of the third <code>svg</code> element that is a child of
-            the root <code>body</code> and then <code>html</code> elements.</li>
-        <li><code>id("dahut")</code> will match the element with ID 'dahut'.</li>
-        <li><code>id("dahut")/svg:circle/@cx</code> will match the <code>cx</code>
-            attribute of all the <code>circle</code> elements that are children of the
-            element with ID 'dahut'.</li>
+        <li>
+          <code>/svg:svg</code> will match the root <code>svg</code> element, in the namespace
+          that has been bound to the 'svg' prefix.
+        </li>
+        <li>
+          <code>/lodges/donkey[8]</code> will match the eighth <code>donkey</code> element in the
+          <code>lodges</code> element with no namespace.
+        </li>
+        <li>
+          <code>/</code> will match the root node, which is to say the document itself.
+        </li>
+        <li>
+          <code>/foo/text()</code> will match the first text node that is a child of the
+          the <code>foo</code> element.
+        </li>
+        <li>
+          <code>/xhtml:html/xhtml:body/svg:svg[3]</code> will match the third <code>svg</code> 
+          element that is a child of the root <code>body</code> and then <code>html</code> 
+          elements.
+        </li>
+        <li>
+          <code>id("dahut")</code> will match the element with ID 'dahut'.
+        </li>
+        <li>
+          <code>id("dahut")/svg:circle</code> will match the first <code>circle</code> element
+          that is a child of the element with ID 'dahut'.
+        </li>
       </ul>
       <p>
         Note that it is possible using this syntax to produce target paths that will never match
@@ -527,6 +555,9 @@
       memory.
     </p>
     <p>
+      Events MUST be dispatched in the same order in which they occur in the REX message.
+    </p>
+    <p>
       Implementations SHOULD dispatch events encoded in REX messages as soon as they have finished
       parsing the corresponding <el>event</el> element. Because of this a REX message containing
       a well-formedness error SHOULD still cause previous <el>event</el> elements to be
@@ -550,9 +581,8 @@
         target nodes</a>
       </li>
       <li>
-        for each node in the node-set returned by the previous step that is not ignored
-        according to this specification, the event or events initialised in step 1 MUST
-        be dispatched as if by a call to 
+        if the previous step produced a node and it is not ignored according to this specification, 
+        the event or events initialised in step 1 MUST be dispatched as if by a call to 
         <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-EventTarget-dispatchEvent'>EventTarget.dispatchEvent()</a>.
         If the event is defined to have side-effect (such as modifying the DOM tree,
         as is the case with <a href='#mutation'>mutation events</a>), this is the moment
@@ -571,6 +601,12 @@
       or XML Events [XMLEV] may be handling events received through REX messages in the absence
       of a DOM representation of the document tree.
     </p>
+    <p>
+      Note that user-agents that support the <a href='#streaming'>Streaming Module</a> have to
+      support a slightly more elaborate processing model that, in the case of timed events,
+      has different requirements in terms of the order in which events are to be processed
+      and the immediacy of their dispatch.
+    </p>
     
     <section xml:id='proc-mapping-ev'>
       <title>Mapping <el>event</el> elements to Event objects</title>
@@ -585,7 +621,7 @@
         </dd>
         <dt>namespaceURI</dt>
         <dd>
-          Set to the value of the <at>ns</at> attribute, resolved as described in its
+          Set to URI equivalent of the value of the <at>ns</at> attribute, resolved as described in its
           own section.
         </dd>
         <dt>target</dt>
@@ -726,7 +762,7 @@
     </p>
     <p>
       A REX message that is intended to be understood if and only if the user-agent supports
-      a minimal version of the REX specification MUST set the <at el='rex'>version</at> attribute
+      a minimal version of the REX specification MUST set the <at el='rex'>minimal-version</at> attribute
       correspondingly. A user-agent that does not support the required version MUST then discard
       the entire message. Otherwise, it MUST apply the following forward-compatibility rules.
     </p>
@@ -828,12 +864,66 @@
     </section>
   </section>
 
+  <section xml:id='streaming'>
+    <title>Streaming Module</title>
+
+    <p>
+      This chapter of the specification contains aspects of REX that are only
+      useful within streaming environments in which features such as timing,
+      synchronisation, or tune-in are relevant. As such, it is optional for
+      implementations not intended to operate in such environments, and constitutes 
+      a separate conformance level.
+    </p>
+    
+    <section xml:id='reference-time'>
+      <title>Defining Reference Time</title>
+      <p>
+        
+      </p>
+    </section>
+    
+    <section xml:id='attr-timeStamp'>
+      <title>The <at>timeStamp</at> attribute</title>
+      <p>
+        The <at>timeStamp</at> attribute contains a non-negative integer which defines
+        the time in milliseconds relative to the current <a href='reference-time'>reference time</a>
+        at which the event is to be triggered.
+      </p>
+
+      <schema>
+        <title>Attribute timeStamp</title>
+        <include href='rex.rng#timeStamp'/>
+      </schema>
+
+      <section xml:id='processing-time'>
+        <title>Processing model for timed events</title>
+        <p>
+
+        </p>
+      </section>
+    </section>
+
+    <section xml:id='synch'>
+      <title>Synchronisation</title>
+      <p>
+        
+      </p>
+    </section>
+
+    <section xml:id='tune-in'>
+      <title>Tuning in to an event stream</title>
+      <p>
+        
+      </p>
+    </section>
+  </section>
+
   <section xml:id='mutation'>
     <title>Encoding Mutation Events</title>
 
     <p>
       All <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-eventgroupings-mutationevents'>mutations events</a>
-      are in the <code>http://www.w3.org/2001/xml-events</code> namespace. Only the following events are
+      are in no namespace. Only the following events are
       supported by this specification: <ev>DOMNodeInserted</ev>, <ev>DOMNodeRemoved</ev>,
       <ev>DOMAttrModified</ev>, and <ev>DOMCharacterDataModified</ev>.
     </p>
@@ -871,7 +961,8 @@
         <dt>attrName</dt>
         <dd>
           The name of the attribute being added, changed, or removed 
-          for <ev>DOMAttrModified</ev>, as derived from the target path.
+          for <ev>DOMAttrModified</ev>, as obtained from the <at el='DOMAttrModified'>attrName</at>
+          attribute when applicable.
         </dd>
         <dt>attrChange</dt>
         <dd>
@@ -881,14 +972,12 @@
       </dl>
     </section>
 
-
-
     <section xml:id='event-DOMSubtreeModified'>
       <title>The <ev>DOMSubtreeModified</ev> event</title>
 
       <p>
         The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMSubtreeModified'>DOMSubtreeModified</a>
-        is not supported. Implementations MUST process it as an unknown event.
+        is not supported. Implementations SHOULD process it as an unknown event.
       </p>
     </section>
 
@@ -918,7 +1007,7 @@
       </p>
       <p>
         When this event is transmitted, the <el>event</el> element MUST allow arbitrary XML as its content.
-        This is not specified in the schema fragment below but left to compounding schemata (e.g. defined
+        This is not specified in the schema fragment below but left to compounding schemata (e.g.
         using NVDL) to define.
       </p>
       <schema>
@@ -935,6 +1024,75 @@
           at the end of the list of child nodes.
         </dd>
       </dl>
+      <p>
+        Please note that the payload of <ev>DOMNodeInserted</ev> events MUST NOT be normalised prior to
+        insertion and therefore that indentation, if undesirable in the targeted result, has to be
+        absent from the event payload as well. For instance, given the following target tree:
+      </p>
+      <example>
+        <title>Source document</title>
+        <![CDATA[
+        <document>
+          ...
+          <section xml:id='poodle-mania'>
+            <title></title>
+            ...
+          </section>
+          ...
+        </document>
+        ]]>
+      </example>
+      <p>
+        And given the following <ev>DOMNodeInserted</ev> event:
+      </p>
+      <example>
+        <title>Adding a link</title>
+        <![CDATA[
+        <rex xmlns='http://www.w3.org/2006/rex'>
+          <event target='id("poodle-mania")/title' name='DOMNodeInserted'>
+            Poodles are for maniacs!
+          </event>
+        </rex>
+        ]]>
+      </example>
+      <p>
+        Will produce the following result:
+      </p>
+      <example>
+        <title>Real result</title>
+        <![CDATA[
+        <document>
+          ...
+          <section xml:id='poodle-mania'>
+            <title>
+            Poodles are for maniacs!
+          </title>
+            ...
+          </section>
+          ...
+        </document>
+        ]]>
+      </example>
+      <p>
+        And not what some may have expected:          
+      </p>
+      <example>
+        <title>Possible expected result</title>
+        <![CDATA[
+        <document>
+          ...
+          <section xml:id='poodle-mania'>
+            <title>Poodles are for maniacs!</title>
+            ...
+          </section>
+          ...
+        </document>
+        ]]>
+      </example>
+      <p>
+        In order to obtain the above, the white space before and after
+        "Poodles are for maniacs!" would have had to be removed.
+      </p>
     </section>
 
     <section xml:id='event-DOMNodeRemoved'>
@@ -971,7 +1129,9 @@
         the node is removed.
       </p>
       <p>
-        The event adds no attribute to the <el>event</el> element.
+        The event adds no attribute to the <el>event</el> element. When this event is transmitted, 
+        the <el>event</el> element MUST allow arbitrary XML as its content. This is not specified in 
+        the schema fragment below but left to compounding schemata (e.g. using NVDL) to define.
       </p>
       <schema>
         <title>DOMNodeRemoved</title>
@@ -987,7 +1147,7 @@
 
       <p>
         The <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeRemovedFromDocument'>DOMNodeRemovedFromDocument</a>
-        is not supported. Implementations MUST process it as an unknown event. It is nevertheless dispatched after a DOMNodeRemoved event
+        is not supported. Implementations SHOULD process it as an unknown event. It is nevertheless dispatched after a DOMNodeRemoved event
         as described in DOM 3 Events [DOM3EV].
       </p>
     </section>
@@ -998,7 +1158,7 @@
       <p>
         The 
         <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInsertedIntoDocument'>DOMNodeInsertedIntoDocument</a>
-        is not supported. Implementations MUST process it as an unknown event. It is nevertheless dispatched after a DOMNodeInserted event
+        is not supported. Implementations SHOULD process it as an unknown event. It is nevertheless dispatched after a DOMNodeInserted event
         as described in DOM 3 Events [DOM3EV].
       </p>
     </section>
@@ -1012,25 +1172,25 @@
       </p>
       <p>
         When representing a <ev>DOMAttrModified</ev> event, the <el>event</el>
-        element's <at el='event'>target</at> attribute MUST have an attribute step as its last
-        step (i.e. the <a href='#path-syntax'>FullStep</a> construct). If the
-        <at el='DOMAttrModified'>attrChange</at> attribute is set to <code>removal</code>
-        then the attribute pointed to by the target path MUST exists, and if it does not 
-        the event MUST be ignored. If however it is set to <code>modification</code> or
-        <code>addition</code> then there are two possible options:
+        element's <at el='event'>target</at> attribute MUST point to an element node.
+        That element node is the one on which the attribute pointed to by 
+        <at el='DOMAttrModified'>attrName</at> is to be modified, added, or removed.
+      </p>
+      <p>
+        If the <at el='DOMAttrModified'>attrChange</at> attribute is set to <code>removal</code>
+        then the attribute pointed to by the target path and <at el='DOMAttrModified'>attrName</at>
+        attribute MUST exists, and if it does not the event MUST be ignored. If however it is set to
+        <code>modification</code> or <code>addition</code> then there are two possible options:
       </p>
       <ul>
         <li>
-          if the attribute exists, then the value of <at el='DOMAttrModified'>attrChange</at>
-          MUST be set to <code>modification</code>;
+          if the attribute exists, then the event MUST be processed as if the value of 
+          <at el='DOMAttrModified'>attrChange</at> were <code>modification</code>;
         </li>
         <li>
-          otherwise, its value MUST be set to <code>addition</code>. The processing node-set
-          for that of the element MUST change to be that which would be obtained from
-          processing the same target path, but with the last step (i.e. the 
-          <a href='#path-syntax'>FullStep</a> construct) removed. The namespace IRI and local name
-          of the attribute to be added MUST be those of the attribute pointed to by the
-          <a href='#path-syntax'>FullStep</a> part of the target path.
+          conversely, if the attribute does not exist, then the event MUST be processed 
+          as if the value of <at el='DOMAttrModified'>attrChange</at> had been 
+          <code>addition</code>;
         </li>
       </ul>
       <p>
@@ -1045,10 +1205,26 @@
         <include href='rex.rng#DOMAttrModified'/>
       </schema>
       <dl type='attr-list'>
+        <dt id='attr-DOMAttrModified-attrName'>attrName</dt>
+        <dd>
+          The name of the target attribute on the context element. Its value is a QName resolved
+          in the same manner as QNames in XSLT [XSLT]. Specifically, if the QName does not
+          have a prefix, then the namespace URI component of the name is <code>null</code>.
+          If it does have a prefix, then its namespace URI component MUST be that corresponding
+          to that prefix in the namespace declarations in scope for the <el>event</el> element
+          being processed; inclusive of the implicit declaration of the prefix <code>xml</code> 
+          required by Namespaces in XML [XMLNS] and exclusive of the default namespace. If the
+          QName is not namespace well-formed [XMLNS] either because the prefix cannot be resolved
+          to a namespace declaration in the current scope, or because it is syntactically 
+          invalid, then the entire event MUST be ignored. This attribute is required.
+        </dd>
         <dt id='attr-DOMAttrModified-attrChange'>attrChange</dt>
         <dd>
           Indicates the type of change that concerns this attribute, one of <code>modification</code>,
           <code>addition</code>, or <code>removal</code>. The default value is <code>modification</code>.
+          Note that the distinction between <code>addition</code> and <code>modification</code> is
+          largely for documentation purposes as the user-agent changes one into the other depending
+          on the presence or not of the attribute.
         </dd>
         <dd>
           If the value is <code>modification</code>, then the <at el='DOMAttrModified'>newValue</at>
@@ -1060,7 +1236,7 @@
         <dd>
           If the value is <code>addition</code>, then the <at el='DOMAttrModified'>newValue</at> 
           attribute MUST be present, and the value of the target attribute MUST be created with 
-          a value being that contained in <at el='DOMAttrModified'>newValue</at>.  If 
+          a value being that contained in <at el='DOMAttrModified'>newValue</at>. If 
           <at el='DOMAttrModified'>newValue</at> is not specified, the event MUST be ignored.
           If the target attribute already exists, the event MUST be processed as
           if <at el='DOMAttrModified'>attrChange</at> had had a value of <code>modification</code>.
@@ -1113,7 +1289,7 @@
         Neither of the mutation name events 
         (<a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMElementNameChanged'>DOMElementNameChanged</a> and 
         <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMAttributeNameChanged'>DOMAttributeNameChanged</a>)
-        is supported. Implementation MUST process them as unknown events.
+        is supported. Implementation SHOULD process them as unknown events.
       </p>
     </section>
   </section>
@@ -1137,7 +1313,12 @@
         The parsing of attribute values MUST be performed as follows:
       </p>
       <ul>
-        <li>The white space in attribute values MUST be normalised such that XXX.</li>
+        <li>
+          The white space in attribute values MUST be normalised such that XXX.
+          <ednote>
+            the rules here must be defined better, see other specs
+          </ednote>
+        </li>
         <li>
           Attribute values are case-sensitive. If the value of an attribute can be
           understood as being case-insensitive in a given vocabulary that they are
@@ -1198,7 +1379,7 @@
       </p>
     </ednote>
     
-    <section xml:id='conform-checklist'>
+    <section xml:id='conform-checklist' normativity='informative'>
       <title>Conformance to the QA Framework Specification Guidelines</title>
       <p>
         This table is derived from the checklist of all defined requirements
@@ -1644,17 +1825,31 @@
     </section>
   </section>
 
-  <section xml:id='acknow'>
+  <section xml:id='acknow' normativity='informative'>
     <title>Acknowledgements</title>
 
     <p>
       The editor would like to thank Dave Raggett for his excellent input and comments. This
       specification is a collective work that derives from other solutions in the domain. Notable 
-      amongst the influences are an input document from Nokia the ideas from which were
+      amongst its initial influences are an input document from Nokia the ideas from which were
       incorporated into this specification, <a href='http://xmldb-org.sourceforge.net/xupdate/'>XUpdate</a>
       which has been a major de facto solution since the year 2000 and was influential in
-      REX's technical design, and the 
-      <a href='http://www.ietf.org/html.charters/widex-charter.html'>IETF WiDeX Working Group</a>.
+      REX's technical design, and the <a href='http://www.w3.org/TR/xup'>XUP</a> 
+      W3C Member Submission (now <a href='http://openxup.org'>OpenXUP</a>) from which much
+      inspiration was drawn.
+    </p>
+    <p>
+      The <a href='http://www.ietf.org/html.charters/widex-charter.html'>IETF WiDeX Working Group</a>
+      has been a pleasure to collaborate with and has provided a substantial amount of input, much of
+      which has made its way directly into this specification. Many thanks are also due to the MWI
+      and XML Core WGs for their excellent comments and suggestions.
+    </p>
+    <p>
+      The following individuals, in no particular order, have provided valuable comments that have
+      helped shape REX: Ola Andersson, Stéphane Bortzmeyer, Gerd Castan, John Cowan, Elliotte Rusty Harold,
+      Takanari Hayama, Ian Hickson, Björn Hörhmann, Philippe Le Hégaret, Paul Libbrecht,
+      Chris Lilley, Cameron McCormack, David Rivron, Elin Röös, Dave Singer, Maciej Stachowiak,
+      Ruud Steltenpool, and Jin Yu.
     </p>
   </section>
 
@@ -1832,6 +2027,49 @@
         a number of typos, spotted by
         <a href='http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0005.html'>Elliotte Harold (UNC)</a>, and 
         <a href='http://lists.w3.org/Archives/Public/public-webapi/2006Feb/0011.html'>Ruud Steltenpool (University of Twente)</a>
+      </li>
+      <li>
+        attribute version changed to <at>minimal-version</at> based on feedback from Dave Singer.
+      </li>
+      <li>
+        clarified transport independence in the overview (Dave Raggett, Chris Lilley)
+      </li>
+      <li>
+        IRI validation now not recommended, and <code>namespaceURI</code> is defined to be
+        its URI equivalent (John Cowan).
+      </li>
+      <li>
+        the processing model no longer contradicts timeStamp processing (Philippe Le Hégaret)
+      </li>
+      <li>
+        changed default <at>ns</at> value as well as event namespaces in accordance with
+        DOM 3 Events changes. Also substituted URI and IRI in some places.
+      </li>
+      <li>
+        all the parts that have to do with streaming are now in a separate module
+      </li>
+      <li>
+        clearly indicate that the events are to be dispatched in document order when they
+        are not timed (Dave Singer)
+      </li>
+      <li>
+        added the ability to specify a target document, if multiple documents are present
+      </li>
+      <li>
+        modified the XPath matching rules such that they only ever return a single
+        node (text or element, attributes are no longer needed). It is expected that a
+        future version of this specification will add a flag indicating that multiple
+        nodes can be matched.
+      </li>
+      <li>
+        DOMAttrModified no longer targets attributes directly from the target path, but
+        rather targets the owner element and has an additional <at el='DOMAttrModified'>attrName</at>
+        attribute to specify which is the targeted attribute. Without this implementations
+        could not directly reused an external XPath implementation but rather had to perform
+        at least some parsing of the target path themselves (David Rivron).
+      </li>
+      <li>
+        clarified that text is not normalised in any particular way (David Rivron).
       </li>
     </ul>
   </section>

@@ -11,8 +11,13 @@
     <define name='rex'>
       <element name='rex'>
         <optional>
-          <attribute name='version'>
+          <attribute name='minimal-version'>
             <value>1.0</value>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name='target-document'>
+            <text/>
           </attribute>
         </optional>
         <ref name='ns'/>
@@ -46,9 +51,7 @@
         <attribute name='name'>
           <data type='NMTOKEN'/>
         </attribute>
-        <attribute name='timeStamp'>
-          <text/>
-        </attribute>
+        <ref name='event.AT'/>
         <choice>
           <ref name='DOMNodeInserted'/>
           <ref name='DOMNodeRemoved'/>
@@ -58,6 +61,8 @@
       </element>
     </define>
   </div>
+  
+  <define name='event.AT'/>
 
   <div xml:id='DOMNodeInserted'>
     <define name='DOMNodeInserted'>
@@ -78,6 +83,9 @@
   <div xml:id='DOMAttrModified'>
     <define name='DOMAttrModified'>
       <group>
+        <attribute name='attrName'>
+          <text/>
+        </attribute>
         <optional>
           <attribute name='attrChange'>
             <choice>
@@ -101,6 +109,16 @@
       <attribute name='newValue'>
         <text/>
       </attribute>
+    </define>
+  </div>
+
+  <div xml:id='timeStamp'>
+    <define name='event.AT' combine='interleave'>
+      <optional>
+        <attribute name='timeStamp'>
+          <data type='nonNegativeInteger'/>
+        </attribute>
+      </optional>
     </define>
   </div>
 </grammar>
