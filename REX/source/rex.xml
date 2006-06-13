@@ -108,7 +108,7 @@
           <title>Setting an attribute</title>
           <![CDATA[
           <rex xmlns='http://www.w3.org/2006/rex'>
-            <event target='id("spot")/@fetch' name='DOMAttrModified' newValue='ball'/>
+            <event target='id("spot")' attrName='fetch' name='DOMAttrModified' newValue='ball'/>
           </rex>
           ]]>
         </example>
@@ -149,12 +149,12 @@
       <section xml:id='eg-delelem'>
         <title>Removing an element</title>
         <p>
-          The following REX message removes <em>all</em> circle elements 
-          that are children of the element with id <code>poodle-stylist-location-layer</code>.
+          The following REX message removes the <em>first</em> circle 
+          that is a child of the element with id <code>poodle-stylist-location-layer</code>.
         </p>
 
         <example>
-          <title>Removing several elements</title>
+          <title>Removing an element</title>
           <![CDATA[
           <rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'>
             <event target='id("poodle-stylist-location-layer")/svg:circle' name='DOMNodeRemoved'/>
@@ -163,10 +163,9 @@
         </example>
         
         <p>
-          This shows how REX capitalises on the expressivity of XPath to perform 
-          multiple operations with a single command that is concise and network
-          efficient. This capability is not limited to node removal, the processing
-          model allows any event to be dispatched to multiple nodes.
+          Note that while the target path may match multiple elements, REX
+          limits the list to the first one that matches. Future versions may 
+          include a flag to target multiple elements.
         </p>
       </section>
 
@@ -555,15 +554,19 @@
       memory.
     </p>
     <p>
-      Events MUST be dispatched in the same order in which they occur in the REX message.
+      Events that do not have a time stamp MUST be dispatched in the same order in which they occur
+      in the REX message. If the user-agent supports the <a href='#streaming'>Streaming Module</a>
+      then events that have a time stamp MAY be caused to be processed in an order different from
+      the one in which they occur in the REX message, as described below.
     </p>
     <p>
-      Implementations SHOULD dispatch events encoded in REX messages as soon as they have finished
-      parsing the corresponding <el>event</el> element. Because of this a REX message containing
-      a well-formedness error SHOULD still cause previous <el>event</el> elements to be
-      fully processed. Upon encountering a well-formedness error, a REX user-agent MUST stop processing
-      immediately such that the remainder of the XML document MUST be ignored. If the well-formedness 
-      error is contained inside an <el>event</el> element, the corresponding event MUST also be ignored.
+      Because user-agents are encouraged to process events that do not have a time stamp as soon as
+      possible, a REX message containing a well-formedness error SHOULD still cause previous
+      <el>event</el> elements to be fully processed. Upon encountering a well-formedness error, a REX
+      user-agent MUST stop processing immediately such that the remainder of the XML document MUST be
+      ignored and any event scheduled to be dispatched at a later time due to its time stamp MUST be
+      discarded. If the well-formedness error is contained inside an <el>event</el> element, the 
+      corresponding event MUST also be ignored.
     </p>
     <p>
       As soon as an <el>event</el> element is parsed, and provided that it is not
@@ -577,8 +580,18 @@
         by a single <el>event</el> element (e.g. for the <ev>DOMNodeRemoved</ev> event).
       </li>
       <li>
+        if the event has an explicit time stamp and the user-agent supports the 
+        <a href='#streaming'>Streaming Module</a>, the time stamp is evaluated as an offset from the
+        <a href='#reference-event'>reference event</a> and the event MUST be dispatched that many
+        ticks after the current reference event. If the time resolved thus has already occurred,
+        the the event is processed immediately as if the time stamp had not been specified.
+        Likewise, if the user-agent does not support the <a href='#streaming'>Streaming Module</a>,
+        the the event MUST be processed immediately. When an event is queued to be dispatched at
+        a later time, its processing MUST resume with the next step.
+      </li>
+      <li>
         the target path MUST be resolved, as defined in <a href='#referencing'>Referencing
-        target nodes</a>
+        target nodes</a>.
       </li>
       <li>
         if the previous step produced a node and it is not ignored according to this specification, 
@@ -602,10 +615,13 @@
       of a DOM representation of the document tree.
     </p>
     <p>
-      Note that user-agents that support the <a href='#streaming'>Streaming Module</a> have to
-      support a slightly more elaborate processing model that, in the case of timed events,
-      has different requirements in terms of the order in which events are to be processed
-      and the immediacy of their dispatch.
+      Note that given the presence of time stamps, it is possible for content to require of the
+      user-agent that it queue up a potentially unlimited number of events, which may lead to
+      exhausting available memory. In order to avoid this, servers SHOULD arrange to deliver 
+      events in a sequence that minimises memory requirements for user-agents. Also,
+      user-agents MAY process events earlier than indicated if not doing so would result
+      in exhausting memory resources. If doing so, then user-agents MUST process these events
+      in the order in which the timing would have required that they process them.
     </p>
     
     <section xml:id='proc-mapping-ev'>
@@ -875,45 +891,175 @@
       a separate conformance level.
     </p>
     
-    <section xml:id='reference-time'>
-      <title>Defining Reference Time</title>
+    <section xml:id='reference-event'>
+      <title>Defining the Reference Event</title>
       <p>
-        
+        The reference event is an event, of any type, that is defined to serve
+        as the reference point for time stamps on events following this one. 
+        Any <el>event</el> element that has a <at>timeRef</at>
+        attribute set to <code>anchor</code> becomes a reference event. All
+        events that follow it in the stream and have a time stamp have that time
+        stamp defined as an offset from when the reference event became active.
+        If an <el>event</el> element has both a <at>timeStamp</at> attribute
+        and a <at>timeRef</at> attribute set to <code>anchor</code>, then the
+        <at>timeStamp</at> attribute MUST be ignored, and the event processed
+        as if it hadn't been specified.
+      </p>
+      <ednote>
+        The gist is correct but we need style here.
+      </ednote>
+      <p>
+        When no reference event has yet been seen, the time from which
+        time stamps are offset defaults to the beginning of the session.
       </p>
     </section>
     
+    <section xml:id='attr-timeRef'>
+      <title>The <at>timeRef</at> attribute</title>
+      <p>
+        The <at>timeRef</at> attribute is used to mark an event as a 
+        <a href='#reference-event'>reference event</a> for the timing for time
+        stamps. It has two values, <code>anchor</code> and <code>implicit</code>.
+        When set to <code>anchor</code>, the corresponding event MUST be used as
+        a reference event, as defined above. When set to <code>implicit</code>
+        the behaviour of the <el>event</el> element is untouched. The absence of
+        this attribute is equivalent to it being set to <code>implicit</code>.
+      </p>
+
+      <schema>
+        <title>Attribute timeRef</title>
+        <include href='rex.rng#timeRef'/>
+      </schema>
+    </section>
+
     <section xml:id='attr-timeStamp'>
       <title>The <at>timeStamp</at> attribute</title>
       <p>
         The <at>timeStamp</at> attribute contains a non-negative integer which defines
-        the time in milliseconds relative to the current <a href='reference-time'>reference time</a>
-        at which the event is to be triggered.
+        the time in <em>ticks</em> relative to the current
+        <a href='reference-event'>reference event</a> at which the event is to be 
+        triggered. A tick is defined against the synchronisation clock, which defaults
+        to making a tick last exactly one millisecond, but MAY be set to another value
+        in a user-agent dependent manner (e.g. because the user-agent is synchronising
+        with an audio or video stream that has a different time, or because the user
+        has requested that time run slower or faster).
       </p>
 
       <schema>
         <title>Attribute timeStamp</title>
         <include href='rex.rng#timeStamp'/>
       </schema>
-
-      <section xml:id='processing-time'>
-        <title>Processing model for timed events</title>
-        <p>
-
-        </p>
-      </section>
-    </section>
-
-    <section xml:id='synch'>
-      <title>Synchronisation</title>
-      <p>
-        
-      </p>
     </section>
 
     <section xml:id='tune-in'>
       <title>Tuning in to an event stream</title>
       <p>
-        
+        In continuous streaming and broadcast scenarios it is important that a user-agent be
+        able to tune into a stream at an arbitrary moment and nevertheless be able to start
+        using it as early as possible. This requires three distinct but related pieces of
+        functionality:
+      </p>
+      <ul>
+        <li>
+          the ability to send the same message several times (carouselling) so that important
+          content can be guaranteed to be available promptly to the user-agent, and also to
+          compensate for network errors;
+        </li>
+        <li>
+          the ability to identify that a given message has been processed already in order
+          to save processing time and to avoid applying the same action multiple times;
+        </li>
+        <li>
+          the ability to distinguish between a message that is immediately usable, and one
+          that is a delta that is only meaningful if the previous content that it refers
+          to has also been received.
+        </li>
+      </ul>
+      <p>
+        The above functionality is obtained through the use of two attributes on the
+        <el>rex</el> element, <at>seq</at> and <at>target</at>:
+      </p>
+      <schema>
+        <title>Attributes seq and target</title>
+        <include href='rex.rng#tune-in'/>
+      </schema>
+
+      <dl type='attr-list'>
+        <dt id='attr-seq'>seq</dt>
+        <dd>
+          This attribute is a positive integer that identifies a REX message uniquely 
+          within a given session. If, within a session, a user-agent receives 
+          a messages with a <at>seq</at> that it has already seen for that session, 
+          then it SHOULD ignore the entirety of that message. Within a stream of
+          messages that is intended to support tune-in, all messages SHOULD have
+          a <at>seq</at> attribute. This attribute has no default value, and if
+          a message does not have a <at>seq</at> attribute then it MUST be processed
+          normally and cannot be ignored.
+        </dd>
+        <dt id='attr-target'>target</dt>
+        <dd>
+          This attribute is a positive integer that identifies a message 
+          that cannot be usefully processed without having received the the message
+          the <at>seq</at> of which has the number that is the value of the <at>target</at>
+          attribute. If a user-agent receives a message with a <at>target</at> that doesn't
+          correspond to a <at>seq</at> that it has seen then it SHOULD ignore the
+          entire message. User-agents are only required to remember the number of the last
+          <at>seq</at> that wasn't accompanied by a <at>target</at>, therefore content
+          SHOULD only use <at>target</at> attributes that refer to the latest standalone
+          <at>seq</at> value.
+        </dd>
+      </dl>
+      <p>
+        This functionality can be used as follows. A message containing enough of the
+        document for tune-in would be transmitted with a <at>seq</at> and no <at>target</at>:
+      </p>
+      <example>
+        <title>A REX message suitable as a tune-in point</title>
+        <![CDATA[
+        <rex xmlns='http://www.w3.org/2006/rex' seq='1'>
+        	<event target='/' name='DOMNodeInserted'>
+        	  <svg xmlns='http://www.w3.org/2000/svg'>
+        	    <!-- more content -->
+        	  </svg>
+        	</event>
+        </rex>
+        ]]>
+      </example>
+      <p>
+        The above can be processed immediately, whether or not the user-agent has received
+        previous messages in the stream or not. The following one on the other hand is a
+        message that is only relevant if the user-agent has already received the previous
+        message. If it hasn't, then it will ignore it.
+      </p>
+      <example>
+        <title>A REX message meaningful only in context</title>
+        <![CDATA[
+        <rex xmlns='http://www.w3.org/2006/rex' seq='2' target='1'>
+        	<event target='id("dahut")' name='DOMAttrModified' attrName='fill' newValue='red'/>
+        </rex>
+        ]]>
+      </example>
+      <p>
+        Therefore, in a broadcast or multicast environment one may see sequences of events
+        similar to the following:
+      </p>
+      <ol>
+        <li>REX message seq=1: creating new document A</li>
+        <li>REX message seq=2, target=1: update document A</li>
+        <li>REX message seq=1: creating new document A (ignore if seen)</li>
+        <li>REX message seq=3, target=1: update document A</li>
+        <li>REX message seq=2, target=1: update document A (ignore if seen)</li>
+        <li>REX message seq=3, target=1: update document A (ignore if seen)</li>
+        <li>REX message seq=4: creating new document B</li>
+        <li>REX message seq=5, target=4: update document A</li>
+        <li>REX message seq=6, target=4: update document A</li>
+        <li>...</li>
+      </ol>
+      <p>
+        In the above, if a user-agent starts receiving the stream of REX messages from
+        the first <code>seq=3</code>, it will ignore all the following ones until it
+        receives <code>seq=4</code> which provides it with sufficient context to 
+        display something.
       </p>
     </section>
   </section>
@@ -2070,6 +2216,15 @@
       </li>
       <li>
         clarified that text is not normalised in any particular way (David Rivron).
+      </li>
+      <li>
+        added <at>timeRef</at> and the accompanying reference event section (Dave Raggett).
+      </li>
+      <li>
+        updated the processing model to be clearer with respect to timing (Dave Raggett).
+      </li>
+      <li>
+        created a separate <a href='#streaming'>Streaming Module</a>.
       </li>
     </ul>
   </section>
