@@ -6,7 +6,7 @@
           regenerated.
           ******* WARNING ********
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.27 2006-06-15 12:28:40 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>15 June 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="http://www.w3.org/TR/XMLHttpRequest/">http://www.w3.org/TR/XMLHttpRequest/</a></dd><dt>Previous version:</dt><dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</a></dd><dt>Editor:</dt><dd><span class="person"><a href="http://annevankesteren.nl/">Anne van Kesteren</a> (<a href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+<title>The XMLHttpRequest Object</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: XMLHttpRequest.html,v 1.28 2006-06-15 17:31:29 avankest Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">The XMLHttpRequest Object</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>15 June 2006</em></h2><dl><dt>This version:</dt><dd><a href=""></a></dd><dt>Latest version:</dt><dd><a href="http://www.w3.org/TR/XMLHttpRequest/">http://www.w3.org/TR/XMLHttpRequest/</a></dd><dt>Previous version:</dt><dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</a></dd><dt>Editor:</dt><dd><span class="person"><a href="http://annevankesteren.nl/">Anne van Kesteren</a> (<a href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -23,7 +23,7 @@
    additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
    functionality for transferring data between a client and a server.</p>
   <div class="ednote">
-   <p>Last update: $Id: XMLHttpRequest.html,v 1.27 2006-06-15 12:28:40 avankest Exp $.</p>
+   <p>Last update: $Id: XMLHttpRequest.html,v 1.28 2006-06-15 17:31:29 avankest Exp $.</p>
   </div>
  </div>
  <div class="section"><h2 id="sotd">Status of this Document</h2>
@@ -222,7 +222,7 @@
    implement the <code>EventTarget</code> interface [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>].</p>
   <p>In ECMAScript [ECMA262], an instance of <code>XMLHttpRequest</code> can be
    created using the <code>XMLHttpRequest()</code> constructor:</p>
-  <div class="boxed"><div><span class="exampleTitle">Example: XMLHttpRequest Constructor</span></div><pre class="example" title="XMLHttpRequest Constructor">var r = new XMLHttpRequest();</pre></div>
+  <div class="boxed"><div><span class="exampleTitle">Example: XMLHttpRequest Constructor</span></div><pre class="example" title="XMLHttpRequest Constructor">var client = new XMLHttpRequest();</pre></div>
   <div class="ednote">What about non-ECMAScript implementations?</div>
   <p>A more complete description of what can be done with
    <code>XMLHttpRequest</code> can be found in the
@@ -325,10 +325,10 @@
        Otherwise, it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> return all the <abbr title="HyperText Transfer Protocol">HTTP</abbr> headers, as a single string, with
        each header line separated by a CR (U+000D) LF (U+000A) pair. The status
        line <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> not be included.</p><div class="boxed"><div><span class="exampleTitle">Example: Manipulating Response Headers</span></div><pre class="example" title="Manipulating Response Headers">// The following script:
-var r = new XMLHttpRequest();
-r.open('GET', 'test.txt', false);
-r.send();
-print(r.getAllResponseHeaders());
+var client = new XMLHttpRequest();
+client.open('GET', 'test.txt', false);
+client.send();
+print(client.getAllResponseHeaders());
 
 // ...should output something similar to the following text:
 Date: Sun, 24 Oct 2004 04:58:38 GMT
@@ -346,10 +346,10 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>No Parameters</dt><dt
        an U+0020 SPACE. If no headers of that name were received, then it <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>
        return the empty string. Header names <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> be compared case-insensitively
        to the method its argument (<var>header</var>).</p><div class="ednote">Case-insensitively how?</div><div class="ednote">Needs to be revised largely based on Mark's comments.</div><div class="boxed"><div><span class="exampleTitle">Example: Getting a Response Header</span></div><pre class="example" title="Getting a Response Header">// The following script:
-var r = new XMLHttpRequest();
-r.open('GET', 'test.txt', false);
-r.send();
-print(r.getResponseHeader('Content-Type'));
+var client = new XMLHttpRequest();
+client.open('GET', 'test.txt', false);
+client.send();
+print(client.getResponseHeader('Content-Type'));
 
 // ...should output something similar to the following text:
 Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>header</code>
@@ -464,11 +464,11 @@ Content-Type: text/plain; charset=utf-8</pre></div><dl><dt>Parameters</dt><dd cl
         <code>TE</code>, <code>Trailer</code>, <code>Transfer-Encoding</code> or
         <code>Upgrade</code> case-insensitively.</li>
       </ul><div class="boxed"><div><span class="exampleTitle">Example: Setting a Request Header</span></div><pre class="example" title="Setting a Request Header">// The following script:
-var r = new XMLHttpRequest();
-r.open('GET', 'demo.cgi');
-r.setRequestHeader('X-Test', 'one');
-r.setRequestHeader('X-Test', 'two');
-r.send(null);
+var client = new XMLHttpRequest();
+client.open('GET', 'demo.cgi');
+client.setRequestHeader('X-Test', 'one');
+client.setRequestHeader('X-Test', 'two');
+client.send(null);
 
 // ...would result in the following header being sent:
 ...
