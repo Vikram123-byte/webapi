@@ -159,11 +159,14 @@
   <p>The term <dfn id="dfn-reset">reset</dfn> either means that respective
    member <em class="ct">must</em> be set to its initial value or each member of
    the object, depending on how it's used.</p>
+  <!--
   <p>The <dfn id="dfn-cached-base-uri">cached base URI</dfn>
    <em class="ct">must</em> be <code>window.document.baseURI</code> once an
    <code>XMLHttpRequest</code> object is initialized. Specifically, the
    <code>window</code> that the <code>XMLHttpRequest</code> constructor comes
    from, not the calling <code>window</code> [Window].</p>
+  -->
+  <p class="issue">Can we drop this section at some point?</p>
   <h3 id="conformance">Conformance</h3>
   <p>Everying in this specification is normative except for diagrams, examples,
    notes and sections marked non-normative.</p>
@@ -235,17 +238,17 @@
   <pre class="idl">interface <dfn>XMLHttpRequest</dfn> {
   attribute EventListener            <span>onreadystatechange</span>;
   readonly attribute unsigned short  <span>readyState</span>;
-  void               <span>open</span>(in DOMString method, in DOMString uri);
-  void               <span>open</span>(in DOMString method, in DOMString uri, in boolean async);
-  void               <span>open</span>(in DOMString method, in DOMString uri, in boolean async, in DOMString user);
-  void               <span>open</span>(in DOMString method, in DOMString uri, in boolean async, in DOMString user, in DOMString password);
-  void               <span>setRequestHeader</span>(in DOMString header, in DOMString value);
+  void               <span>open</span>(in DOMString <var>method<var>, in DOMString <var>uri</var>);<!-- XXX why not url? -->
+  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>);
+  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
+  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
+  void               <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
   void               <span>send</span>();
-  void               <span>send</span>(in DOMString data);
-  void               <span>send</span>(in Document data);
+  void               <span>send</span>(in DOMString <var>data</var>);
+  void               <span>send</span>(in Document <var>data</var>);
   void               <span>abort</span>();
   DOMString          <span>getAllResponseHeaders</span>();
-  DOMString          <span>getResponseHeader</span>(in DOMString header);
+  DOMString          <span>getResponseHeader</span>(in DOMString <var>header</var>);
            attribute DOMString       <span>responseText</span>;
            attribute Document        <span>responseXML</span>;
            attribute unsigned short  <span>status</span>;
@@ -320,59 +323,22 @@
    <dt><dfn id="dfn-status"><code>status</code></dfn> of type
     <code>unsigned short</code></dt>
    <dd>
-    <p>If the <code>status</code> attribute is not available it
-     <em class="ct">must</em> raise an exception. It <em class="ct">must</em> be
-     available when <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When
-     available, it <em class="ct">must</em> represent the HTTP status code
-     (typically 200 for a successful connection).</p>
-    <dl>
-     <dt>Exceptions on retrieval</dt>
-     <dd>
-      <table class="idl-exceptions">
-       <tr>
-        <td><a href="#idl-if-DOMException">DOMException</a></td>
-        <td>
-         <table>
-          <tr>
-           <td>INVALID_STATE_ERR</td>
-           <td><em class="ct">must</em> be raised when this attribute is
-            accessed when <code>readyState</code> has an inappropriate
-            value.</td>
-          </tr>
-         </table>
-        </td>
-       </tr>
-      </table>
-     </dd>
-    </dl>
+    <p>If the <code>status</code> attribute is not available an
+     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. It <em class="ct">must</em> be available when
+     <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
+     <em class="ct">must</em> represent the HTTP status code (typically
+     <code>200</code> for a successful connection).</p>
    </dd>
    <dt><dfn id="dfn-statustext"><code>statusText</code></dfn> of type
     <code>DOMString</code></dt>
    <dd>
-    <p>If the <code>statusText</code> attribute is not available it
-     <em class="ct">must</em> raise an exception. It <em class="ct">must</em> be
-     available when <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When
-     available, it <em class="ct">must</em> represent the HTTP status text sent
-     by the server (appears after the status code).</p>
-    <dl>
-     <dt>Exceptions on retrieval</dt>
-     <dd>
-      <table class="idl-exceptions">
-       <tr>
-        <td><a href="#idl-if-DOMException">DOMException</a></td>
-        <td>
-         <table>
-          <tr>
-           <td>INVALID_STATE_ERR</td>
-           <td><em class="ct">must</em> be raised if this attribute is accessed
-            when <code>readyState</code> has an inappropriate value.</td>
-          </tr>
-         </table>
-        </td>
-       </tr>
-      </table>
-     </dd>
-    </dl>
+    <p>If the <code>statusText</code> attribute is not available an
+     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. It <em class="ct">must</em> be available when
+     <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
+     <em class="ct">must</em> represent the HTTP status text sent by the server
+     (appears after the status code).</p>
    </dd>
   </dl>
   <h4 class="no-num no-toc idl-header">Methods</h4>
@@ -382,11 +348,6 @@
     <p>When invoked, this method <em class="ct">must</em> cancel any network
      activity for which the object is responsible and <span>reset</span> the
      object.</p>
-    <dl>
-     <dt>No Parameters</dt>
-     <dt>No Return Value</dt>
-     <dt>No Exceptions</dt>
-    </dl>
    </dd>
    <dt><dfn id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn></dt>
    <dd>
@@ -411,28 +372,15 @@ Connection: Keep-Alive
 Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</pre>
     </div>
-    <dl>
-     <dt>No Parameters</dt>
-     <dt>Return Value</dt>
-     <dd>
-      <table>
-        <tr>
-         <td></td>
-         <td>A single string consisting of all HTTP headers. See prose for
-          details.</td>
-       </tr>
-      </table>
-     </dd>
-     <dt>No Exceptions</dt>
-    </dl>
    </dd>
    <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn></dt>
    <dd>
     <p>If the <code>readyState</code> attribute has a value other than 3
      (Receiving) or 4 (Loaded), it <em class="ct">must</em> return the empty
      string. Otherwise, it <em class="ct">must</em> represent the value of the
-     given HTTP header in the data received so far for the last request sent, as
-     a single string. If more than one header of the given name was received,
+     given HTTP header (<var>header</var>) in the data received so far for the
+     last request sent, as a single string. If more than one header of the given
+     name was received,
      then the values <em class="ct">must</em> be concatenated, separated from
      each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of
      that name were received, then it <em class="ct">must</em> return the empty
@@ -450,25 +398,6 @@ print(client.getResponseHeader('Content-Type'));
 // ...should output something similar to the following text:
 Content-Type: text/plain; charset=utf-8</pre>
     </div>
-    <dl>
-     <dt>Parameters</dt>
-     <dd class="idl-params">
-      <dl>
-       <dt><code>header</code> of type <code>DOMString</code></dt>
-       <dd>Name of the HTTP header.</dd>
-      </dl>
-     </dd>
-     <dt>Return Value</dt>
-     <dd>
-      <table>
-       <tr>
-        <td></td>
-        <td>Value of the given HTTP header.</td>
-       </tr>
-      </table>
-     </dd>
-     <dt>No Exceptions</dt>
-    </dl>
    </dd>
    <dt><dfn id="dfn-open"><code>open</code></dfn></dt>
    <dd>
@@ -489,40 +418,23 @@ Content-Type: text/plain; charset=utf-8</pre>
      they are <code>null</code>. The usage of userinfo is discouraged
      <em class="ct">may</em> not work in implementations.</p>
     <p>If <code>open()</code> is called when <code>readyState</code> is 4
-     (Loaded) the entire object <em class="ct">must</em> be reset.</p>
-    <dl>
-     <dt>Parameters</dt>
-     <dd class="idl-params">
-      <dl>
-       <dt><code>method</code> of type <code>DOMString</code></dt>
-       <dd>A valid HTTP method name. The <code>GET</code>, <code>POST</code>,
-        <code>PUT</code>, <code>DELETE</code> and <code>HEAD</code> values
-        <em class="ct">must</em> be supported
-        [<a href="#RFC2616">RFC2616</a>].</dd>
-       <dt><code>uri</code> of type <code>DOMString</code></dt>
-       <dd>A URI, which <em class="ct">must</em> be resolved to an absolute URI
-        using the <span>cached base URI</span>.</dd>
-       <dt><code>async</code> of type <code>boolean</code>, optional</dt>
-       <dd>Whether or not script execution can continue.</dd>
-       <dt><code>user</code> of type <code>DOMString</code>, optional</dt>
-       <dd>Username.</dd>
-       <dt><code>password</code> of type <code>DOMString</code>, optional</dt>
-       <dd>Password.</dd>
-      </dl>
-     </dd>
-     <dt>No Return Value</dt>
-     <dt>No Exceptions</dt>
-     <!-- XXX this is so wrong!!! -->
-    </dl>
+     (Loaded) the entire object <em class="ct">must</em> be
+     <span>reset</span>.</p>
+    <p class="issue">Need to define which methods must be supported by default,
+     how they are transformed to uppercase and whatever resolution we come up
+     for with regard to blacklist/whitelist nonsense.</p>
    </dd>
    <dt><dfn id="dfn-send"><code>send</code></dfn></dt>
    <dd>
     <p>If the <code>readyState</code> attribute has a value other than 1 (Open),
-     an exception <em class="ct">must</em> be raised. Otherwise, the
-     <code>readyState</code> attribute <em class="ct">must</em> be set to 2
-     (Sent) and a request to <var>uri</var> using method <var>method</var> is
-     sent. If the <var>async</var> flag is set to false, then the method
-     <em class="ct">must</em> not return until the request has completed.
+     an <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. Otherwise, the <code>readyState</code> attribute
+     <em class="ct">must</em> be set to 2 (Sent) and a request to <var>uri</var>
+     using method <var>method</var> is sent. <var>uri</var>, if relative,
+     <em class="ct">must</em> be resolved using
+     <code>window.document.baseURI</code> of the <code>window</code> whose
+     constructor is used. If the <var>async</var> flag is set to false, then the
+     method <em class="ct">must</em> not return until the request has completed.
      Otherwise, it <em class="ct">must</em> return immediately. (See:
      <code>open()</code>.)</p>
     <p>If <var>data</var> passed to the <code>send()</code> method it
@@ -597,33 +509,6 @@ Content-Type: text/plain; charset=utf-8</pre>
      bodies [<a href="#RFC2616">RFC2616</a>] it <em class="ct">should</em>
      insert <code>Expect</code> headers and handle 100 Continue responses
      appropriately.</p>
-    <dl>
-     <dt>Parameters</dt>
-     <dd class="idl-params">
-      <dl>
-       <dt><code>data</code> of varying types (see IDL)</dt>
-       <dd>Data to send.</dd>
-      </dl>
-     </dd>
-     <dt>No Return Value</dt>
-     <dt>Exceptions</dt>
-     <dd>
-      <table>
-       <tr>
-        <td><a href="#idl-if-DOMException">DOMException</a></td>
-        <td>
-         <table>
-          <tr>
-           <td>INVALID_STATE_ERR</td>
-           <td><em class="ct">must</em> be raised if this method is called when
-            <code>readyState</code> has an inappropriate value.</td>
-          </tr>
-         </table>
-        </td>
-       </tr>
-      </table>
-     </dd>
-    </dl>
    </dd>
    <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn></dt>
    <dd>
@@ -632,7 +517,8 @@ Content-Type: text/plain; charset=utf-8</pre>
      exceptions:</p>
     <ul>
      <li>If the <code>readyState</code> attribute has a value other than 1
-      (Open), an exception <em class="ct">must</em> be raised.</li>
+      (Open), an <code>INVALID_STATE_ERR</code> exception
+      <em class="ct">must</em> be raised.</li>
      <li>Nothing <em class="ct">must</em> be done if the <var>header</var> or
       <var>value</var> arguments contain any U+000A LINE FEED or U+000D CARRIAGE
       RETURN characters, or if the <var>header</var> argument contains any
@@ -677,35 +563,6 @@ X-Test: one, two
      authentication, proxies, and cookies.</p>
     <p>The list of request headers must be reset when the <code>open()</code>
      method is called.</p>
-    <dl>
-     <dt>Parameters</dt>
-     <dd class="idl-params">
-      <dl>
-       <dt><code>header</code> of type <code>DOMString</code></dt>
-       <dd>Name of the HTTP header.</dd>
-       <dt><code>value</code> of type <code>DOMString</code></dt>
-       <dd>Value of the HTTP header.</dd>
-      </dl>
-     </dd>
-     <dt>No Return Value</dt>
-     <dt>Exceptions</dt>
-     <dd>
-      <table>
-       <tr>
-        <td>DOMException</td>
-        <td>
-         <table>
-          <tr>
-           <td>INVALID_STATE_ERR</td>
-           <td><em class="ct">must</em> be raised if <code>readyState</code> has
-            an inappropriate value. (See prose above.)</td>
-          </tr>
-         </table>
-        </td>
-       </tr>
-      </table>
-     </dd>
-    </dl>
    </dd>
   </dl>
   <p>HTTP requests sent from multiple different <code>XMLHttpRequest</code>

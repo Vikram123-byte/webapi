@@ -260,14 +260,16 @@
 
   <p>The term <dfn id="dfn-reset">reset</dfn> either means that respective
    member <em class="ct">must</em> be set to its initial value or each member
-   of the object, depending on how it's used.
+   of the object, depending on how it's used.</p>
+  <!--
+  <p>The <dfn id="dfn-cached-base-uri">cached base URI</dfn>
+   <em class="ct">must</em> be <code>window.document.baseURI</code> once an
+   <code>XMLHttpRequest</code> object is initialized. Specifically, the
+   <code>window</code> that the <code>XMLHttpRequest</code> constructor comes
+   from, not the calling <code>window</code> [Window].</p>
+  -->
 
-  <p>The <dfn id="dfn-cached-base-uri">cached base URI</dfn> <em
-   class="ct">must</em> be <code>window.document.baseURI</code> once an
-   <code><a href="#xmlhttprequest0">XMLHttpRequest</a></code> object is
-   initialized. Specifically, the <code>window</code> that the <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> constructor comes from,
-   not the calling <code>window</code> [Window].
+  <p class="issue">Can we drop this section at some point?
 
   <h3 id="conformance"><span class="secno">1.5. </span>Conformance</h3>
 
@@ -378,22 +380,22 @@
   <pre class="idl">interface <dfn id="xmlhttprequest0">XMLHttpRequest</dfn> {
   attribute EventListener            <span><a href="#dfn-onreadystatechange">onreadystatechange</a></span>;
   readonly attribute unsigned short  <span><a href="#dfn-readystate">readyState</a></span>;
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString method, in DOMString uri);
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString method, in DOMString uri, in boolean async);
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString method, in DOMString uri, in boolean async, in DOMString user);
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString method, in DOMString uri, in boolean async, in DOMString user, in DOMString password);
-  void               <span><a href="#dfn-setrequestheader">setRequestHeader</a></span>(in DOMString header, in DOMString value);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method<var>, in DOMString <var>uri</var>);<!-- XXX why not url? -->
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
+  void               <span><a href="#dfn-setrequestheader">setRequestHeader</a></span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
   void               <span><a href="#dfn-send">send</a></span>();
-  void               <span><a href="#dfn-send">send</a></span>(in DOMString data);
-  void               <span><a href="#dfn-send">send</a></span>(in Document data);
+  void               <span><a href="#dfn-send">send</a></span>(in DOMString <var>data</var>);
+  void               <span><a href="#dfn-send">send</a></span>(in Document <var>data</var>);
   void               <span><a href="#dfn-abort">abort</a></span>();
   DOMString          <span><a href="#dfn-getallresponseheaders">getAllResponseHeaders</a></span>();
-  DOMString          <span><a href="#dfn-getresponseheader">getResponseHeader</a></span>(in DOMString header);
+  DOMString          <span><a href="#dfn-getresponseheader">getResponseHeader</a></span>(in DOMString <var>header</var>);
            attribute DOMString       <span><a href="#dfn-responsetext">responseText</a></span>;
            attribute Document        <span><a href="#dfn-responsexml">responseXML</a></span>;
            attribute unsigned short  <span><a href="#dfn-status">status</a></span>;
            attribute DOMString       <span><a href="#dfn-statustext">statusText</a></span>;
-};</pre>
+};</var></var></pre>
 
   <h4 class="no-num no-toc idl-header" id="attributes">Attributes</h4>
 
@@ -487,68 +489,24 @@
 
    <dd>
     <p>If the <code><a href="#dfn-status">status</a></code> attribute is not
-     available it <em class="ct">must</em> raise an exception. It <em
-     class="ct">must</em> be available when <code><a
-     href="#dfn-readystate">readyState</a></code> is 3 (Receiving) or 4
-     (Loaded). When available, it <em class="ct">must</em> represent the HTTP
-     status code (typically 200 for a successful connection).</p>
-
-    <dl>
-     <dt>Exceptions on retrieval
-
-     <dd>
-      <table class="idl-exceptions">
-       <tbody>
-        <tr>
-         <td><a href="#idl-if-DOMException">DOMException</a>
-
-         <td>
-          <table>
-           <tbody>
-            <tr>
-             <td>INVALID_STATE_ERR
-
-             <td><em class="ct">must</em> be raised when this attribute is
-              accessed when <code><a
-              href="#dfn-readystate">readyState</a></code> has an
-              inappropriate value.
-          </table>
-      </table>
-    </dl>
+     available an <code>INVALID_STATE_ERR</code> exception <em
+     class="ct">must</em> be raised. It <em class="ct">must</em> be available
+     when <code><a href="#dfn-readystate">readyState</a></code> is 3
+     (Receiving) or 4 (Loaded). When available, it <em class="ct">must</em>
+     represent the HTTP status code (typically <code>200</code> for a
+     successful connection).</p>
 
    <dt><dfn id="dfn-statustext"><code>statusText</code></dfn> of type
     <code>DOMString</code>
 
    <dd>
     <p>If the <code><a href="#dfn-statustext">statusText</a></code> attribute
-     is not available it <em class="ct">must</em> raise an exception. It <em
-     class="ct">must</em> be available when <code><a
-     href="#dfn-readystate">readyState</a></code> is 3 (Receiving) or 4
-     (Loaded). When available, it <em class="ct">must</em> represent the HTTP
-     status text sent by the server (appears after the status code).</p>
-
-    <dl>
-     <dt>Exceptions on retrieval
-
-     <dd>
-      <table class="idl-exceptions">
-       <tbody>
-        <tr>
-         <td><a href="#idl-if-DOMException">DOMException</a>
-
-         <td>
-          <table>
-           <tbody>
-            <tr>
-             <td>INVALID_STATE_ERR
-
-             <td><em class="ct">must</em> be raised if this attribute is
-              accessed when <code><a
-              href="#dfn-readystate">readyState</a></code> has an
-              inappropriate value.
-          </table>
-      </table>
-    </dl>
+     is not available an <code>INVALID_STATE_ERR</code> exception <em
+     class="ct">must</em> be raised. It <em class="ct">must</em> be available
+     when <code><a href="#dfn-readystate">readyState</a></code> is 3
+     (Receiving) or 4 (Loaded). When available, it <em class="ct">must</em>
+     represent the HTTP status text sent by the server (appears after the
+     status code).</p>
   </dl>
 
   <h4 class="no-num no-toc idl-header" id="methods">Methods</h4>
@@ -560,14 +518,6 @@
     <p>When invoked, this method <em class="ct">must</em> cancel any network
      activity for which the object is responsible and <span><a
      href="#dfn-reset">reset</a></span> the object.</p>
-
-    <dl>
-     <dt>No Parameters
-
-     <dt>No Return Value
-
-     <dt>No Exceptions
-    </dl>
 
    <dt><dfn
     id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn>
@@ -596,38 +546,21 @@ Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</pre>
     </div>
 
-    <dl>
-     <dt>No Parameters
-
-     <dt>Return Value
-
-     <dd>
-      <table>
-       <tbody>
-        <tr>
-         <td>
-
-         <td>A single string consisting of all HTTP headers. See prose for
-          details.
-      </table>
-
-     <dt>No Exceptions
-    </dl>
-
    <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn>
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
      has a value other than 3 (Receiving) or 4 (Loaded), it <em
      class="ct">must</em> return the empty string. Otherwise, it <em
-     class="ct">must</em> represent the value of the given HTTP header in the
-     data received so far for the last request sent, as a single string. If
-     more than one header of the given name was received, then the values <em
-     class="ct">must</em> be concatenated, separated from each other by an
-     U+002C COMMA followed by an U+0020 SPACE. If no headers of that name
-     were received, then it <em class="ct">must</em> return the empty string.
-     Header names <em class="ct">must</em> be compared case-insensitively to
-     the method its argument (<var>header</var>).</p>
+     class="ct">must</em> represent the value of the given HTTP header
+     (<var>header</var>) in the data received so far for the last request
+     sent, as a single string. If more than one header of the given name was
+     received, then the values <em class="ct">must</em> be concatenated,
+     separated from each other by an U+002C COMMA followed by an U+0020
+     SPACE. If no headers of that name were received, then it <em
+     class="ct">must</em> return the empty string. Header names <em
+     class="ct">must</em> be compared case-insensitively to the method its
+     argument (<var>header</var>).</p>
 
     <p class="issue">Case-insensitively how?</p>
 
@@ -643,30 +576,6 @@ print(client.getResponseHeader('Content-Type'));
 // ...should output something similar to the following text:
 Content-Type: text/plain; charset=utf-8</pre>
     </div>
-
-    <dl>
-     <dt>Parameters
-
-     <dd class="idl-params">
-      <dl>
-       <dt><code>header</code> of type <code>DOMString</code>
-
-       <dd>Name of the HTTP header.
-      </dl>
-
-     <dt>Return Value
-
-     <dd>
-      <table>
-       <tbody>
-        <tr>
-         <td>
-
-         <td>Value of the given HTTP header.
-      </table>
-
-     <dt>No Exceptions
-    </dl>
 
    <dt><dfn id="dfn-open"><code>open</code></dfn>
 
@@ -696,57 +605,28 @@ Content-Type: text/plain; charset=utf-8</pre>
 
     <p>If <code><a href="#dfn-open">open()</a></code> is called when <code><a
      href="#dfn-readystate">readyState</a></code> is 4 (Loaded) the entire
-     object <em class="ct">must</em> be reset.</p>
+     object <em class="ct">must</em> be <span><a
+     href="#dfn-reset">reset</a></span>.</p>
 
-    <dl>
-     <dt>Parameters
-
-     <dd class="idl-params">
-      <dl>
-       <dt><code>method</code> of type <code>DOMString</code>
-
-       <dd>A valid HTTP method name. The <code>GET</code>, <code>POST</code>,
-        <code>PUT</code>, <code>DELETE</code> and <code>HEAD</code> values
-        <em class="ct">must</em> be supported [<a
-        href="#RFC2616">RFC2616</a>].
-
-       <dt><code>uri</code> of type <code>DOMString</code>
-
-       <dd>A URI, which <em class="ct">must</em> be resolved to an absolute
-        URI using the <span><a href="#dfn-cached-base-uri">cached base
-        URI</a></span>.
-
-       <dt><code>async</code> of type <code>boolean</code>, optional
-
-       <dd>Whether or not script execution can continue.
-
-       <dt><code>user</code> of type <code>DOMString</code>, optional
-
-       <dd>Username.
-
-       <dt><code>password</code> of type <code>DOMString</code>, optional
-
-       <dd>Password.
-      </dl>
-
-     <dt>No Return Value
-
-     <dt>No Exceptions</dt>
-     <!-- XXX this is so wrong!!! -->
-    </dl>
+    <p class="issue">Need to define which methods must be supported by
+     default, how they are transformed to uppercase and whatever resolution
+     we come up for with regard to blacklist/whitelist nonsense.</p>
 
    <dt><dfn id="dfn-send"><code>send</code></dfn>
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
-     has a value other than 1 (Open), an exception <em class="ct">must</em>
-     be raised. Otherwise, the <code><a
+     has a value other than 1 (Open), an <code>INVALID_STATE_ERR</code>
+     exception <em class="ct">must</em> be raised. Otherwise, the <code><a
      href="#dfn-readystate">readyState</a></code> attribute <em
      class="ct">must</em> be set to 2 (Sent) and a request to <var>uri</var>
-     using method <var>method</var> is sent. If the <var>async</var> flag is
-     set to false, then the method <em class="ct">must</em> not return until
-     the request has completed. Otherwise, it <em class="ct">must</em> return
-     immediately. (See: <code><a href="#dfn-open">open()</a></code>.)</p>
+     using method <var>method</var> is sent. <var>uri</var>, if relative, <em
+     class="ct">must</em> be resolved using
+     <code>window.document.baseURI</code> of the <code>window</code> whose
+     constructor is used. If the <var>async</var> flag is set to false, then
+     the method <em class="ct">must</em> not return until the request has
+     completed. Otherwise, it <em class="ct">must</em> return immediately.
+     (See: <code><a href="#dfn-open">open()</a></code>.)</p>
 
     <p>If <var>data</var> passed to the <code><a
      href="#dfn-send">send()</a></code> method it <em class="ct">must</em> be
@@ -838,39 +718,6 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>Expect</code> headers and handle 100 Continue responses
      appropriately.</p>
 
-    <dl>
-     <dt>Parameters
-
-     <dd class="idl-params">
-      <dl>
-       <dt><code>data</code> of varying types (see IDL)
-
-       <dd>Data to send.
-      </dl>
-
-     <dt>No Return Value
-
-     <dt>Exceptions
-
-     <dd>
-      <table>
-       <tbody>
-        <tr>
-         <td><a href="#idl-if-DOMException">DOMException</a>
-
-         <td>
-          <table>
-           <tbody>
-            <tr>
-             <td>INVALID_STATE_ERR
-
-             <td><em class="ct">must</em> be raised if this method is called
-              when <code><a href="#dfn-readystate">readyState</a></code> has
-              an inappropriate value.
-          </table>
-      </table>
-    </dl>
-
    <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn>
 
    <dd>
@@ -880,8 +727,9 @@ Content-Type: text/plain; charset=utf-8</pre>
 
     <ul>
      <li>If the <code><a href="#dfn-readystate">readyState</a></code>
-      attribute has a value other than 1 (Open), an exception <em
-      class="ct">must</em> be raised.
+      attribute has a value other than 1 (Open), an
+      <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+      raised.
 
      <li>Nothing <em class="ct">must</em> be done if the <var>header</var> or
       <var>value</var> arguments contain any U+000A LINE FEED or U+000D
@@ -932,43 +780,6 @@ X-Test: one, two
 
     <p>The list of request headers must be reset when the <code><a
      href="#dfn-open">open()</a></code> method is called.</p>
-
-    <dl>
-     <dt>Parameters
-
-     <dd class="idl-params">
-      <dl>
-       <dt><code>header</code> of type <code>DOMString</code>
-
-       <dd>Name of the HTTP header.
-
-       <dt><code>value</code> of type <code>DOMString</code>
-
-       <dd>Value of the HTTP header.
-      </dl>
-
-     <dt>No Return Value
-
-     <dt>Exceptions
-
-     <dd>
-      <table>
-       <tbody>
-        <tr>
-         <td>DOMException
-
-         <td>
-          <table>
-           <tbody>
-            <tr>
-             <td>INVALID_STATE_ERR
-
-             <td><em class="ct">must</em> be raised if <code><a
-              href="#dfn-readystate">readyState</a></code> has an
-              inappropriate value. (See prose above.)
-          </table>
-      </table>
-    </dl>
   </dl>
 
   <p>HTTP requests sent from multiple different <code><a
