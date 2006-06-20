@@ -254,8 +254,7 @@
            attribute unsigned short  <span>status</span>;
            attribute DOMString       <span>statusText</span>;
 };</pre>
-  <h4 class="no-num no-toc idl-header">Attributes</h4>
-  <dl class="idl-attr">
+  <dl>
    <dt><dfn id="dfn-onreadystatechange"><code>onreadystatechange</code></dfn>
     of type <code>EventListener</code></dt>
    <dd>
@@ -285,120 +284,6 @@
      <dd>The data transfer has been completed.</dd>
     </dl>
    </dd>
-   <dt><dfn id="dfn-responsetext"><code>responseText</code></dfn> of type
-    <code>DOMString</code></dt>
-   <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 3
-     (Receiving) or 4 (Loaded), <code>responseText</code>
-     <em class="ct">must</em> be the empty string. Otherwise, it
-     <em class="ct">must</em> be the fragment of the entity body received so far
-     (when <code>readyState</code> is 3 (Receiving)) or the complete entity body
-     (when <code>readyState</code> is 4 (Loaded)), interpreted as a stream of
-     characters.</p>
-    <p>If the response includes a <code>Content-Type</code> understood by the UA
-     the characters are encoded following the relevant media type specification,
-     with the exception that the rule in the final paragraph of section 3.7.1 of
-     [<a href="#RFC2616">RFC2616</a>], and the rules in section 4.1.2 of
-     [RFC2046] <em class="ct">must</em> be treated as if they specified the
-     default character encoding as being UTF-8. Invalid bytes
-     <em class="ct">must</em> be converted to U+FFFD REPLACEMENT CHARACTER. If
-     the UA can't derive a character stream in accord with the media type
-     specification, <code>reponseText</code> <em class="ct">must</em> be
-     <code>null</code>.</p>
-   </dd>
-   <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
-    <code>Document</code></dt>
-   <dd><p>If the <code>readyState</code> attribute has a value other than 4
-    (Loaded), it <em class="ct">must</em> be <code>null</code>. Otherwise, if
-    the <code>Content-Type</code> header contains a media type (ignoring any
-    parameters) that is either <code>text/xml</code>,
-    <code>application/xml</code>, or ends in <code>+xml</code>, it
-    <em class="ct">must</em> be an object that implements the
-    <code>Document</code> interface representing the parsed document. If
-    <code>Content-Type</code> did not contain such a media type, or if the
-    document could not be parsed (due to an XML well-formedness error or
-    unsupported character encoding, for instance), it <em class="ct">must</em>
-    be <code>null</code>.</p>
-   </dd>
-   <dt><dfn id="dfn-status"><code>status</code></dfn> of type
-    <code>unsigned short</code></dt>
-   <dd>
-    <p>If the <code>status</code> attribute is not available an
-     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-     raised. It <em class="ct">must</em> be available when
-     <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
-     <em class="ct">must</em> represent the HTTP status code (typically
-     <code>200</code> for a successful connection).</p>
-   </dd>
-   <dt><dfn id="dfn-statustext"><code>statusText</code></dfn> of type
-    <code>DOMString</code></dt>
-   <dd>
-    <p>If the <code>statusText</code> attribute is not available an
-     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-     raised. It <em class="ct">must</em> be available when
-     <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
-     <em class="ct">must</em> represent the HTTP status text sent by the server
-     (appears after the status code).</p>
-   </dd>
-  </dl>
-  <h4 class="no-num no-toc idl-header">Methods</h4>
-  <dl class="idl-meth">
-   <dt><dfn id="dfn-abort"><code>abort</code></dfn></dt>
-   <dd>
-    <p>When invoked, this method <em class="ct">must</em> cancel any network
-     activity for which the object is responsible and <span>reset</span> the
-     object.</p>
-   </dd>
-   <dt><dfn id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn></dt>
-   <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 3
-     (Receiving) or 4 (Loaded), it <em class="ct">must</em> return
-     <code>null</code>. Otherwise, it <em class="ct">must</em> return all the 
-     HTTP headers, as a single string, with each header line separated by a CR
-     (U+000D) LF (U+000A) pair. The status line <em class="ct">must</em> not be
-     included.</p>
-    <div class="example">
-     <pre>// The following script:
-var client = new XMLHttpRequest();
-client.open('GET', 'test.txt', false);
-client.send();
-print(client.getAllResponseHeaders());
-
-// ...should output something similar to the following text:
-Date: Sun, 24 Oct 2004 04:58:38 GMT
-Server: Apache/1.3.31 (Unix)
-Keep-Alive: timeout=15, max=99
-Connection: Keep-Alive
-Transfer-Encoding: chunked
-Content-Type: text/plain; charset=utf-8</pre>
-    </div>
-   </dd>
-   <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn></dt>
-   <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 3
-     (Receiving) or 4 (Loaded), it <em class="ct">must</em> return the empty
-     string. Otherwise, it <em class="ct">must</em> represent the value of the
-     given HTTP header (<var>header</var>) in the data received so far for the
-     last request sent, as a single string. If more than one header of the given
-     name was received,
-     then the values <em class="ct">must</em> be concatenated, separated from
-     each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of
-     that name were received, then it <em class="ct">must</em> return the empty
-     string. Header names <em class="ct">must</em> be compared
-     case-insensitively to the method its argument (<var>header</var>).</p>
-    <p class="issue">Case-insensitively how?</p>
-    <p class="issue">Needs to be revised largely based on Mark's comments.</p>
-    <div class="example">
-     <pre>// The following script:
-var client = new XMLHttpRequest();
-client.open('GET', 'test.txt', false);
-client.send();
-print(client.getResponseHeader('Content-Type'));
-
-// ...should output something similar to the following text:
-Content-Type: text/plain; charset=utf-8</pre>
-    </div>
-   </dd>
    <dt><dfn id="dfn-open"><code>open</code></dfn></dt>
    <dd>
     <p>Calling this method <em class="ct">must</em> initialize the object by
@@ -423,6 +308,60 @@ Content-Type: text/plain; charset=utf-8</pre>
     <p class="issue">Need to define which methods must be supported by default,
      how they are transformed to uppercase and whatever resolution we come up
      for with regard to blacklist/whitelist nonsense.</p>
+   </dd>
+   <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn></dt>
+   <dd>
+    <p>The nominated request header (<var>header</var>) field value
+     <em class="ct">must</em> be set to <var>value</var>, with the following
+     exceptions:</p>
+    <ul>
+     <li>If the <code>readyState</code> attribute has a value other than 1
+      (Open), an <code>INVALID_STATE_ERR</code> exception
+      <em class="ct">must</em> be raised.</li>
+     <li>Nothing <em class="ct">must</em> be done if the <var>header</var> or
+      <var>value</var> arguments contain any U+000A LINE FEED or U+000D CARRIAGE
+      RETURN characters, or if the <var>header</var> argument contains any
+      U+0020 SPACE or U+003A COLON characters.</li>
+     <li>Nothing <em class="ct">must</em> be done if the <var>header</var>
+      argument matches <code>Accept-Charset</code>,
+      <code>Accept-Encoding</code>, <code>Content-Length</code>,
+      <code>Expect</code>, <code>Date</code>, <code>Host</code>,
+      <code>Keep-Alive</code>, <code>Referer</code>, <code>TE</code>,
+      <code>Trailer</code>, <code>Transfer-Encoding</code> or
+      <code>Upgrade</code> case-insensitively.</li>
+    </ul>
+    <div class="example">
+     <pre>// The following script:
+var client = new XMLHttpRequest();
+client.open('GET', 'demo.cgi');
+client.setRequestHeader('X-Test', 'one');
+client.setRequestHeader('X-Test', 'two');
+client.send(null);
+
+// ...would result in the following header being sent:
+...
+X-Test: one, two
+...</pre>
+    </div>
+    <p>Implementations <em class="ct">must</em> replace any existing value if
+     the nominated request header field value is one of:
+     <code>Authorization</code>, <code>Content-Base</code>,
+     <code>Content-Location</code>, <code>Content-MD5</code>,
+     <code>Content-Range</code>, <code>Content-Type</code>,
+     <code>Content-Version</code>, <code>Delta-Base</code>, <code>Depth</code>,
+     <code>Destinaion</code>, <code>ETag</code>, <code>Expect</code>,
+     <code>From</code>, <code>If-Modified-Since</code>, <code>If-Range</code>,
+     <code>If-Unmodified-Since</code>, <code>Max-Forwards</code>,
+     <code>MIME-Version</code>, <code>Overwrite</code>,
+     <code>Proxy-Authorization</code>, <code>SOAPAction</code> or
+     <code>Timeout</code>.</p>
+    <p>Otherwise, if the nominated request header field already has a value, the
+     new value <em class="ct">must</em> be combined with the existing value
+     (section 4.2, [<a href="#RFC2616">RFC2616</a>]). See also the
+     <code>send()</code> method regarding UA header handling for caching,
+     authentication, proxies, and cookies.</p>
+    <p>The list of request headers must be reset when the <code>open()</code>
+     method is called.</p>
    </dd>
    <dt><dfn id="dfn-send"><code>send</code></dfn></dt>
    <dd>
@@ -510,59 +449,116 @@ Content-Type: text/plain; charset=utf-8</pre>
      insert <code>Expect</code> headers and handle 100 Continue responses
      appropriately.</p>
    </dd>
-   <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn></dt>
+   <dt><dfn id="dfn-abort"><code>abort</code></dfn></dt>
    <dd>
-    <p>The nominated request header (<var>header</var>) field value
-     <em class="ct">must</em> be set to <var>value</var>, with the following
-     exceptions:</p>
-    <ul>
-     <li>If the <code>readyState</code> attribute has a value other than 1
-      (Open), an <code>INVALID_STATE_ERR</code> exception
-      <em class="ct">must</em> be raised.</li>
-     <li>Nothing <em class="ct">must</em> be done if the <var>header</var> or
-      <var>value</var> arguments contain any U+000A LINE FEED or U+000D CARRIAGE
-      RETURN characters, or if the <var>header</var> argument contains any
-      U+0020 SPACE or U+003A COLON characters.</li>
-     <li>Nothing <em class="ct">must</em> be done if the <var>header</var>
-      argument matches <code>Accept-Charset</code>,
-      <code>Accept-Encoding</code>, <code>Content-Length</code>,
-      <code>Expect</code>, <code>Date</code>, <code>Host</code>,
-      <code>Keep-Alive</code>, <code>Referer</code>, <code>TE</code>,
-      <code>Trailer</code>, <code>Transfer-Encoding</code> or
-      <code>Upgrade</code> case-insensitively.</li>
-    </ul>
+    <p>When invoked, this method <em class="ct">must</em> cancel any network
+     activity for which the object is responsible and <span>reset</span> the
+     object.</p>
+   </dd>
+   <dt><dfn id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn></dt>
+   <dd>
+    <p>If the <code>readyState</code> attribute has a value other than 3
+     (Receiving) or 4 (Loaded), it <em class="ct">must</em> return
+     <code>null</code>. Otherwise, it <em class="ct">must</em> return all the 
+     HTTP headers, as a single string, with each header line separated by a CR
+     (U+000D) LF (U+000A) pair. The status line <em class="ct">must</em> not be
+     included.</p>
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
-client.open('GET', 'demo.cgi');
-client.setRequestHeader('X-Test', 'one');
-client.setRequestHeader('X-Test', 'two');
-client.send(null);
+client.open('GET', 'test.txt', false);
+client.send();
+print(client.getAllResponseHeaders());
 
-// ...would result in the following header being sent:
-...
-X-Test: one, two
-...</pre>
+// ...should output something similar to the following text:
+Date: Sun, 24 Oct 2004 04:58:38 GMT
+Server: Apache/1.3.31 (Unix)
+Keep-Alive: timeout=15, max=99
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+Content-Type: text/plain; charset=utf-8</pre>
     </div>
-    <p>Implementations <em class="ct">must</em> replace any existing value if
-     the nominated request header field value is one of:
-     <code>Authorization</code>, <code>Content-Base</code>,
-     <code>Content-Location</code>, <code>Content-MD5</code>,
-     <code>Content-Range</code>, <code>Content-Type</code>,
-     <code>Content-Version</code>, <code>Delta-Base</code>, <code>Depth</code>,
-     <code>Destinaion</code>, <code>ETag</code>, <code>Expect</code>,
-     <code>From</code>, <code>If-Modified-Since</code>, <code>If-Range</code>,
-     <code>If-Unmodified-Since</code>, <code>Max-Forwards</code>,
-     <code>MIME-Version</code>, <code>Overwrite</code>,
-     <code>Proxy-Authorization</code>, <code>SOAPAction</code> or
-     <code>Timeout</code>.</p>
-    <p>Otherwise, if the nominated request header field already has a value, the
-     new value <em class="ct">must</em> be combined with the existing value
-     (section 4.2, [<a href="#RFC2616">RFC2616</a>]). See also the
-     <code>send()</code> method regarding UA header handling for caching,
-     authentication, proxies, and cookies.</p>
-    <p>The list of request headers must be reset when the <code>open()</code>
-     method is called.</p>
+   </dd>
+   <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn></dt>
+   <dd>
+    <p>If the <code>readyState</code> attribute has a value other than 3
+     (Receiving) or 4 (Loaded), it <em class="ct">must</em> return the empty
+     string. Otherwise, it <em class="ct">must</em> represent the value of the
+     given HTTP header (<var>header</var>) in the data received so far for the
+     last request sent, as a single string. If more than one header of the given
+     name was received,
+     then the values <em class="ct">must</em> be concatenated, separated from
+     each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of
+     that name were received, then it <em class="ct">must</em> return the empty
+     string. Header names <em class="ct">must</em> be compared
+     case-insensitively to the method its argument (<var>header</var>).</p>
+    <p class="issue">Case-insensitively how?</p>
+    <p class="issue">Needs to be revised largely based on Mark's comments.</p>
+    <div class="example">
+     <pre>// The following script:
+var client = new XMLHttpRequest();
+client.open('GET', 'test.txt', false);
+client.send();
+print(client.getResponseHeader('Content-Type'));
+
+// ...should output something similar to the following text:
+Content-Type: text/plain; charset=utf-8</pre>
+    </div>
+   </dd>
+   <dt><dfn id="dfn-responsetext"><code>responseText</code></dfn> of type
+    <code>DOMString</code></dt>
+   <dd>
+    <p>If the <code>readyState</code> attribute has a value other than 3
+     (Receiving) or 4 (Loaded), <code>responseText</code>
+     <em class="ct">must</em> be the empty string. Otherwise, it
+     <em class="ct">must</em> be the fragment of the entity body received so far
+     (when <code>readyState</code> is 3 (Receiving)) or the complete entity body
+     (when <code>readyState</code> is 4 (Loaded)), interpreted as a stream of
+     characters.</p>
+    <p>If the response includes a <code>Content-Type</code> understood by the UA
+     the characters are encoded following the relevant media type specification,
+     with the exception that the rule in the final paragraph of section 3.7.1 of
+     [<a href="#RFC2616">RFC2616</a>], and the rules in section 4.1.2 of
+     [RFC2046] <em class="ct">must</em> be treated as if they specified the
+     default character encoding as being UTF-8. Invalid bytes
+     <em class="ct">must</em> be converted to U+FFFD REPLACEMENT CHARACTER. If
+     the UA can't derive a character stream in accord with the media type
+     specification, <code>reponseText</code> <em class="ct">must</em> be
+     <code>null</code>.</p>
+   </dd>
+   <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
+    <code>Document</code></dt>
+   <dd><p>If the <code>readyState</code> attribute has a value other than 4
+    (Loaded), it <em class="ct">must</em> be <code>null</code>. Otherwise, if
+    the <code>Content-Type</code> header contains a media type (ignoring any
+    parameters) that is either <code>text/xml</code>,
+    <code>application/xml</code>, or ends in <code>+xml</code>, it
+    <em class="ct">must</em> be an object that implements the
+    <code>Document</code> interface representing the parsed document. If
+    <code>Content-Type</code> did not contain such a media type, or if the
+    document could not be parsed (due to an XML well-formedness error or
+    unsupported character encoding, for instance), it <em class="ct">must</em>
+    be <code>null</code>.</p>
+   </dd>
+   <dt><dfn id="dfn-status"><code>status</code></dfn> of type
+    <code>unsigned short</code></dt>
+   <dd>
+    <p>If the <code>status</code> attribute is not available an
+     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. It <em class="ct">must</em> be available when
+     <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
+     <em class="ct">must</em> represent the HTTP status code (typically
+     <code>200</code> for a successful connection).</p>
+   </dd>
+   <dt><dfn id="dfn-statustext"><code>statusText</code></dfn> of type
+    <code>DOMString</code></dt>
+   <dd>
+    <p>If the <code>statusText</code> attribute is not available an
+     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. It <em class="ct">must</em> be available when
+     <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
+     <em class="ct">must</em> represent the HTTP status text sent by the server
+     (appears after the status code).</p>
    </dd>
   </dl>
   <p>HTTP requests sent from multiple different <code>XMLHttpRequest</code>
