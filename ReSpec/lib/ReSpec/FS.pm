@@ -103,6 +103,14 @@ sub respecToFile {
     return $path->path;
 }
 
+sub getFileContent {
+    my $file = shift;
+    open my $FH, '<:utf8', $file or die "Can't open file '$file': $!\n";
+    my $ret = do {local $/ = undef; <$FH> };
+    close $FH;
+    return $ret;
+}
+
 1;
 __END__
 

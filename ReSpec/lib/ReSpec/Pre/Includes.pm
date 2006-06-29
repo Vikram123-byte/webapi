@@ -21,12 +21,13 @@ sub process {
     for my $inc (@incs) {
         # parametrise templates later
         my $href = $inc->getAttributeNS(undef, 'href');
+        my $mode = $inc->getAttributeNS(undef, 'as') || 'xml';
         if ($href =~ m/^respec:/) {
             die "Unknown include template type for '$href'" unless $href =~ m/\.tpl$/;
-            my $tpl = XML::LibXML->new->parse_file( ReSpec::FS->respecToFile($href) );
             my $doc = $re->doc;
+            my $tpl = getContent( ReSpec::FS->respecToFile($href), $mode, $doc );
             my $df = $doc->createDocumentFragment;
-            for my $n ($tpl->documentElement->childNodes) {
+            for my $n ($tpl->childNodes) {
                 $doc->importNode($n);
                 $df->appendChild($n);
             }
@@ -37,14 +38,31 @@ sub process {
             if ($href =~ m/#/) {
                 ($href, $id) = split /#/, $href, 2;
             }
-            my $docEl = XML::LibXML->new->parse_file( ReSpec::FS->rel2abs($href, $re->baseDir) )->documentElement;
+            my $docEl = getContent( ReSpec::FS->rel2abs($href, $re->baseDir), $mode, $re->doc );
             if (defined $id) {
+                die "Cannot have a fragment identifier for mode text\n" if $mode eq 'text';
                 $docEl = $docEl->ownerDocument->getElementById($id);
                 warn "No element with ID '$id'" and next unless $docEl;
             }
             $re->doc->importNode($docEl);
             $inc->parentNode->replaceChild($docEl, $inc);
         }
+    }
+}
+
+sub getContent {
+    my $file = shift;
+    my $mode = shift;
+    my $doc = shift;
+    
+    if ($mode eq 'text') {
+        return $doc->createTextNode( ReSpec::FS->getFileContent($file) );
+    }
+    elsif ($mode eq 'xml') {
+        return XML::LibXML->new->parse_file( $file )->documentElement;
+    }
+    else {
+        die "Unknown mode '$mode' for <include>\n";
     }
 }
 

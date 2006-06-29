@@ -237,6 +237,19 @@ BEGIN {
                           </authors>
                         </bibentry>
         },
+        XSLT        => q{
+                        <bibentry xml:id='XSLT' xmlns='http://berjon.com/ns/re-spec/'>
+                          <title>XSL Transformations (XSLT)</title>
+                          <link>http://www.w3.org/TR/xslt</link>
+                          <date version='1.0'>1999-11-16</date>
+                          <authors>
+                            <person>
+                              <name>James Clark</name>
+                              <email>jjc@jclark.com</email>
+                            </person>
+                          </authors>
+                        </bibentry>
+        },
         XML         => q{
                         <bibentry xml:id='XML' xmlns='http://berjon.com/ns/re-spec/'>
                           <p>
