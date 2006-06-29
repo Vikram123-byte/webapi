@@ -16,7 +16,7 @@ use warnings;
 #     sequence of test writing
 ####
 
-our $VERSION = '0.54';
+our $VERSION = '0.55';
 
 use XML::LibXML                 qw();
 use XML::LibXML::XPathContext   qw();
