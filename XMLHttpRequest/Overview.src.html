@@ -3,7 +3,7 @@
  <head>
   <title>The XMLHttpRequest Object</title>
   <link rel="stylesheet" href="spec.css">
-  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD">
+  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base">
  </head>
  <body>
   <div class="head">
@@ -236,7 +236,7 @@
    associated details. The IDL is non-normative and does not intend to conform
    to [OMGIDL]. Only the language bindings are normative.</p>
   <pre class="idl">interface <dfn>XMLHttpRequest</dfn> {
-  attribute EventListener            <span>onreadystatechange</span>;
+           attribute EventListener   <span>onreadystatechange</span>;
   readonly attribute unsigned short  <span>readyState</span>;
   void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>uri</var>);<!-- XXX why not url? -->
   void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>);
@@ -249,10 +249,10 @@
   void               <span>abort</span>();
   DOMString          <span>getAllResponseHeaders</span>();
   DOMString          <span>getResponseHeader</span>(in DOMString <var>header</var>);
-           attribute DOMString       <span>responseText</span>;
-           attribute Document        <span>responseXML</span>;
-           attribute unsigned short  <span>status</span>;
-           attribute DOMString       <span>statusText</span>;
+  readonly attribute DOMString       <span>responseText</span>;
+  readonly attribute Document        <span>responseXML</span>;
+  readonly attribute unsigned short  <span>status</span>;
+  readonly attribute DOMString       <span>statusText</span>;
 };</pre>
   <dl>
    <dt><dfn id="dfn-onreadystatechange"><code>onreadystatechange</code></dfn>
@@ -300,8 +300,8 @@
      3.2.1) then the user name and password specified <em class="ct">must</em>
      be used if the <var>user</var> and <var>password</var> arguments are
      omitted. If the arguments are not omitted, they take precedence, even if
-     they are <code>null</code>. The usage of userinfo is discouraged
-     <em class="ct">may</em> not work in implementations.</p>
+     they are <code>null</code>. The usage of userinfo is discouraged and may
+     not work in implementations.</p>
     <p>If <code>open()</code> is called when <code>readyState</code> is 4
      (Loaded) the entire object <em class="ct">must</em> be
      <span>reset</span>.</p>
@@ -350,7 +350,7 @@ X-Test: one, two
      <code>Content-Location</code>, <code>Content-MD5</code>,
      <code>Content-Range</code>, <code>Content-Type</code>,
      <code>Content-Version</code>, <code>Delta-Base</code>, <code>Depth</code>,
-     <code>Destinaion</code>, <code>ETag</code>, <code>Expect</code>,
+     <code>Destination</code>, <code>ETag</code>, <code>Expect</code>,
      <code>From</code>, <code>If-Modified-Since</code>, <code>If-Range</code>,
      <code>If-Unmodified-Since</code>, <code>Max-Forwards</code>,
      <code>MIME-Version</code>, <code>Overwrite</code>,
@@ -374,7 +374,7 @@ X-Test: one, two
      <em class="ct">must</em> be resolved using
      <code>window.document.baseURI</code> of the <code>window</code> whose
      constructor is used. If the <var>async</var> flag is set to false, then the
-     method <em class="ct">must</em> not return until the request has completed.
+     method <em class="ct">must not</em> return until the request has completed.
      Otherwise, it <em class="ct">must</em> return immediately. (See:
      <code>open()</code>.)</p>
     <p>If <var>data</var> passed to the <code>send()</code> method it
@@ -462,7 +462,7 @@ X-Test: one, two
      (Receiving) or 4 (Loaded), it <em class="ct">must</em> return
      <code>null</code>. Otherwise, it <em class="ct">must</em> return all the 
      HTTP headers, as a single string, with each header line separated by a CR
-     (U+000D) LF (U+000A) pair. The status line <em class="ct">must</em> not be
+     (U+000D) LF (U+000A) pair. The status line <em class="ct">must not</em> be
      included.</p>
     <div class="example">
      <pre>// The following script:
@@ -509,7 +509,7 @@ Content-Type: text/plain; charset=utf-8</pre>
     </div>
    </dd>
    <dt><dfn id="dfn-responsetext"><code>responseText</code></dfn> of type
-    <code>DOMString</code></dt>
+    <code>DOMString</code>, readonly</dt>
    <dd>
     <p>If the <code>readyState</code> attribute has a value other than 3
      (Receiving) or 4 (Loaded), <code>responseText</code>
@@ -530,7 +530,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>null</code>.</p>
    </dd>
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
-    <code>Document</code></dt>
+    <code>Document</code>, readonly</dt>
    <dd><p>If the <code>readyState</code> attribute has a value other than 4
     (Loaded), it <em class="ct">must</em> be <code>null</code>. Otherwise, if
     the <code>Content-Type</code> header contains a media type (ignoring any
@@ -544,7 +544,7 @@ Content-Type: text/plain; charset=utf-8</pre>
     be <code>null</code>.</p>
    </dd>
    <dt><dfn id="dfn-status"><code>status</code></dfn> of type
-    <code>unsigned short</code></dt>
+    <code>unsigned short</code>, readonly</dt>
    <dd>
     <p>If the <code>status</code> attribute is not available an
      <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
@@ -554,7 +554,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>200</code> for a successful connection).</p>
    </dd>
    <dt><dfn id="dfn-statustext"><code>statusText</code></dfn> of type
-    <code>DOMString</code></dt>
+    <code>DOMString</code>, readonly</dt>
    <dd>
     <p>If the <code>statusText</code> attribute is not available an
      <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
@@ -604,9 +604,10 @@ Content-Type: text/plain; charset=utf-8</pre>
   </dl>
   <h2 class="no-num" id="acknowledgements">Acknowledgements</h2>
   <p><em>This section is non-normative</em></p>
-  <p>Thanks to the following people who have contributed to this specification
-   (ordered on first name):</p>
+  <p>The editor would like to thank to the following people who have contributed
+   to this specification (ordered on first name):</p>
   <ul>
+   <li>Alex Vincent</li>
    <li>Asbjørn Ulsberg</li>
    <li>Boris Zbarsky</li>
    <li>Björn Höhrmann</li>
@@ -629,6 +630,7 @@ Content-Type: text/plain; charset=utf-8</pre>
    <li>Julian Reschke</li>
    <li>Karl Dubost</li>
    <li>Maciej Stachowiak</li>
+   <li>Magnus Kristiansen</li>
    <li>Marc Hadley</li>
    <li>Mark Nottingham</li>
    <li>Pawel Glowacki</li>

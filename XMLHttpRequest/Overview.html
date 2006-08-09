@@ -377,7 +377,7 @@
    conform to [OMGIDL]. Only the language bindings are normative.
 
   <pre class="idl">interface <dfn id="xmlhttprequest0">XMLHttpRequest</dfn> {
-  attribute EventListener            <span><a href="#dfn-onreadystatechange">onreadystatechange</a></span>;
+           attribute EventListener   <span><a href="#dfn-onreadystatechange">onreadystatechange</a></span>;
   readonly attribute unsigned short  <span><a href="#dfn-readystate">readyState</a></span>;
   void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>);<!-- XXX why not url? -->
   void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>);
@@ -390,10 +390,10 @@
   void               <span><a href="#dfn-abort">abort</a></span>();
   DOMString          <span><a href="#dfn-getallresponseheaders">getAllResponseHeaders</a></span>();
   DOMString          <span><a href="#dfn-getresponseheader">getResponseHeader</a></span>(in DOMString <var>header</var>);
-           attribute DOMString       <span><a href="#dfn-responsetext">responseText</a></span>;
-           attribute Document        <span><a href="#dfn-responsexml">responseXML</a></span>;
-           attribute unsigned short  <span><a href="#dfn-status">status</a></span>;
-           attribute DOMString       <span><a href="#dfn-statustext">statusText</a></span>;
+  readonly attribute DOMString       <span><a href="#dfn-responsetext">responseText</a></span>;
+  readonly attribute Document        <span><a href="#dfn-responsexml">responseXML</a></span>;
+  readonly attribute unsigned short  <span><a href="#dfn-status">status</a></span>;
+  readonly attribute DOMString       <span><a href="#dfn-statustext">statusText</a></span>;
 };</pre>
 
   <dl>
@@ -463,8 +463,7 @@
      class="ct">must</em> be used if the <var>user</var> and
      <var>password</var> arguments are omitted. If the arguments are not
      omitted, they take precedence, even if they are <code>null</code>. The
-     usage of userinfo is discouraged <em class="ct">may</em> not work in
-     implementations.</p>
+     usage of userinfo is discouraged and may not work in implementations.</p>
 
     <p>If <code><a href="#dfn-open">open()</a></code> is called when <code><a
      href="#dfn-readystate">readyState</a></code> is 4 (Loaded) the entire
@@ -506,9 +505,9 @@
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
-client.open('GET', <code class="css">'demo.cgi'</code>);
-client.setRequestHeader('X-Test', <span class="property">'one'</span>);
-client.setRequestHeader('X-Test', <span class="property">'two'</span>);
+client.open('GET', 'demo.cgi');
+client.setRequestHeader('X-Test', 'one');
+client.setRequestHeader('X-Test', 'two');
 client.send(null);
 
 // ...would result in the following header being sent:
@@ -523,7 +522,7 @@ X-Test: one, two
      <code>Content-Location</code>, <code>Content-MD5</code>,
      <code>Content-Range</code>, <code>Content-Type</code>,
      <code>Content-Version</code>, <code>Delta-Base</code>,
-     <code>Depth</code>, <code>Destinaion</code>, <code>ETag</code>,
+     <code>Depth</code>, <code>Destination</code>, <code>ETag</code>,
      <code>Expect</code>, <code>From</code>, <code>If-Modified-Since</code>,
      <code>If-Range</code>, <code>If-Unmodified-Since</code>,
      <code>Max-Forwards</code>, <code>MIME-Version</code>,
@@ -551,7 +550,7 @@ X-Test: one, two
      class="ct">must</em> be resolved using
      <code>window.document.baseURI</code> of the <code>window</code> whose
      constructor is used. If the <var>async</var> flag is set to false, then
-     the method <em class="ct">must</em> not return until the request has
+     the method <em class="ct">must not</em> return until the request has
      completed. Otherwise, it <em class="ct">must</em> return immediately.
      (See: <code><a href="#dfn-open">open()</a></code>.)</p>
 
@@ -661,12 +660,12 @@ X-Test: one, two
      class="ct">must</em> return <code>null</code>. Otherwise, it <em
      class="ct">must</em> return all the HTTP headers, as a single string,
      with each header line separated by a CR (U+000D) LF (U+000A) pair. The
-     status line <em class="ct">must</em> not be included.</p>
+     status line <em class="ct">must not</em> be included.</p>
 
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
-client.open('GET', <code class="css">'test.txt'</code>, false);
+client.open('GET', 'test.txt', false);
 client.send();
 print(client.getAllResponseHeaders());
 
@@ -705,7 +704,7 @@ Content-Type: text/plain; charset=utf-8</pre>
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
-client.open('GET', <code class="css">'test.txt'</code>, false);
+client.open('GET', 'test.txt', false);
 client.send();
 print(client.getResponseHeader('Content-Type'));
 
@@ -714,7 +713,7 @@ Content-Type: text/plain; charset=utf-8</pre>
     </div>
 
    <dt><dfn id="dfn-responsetext"><code>responseText</code></dfn> of type
-    <code>DOMString</code>
+    <code>DOMString</code>, readonly
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
@@ -739,7 +738,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      class="ct">must</em> be <code>null</code>.</p>
 
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
-    <code>Document</code>
+    <code>Document</code>, readonly
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
@@ -755,7 +754,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      it <em class="ct">must</em> be <code>null</code>.</p>
 
    <dt><dfn id="dfn-status"><code>status</code></dfn> of type <code>unsigned
-    short</code>
+    short</code>, readonly
 
    <dd>
     <p>If the <code><a href="#dfn-status">status</a></code> attribute is not
@@ -767,7 +766,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      successful connection).</p>
 
    <dt><dfn id="dfn-statustext"><code>statusText</code></dfn> of type
-    <code>DOMString</code>
+    <code>DOMString</code>, readonly
 
    <dd>
     <p>If the <code><a href="#dfn-statustext">statusText</a></code> attribute
@@ -837,10 +836,12 @@ Content-Type: text/plain; charset=utf-8</pre>
 
   <p><em>This section is non-normative</em>
 
-  <p>Thanks to the following people who have contributed to this
-   specification (ordered on first name):
+  <p>The editor would like to thank to the following people who have
+   contributed to this specification (ordered on first name):
 
   <ul>
+   <li>Alex Vincent
+
    <li>Asbjørn Ulsberg
 
    <li>Boris Zbarsky
@@ -884,6 +885,8 @@ Content-Type: text/plain; charset=utf-8</pre>
    <li>Karl Dubost
 
    <li>Maciej Stachowiak
+
+   <li>Magnus Kristiansen
 
    <li>Marc Hadley
 
