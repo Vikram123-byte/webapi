@@ -286,9 +286,10 @@
   <dl>
    <dt><dfn id="conforming">conforming implementation</dfn>
 
-   <dd>A UA that implements all interfaces described in this specification
-    and follows all <em class="ct">must</em>-, <em class="ct">required</em>-
-    and <em class="ct">shall</em>-level of critera in this specification.
+   <dd>A user agent that implements all interfaces described in this
+    specification and follows all <em class="ct">must</em>-, <em
+    class="ct">required</em>- and <em class="ct">shall</em>-level of critera
+    in this specification.
 
    <dt><dfn id="conforming0">conforming document</dfn>
 
@@ -435,8 +436,8 @@
 
      <dt>2 Sent
 
-     <dd>The UA successfully completed the request, but no data has yet been
-      received.
+     <dd>The user agent successfully completed the request, but no data has
+      yet been received.
 
      <dt>3 Receiving
 
@@ -448,7 +449,7 @@
      <dd>The data transfer has been completed.
     </dl>
 
-   <dt><dfn id="dfn-open"><code>open</code></dfn>
+   <dt><dfn id="dfn-open"><code>open</code></dfn>, method
 
    <dd>
     <p>Calling this method <em class="ct">must</em> initialize the object by
@@ -466,8 +467,13 @@
 
     <p>Same-origin security restrictions <em class="ct">should</em> apply.</p>
 
-    <p>If the URI given to this method contains userinfo ([RFC3986], section
-     3.2.1) then the user name and password specified <em
+    <p>When method case-insensitively matches <code>GET</code>,
+     <code>POST</code>, <code>HEAD</code>, <code>PUT</code> or
+     <code>DELETE</code> the user agent <em class="ct">must</em> use the
+     uppercase equivalent.</p>
+
+    <p>If the URI (<var>uri</var>) given to this method contains userinfo
+     ([RFC3986], section 3.2.1) then the user name and password specified <em
      class="ct">must</em> be used if the <var>user</var> and
      <var>password</var> arguments are omitted. If the arguments are not
      omitted, they take precedence, even if they are <code>null</code>. The
@@ -481,7 +487,8 @@
      default, how they are transformed to uppercase and whatever resolution
      we come up for with regard to blacklist/whitelist nonsense.</p>
 
-   <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn>
+   <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn>,
+    method
 
    <dd>
     <p>The nominated request header (<var>header</var>) field value <em
@@ -539,13 +546,13 @@ X-Test: one, two
     <p>Otherwise, if the nominated request header field already has a value,
      the new value <em class="ct">must</em> be combined with the existing
      value (section 4.2, [<a href="#RFC2616">RFC2616</a>]). See also the
-     <code><a href="#dfn-send">send()</a></code> method regarding UA header
-     handling for caching, authentication, proxies, and cookies.</p>
+     <code><a href="#dfn-send">send()</a></code> method regarding user agent
+     header handling for caching, authentication, proxies, and cookies.</p>
 
     <p>The list of request headers must be reset when the <code><a
      href="#dfn-open">open()</a></code> method is called.</p>
 
-   <dt><dfn id="dfn-send"><code>send</code></dfn>
+   <dt><dfn id="dfn-send"><code>send</code></dfn>, method
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
@@ -598,29 +605,31 @@ X-Test: one, two
      during redirects, and also requires users to be notified of certain
      kinds of automatic redirections.</p>
 
-    <p>If the UA allows the specification of a proxy it <em
+    <p>If the user agent allows the specification of a proxy it <em
      class="ct">should</em> modify the request appropriately; <abbr title="in
      other words">i.e.</abbr>, connect to the proxy host instead of the
      origin server, modify the <code>Request-Line</code> and send
      <code>Proxy-Authorization</code> headers as specified.</p>
 
-    <p>If the UA supports HTTP Authentication [RFC2617] it <em
+    <p>If the user agent supports HTTP Authentication [RFC2617] it <em
      class="ct">should</em> consider requests originating from this object to
      be part of the protection space that includes the accessed URIs and send
      <code>Authorization</code> headers and handle 401 Unauthorised requests
      appropriately. if authentication fails, UAs should prompt the users for
      credentials.</p>
 
-    <p>If the UA supports HTTP State Mangement [RFC2109][RFC2965] it should
-     persist, discard and send cookies (as received in the
-     <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers,
-     and sent in the <code>Cookie</code> header) as applicable.</p>
+    <p>If the user agent supports HTTP State Mangement [RFC2109][RFC2965] it
+     <em class="ct">should</em> persist, discard and send cookies (as
+     received in the <code>Set-Cookie</code> and <code>Set-Cookie2</code>
+     response headers, and sent in the <code>Cookie</code> header) as
+     applicable.</p>
 
-    <p>If the UA implements a HTTP cache [<a href="#RFC2616">RFC2616</a>] it
-     should respect <code>Cache-Control</code> request headers set by the
-     author (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
-     no-cache</code> bypasses the cache). It <em class="ct">must not</em>
-     send <code>Cache-Control</code> or <code>Pragma</code> request headers
+    <p>If the user agent implements a HTTP cache [<a
+     href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> respect
+     <code>Cache-Control</code> request headers set by the author (<abbr
+     title="for example">e.g.</abbr>, <code>Cache-Control: no-cache</code>
+     bypasses the cache). It <em class="ct">must not</em> send
+     <code>Cache-Control</code> or <code>Pragma</code> request headers
      automatically unless the user explicitly requests such behaviour (e.g.,
      by (force-)reloading the page). 304 Not Modified responses that are a
      result of a UA-generated conditional request <em class="ct">must</em> be
@@ -630,8 +639,8 @@ X-Test: one, two
      <code>If-Modified-Since</code>), in which case 304 Not Modified
      responses <em class="ct">must</em> be passed through.</p>
 
-    <p>If the UA implements server-driven content-negotiation [<a
-     href="#RFC2616">RFC2616</a>], it <em class="ct">should</em> set
+    <p>If the user agent implements server-driven content-negotiation [<a
+     href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> set
      <code>Accept-Language</code>, <code>Accept-Encoding</code> and
      <code>Accept-Charset</code> headers as appropriate; it <em
      class="ct">must not</em> automatically set the <code>Accept</code>
@@ -648,12 +657,12 @@ X-Test: one, two
      href="#dfn-readystate">readyState</a></code> <em class="ct">must</em> be
      set to 4 (Loaded) immediately after having gone to 3 (Receiving).
 
-    <p>If the UA supports Expect/Continue for request bodies [<a
+    <p>If the user agent supports Expect/Continue for request bodies [<a
      href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> insert
-     <code>Expect</code> headers and handle 100 Continue responses
-     appropriately.</p>
+     <code>Expect</code> headers and handle <code>100 Continue</code>
+     responses appropriately.</p>
 
-   <dt><dfn id="dfn-abort"><code>abort</code></dfn>
+   <dt><dfn id="dfn-abort"><code>abort</code></dfn>, method
 
    <dd>
     <p>When invoked, this method <em class="ct">must</em> cancel any network
@@ -661,7 +670,8 @@ X-Test: one, two
      the object to their initial values.</p>
 
    <dt><dfn
-    id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn>
+    id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn>,
+    method
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
@@ -687,7 +697,8 @@ Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</pre>
     </div>
 
-   <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn>
+   <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn>,
+    method
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
@@ -737,8 +748,8 @@ Content-Type: text/plain; charset=utf-8</pre>
      section 4.1.2 of [RFC2046] <em class="ct">must</em> be treated as if
      they specified the default character encoding as being UTF-8. Invalid
      bytes <em class="ct">must</em> be converted to U+FFFD REPLACEMENT
-     CHARACTER. If the UA can't derive a character stream in accord with the
-     media type specification, <code>reponseText</code> <em
+     CHARACTER. If the user agent can't derive a character stream in accord
+     with the media type specification, <code>reponseText</code> <em
      class="ct">must</em> be <code>null</code>.</p>
 
     <p class="issue"><code>null</code> or the empty string?</p>
