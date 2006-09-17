@@ -8,14 +8,14 @@
  <body>
   <div class="head">
    <p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
-   <h1 class="head">The XMLHttpRequest Object</h1>
-   <h2 class="no-num no-toc" id="pagesubtitle">Editor's Draft August 2006</h2>
+   <h1 class="head">The <code title="">XMLHttpRequest</code> Object</h1>
+   <h2 class="no-num no-toc" id="pagesubtitle">Editor's Draft September 2006</h2>
    <dl>
-    <dt>This version:</dt>
+    <dt>This Version:</dt>
     <dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-200XXXXX">http://www.w3.org/TR/2006/WD-XMLHttpRequest-200XXXXX</a></dd>
-    <dt>Latest version:</dt>
+    <dt>Latest Version:</dt>
     <dd><a href="http://www.w3.org/TR/XMLHttpRequest/">http://www.w3.org/TR/XMLHttpRequest/</a></dd>
-    <dt>Previous version:</dt>
+    <dt>Previous Versions:</dt>
     <dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060619/">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060619/</a></dd>
     <dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060405/</a></dd>
     <dt>Editor:</dt>
@@ -38,6 +38,13 @@
   </div>
   <hr>
   <h2 class="no-num no-toc" id="specabstract">Abstract</h2>
+
+  <p class="issue">Someone mentioned cookies. <q>My original point was simply
+   that there is a non-parallelism in the spec as it stands now. Outgoing
+   cookies are explicitly addressed, but incoming cookies are not. If you make
+   it clear that XMLHttpRequest uses the HTTP facilities of the UA, then that
+   would satisfy me.</q></p>
+
   <p>This specification defines the <code>XMLHttpRequest</code> object, an
    <abbr title="Application Programming Interface">API</abbr> that provides
    additional <abbr title="HyperText Transfer Protocol">HTTP</abbr> client
@@ -48,11 +55,11 @@
    W3C publications and the latest revision of this technical report can be
    found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
    at http://www.w3.org/TR/.</em></p>
-  <p>This is second Working Draft of the XMLHttpRequest Object. This document is
-   produced by the <a href="http://www.w3.org/2006/webapi">Web API WG</a>, part
-   of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients
-   Activity</a> in the W3C <a href="http://www.w3.org/Interaction/">Interaction
-   Domain</a>.</p>
+  <p>This is the third Working Draft of The <code>XMLHttpRequest</code> Object.
+   This document is produced by the <a href="http://www.w3.org/2006/webapi">Web
+   APIs WG</a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich
+   Web Clients Activity</a> in the W3C
+   <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.</p>
   <p>Web content and browser developers are encouraged to review this draft.
    Please send comments to
    <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the W3C's
@@ -266,7 +273,7 @@
 };</pre>
 
   <h3 id="xmlhttprequest-members">Members of the <code>XMLHttpRequest</code>
-   object</h3>
+   Object</h3>
 
   <dl>
    <dt><dfn id="dfn-onreadystatechange"><code>onreadystatechange</code></dfn>
@@ -328,6 +335,11 @@
     <p class="issue">Need to define which methods must be supported by default,
      how they are transformed to uppercase and whatever resolution we come up
      for with regard to blacklist/whitelist nonsense.</p>
+    <p class="issue">Logging in for HTTP using http://foo:bar@domain.com/ (sp?)
+     throws in IE and is deprecated by the IETF. Perhaps we should disallow
+     it?</p>
+    <p class="issue">Need to make sure all parameters have error handling
+     defined.</p>
    </dd>
    
    <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn>,
@@ -352,7 +364,7 @@
       <code>Keep-Alive</code>, <code>Referer</code>, <code>TE</code>,
       <code>Trailer</code>, <code>Transfer-Encoding</code> or
       <code>Upgrade</code> case-insensitively.</li>
-     <!-- XXX should the last two be "should"? -->
+     <!-- XXX should the last be "should"? -->
     </ul>
     <div class="example">
      <pre>// The following script:
@@ -386,6 +398,8 @@ X-Test: one, two
      caching, authentication, proxies, and cookies.</p>
     <p>The list of request headers must be reset when the <code>open()</code>
      method is called.</p>
+     
+    <p class="issue">What about non-ASCII characters?</p>
    </dd>
    
    <dt><dfn id="dfn-send"><code>send</code></dfn>, method</dt>
@@ -476,6 +490,10 @@ X-Test: one, two
      request bodies [<a href="#RFC2616">RFC2616</a>] it
      <em class="ct">should</em> insert <code>Expect</code> headers and handle
      <code>100 Continue</code> responses appropriately.</p>
+   
+    <p class="issue">What happens if you send data but no
+     <code>Content-Type</code> header is set? Browsers do different things.
+     ISSUE-80.</p>
    </dd>
    
    <dt><dfn id="dfn-abort"><code>abort</code></dfn>, method</dt>
@@ -581,6 +599,9 @@ Content-Type: text/plain; charset=utf-8</pre>
      unsupported character encoding, for instance), it <em class="ct">must</em>
      be <code>null</code>.</p>
     <p>Its initial value <em class="ct">must</em> be <code>null</code>.</p>
+    <p class="issue">It has been suggested to not reference media types but a
+     more abstract context. Perhaps just allow everything which can be turned
+     into a <code>Document</code> tree?</p>
    </dd>
    <dt><dfn id="dfn-status"><code>status</code></dfn> of type
     <code>unsigned short</code>, readonly</dt>
@@ -611,7 +632,7 @@ Content-Type: text/plain; charset=utf-8</pre>
    objects in succession <em class="ct">should</em> be pipelined into shared 
    HTTP connections.</p>
   
-  <h3 id="events">Events for the <code>XMLHttpRequest</code> object</h3>
+  <h3 id="events">Events for the <code>XMLHttpRequest</code> Object</h3>
   
   <p>These sections describe the various events that can be dispatched on the
    object implementing the <code>XMLHttpRequest</code> interface. For this
