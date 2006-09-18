@@ -44,6 +44,9 @@
    cookies are explicitly addressed, but incoming cookies are not. If you make
    it clear that XMLHttpRequest uses the HTTP facilities of the UA, then that
    would satisfy me.</q></p>
+   
+  <p class="issue">What if the user cancels a request by leaving the page? How does that work
+   for multiple windows and what's the effect on the object?</p>
 
   <p>This specification defines the <code>XMLHttpRequest</code> object, an
    <abbr title="Application Programming Interface">API</abbr> that provides
@@ -235,7 +238,7 @@
    programmatically connect to their originating server via HTTP.</p>
   <p>Objects implementing the <code>XMLHttpRequest</code> interface
    <em class="ct">must</em> also implement the <code>EventTarget</code>
-   interface [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>].</p>
+   interface [<cite><a href="#DOM3EV" class="bibref">DOM3Events</a></cite>].</p>
   <p>In ECMAScript [ECMA262], an instance of <code>XMLHttpRequest</code> can be
    created using the <code>XMLHttpRequest()</code> constructor:</p>
   <div class="example">
@@ -426,7 +429,7 @@ X-Test: one, two
      <li>If the <var>data</var> is a <code>Document</code>, it
       <em class="ct">must</em> be serialized using the encoding given by
       <code><var>data</var>.xmlEncoding</code>, if specified and supported, or
-      UTF-8 otherwise [<a href="#DOM3">DOM3</a>].</li>
+      UTF-8 otherwise [<a href="#DOM3">DOM3Core</a>].</li>
      <li>If <var>data</var> is not a <code>DOMString</code> or a
       <code>Document</code> the host language its stringification mechanisms
       <em class="ct">must</em> be used on the argument that was passed and the
@@ -644,32 +647,56 @@ Content-Type: text/plain; charset=utf-8</pre>
     dispatched when <code>readyState</code> changes value. It
     <em class="ct">must not</em> bubble, <em class="ct">must not</em> be
     cancelable and <em class="ct">must</em> implement the <code>Event</code>
-    interface [<cite><a href="#DOM3EV" class="bibref">DOM3EV</a></cite>]. The
+    interface [<cite><a href="#DOM3EV" class="bibref">DOM3Events</a></cite>]. The
     event has no namespace (<code>Event.namespaceURI</code> is
     <code>null</code>).</dd>
   </dl>
+
   <h2 class="no-num" id="bibref">References</h2>
+
   <dl>
-   <dt id="DOM3">DOM3</dt>
-   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core/">Document Object
-    Model (DOM) Level 3 Core Specification</a></cite>, Arnaud Le Hors (IBM),
-    Philippe Le Hégaret (W3C), Lauren Wood (SoftQuad, Inc.), Gavin Nicol (Inso
-    EPS), Jonathan Robie (Texcel Research and Software AG), Mike Champion
-    (Arbortext and Software AG), and Steve Byrne (JavaSoft).</dd>
-   <dt id="DOM3EV">DOM3EV</dt>
+   
+   <dt id="DOM3">[DOM3Core]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
+    Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
+    Hégaret, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne, editors.
+    World Wide Web Consortium, April 2004.</dd>
+
+   <dt id="DOM3EV">[DOM3Events]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document Object
-    Model (DOM) Level 3 Events Specification</a></cite>, Philippe Le Hégaret
-    (W3C), and Tom Pixley (Netscape Communications Corporation).</dd>
-   <dt id="RFC2119">RFC2119</dt>
-   <dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in
-    RFCs to Indicate Requirement Levels</a></cite>, S. Bradner.</dd>
-   <dt id="RFC2616">RFC2616</dt>
-   <dd><cite><a href="http://www.ietf.org/rfc/rfc2616.txt">Hypertext Transfer
-    Protocol -- HTTP/1.1</a></cite>, R. Fielding (UC Irvine), J. Gettys
-    (Compaq/W3C), J. Mogul (Compaq), H. Frystyk (W3C/MIT), L. Masinter (Xerox),
-    P. Leach (Microsoft), and T. Berners-Lee (W3C/MIT).</dd>
+    Model (DOM) Level 3 Events Specification</a></cite>, Björn Höhrmann, editor.
+    World Wide Web Consortium, April 2006.</dd>
+
+   <dt id="ref-rfc2109">[RFC2109]</dt>
+   <dd><cite><a href="http://ietf.org/rfc/rfc2109">HTTP State Management
+    Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, February
+    1997.</dd>
+
+   <dt id="RFC2119">[RFC2119]</dt>
+   <dd><cite><a href="http://ietf.org/rfc/rfc2119">RFC 2119: Key words
+    for use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner.
+    IETF, March 1997.</dd>
+   
+   <dt id="RFC2616">[RFC2616]</dt>
+   <dd><cite><a href="http://ietf.org/rfc/rfc2616">Hypertext Transfer Protocol
+    -- HTTP/1.1</a></cite>, R. Fielding, J. Gettys, J. Mogul, H. Frystyk, L.
+    Masinter, P. Leach, T. Berners-Lee, editors. IETF, June 1999</dd>
+   
+   <dt id="ref-rfc2617">[RFC2617]</dt>
+   <dd><cite><a href="http://ietf.org/rfc/rfc2617">HTTP Authentication: Basic
+    and Digest Access Authentication</a></cite>, </dd>
+   
+   <dt id="ref-rfc2965">[RFC2965]</dt>
+   <dd>...</dd>
+   
+   <dt id="ref-rfc3986">[RFC3986]</dt>
+   <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource Identifier
+    (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding, L. Masinter,
+    editors. IETF, January 2005.</dd>
   </dl>
+
   <h2 class="no-num" id="acknowledgements">Acknowledgements</h2>
+
   <p><em>This section is non-normative</em></p>
   <p>The editor would like to thank to the following people who have contributed
    to this specification (ordered on first name):</p>
