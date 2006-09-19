@@ -17,13 +17,13 @@
   <div class="head">
    <p><a href="http://www.w3.org/"><img alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
    <h1 id="title">Selectors API</h1>
-   <h2 class="no-num no-toc" id="W3C-doctype">Editor's Draft August 2006</h2>
+   <h2 class="no-num no-toc" id="W3C-doctype">Editor's Draft September 2006</h2>
    <dl>
-    <dt>This version:</dt>
+    <dt>This Version:</dt>
     <dd>http://www.w3.org/TR/YYYY/TT-selectors-api-YYYYMMDD</dd>
-    <dt>Latest version:</dt>
+    <dt>Latest Version:</dt>
     <dd><a href="http://www.w3.org/TR/selectors-api/">http://www.w3.org/TR/selectors-api/</a></dd>
-    <dt>Previous version:</dt>
+    <dt>Previous Version:</dt>
     <dd><a href="http://www.w3.org/TR/2006/WD-selectors-api-20060525/">http://www.w3.org/TR/2006/WD-selectors-api-20060525/</a></dd>
     <dt>Editor:</dt>
     <dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a>
@@ -42,21 +42,30 @@
     <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document
     use</a> rules apply.</p>
   </div>
+
   <hr>
+
   <h2 class="no-num no-toc" id="abstract">Abstract</h2>
+
   <p>Selectors API defines two methods for retrieving <code>Element</code>
    nodes in the <abbr title="Document Object Model">DOM</abbr> using a group of
    selectors as defined in
    [<cite><a href="#ref-selectors">Selectors</a></cite>].</p>
+
   <h2 class="no-num no-toc" id="sotd">Status of this Document</h2>
+
   <p><em>This section describes the status of this document at the time of its
    publication. Other documents may supersede this document. A list of current
    W3C publications and the latest revision of this technical report can be
    found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
    at http://www.w3.org/TR/.</em></p>
-  <p><strong>This is the editor's copy of the specification and has no official
-   standing.</strong></p>
-  <!-- This document is produced by the <a href="http://www.w3.org/2006/webapi">Web API <abbr title="Working Group">WG</abbr></a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a> in the W3C <a href="http://www.w3.org/Interaction/">Interaction Domain</a>. -->
+
+  <p>This document is produced by the
+   <a href="http://www.w3.org/2006/webapi">Web APIs WG</a>, part of the
+   <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
+   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
+   Domain</a>.</p>
+
   <p>Web content and browser developers are encouraged to review this draft.
    Please send comments to
    <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the W3C's
@@ -67,13 +76,15 @@
    in W3C CVS</a>. A detailed list of changes is also available
    <a href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/">from the CVS
    server</a>.</p>
+
   <p>Implementors should be aware that this specification is not stable.
    <strong>Implementors who are not taking part in the discussions are likely
    to find the specification changing out from under them in incompatible
    ways.</strong> Vendors interested in implementing this specification
    before it eventually reaches the Candidate Recommendation stage should
    join the aforementioned mailing lists and take part in the discussions.</p>
-   <p>This document was produced by a group operating under the
+
+  <p>This document was produced by a group operating under the
    <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February
    2004 W3C Patent Policy</a>. W3C maintains a
    <a rel="disclosure" href="http://www.w3.org/2004/01/pp-impl/38482/status">public
@@ -85,11 +96,14 @@
    Claim(s)</a> must disclose the information in accordance with
    <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
    6 of the W3C Patent Policy</a>.</p>
+
   <h2 class="no-num no-toc" id="toc">Table of Contents</h2>
   <!--toc-->
-  </div>
+
   <h2 id="introduction">Introduction</h2>
+
   <p><em>This section is non-normative.</em></p>
+
   <p>It is often desirable to perform script and or DOM operations on a
    specific set of elements in a document. Selectors
    [<cite><a href="#ref-selectors">Selectors</a></cite>], mostly used in
@@ -98,10 +112,14 @@
    matching such a set of elements. This specification introduces two methods
    which take a group of selectors (often referred to as selector) as argument
    and return the matched elements as result.</p>
+
   <h3 id="examples">Examples</h3>
+
   <p><em>This section is non-normative.</em></p>
+
   <p>Some ECMAScript [<cite><a href="#ref-ecma262">ECMA262</a></cite>]
    examples:</p>
+
   <pre>function resolver(str) {
   var prefixes = {
     xh:  "http://www.w3.org/1999/xhtml",
@@ -110,30 +128,38 @@
 }
 var <var>a</var> = document.matchAll("xh|div &gt; svg|svg", resolver);
 var <var>b</var> = document.match("div.foo.bar");</pre>
+
   <p><var>a</var> contains a <code>StaticNodeList</code> of all the nodes
    matched by <code>xh|div &gt; svg|svg</code> (namespace prefixes are
    resolved using the function in this case). <var>b</var> would contain the
    first <code>div</code> element which has the classes <code>foo</code> and
    <code>bar</code> set. (So in case of multiple <code>div</code> elements
    matching <code>div.foo.bar</code> only the first is returned because
-   <code>match</code> is used and not <code>matchAll</code>.)</p>
+   <code>match()</code> is used and not <code>matchAll()</code>.)</p>
+
   <pre>function test(){
   var c = document.matchAll(":root"),
       d = document.documentElement;
   return c[0] === d;
 }</pre>
+
   <p><code>test()</code> would return <code>true</code> when both
-   <code>matchAll</code> and <code>:root</code> are supported.</p>
+   <code>matchAll()</code> and <code>:root</code> are supported.</p>
+
   <p class="note">When using <code>:root</code> like this it's probably better
-   (and faster) to use <code>match</code> given that there's only one possible
+   (and faster) to use <code>match()</code> given that there's only one possible
    result. This is just to illustrate how it works.</p>
+
   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
+
   <p>The above code snippet shows that besides using a single selector you can
    also pass a group of selectors (basically comma-separated selectors) as
    argument. <var>e</var> would contain a <code>StaticNodeList</code> with all
    <code>p</code> elements in the document that have a <code>warning</code> or
    <code>alert</code> class.</p>
+
   <h3 id="conformance">Conformance Requirements</h3>
+
   <p>Everying in this specification is normative except for diagrams,
    examples, notes and sections marked non-normative.</p>
   <p>The key words <em class="ct">must</em>, <em class="ct">must not</em>,
@@ -143,12 +169,15 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <em class="ct">optional</em> in the normative parts of this document are to
    be interpreted as described in
    [<cite><a href="#ref-rfc2119">RFC2119</a></cite>].</p>
+
   <p>The following conformance classes are defined by this specification:</p>
+
   <dl>
    <dt><dfn>conforming implementation</dfn></dt>
-   <dd>A UA that implements all interfaces described in this specification and
-    follows all <em class="ct">must</em>-, <em class="ct">required</em>- and
-    <em class="ct">shall</em>-level of critera in this specification.</dd>
+   <dd>A user agent that implements all interfaces described in this
+    specification and follows all <em class="ct">must</em>-,
+    <em class="ct">required</em>- and <em class="ct">shall</em>-level of critera
+    in this specification.</dd>
    <dt><dfn>conforming document</dfn></dt>
    <dd>A document that follows all <em class="ct">must</em>-,
     <em class="ct">required</em>- and <em class="ct">shall</em>-level of
@@ -156,158 +185,186 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <dt><dfn>conforming authoring tool</dfn></dt>
    <dd>One that produces conforming documents.</dd>
   </dl>
-  <h3 id="issues"><strong>Outstanding Issues</strong></h3>
+
+  <h3 id="extensibility">Extensibility</h3>
+
   <p><em>This section is non-normative.</em></p>
+
+  <p>Extensions of the APIs defined in this specification are <em>strongly
+   discouraged</em>. User agents, Working Groups and other interested parties
+   should discuss extensions on a relevant public forum, such as
+   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
+
+  <h3 id="issues"><strong>Outstanding Issues</strong></h3>
+
+  <p><em>This section is non-normative.</em></p>
+
   <p>The draft has several outstanding issues that either need to be addressed
    in one way or another at some point:</p>
+
   <ul>
    <li>Several people have raised issues with naming the methods
-    <code>match</code> and <code>matchAll</code> as those might suggest a
+    <code>match()</code> and <code>matchAll()</code> as those might suggest a
     boolean return value. Alternate suggestions have been <code>select</code>
-    and <code>selectAll</code>.</li>
-   <li>There was at least one request for scoped selectors. For example, being
-    able to do <code>event.target.match()</code> or in other words allowing
-    the methods on <code>Element</code> nodes. Given that Selectors itself has
-    no notion of scoped selectors this might be difficult to define and is
-    perhaps better delayed until the CSS WG has defined scoped selectors.</li>
-   <li>It would be nice if extensibility was addressed by DOM Level 3 Core or
-    a separate specification that all DOM specifications could reuse.</li>
+    and <code>selectAll</code>;</li>
    <li>Need to look into <code>XPathNSResolver</code> and the default
     namespace.</li>
-   <li>If DOM Level 3 Core gets errata we might be able to get away with not
-    having a new interface at all for <code>NodeList</code>
-    (<code>StaticNodeList</code>), but just say that the object implementing
-    the <code>NodeList</code> interface is not live.</li>
   </ul>
-  <h2 id="interfaces">Interfaces</h2>
-  <h3 id="documentselector">The <code>DocumentSelector</code> Interface</h3>
+
+  <h3 id="notcovered">Not in this Specification</h3>
+
+  <p><em>This section is non normative.</em></p>
+
+  <p>This specification does not cover scoped selectors. In a future version you
+   might be able to do <code>event.target.match("foo")</code> or similar.</p>
+
+  <p class="issue">Should we rename <code>DocumentSelector</code> to something
+   more generic because of that?</p>
+
+  <h2 id="documentselector">The <code>DocumentSelector</code> Interface</h2>
+
   <p>Objects implementing the <code>Document</code> interface defined in
    <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
    <code>DocumentSelector</code> interface
    [<cite><a href="#ref-dom3core">DOM3Core</a></cite>].</p>
+
   <pre class="idl">interface DocumentSelector {
   Node            match(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
   StaticNodeList  matchAll(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
 };</pre>
-  <p>The <dfn id="match"><code>match</code></dfn> method, when invoked,
+
+  <p>The <dfn id="match"><code>match(<var>selectors</var>,
+   <var>nsresolver</var>)</code></dfn> method, when invoked,
    <em class="ct">must</em> return the first <code>Element</code> node in
    document order (using depth-first pre-order traversal) that matches the group
    of selectors (<var>selectors</var>), if any. Otherwise it
    <em class="ct">must</em> return <code>null</code>.</p>
-  <p>The <dfn id="matchall"><code>matchAll</code></dfn> method, when invoked,
+
+  <p>The <dfn id="matchall"><code>matchAll(<var>selectors</var>,
+   <var>nsresolver</var>)</code></dfn> method, when invoked,
    <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
    <code>Element</code>s that match the group of selectors
-   (<var>selectors</var>) in document order, if any. Otherwise it <em class="ct">must</em> return
-   <code>null</code>.</p>
-  <p>Both <code>match</code> and <code>matchAll</code> take a group of
+   (<var>selectors</var>) in document order, if any. Otherwise it
+   <em class="ct">must</em> return <code>null</code>.</p>
+
+  <p>Both <code>match()</code> and <code>matchAll()</code> take a group of
    selectors (<var>selectors</var>) as defined in
    [<cite><a href="#ref-selectors">Selectors</a></cite>] as first argument and
-   an <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. UAs
-   <em class="ct">must</em> use the <var>nsresolver</var> argument to resolve
-   namespace prefixes as defined in
+   an <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. User
+   agents <em class="ct">must</em> use the <var>nsresolver</var> argument to
+   resolve namespace prefixes as defined in
    [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. When the
-   <var>nsresolver</var> argument is <code>null</code> UAs
+   <var>nsresolver</var> argument is <code>null</code> user agents
    <em class="ct">must</em> ignore it.</p>
+
   <p>When authors use namespace prefixes within <var>selectors</var> they
    <em class="ct">must</em> create an object implementing the
    <code>XPathNSResolver</code> interface (or create a <code>Function</code>
    in case of ECMAScript) and pass that as argument for
-   <code>nsresolver</code> as defined in in 
+   <code>nsresolver</code> as defined in in
    [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. If they don't use
    namespace prefixes within <var>selectors</var> authors
    <em class="ct">may</em> set <var>nsresolver</var> to <code>null</code> or
    omit the argument completely if the language binding allows it.</p>
+
   <p class="issue">Make sure [DOM3XPath] actually defines this. Otherwise this
    draft will have to. (Which is needed anyway when this goes beyond Last Call
    and DOM Level 3 XPath does not.)</p>
-  <p>If the given group of selectors (<var>selectors</var>) is invalid, the UA
-   <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If the
-   given group of selectors (<var>selectors</var>) uses namespace prefixes and
-   the prefix can not be resolved using the <var>nsresolver</var> argument UAs
-  <p class="note">Using pseudo-elements in one of the selectors could mean
+
+  <p>If the given group of selectors (<var>selectors</var>) is invalid, the user
+   agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If
+   the given group of selectors (<var>selectors</var>) uses namespace prefixes
+   and the prefix can not be resolved using the <var>nsresolver</var> argument
    <em class="ct">must</em> raise a <code>NAMESPACE_ERR</code> exception.</p>
+
+  <p class="note">Using pseudo-elements in one of the selectors could mean
    that nothing is returned for that particular selector when it doesn't
    resolve in one or more <code>Element</code> nodes.</p>
+
   <p>In languages that support optional arguments for methods, like
    ECMAScript, omitting the <var>nsresolver</var> argument in either the
-   <code>match</code> or <code>matchAll</code> method <em class="ct">must</em>
+   <code>match()</code> or <code>matchAll()</code> method <em class="ct">must</em>
    return the same result as if the method was called with the
    <var>nsresolver</var> argument being <code>null</code>.</p>
-  <h4 id="extensibility">Extensibility</h4>
-  <p>Extensions to the <code>DocumentSelector</code> interface are reserved
-   for future work by the Web APIs WG. WGs besides the Web APIs WG
-   <em class="ct">may</em> extend the interface, but <em class="ct">must</em>
-   coordinate that with the Web APIs WG. UAs <em class="ct">may</em> extend
-   the interface, but <em class="ct">must</em> prefix the new members using a
-   string specific to the vendor following the
-   <var>Vendor</var><var>Member</var> scheme. (Normally members follow the
-   <var>member</var> scheme.)
-   <code>FooSetDefaultNamespace(<var>ns</var>)</code> would be an example for
-   company Foo.</p>
-  <p>Authors <em class="ct">may</em> use extension mechanisms specific to the
-   host language, like <code>.prototype</code> in ECMAScript.</p>
-  <h3 id="staticnodelist">The <code>StaticNodeList</code> Interface</h3>
-  <p class="issue">Replace with <code>DOMArray</code>?</p>
+
+  <h2 id="staticnodelist">The <code>StaticNodeList</code> Interface</h2>
+
   <pre class="idl">typedef StaticNodeList NodeList;</pre>
+
   <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
    identically to the <code>NodeList</code> interface as defined in
    [<cite><a href="#ref-dom3core">DOM3Core</a></cite>] with the exception that
    the interface, as the name suggests, is static and not live.</p>
+
   <h2 id="security">Security Considerations</h2>
+
   <p>It is expected that implementing this specification introduces no new
    risks for users.</p>
+
   <p>History theft is a potential security problem, because of the
    <code>:visited</code> pseudo-class in
    [<cite><a href="#ref-selectors">Selectors</a></cite>].
    <code>:visited</code> can already be used to query which links are visited
-   and which are not using methods from
-   [<cite><a href="#ref-dom2style">DOM2Style</a></cite>] and even
-   [<cite><a href="#ref-css21">CSS21</a></cite>] and because
-   this specification did not introduce the problem and it can already be
-   exploited by other means UAs don't have to take action upon it.</p>
-  <p>Another problem is hostile content. UAs <em class="ct">should</em> ensure
-   they remain stable when facing a hostile <code>XPathNSResolver</code>
+   using [<cite><a href="#ref-css21">CSS21</a></cite>] and because this
+   specification did not introduce the problem and it can already be
+   exploited by other means user agents don't have to take action upon it.</p>
+
+  <p>Another problem is hostile content. User agents <em class="ct">should</em>
+   ensure they remain stable when facing a hostile <code>XPathNSResolver</code>
    object. Potential hostile things such an object could do include:</p>
+
   <ul>
    <li>Returning inconsistent results;</li>
    <li>Hanging;</li>
    <li>Changing the DOM during the operation.</li>
   </ul>
-  <p class="issue">It was said that this section is in need of examples...</p>
+
   <h2 class="no-num" id="references">References</h2>
+
   <dl>
+   
    <dt id="ref-css21">[CSS21]</dt>
    <dd>(Informative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading Style
     Sheets, level 2 revision 1</a></cite>, B. Bos, T. Çelik, I. Hickson, H.
     Wium Lie, editors. World Wide Web Consortium, June 2005.</dd>
+   
+   <!--
    <dt id="ref-dom2style">[DOM2Style]</dt>
    <dd>(Informative)
     <cite><a href="http://www.w3.org/TR/DOM-Level-2-Style">Document Object
     Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P. Le
     Hégaret, V. Apparao, editors. World Wide Web Consortium, November
     2000.</dd>
+   -->
+   
    <dt id="ref-dom3core">[DOM3Core]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
     Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
     Hégaret, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne, editors.
     World Wide Web Consortium, April 2004.</dd>
+   
    <dt id="ref-dom3xpath">[DOM3XPath]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-XPath">Document Object
     Model (DOM) Level 3 XPath Specification</a></cite>, R. Whitmer, editor.
     World Wide Web Consortium, February 2004.</dd>
+   
    <dt id="ref-ecma262">[ECMA262]</dt>
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
     Language Specification</a></cite>, Third Edition. ECMA, December 1999.</dd>
+   
    <dt id="ref-selectors">[Selectors]</dt>
    <dd><cite><a href="http://www.w3.org/TR/css3-selectors">Selectors</a></cite>,
     D. Glazman, T. Çelik, I. Hickson, P. Linss, J. Williams, editors. World
     Wide Web Consortium, December 2005.</dd>
+   
    <dt id="ref-rfc2119">[RFC2119]</dt>
    <dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119: Key words
     for use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner.
     IETF, March 1997.</dd>
   </dl>
+
   <h2 class="no-num" id="acknowledgements">Acknowledgements</h2>
+
   <ul>
    <li>Björn Höhrmann</li>
    <li>Cameron McCormack</li>
@@ -322,6 +379,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <li>Mohamed Zergaoui</li>
    <li>Robin Berjon</li>
   </ul>
+
   <p>Thanks to all those who have helped to improve this specification by
    sending suggestions and corrections. (Please, keep bugging us with your
    issues!)</p>

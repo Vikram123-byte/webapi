@@ -23,19 +23,19 @@
 
    <h1 id="title">Selectors API</h1>
 
-   <h2 class="no-num no-toc" id="W3C-doctype">Editor's Draft August 2006</h2>
+   <h2 class="no-num no-toc" id="W3C-doctype">Editor's Draft September 2006</h2>
 
    <dl>
-    <dt>This version:
+    <dt>This Version:
 
     <dd>http://www.w3.org/TR/YYYY/TT-selectors-api-YYYYMMDD
 
-    <dt>Latest version:
+    <dt>Latest Version:
 
     <dd><a
      href="http://www.w3.org/TR/selectors-api/">http://www.w3.org/TR/selectors-api/</a>
 
-    <dt>Previous version:
+    <dt>Previous Version:
 
     <dd><a
      href="http://www.w3.org/TR/2006/WD-selectors-api-20060525/">http://www.w3.org/TR/2006/WD-selectors-api-20060525/</a>
@@ -81,9 +81,11 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p><strong>This is the editor's copy of the specification and has no
-   official standing.</strong></p>
-  <!-- This document is produced by the <a href="http://www.w3.org/2006/webapi">Web API <abbr title="Working Group">WG</abbr></a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a> in the W3C <a href="http://www.w3.org/Interaction/">Interaction Domain</a>. -->
+  <p>This document is produced by the <a
+   href="http://www.w3.org/2006/webapi">Web APIs WG</a>, part of the <a
+   href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
+   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
+   Domain</a>.
 
   <p>Web content and browser developers are encouraged to review this draft.
    Please send comments to <a
@@ -128,24 +130,23 @@
      <li><a href="#conformance"><span class="secno">1.2. </span>Conformance
       Requirements</a>
 
-     <li><a href="#issues"><span class="secno">1.3.
+     <li><a href="#extensibility"><span class="secno">1.3.
+      </span>Extensibility</a>
+
+     <li><a href="#issues"><span class="secno">1.4.
       </span><strong>Outstanding Issues</strong></a>
+
+     <li><a href="#notcovered"><span class="secno">1.5. </span>Not in this
+      Specification</a>
     </ul>
 
-   <li><a href="#interfaces"><span class="secno">2. </span>Interfaces</a>
-    <ul class="toc">
-     <li><a href="#documentselector"><span class="secno">2.1. </span>The
-      <code>DocumentSelector</code> Interface</a>
-      <ul class="toc">
-       <li><a href="#extensibility"><span class="secno">2.1.1.
-        </span>Extensibility</a>
-      </ul>
+   <li><a href="#documentselector"><span class="secno">2. </span>The
+    <code>DocumentSelector</code> Interface</a>
 
-     <li><a href="#staticnodelist"><span class="secno">2.2. </span>The
-      <code>StaticNodeList</code> Interface</a>
-    </ul>
+   <li><a href="#staticnodelist"><span class="secno">3. </span>The
+    <code>StaticNodeList</code> Interface</a>
 
-   <li><a href="#security"><span class="secno">3. </span>Security
+   <li><a href="#security"><span class="secno">4. </span>Security
     Considerations</a>
 
    <li class="no-num"><a href="#references">References</a>
@@ -189,8 +190,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    first <code>div</code> element which has the classes <code>foo</code> and
    <code>bar</code> set. (So in case of multiple <code>div</code> elements
    matching <code>div.foo.bar</code> only the first is returned because
-   <code><a href="#match">match</a></code> is used and not <code><a
-   href="#matchall">matchAll</a></code>.)
+   <code>match()</code> is used and not <code>matchAll()</code>.)
 
   <pre>function test(){
   var c = document.matchAll(":root"),
@@ -198,13 +198,12 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
   return c[0] === d;
 }</pre>
 
-  <p><code>test()</code> would return <code>true</code> when both <code><a
-   href="#matchall">matchAll</a></code> and <code>:root</code> are supported.
+  <p><code>test()</code> would return <code>true</code> when both
+   <code>matchAll()</code> and <code>:root</code> are supported.
 
   <p class="note">When using <code>:root</code> like this it's probably
-   better (and faster) to use <code><a href="#match">match</a></code> given
-   that there's only one possible result. This is just to illustrate how it
-   works.
+   better (and faster) to use <code>match()</code> given that there's only
+   one possible result. This is just to illustrate how it works.
 
   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
 
@@ -233,9 +232,10 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
   <dl>
    <dt><dfn id="conforming">conforming implementation</dfn>
 
-   <dd>A UA that implements all interfaces described in this specification
-    and follows all <em class="ct">must</em>-, <em class="ct">required</em>-
-    and <em class="ct">shall</em>-level of critera in this specification.
+   <dd>A user agent that implements all interfaces described in this
+    specification and follows all <em class="ct">must</em>-, <em
+    class="ct">required</em>- and <em class="ct">shall</em>-level of critera
+    in this specification.
 
    <dt><dfn id="conforming0">conforming document</dfn>
 
@@ -248,7 +248,16 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <dd>One that produces conforming documents.
   </dl>
 
-  <h3 id="issues"><span class="secno">1.3. </span><strong>Outstanding
+  <h3 id="extensibility"><span class="secno">1.3. </span>Extensibility</h3>
+
+  <p><em>This section is non-normative.</em>
+
+  <p>Extensions of the APIs defined in this specification are <em>strongly
+   discouraged</em>. User agents, Working Groups and other interested parties
+   should discuss extensions on a relevant public forum, such as <a
+   href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.
+
+  <h3 id="issues"><span class="secno">1.4. </span><strong>Outstanding
    Issues</strong></h3>
 
   <p><em>This section is non-normative.</em>
@@ -257,35 +266,28 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    addressed in one way or another at some point:
 
   <ul>
-   <li>Several people have raised issues with naming the methods <code><a
-    href="#match">match</a></code> and <code><a
-    href="#matchall">matchAll</a></code> as those might suggest a boolean
-    return value. Alternate suggestions have been <code>select</code> and
-    <code>selectAll</code>.
-
-   <li>There was at least one request for scoped selectors. For example,
-    being able to do <code>event.target.match()</code> or in other words
-    allowing the methods on <code>Element</code> nodes. Given that Selectors
-    itself has no notion of scoped selectors this might be difficult to
-    define and is perhaps better delayed until the CSS WG has defined scoped
-    selectors.
-
-   <li>It would be nice if extensibility was addressed by DOM Level 3 Core or
-    a separate specification that all DOM specifications could reuse.
+   <li>Several people have raised issues with naming the methods
+    <code>match()</code> and <code>matchAll()</code> as those might suggest a
+    boolean return value. Alternate suggestions have been <code>select</code>
+    and <code>selectAll</code>;
 
    <li>Need to look into <code>XPathNSResolver</code> and the default
     namespace.
-
-   <li>If DOM Level 3 Core gets errata we might be able to get away with not
-    having a new interface at all for <code>NodeList</code>
-    (<code>StaticNodeList</code>), but just say that the object implementing
-    the <code>NodeList</code> interface is not live.
   </ul>
 
-  <h2 id="interfaces"><span class="secno">2. </span>Interfaces</h2>
+  <h3 id="notcovered"><span class="secno">1.5. </span>Not in this
+   Specification</h3>
 
-  <h3 id="documentselector"><span class="secno">2.1. </span>The
-   <code>DocumentSelector</code> Interface</h3>
+  <p><em>This section is non normative.</em>
+
+  <p>This specification does not cover scoped selectors. In a future version
+   you might be able to do <code>event.target.match("foo")</code> or similar.
+
+  <p class="issue">Should we rename <code>DocumentSelector</code> to
+   something more generic because of that?
+
+  <h2 id="documentselector"><span class="secno">2. </span>The
+   <code>DocumentSelector</code> Interface</h2>
 
   <p>Objects implementing the <code>Document</code> interface defined in
    <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
@@ -297,27 +299,28 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
   StaticNodeList  matchAll(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
 };</pre>
 
-  <p>The <dfn id="match"><code>match</code></dfn> method, when invoked, <em
+  <p>The <dfn id="match"><code>match(<var>selectors</var>,
+   <var>nsresolver</var>)</code></dfn> method, when invoked, <em
    class="ct">must</em> return the first <code>Element</code> node in
    document order (using depth-first pre-order traversal) that matches the
    group of selectors (<var>selectors</var>), if any. Otherwise it <em
    class="ct">must</em> return <code>null</code>.
 
-  <p>The <dfn id="matchall"><code>matchAll</code></dfn> method, when invoked,
-   <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
+  <p>The <dfn id="matchall"><code>matchAll(<var>selectors</var>,
+   <var>nsresolver</var>)</code></dfn> method, when invoked, <em
+   class="ct">must</em> return a <code>StaticNodeList</code> of all the
    <code>Element</code>s that match the group of selectors
    (<var>selectors</var>) in document order, if any. Otherwise it <em
    class="ct">must</em> return <code>null</code>.
 
-  <p>Both <code><a href="#match">match</a></code> and <code><a
-   href="#matchall">matchAll</a></code> take a group of selectors
-   (<var>selectors</var>) as defined in [<cite><a
+  <p>Both <code>match()</code> and <code>matchAll()</code> take a group of
+   selectors (<var>selectors</var>) as defined in [<cite><a
    href="#ref-selectors">Selectors</a></cite>] as first argument and an
-   <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. UAs <em
-   class="ct">must</em> use the <var>nsresolver</var> argument to resolve
-   namespace prefixes as defined in [<cite><a
+   <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. User
+   agents <em class="ct">must</em> use the <var>nsresolver</var> argument to
+   resolve namespace prefixes as defined in [<cite><a
    href="#ref-dom3xpath">DOM3XPath</a></cite>]. When the
-   <var>nsresolver</var> argument is <code>null</code> UAs <em
+   <var>nsresolver</var> argument is <code>null</code> user agents <em
    class="ct">must</em> ignore it.
 
   <p>When authors use namespace prefixes within <var>selectors</var> they <em
@@ -335,43 +338,24 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    Last Call and DOM Level 3 XPath does not.)
 
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the
-   UA <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If
-   the given group of selectors (<var>selectors</var>) uses namespace
-   prefixes and the prefix can not be resolved using the
-   <var>nsresolver</var> argument UAs <em class="ct">must</em> raise a
+   user agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code>
+   exception. If the given group of selectors (<var>selectors</var>) uses
+   namespace prefixes and the prefix can not be resolved using the
+   <var>nsresolver</var> argument <em class="ct">must</em> raise a
    <code>NAMESPACE_ERR</code> exception.
 
-  <p class="note">Using psuedo-elements in one of the selectors could mean
+  <p class="note">Using pseudo-elements in one of the selectors could mean
    that nothing is returned for that particular selector when it doesn't
    resolve in one or more <code>Element</code> nodes.
 
   <p>In languages that support optional arguments for methods, like
    ECMAScript, omitting the <var>nsresolver</var> argument in either the
-   <code><a href="#match">match</a></code> or <code><a
-   href="#matchall">matchAll</a></code> method <em class="ct">must</em>
-   return the same result as if the method was called with the
-   <var>nsresolver</var> argument being <code>null</code>.
+   <code>match()</code> or <code>matchAll()</code> method <em
+   class="ct">must</em> return the same result as if the method was called
+   with the <var>nsresolver</var> argument being <code>null</code>.
 
-  <h4 id="extensibility"><span class="secno">2.1.1. </span>Extensibility</h4>
-
-  <p>Extensions to the <code>DocumentSelector</code> interface are reserved
-   for future work by the Web APIs WG. WGs besides the Web APIs WG <em
-   class="ct">may</em> extend the interface, but <em class="ct">must</em>
-   coordinate that with the Web APIs WG. UAs <em class="ct">may</em> extend
-   the interface, but <em class="ct">must</em> prefix the new members using a
-   string specific to the vendor following the
-   <var>Vendor</var><var>Member</var> scheme. (Normally members follow the
-   <var>member</var> scheme.)
-   <code>FooSetDefaultNamespace(<var>ns</var>)</code> would be an example for
-   company Foo.
-
-  <p>Authors <em class="ct">may</em> use extension mechanisms specific to the
-   host language, like <code>.prototype</code> in ECMAScript.
-
-  <h3 id="staticnodelist"><span class="secno">2.2. </span>The
-   <code>StaticNodeList</code> Interface</h3>
-
-  <p class="issue">Replace with <code>DOMArray</code>?
+  <h2 id="staticnodelist"><span class="secno">3. </span>The
+   <code>StaticNodeList</code> Interface</h2>
 
   <pre class="idl">typedef StaticNodeList NodeList;</pre>
 
@@ -380,7 +364,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    href="#ref-dom3core">DOM3Core</a></cite>] with the exception that the
    interface, as the name suggests, is static and not live.
 
-  <h2 id="security"><span class="secno">3. </span>Security Considerations</h2>
+  <h2 id="security"><span class="secno">4. </span>Security Considerations</h2>
 
   <p>It is expected that implementing this specification introduces no new
    risks for users.
@@ -388,14 +372,13 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
   <p>History theft is a potential security problem, because of the
    <code>:visited</code> pseudo-class in [<cite><a
    href="#ref-selectors">Selectors</a></cite>]. <code>:visited</code> can
-   already be used to query which links are visited and which are not using
-   methods from [<cite><a href="#ref-dom2style">DOM2Style</a></cite>] and
-   even [<cite><a href="#ref-css21">CSS21</a></cite>] and because this
-   specification did not introduce the problem and it can already be
-   exploited by other means UAs don't have to take action upon it.
+   already be used to query which links are visited using [<cite><a
+   href="#ref-css21">CSS21</a></cite>] and because this specification did not
+   introduce the problem and it can already be exploited by other means user
+   agents don't have to take action upon it.
 
-  <p>Another problem is hostile content. UAs <em class="ct">should</em>
-   ensure they remain stable when facing a hostile
+  <p>Another problem is hostile content. User agents <em
+   class="ct">should</em> ensure they remain stable when facing a hostile
    <code>XPathNSResolver</code> object. Potential hostile things such an
    object could do include:
 
@@ -407,8 +390,6 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <li>Changing the DOM during the operation.
   </ul>
 
-  <p class="issue">It was said that this section is in need of examples...
-
   <h2 class="no-num" id="references">References</h2>
 
   <dl>
@@ -416,14 +397,15 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
 
    <dd>(Informative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading
     Style Sheets, level 2 revision 1</a></cite>, B. Bos, T. Çelik, I.
-    Hickson, H. Wium Lie, editors. World Wide Web Consortium, June 2005.
-
-   <dt id="ref-dom2style">[DOM2Style]
-
-   <dd>(Informative) <cite><a
-    href="http://www.w3.org/TR/DOM-Level-2-Style">Document Object Model (DOM)
-    Level 2 Style Specification</a></cite>, C. Wilson, P. Le Hégaret, V.
-    Apparao, editors. World Wide Web Consortium, November 2000.
+    Hickson, H. Wium Lie, editors. World Wide Web Consortium, June 2005.</dd>
+   <!--
+   <dt id="ref-dom2style">[DOM2Style]</dt>
+   <dd>(Informative)
+    <cite><a href="http://www.w3.org/TR/DOM-Level-2-Style">Document Object
+    Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P. Le
+    Hégaret, V. Apparao, editors. World Wide Web Consortium, November
+    2000.</dd>
+   -->
 
    <dt id="ref-dom3core">[DOM3Core]
 
@@ -474,6 +456,8 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <li>Jim Ley
 
    <li>Jonas Sicking
+
+   <li>Karl Dubost
 
    <li>Lachlan Hunt
 
