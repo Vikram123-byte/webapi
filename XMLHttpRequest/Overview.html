@@ -65,15 +65,9 @@
 
   <h2 class="no-num no-toc" id="specabstract">Abstract</h2>
 
-  <p class="issue">Someone mentioned cookies. <q>My original point was simply
-   that there is a non-parallelism in the spec as it stands now. Outgoing
-   cookies are explicitly addressed, but incoming cookies are not. If you
-   make it clear that XMLHttpRequest uses the HTTP facilities of the UA, then
-   that would satisfy me.</q>
-
   <p class="issue">What if the user cancels a request by leaving the page?
    How does that work for multiple windows and what's the effect on the
-   object?
+   object? Need to test.
 
   <p>This specification defines the <code><a
    href="#xmlhttprequest0">XMLHttpRequest</a></code> object, an <abbr
@@ -140,24 +134,21 @@
      <li><a href="#examples"><span class="secno">1.2. </span>Examples of
       Usage</a>
 
-     <li><a href="#security"><span class="secno">1.3. </span>Security
-      Considerations</a>
-
-     <li><a href="#conformance"><span class="secno">1.4.
+     <li><a href="#conformance"><span class="secno">1.3.
       </span>Conformance</a>
 
-     <li><a href="#extensibility"><span class="secno">1.5.
+     <li><a href="#extensibility"><span class="secno">1.4.
       </span>Extensibility</a>
 
-     <li><a href="#notcovered"><span class="secno">1.6. </span>Not in this
+     <li><a href="#notcovered"><span class="secno">1.5. </span>Not in this
       Specification</a>
     </ul>
 
-   <li><a href="#xmlhttprequest"><span class="secno">2. </span>The
-    <code>XMLHttpRequest</code> Object</a>
+   <li><a href="#xmlhttprequest"><span class="secno">2. </span>The <code
+    title="">XMLHttpRequest</code> Object</a>
     <ul class="toc">
      <li><a href="#xmlhttprequest-idl"><span class="secno">2.1. </span>The
-      <code>XMLHttpRequest</code> IDL</a>
+      <code title="">XMLHttpRequest</code> IDL</a>
 
      <li><a href="#xmlhttprequest-members"><span class="secno">2.2.
       </span>Members of the <code>XMLHttpRequest</code> Object</a>
@@ -214,73 +205,9 @@
 
   <p>Various examples are listed throughout the specification.
 
-  <p class="issue">Need to write this or get some text...
+  <p class="issue">Search the web for usage...
 
-  <h3 id="security"><span class="secno">1.3. </span>Security Considerations</h3>
-
-  <p><em>This section is non-normative.</em>
-
-  <p>Implementations that run code originating from untrusted sources will
-   probably want to place additional constraints on some of the features
-   defined in this specification. This is not required and an implementation
-   is free to ignore this section.
-
-  <p>The restrictions are there to stop untrusted users of the API from using
-   the implementation to retrieve sensitive data. Specifically, an
-   implementation in a web browser will often want to restrict pages from a
-   website <var>A</var> to retrieve data from website <var>B</var>. The
-   reason for this is that website <var>B</var> could reside inside a
-   corporate firewall. If data could be retrieved from website <var>B</var>
-   then website <var>A</var> could use the browser effectively circumvent the
-   firewall.
-
-  <p>Another possible security attack exists if website <var>B</var> requires
-   authentication, like for example a web bank. If website <var>A</var> were
-   allowed to access data from website <var>B</var> and the user had recently
-   visited the bank and at that time logged in, the page from website
-   <var>A</var> would have access to private information like statements. If
-   correctly crafted, a page from website <var>A</var> could even initiate
-   transactions transferring money out of the browser-users bank account.
-
-  <p>To stop these attacks the implementation should only allow a page loaded
-   from website <var>A</var> to access other pages on the same website. Two
-   websites are considered separate if they use separate DNS names, even if
-   these names refer to the same IP. This is because the two websites could
-   be hosted at a hosting service that place several websites on a single
-   server and then use the requested hostname to choose which website to
-   serve. Additionally, separate TCP port numbers or separate protocols (like
-   http vs. https) are considered as separate websites.
-
-  <p>The implementation must be careful to always restrict access to the same
-   website, not just during the initial HTTP request. For example if that
-   request results in a redirect the implemenation should check that the
-   redirect points to the same website and otherwise deny access.
-
-  <p>Another feature that an implementation could limit is the <code><a
-   href="#dfn-setrequestheader">setRequestHeader</a></code> method. If the
-   implementation allows the <code>Host</code> header to be set and two
-   websites are hosted on the same server one website might be able to access
-   sensitive information from the other website.
-
-  <p class="issue">Perhaps the problems can be moved inline so people don't
-   have to consider the problems separately from the rest and can implement
-   it as one thing?
-
-  <p class="issue">Has to address restrictions on methods as well, etc.</p>
-  <!--
-  <h3 id="terminology">Terminology</h3>
-  <p>The term <dfn id="dfn-entity-body">entity body</dfn> is used in this
-   specification as defined by RFC 2616
-   ([<a href="#RFC2616">RFC2616</a>], section 7.2.1).</p>
-  
-  <p>The term <dfn id="dfn-reset">reset</dfn> either means that respective
-   member <em class="ct">must</em> be set to its initial value or each member of
-   the object, depending on how it's used.</p>
-  
-  <p class="issue">Can we drop this section at some point?</p>
-  -->
-
-  <h3 id="conformance"><span class="secno">1.4. </span>Conformance</h3>
+  <h3 id="conformance"><span class="secno">1.3. </span>Conformance</h3>
 
   <p>Everying in this specification is normative except for diagrams,
    examples, notes and sections marked non-normative.
@@ -313,32 +240,23 @@
 
    <dd>One that produces conforming documents.
   </dl>
-  <!-- XXX: Not sure if all apply. -->
 
-  <h3 id="extensibility"><span class="secno">1.5. </span>Extensibility</h3>
+  <h3 id="extensibility"><span class="secno">1.4. </span>Extensibility</h3>
 
-  <p>Extensions to the <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> interface are reserved
-   for future work by the Web APIs WG. WGs besides the Web APIs WG may extend
-   the interface, but <em class="ct">must</em> coordinate that with the Web
-   APIs WG. UAs <em class="ct">may</em> extend the interface, but <em
-   class="ct">must</em> prefix the new members using a string specific to the
-   vendor following the <var>Vendor</var><var>Member</var> scheme. (Normally
-   members follow the <var>member</var> scheme.) Company Foo could introduce
-   a <code>FooFollowRedirect(<var>boolean</var>)</code> method for example.
+  <p><em>This section is non-normative.</em>
 
-  <p>Authors <em class="ct">may</em> use extension mechanisms specific to the
-   host language, like <code>.prototype</code> in ECMAScript.
+  <p>Extensions of the APIs defined in this specification are <em>strongly
+   discouraged</em>. User agents, Working Groups and other interested parties
+   should discuss extensions on a relevant public forum, such as <a
+   href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.
 
-  <p class="issue">This should really be in DOM Level 3 Core.
-
-  <h3 id="notcovered"><span class="secno">1.6. </span>Not in this
+  <h3 id="notcovered"><span class="secno">1.5. </span>Not in this
    Specification</h3>
 
   <p><em>This section is non normative.</em>
 
   <p>This specification does not include the following features that may or
-   may not be implemented by UAs:
+   may not be implemented by user agents:
 
   <ul>
    <li><code>load</code> event and <code>onload</code> attribute;
@@ -361,8 +279,8 @@
    <li>Cross-site <code><a href="#xmlhttprequest0">XMLHttpRequest</a></code>.
   </ul>
 
-  <h2 id="xmlhttprequest"><span class="secno">2. </span>The <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> Object</h2>
+  <h2 id="xmlhttprequest"><span class="secno">2. </span>The <code
+   title="">XMLHttpRequest</code> Object</h2>
 
   <p>The <code><a href="#xmlhttprequest0">XMLHttpRequest</a></code> interface
    may be used to allow scripts to programmatically connect to their
@@ -381,26 +299,24 @@
    <pre>var client = new XMLHttpRequest();</pre>
   </div>
 
-  <p class="issue">What about non-ECMAScript implementations?
+  <h3 id="xmlhttprequest-idl"><span class="secno">2.1. </span>The <code
+   title="">XMLHttpRequest</code> IDL</h3>
 
-  <h3 id="xmlhttprequest-idl"><span class="secno">2.1. </span>The <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> IDL</h3>
-
-  <p><em>This section is non normative.</em>
+  <p><em>This section is non-normative.</em>
 
   <p>A more complete description of what can be done with <code><a
    href="#xmlhttprequest0">XMLHttpRequest</a></code> can be found in the
    <abbr title="Interface Definition Language">IDL</abbr> below and its
-   associated details. The IDL is non-normative and does not intend to
+   associated details. The IDL is non-normative and does not necessarily
    conform to [OMGIDL]. Only the language bindings are normative.
 
   <pre class="idl">interface <dfn id="xmlhttprequest0">XMLHttpRequest</dfn> {
            attribute EventListener   <span><a href="#dfn-onreadystatechange">onreadystatechange</a></span>;
   readonly attribute unsigned short  <span><a href="#dfn-readystate">readyState</a></span>;
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>);<!-- XXX why not url? -->
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>);
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
-  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>uri</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
+  void               <span><a href="#dfn-open">open</a></span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
   void               <span><a href="#dfn-setrequestheader">setRequestHeader</a></span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
   void               <span><a href="#dfn-send">send</a></span>();
   void               <span><a href="#dfn-send">send</a></span>(in DOMString <var>data</var>);
@@ -465,7 +381,7 @@
 
    <dd>
     <p>Calling this method <em class="ct">must</em> initialize the object by
-     remembering the <var>method</var>, <var>uri</var>, <var>async</var>
+     remembering the <var>method</var>, <var>url</var>, <var>async</var>
      (defaulting to <code>true</code> if omitted), <var>user</var>
      (defaulting to <code>null</code> if omitted), and <var>password</var>
      (defaulting to <code>null</code> if omitted) arguments, setting the
@@ -484,7 +400,7 @@
      <code>DELETE</code> the user agent <em class="ct">must</em> use the
      uppercase equivalent.</p>
 
-    <p>If the URI (<var>uri</var>) given to this method contains userinfo
+    <p>If the URI (<var>url</var>) given to this method contains userinfo
      ([RFC3986], section 3.2.1) then the user name and password specified <em
      class="ct">must</em> be used if the <var>user</var> and
      <var>password</var> arguments are omitted. If the arguments are not
@@ -580,8 +496,8 @@ X-Test: one, two
      has a value other than 1 (Open), an <code>INVALID_STATE_ERR</code>
      exception <em class="ct">must</em> be raised. Otherwise, the <code><a
      href="#dfn-readystate">readyState</a></code> attribute <em
-     class="ct">must</em> be set to 2 (Sent) and a request to <var>uri</var>
-     using method <var>method</var> is sent. <var>uri</var>, if relative, <em
+     class="ct">must</em> be set to 2 (Sent) and a request to <var>url</var>
+     using method <var>method</var> is sent. <var>url</var>, if relative, <em
      class="ct">must</em> be resolved using
      <code>window.document.baseURI</code> of the <code>window</code> whose
      constructor is used. If the <var>async</var> flag is set to false, then
@@ -589,7 +505,7 @@ X-Test: one, two
      completed. Otherwise, it <em class="ct">must</em> return immediately.
      (See: <code><a href="#dfn-open">open()</a></code>.)</p>
 
-    <p>If <var>data</var> passed to the <code><a
+    <p>If <var>data</var> is passed to the <code><a
      href="#dfn-send">send()</a></code> method it <em class="ct">must</em> be
      used for the entity body following these rules (the term <dfn
      id="dfn-entity-body">entity body</dfn> is defined by RFC 2616 ([<a
@@ -607,24 +523,32 @@ X-Test: one, two
      <li>If <var>data</var> is not a <code>DOMString</code> or a
       <code>Document</code> the host language its stringification mechanisms
       <em class="ct">must</em> be used on the argument that was passed and
-      the result <em class="ct">must</em> be encoded as UTF-8 for
-      transmission.
+      the result <em class="ct">must</em> be treated as if <var>data</var> is
+      a <code>DOMString</code>.
     </ul>
 
     <p>Invoking <code><a href="#dfn-send">send</a></code> without the
      <var>data</var> argument <em class="ct">must</em> give the same result
-     as if it was invoked with <code>null</code> as argument. Authors <em
-     class="ct">should</em> specify the <code>Content-Type</code> header via
-     <code><a href="#dfn-setrequestheader">setRequestHeader</a></code> before
-     invoking <code><a href="#dfn-send">send</a></code> with an argument.</p>
+     as if it was invoked with <code>null</code> as argument.</p>
+
+    <p>Authors <em class="ct">should</em> specify the
+     <code>Content-Type</code> header via <code><a
+     href="#dfn-setrequestheader">setRequestHeader</a></code> before invoking
+     <code><a href="#dfn-send">send()</a></code> with an argument. If the
+     argument to <code><a href="#dfn-send">send()</a></code> is a
+     <code>Document</code> and no <code>Content-Type</code> header has been
+     set user agents <em class="ct">must</em> set it to
+     <code>application/xml</code> for XML documents and to the appropriate
+     media type for other documents (using intrinsic knowledge about the
+     document).</p>
 
     <p>If the response is an HTTP redirect (status code 301, 302, 303 or
      307), then it <em class="ct">must</em> be transparently followed (unless
      it violates security, infinite loop precautions or the scheme isn't
      supported). Note that HTTP [<a href="#RFC2616">RFC2616</a>] places
-     requirements on UAs regarding the preservation of the request method
-     during redirects, and also requires users to be notified of certain
-     kinds of automatic redirections.</p>
+     requirements on user agents regarding the preservation of the request
+     method during redirects, and also requires users to be notified of
+     certain kinds of automatic redirections.</p>
 
     <p>If the user agent allows the specification of a proxy it <em
      class="ct">should</em> modify the request appropriately; <abbr title="in
@@ -636,8 +560,8 @@ X-Test: one, two
      class="ct">should</em> consider requests originating from this object to
      be part of the protection space that includes the accessed URIs and send
      <code>Authorization</code> headers and handle 401 Unauthorised requests
-     appropriately. if authentication fails, UAs should prompt the users for
-     credentials.</p>
+     appropriately. if authentication fails, user agents <em
+     class="ct">should</em> prompt the users for credentials.</p>
 
     <p>If the user agent supports HTTP State Mangement [RFC2109][RFC2965] it
      <em class="ct">should</em> persist, discard and send cookies (as
@@ -652,13 +576,14 @@ X-Test: one, two
      bypasses the cache). It <em class="ct">must not</em> send
      <code>Cache-Control</code> or <code>Pragma</code> request headers
      automatically unless the user explicitly requests such behaviour (e.g.,
-     by (force-)reloading the page). 304 Not Modified responses that are a
-     result of a UA-generated conditional request <em class="ct">must</em> be
-     presented as 200 OK responses with the appropriate content. Such UAs <em
-     class="ct">must</em> allow authors to override automatic cache
-     validation by setting request headers (e.g., <code>If-None-Match</code>,
-     <code>If-Modified-Since</code>), in which case 304 Not Modified
-     responses <em class="ct">must</em> be passed through.</p>
+     by (force-)reloading the page). <code>304 Not Modified</code> responses
+     that are a result of a user agent generated conditional request <em
+     class="ct">must</em> be presented as <code>200 OK</code> responses with
+     the appropriate content. Such user agents <em class="ct">must</em> allow
+     authors to override automatic cache validation by setting request
+     headers (e.g., <code>If-None-Match</code>,
+     <code>If-Modified-Since</code>), in which case <code>304 Not
+     Modified</code> responses <em class="ct">must</em> be passed through.</p>
 
     <p>If the user agent implements server-driven content-negotiation [<a
      href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> set
@@ -711,7 +636,11 @@ X-Test: one, two
 var client = new XMLHttpRequest();
 client.open('GET', 'test.txt', false);
 client.send();
-print(client.getAllResponseHeaders());
+client.onreadystatechange = function() {
+ if(this.readyState >= 3) {
+  print(this.getAllResponseHeaders());
+ }
+}
 
 // ...should output something similar to the following text:
 Date: Sun, 24 Oct 2004 04:58:38 GMT
@@ -728,7 +657,7 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
      has a value other than 3 (Receiving) or 4 (Loaded), it <em
-     class="ct">must</em> return the empty string. Otherwise, it <em
+     class="ct">must</em> return <code>null</code>. Otherwise, it <em
      class="ct">must</em> represent the value of the given HTTP header
      (<var>header</var>) in the data received so far for the last request
      sent, as a single string. If more than one header of the given name was
@@ -738,15 +667,19 @@ Content-Type: text/plain; charset=utf-8</pre>
      class="ct">must</em> return <code>null</code>. Header names <em
      class="ct">must</em> be compared case-insensitively to the method its
      argument (<var>header</var>).</p>
-
-    <p class="issue">Case-insensitively how?</p>
-
+    <!-- XXX: reference HTTP specification and throw SYNTAX_ERR when it doesn't
+     match the header name production. -->
+    
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
 client.open('GET', 'test.txt', false);
 client.send();
-print(client.getResponseHeader('Content-Type'));
+client.onreadystatechange = function() {
+ if(this.readyState >= 3) {
+  print(client.getResponseHeader('Content-Type'));
+ }
+}
 
 // ...should output something similar to the following text:
 Content-Type: text/plain; charset=utf-8</pre>
@@ -758,7 +691,7 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
      has a value other than 3 (Receiving) or 4 (Loaded), it <em
-     class="ct">must</em> be the empty string. Otherwise, it <em
+     class="ct">must</em> be <code>null</code>. Otherwise, it <em
      class="ct">must</em> be the fragment of the <span><a
      href="#dfn-entity-body">entity body</a></span> received so far (when
      <code><a href="#dfn-readystate">readyState</a></code> is 3 (Receiving))
@@ -767,7 +700,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      (Loaded)), interpreted as a stream of characters.</p>
 
     <p>If the response includes a <code>Content-Type</code> understood by the
-     UA the characters are encoded following the relevant media type
+     user agent the characters are encoded following the relevant media type
      specification, with the exception that the rule in the final paragraph
      of section 3.7.1 of [<a href="#RFC2616">RFC2616</a>], and the rules in
      section 4.1.2 of [RFC2046] <em class="ct">must</em> be treated as if
@@ -777,9 +710,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      with the media type specification, <code>reponseText</code> <em
      class="ct">must</em> be <code>null</code>.</p>
 
-    <p class="issue"><code>null</code> or the empty string?</p>
-
-    <p>Its initial value <em class="ct">must</em> be the empty string.</p>
+    <p>Its initial value <em class="ct">must</em> be the <code>null</code>.</p>
 
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
     <code>Document</code>, readonly
@@ -798,10 +729,6 @@ Content-Type: text/plain; charset=utf-8</pre>
      it <em class="ct">must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class="ct">must</em> be <code>null</code>.</p>
-
-    <p class="issue">It has been suggested to not reference media types but a
-     more abstract context. Perhaps just allow everything which can be turned
-     into a <code>Document</code> tree?</p>
 
    <dt><dfn id="dfn-status"><code>status</code></dfn> of type <code>unsigned
     short</code>, readonly
