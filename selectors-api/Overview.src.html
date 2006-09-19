@@ -127,7 +127,7 @@
   return prefixes[str];
 }
 var <var>a</var> = document.matchAll("xh|div &gt; svg|svg", resolver);
-var <var>b</var> = document.match("div.foo.bar");</pre>
+var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
   <p><var>a</var> contains a <code>StaticNodeList</code> of all the nodes
    matched by <code>xh|div &gt; svg|svg</code> (namespace prefixes are
@@ -135,7 +135,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    first <code>div</code> element which has the classes <code>foo</code> and
    <code>bar</code> set. (So in case of multiple <code>div</code> elements
    matching <code>div.foo.bar</code> only the first is returned because
-   <code>match()</code> is used and not <code>matchAll()</code>.)</p>
+   <code>matchSingle()</code> is used and not <code>matchAll()</code>.)</p>
 
   <pre>function test(){
   var c = document.matchAll(":root"),
@@ -147,7 +147,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    <code>matchAll()</code> and <code>:root</code> are supported.</p>
 
   <p class="note">When using <code>:root</code> like this it's probably better
-   (and faster) to use <code>match()</code> given that there's only one possible
+   (and faster) to use <code>matchSingle()</code> given that there's only one possible
    result. This is just to illustrate how it works.</p>
 
   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
@@ -160,7 +160,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
 
   <h3 id="conformance">Conformance Requirements</h3>
 
-  <p>Everying in this specification is normative except for diagrams,
+  <p>Everything in this specification is normative except for diagrams,
    examples, notes and sections marked non-normative.</p>
   <p>The key words <em class="ct">must</em>, <em class="ct">must not</em>,
    <em class="ct">required</em>, <em class="ct">shall</em>, <em class="ct">shall
@@ -195,86 +195,64 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    should discuss extensions on a relevant public forum, such as
    <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
 
-  <h3 id="issues"><strong>Outstanding Issues</strong></h3>
-
-  <p><em>This section is non-normative.</em></p>
-
-  <p>The draft has several outstanding issues that either need to be addressed
-   in one way or another at some point:</p>
-
-  <ul>
-   <li>Several people have raised issues with naming the methods
-    <code>match()</code> and <code>matchAll()</code> as those might suggest a
-    boolean return value. Alternate suggestions have been <code>select</code>
-    and <code>selectAll</code>;</li>
-   <li>Need to look into <code>XPathNSResolver</code> and the default
-    namespace.</li>
-  </ul>
-
   <h3 id="notcovered">Not in this Specification</h3>
 
   <p><em>This section is non normative.</em></p>
 
   <p>This specification does not cover scoped selectors. In a future version you
-   might be able to do <code>event.target.match("foo")</code> or similar.</p>
+   might be able to do <code>event.target.matchSingle("foo")</code> or similar.</p>
 
-  <p class="issue">Should we rename <code>DocumentSelector</code> to something
-   more generic because of that?</p>
-
-  <h2 id="documentselector">The <code>DocumentSelector</code> Interface</h2>
+  <h2 id="documentselector">The <code title="">Selector</code> Interface</h2>
 
   <p>Objects implementing the <code>Document</code> interface defined in
    <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
-   <code>DocumentSelector</code> interface
+   <code>Selector</code> interface
    [<cite><a href="#ref-dom3core">DOM3Core</a></cite>].</p>
 
-  <pre class="idl">interface DocumentSelector {
-  Node            match(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
-  StaticNodeList  matchAll(in DOMString <var>selectors</var>, in XPathNSResolver <var>nsresolver</var>);
+  <pre class="idl">interface <dfn>Selector</dfn> {
+  Node            <span>matchSingle</span>(in DOMString <var>selectors</var>, in NSResolver <var title="">nsresolver</var>);
+  StaticNodeList  <span>matchAll</span>(in DOMString <var>selectors</var>, in NSResolver <var title="">nsresolver</var>);
 };</pre>
 
-  <p>The <dfn id="match"><code>match(<var>selectors</var>,
-   <var>nsresolver</var>)</code></dfn> method, when invoked,
+  <p class="note">The interface is named <code>Selector</code> because it might
+   be implemented by <code>Element</code> nodes in the future.</p>
+  
+  <p>The <dfn id="matchsingle" title="matchsingle"><code>matchSingle(<var>selectors</var>,
+   <var title="">nsresolver</var>)</code></dfn> method, when invoked,
    <em class="ct">must</em> return the first <code>Element</code> node in
    document order (using depth-first pre-order traversal) that matches the group
    of selectors (<var>selectors</var>), if any. Otherwise it
    <em class="ct">must</em> return <code>null</code>.</p>
 
-  <p>The <dfn id="matchall"><code>matchAll(<var>selectors</var>,
-   <var>nsresolver</var>)</code></dfn> method, when invoked,
+  <p>The <dfn id="matchall" title="matchall"><code>matchAll(<var>selectors</var>,
+   <var title="">nsresolver</var>)</code></dfn> method, when invoked,
    <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
    <code>Element</code>s that match the group of selectors
    (<var>selectors</var>) in document order, if any. Otherwise it
-   <em class="ct">must</em> return <code>null</code>.</p>
+   <em class="ct">must</em> return an empty <code>StaticNodeList</code>.</p>
 
-  <p>Both <code>match()</code> and <code>matchAll()</code> take a group of
+  <p>Both <code>matchSingle()</code> and <code>matchAll()</code> take a group of
    selectors (<var>selectors</var>) as defined in
    [<cite><a href="#ref-selectors">Selectors</a></cite>] as first argument and
-   an <code>XPathNSResolver</code> (<var>nsresolver</var>) as second. User
-   agents <em class="ct">must</em> use the <var>nsresolver</var> argument to
-   resolve namespace prefixes as defined in
-   [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. When the
-   <var>nsresolver</var> argument is <code>null</code> user agents
+   an <code>NSResolver</code> (<var title="">nsresolver</var>) as second. User
+   agents <em class="ct">must</em> use the <var title="">nsresolver</var> argument to
+   resolve namespace prefixes. When the
+   <var title="">nsresolver</var> argument is <code>null</code> user agents
    <em class="ct">must</em> ignore it.</p>
 
   <p>When authors use namespace prefixes within <var>selectors</var> they
    <em class="ct">must</em> create an object implementing the
-   <code>XPathNSResolver</code> interface (or create a <code>Function</code>
+   <code>NSResolver</code> interface (or create a <code>Function</code>
    in case of ECMAScript) and pass that as argument for
-   <code>nsresolver</code> as defined in in
-   [<cite><a href="#ref-dom3xpath">DOM3XPath</a></cite>]. If they don't use
+   <var title="">nsresolver</var>. If they don't use
    namespace prefixes within <var>selectors</var> authors
-   <em class="ct">may</em> set <var>nsresolver</var> to <code>null</code> or
+   <em class="ct">may</em> set <var title="">nsresolver</var> to <code>null</code> or
    omit the argument completely if the language binding allows it.</p>
-
-  <p class="issue">Make sure [DOM3XPath] actually defines this. Otherwise this
-   draft will have to. (Which is needed anyway when this goes beyond Last Call
-   and DOM Level 3 XPath does not.)</p>
 
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the user
    agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If
    the given group of selectors (<var>selectors</var>) uses namespace prefixes
-   and the prefix can not be resolved using the <var>nsresolver</var> argument
+   and the prefix can not be resolved using the <var title="">nsresolver</var> argument
    <em class="ct">must</em> raise a <code>NAMESPACE_ERR</code> exception.</p>
 
   <p class="note">Using pseudo-elements in one of the selectors could mean
@@ -282,14 +260,22 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    resolve in one or more <code>Element</code> nodes.</p>
 
   <p>In languages that support optional arguments for methods, like
-   ECMAScript, omitting the <var>nsresolver</var> argument in either the
-   <code>match()</code> or <code>matchAll()</code> method <em class="ct">must</em>
+   ECMAScript, omitting the <var title="">nsresolver</var> argument in either the
+   <code>matchSingle()</code> or <code>matchAll()</code> method <em class="ct">must</em>
    return the same result as if the method was called with the
-   <var>nsresolver</var> argument being <code>null</code>.</p>
+   <var title="">nsresolver</var> argument being <code>null</code>.</p>
 
-  <h2 id="staticnodelist">The <code>StaticNodeList</code> Interface</h2>
+  <h2 id="nsresolver">The <code title="">NSResolver</code> Interface</h2>
 
-  <pre class="idl">typedef StaticNodeList NodeList;</pre>
+  <pre class="idl">interface <dfn>NSResolver</dfn> {
+  DOMString          lookupNamespaceURI(in DOMString prefix);
+};</pre>
+
+  <p class="issue">Need to write this.</p>
+
+  <h2 id="staticnodelist">The <code title="">StaticNodeList</code> Interface</h2>
+
+  <pre class="idl">typedef <dfn>StaticNodeList</dfn> NodeList;</pre>
 
   <p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
    identically to the <code>NodeList</code> interface as defined in
@@ -310,7 +296,7 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
    exploited by other means user agents don't have to take action upon it.</p>
 
   <p>Another problem is hostile content. User agents <em class="ct">should</em>
-   ensure they remain stable when facing a hostile <code>XPathNSResolver</code>
+   ensure they remain stable when facing a hostile <code>NSResolver</code>
    object. Potential hostile things such an object could do include:</p>
 
   <ul>
@@ -322,41 +308,27 @@ var <var>b</var> = document.match("div.foo.bar");</pre>
   <h2 class="no-num" id="references">References</h2>
 
   <dl>
-   
+
    <dt id="ref-css21">[CSS21]</dt>
    <dd>(Informative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading Style
     Sheets, level 2 revision 1</a></cite>, B. Bos, T. Çelik, I. Hickson, H.
     Wium Lie, editors. World Wide Web Consortium, June 2005.</dd>
-   
-   <!--
-   <dt id="ref-dom2style">[DOM2Style]</dt>
-   <dd>(Informative)
-    <cite><a href="http://www.w3.org/TR/DOM-Level-2-Style">Document Object
-    Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P. Le
-    Hégaret, V. Apparao, editors. World Wide Web Consortium, November
-    2000.</dd>
-   -->
-   
+
    <dt id="ref-dom3core">[DOM3Core]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
     Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
     Hégaret, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne, editors.
     World Wide Web Consortium, April 2004.</dd>
-   
-   <dt id="ref-dom3xpath">[DOM3XPath]</dt>
-   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-XPath">Document Object
-    Model (DOM) Level 3 XPath Specification</a></cite>, R. Whitmer, editor.
-    World Wide Web Consortium, February 2004.</dd>
-   
+
    <dt id="ref-ecma262">[ECMA262]</dt>
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
     Language Specification</a></cite>, Third Edition. ECMA, December 1999.</dd>
-   
+
    <dt id="ref-selectors">[Selectors]</dt>
    <dd><cite><a href="http://www.w3.org/TR/css3-selectors">Selectors</a></cite>,
     D. Glazman, T. Çelik, I. Hickson, P. Linss, J. Williams, editors. World
     Wide Web Consortium, December 2005.</dd>
-   
+
    <dt id="ref-rfc2119">[RFC2119]</dt>
    <dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119: Key words
     for use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner.
