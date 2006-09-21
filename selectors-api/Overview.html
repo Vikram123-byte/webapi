@@ -5,13 +5,16 @@
   <title>Selectors API</title>
 
   <style type="text/css">
+   pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
+   pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
    dfn { font-style:normal; font-weight:bolder }
    em.ct { font-style:normal; font-weight:normal; font-variant:small-caps }
-   .example { margin-left:2em }
-   .note { color:green }
-   .note::before { content:"Note: " }
-   .issue { color:red }
+   p.note { color:green; font-style:italic; font-weight:bold }
+   p.note::before { content:"Note: " }
+   .issue { padding:.5em; border:solid red }
    .issue::before { content:"Issue: "}
+   code { color:orangered }
+   code :link, code :visited { color:inherit }
   </style>
 
   <link href="http://www.w3.org/StyleSheets/TR/base.css" rel="stylesheet">
@@ -82,7 +85,7 @@
    index</a> at http://www.w3.org/TR/.</em>
 
   <p>This document is produced by the <a
-   href="http://www.w3.org/2006/webapi">Web APIs WG</a>, part of the <a
+   href="http://www.w3.org/2006/webapi/">Web APIs WG</a>, part of the <a
    href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
    in the W3C <a href="http://www.w3.org/Interaction/">Interaction
    Domain</a>.
@@ -165,8 +168,8 @@
    title="Cascading Style Sheets">CSS</abbr> [<cite><a
    href="#ref-css21">CSS21</a></cite>] context, provides a way of matching
    such a set of elements. This specification introduces two methods which
-   take a group of selectors (often referred to as selector) as argument and
-   return the matched elements as result.
+   take a group of selectors (often simply referred to as selector) as
+   argument and return the matched elements as result.
 
   <h3 id="examples"><span class="secno">1.1. </span>Examples</h3>
 
@@ -177,22 +180,19 @@
 
   <pre>function resolver(str) {
   var prefixes = {
-    xh:  "http://www.w3.org/1999/xhtml",
-    svg: "http://www.w3.org/2000/svg"}
+    h:  "http://www.w3.org/1999/xhtml",
+    g: "http://www.w3.org/2000/svg"}
   return prefixes[str];
 }
-var <var>a</var> = document.matchAll("xh|div &gt; svg|svg", resolver);
+var <var>a</var> = document.matchAll("h|div &gt; g|svg", resolver);
 var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
   <p><var>a</var> contains a <code><a
    href="#staticnodelist0">StaticNodeList</a></code> of all the nodes matched
-   by <code>xh|div &gt; svg|svg</code> (namespace prefixes are resolved using
+   by <code>h|div &gt; g|svg</code> (namespace prefixes are resolved using
    the function in this case). <var>b</var> would contain the first
    <code>div</code> element which has the classes <code>foo</code> and
-   <code>bar</code> set. (So in case of multiple <code>div</code> elements
-   matching <code>div.foo.bar</code> only the first is returned because
-   <code><a href="#matchsingle">matchSingle()</a></code> is used and not
-   <code><a href="#matchall">matchAll()</a></code>.)
+   <code>bar</code> set.
 
   <pre>function test(){
   var c = document.matchAll(":root"),
@@ -202,12 +202,10 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
   <p><code>test()</code> would return <code>true</code> when both <code><a
    href="#matchall">matchAll()</a></code> and <code>:root</code> are
-   supported.
-
-  <p class="note">When using <code>:root</code> like this it's probably
-   better (and faster) to use <code><a
-   href="#matchsingle">matchSingle()</a></code> given that there's only one
-   possible result. This is just to illustrate how it works.
+   supported. When using <code>:root</code> like this it's probably better
+   (and faster) to use <code><a href="#matchsingle">matchSingle()</a></code>
+   given that there's only one possible result. This is just to illustrate
+   how it works.
 
   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
 
@@ -217,6 +215,11 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    href="#staticnodelist0">StaticNodeList</a></code> with all <code>p</code>
    elements in the document that have a <code>warning</code> or
    <code>alert</code> class.
+
+  <pre>var <var>f</var> = document.matchSingle("#foo, #bar");</pre>
+
+  <p><var>f</var> would contain the first element in the document either
+   having an ID of <code>foo</code> or <code>bar</code> (or both).
 
   <h3 id="conformance"><span class="secno">1.2. </span>Conformance
    Requirements</h3>
@@ -265,7 +268,7 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
   <h3 id="notcovered"><span class="secno">1.4. </span>Not in this
    Specification</h3>
 
-  <p><em>This section is non normative.</em>
+  <p><em>This section is non-normative.</em>
 
   <p>This specification does not cover scoped selectors. In a future version
    you might be able to do <code>event.target.matchSingle("foo")</code> or
@@ -280,8 +283,8 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    href="#ref-dom3core">DOM3Core</a></cite>].
 
   <pre class="idl">interface <dfn id="selector">Selector</dfn> {
-  Node            <span><a href="#matchsingle">matchSingle</a></span>(in DOMString <var>selectors</var>, in NSResolver <var title="">nsresolver</var>);
-  StaticNodeList  <span><a href="#matchall">matchAll</a></span>(in DOMString <var>selectors</var>, in NSResolver <var title="">nsresolver</var>);
+  Node            <span><a href="#matchsingle">matchSingle</a></span>(in DOMString <var>selectors</var>, in <span><a href="#nsresolver0">NSResolver</a></span> <var title="">nsresolver</var>);
+  <span><a href="#staticnodelist0">StaticNodeList</a></span>  <span><a href="#matchall">matchAll</a></span>(in DOMString <var>selectors</var>, in <span><a href="#nsresolver0">NSResolver</a></span> <var title="">nsresolver</var>);
 };</pre>
 
   <p class="note">The interface is named <code><a
@@ -329,12 +332,8 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    user agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code>
    exception. If the given group of selectors (<var>selectors</var>) uses
    namespace prefixes and the prefix can not be resolved using the <var
-   title="">nsresolver</var> argument <em class="ct">must</em> raise a
-   <code>NAMESPACE_ERR</code> exception.
-
-  <p class="note">Using pseudo-elements in one of the selectors could mean
-   that nothing is returned for that particular selector when it doesn't
-   resolve in one or more <code>Element</code> nodes.
+   title="">nsresolver</var> argument a <code>NAMESPACE_ERR</code> exception
+   <em class="ct">must</em> be raised.
 
   <p>In languages that support optional arguments for methods, like
    ECMAScript, omitting the <var title="">nsresolver</var> argument in either
@@ -343,14 +342,39 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    return the same result as if the method was called with the <var
    title="">nsresolver</var> argument being <code>null</code>.
 
+  <p class="note">Using pseudo-elements in one of the selectors could mean
+   that nothing is returned for that particular selector when it doesn't
+   resolve in one or more <code>Element</code> nodes.
+
   <h2 id="nsresolver"><span class="secno">3. </span>The <code
    title="">NSResolver</code> Interface</h2>
 
+  <p class="issue">Probably need to point to [Selectors] for concepts like
+   "default namespace", "namespace" and "prefix" and say "prefix" is
+   case-sensistive here...
+
+  <p>The <code><a href="#nsresolver0">NSResolver</a></code> interface allows
+   prefixes to be bound to a namespace URI.
+
   <pre class="idl">interface <dfn id="nsresolver0">NSResolver</dfn> {
-  DOMString          lookupNamespaceURI(in DOMString prefix);
+  DOMString          <span><a href="#lookupnamespaceuri">lookupNamespaceURI</a></span>(in DOMString <var>prefix</var>);
 };</pre>
 
-  <p class="issue">Need to write this.
+  <p>The <dfn id="lookupnamespaceuri"
+   title="lookupnamespaceuri"><code>lookupNamespaceURI(<var>prefix</var>)</code></dfn>
+   method <em class="ct">must</em> return the namespace belonging to the
+   prefix (<var>prefix</var>) or the default namespace if the
+   <var>prefix</var> argument is <code>null</code> or the empty string.
+
+  <p>To get the default namespace user agents <em class="ct">must</em> invoke
+   the <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code>
+   method with the empty string.
+
+  <p>In ECMAScript (and languages that allow similar constructs) user agents
+   <em class="ct">must</em> support <code><a
+   href="#nsresolver0">NSResolver</a></code> being implemented as a
+   <code>Function</code> where the parameter of the function is identical to
+   the <var>prefix</var> argument described above.
 
   <h2 id="staticnodelist"><span class="secno">4. </span>The <code
    title="">StaticNodeList</code> Interface</h2>
@@ -421,12 +445,15 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
    <dt id="ref-rfc2119">[RFC2119]
 
-   <dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">RFC 2119: Key
-    words for use in RFCs to Indicate Requirement Levels</a></cite>, S.
-    Bradner. IETF, March 1997.
+   <dd><cite><a href="http://ietf.org/rfc/rfc2119">RFC 2119: Key words for
+    use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner. IETF,
+    March 1997.
   </dl>
 
   <h2 class="no-num" id="acknowledgements">Acknowledgements</h2>
+
+  <p>The editor would like to thank to the following people who have
+   contributed to this specification (ordered on first name):
 
   <ul>
    <li>Björn Höhrmann
