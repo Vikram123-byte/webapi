@@ -27,12 +27,12 @@
     <title>Abstract</title>
 
     <p>
-      This specification defines an <acronym title='Extensible Markup Language'>XML</acronym>
-      [XML] grammar intended for representing events as they are defined in
+      Remote Events for XML (REX) 1.0 is an <acronym title='Extensible Markup Language'>XML</acronym>
+      [XML] grammar for representing events as they are defined in 
       <acronym title='Document Object Model'>DOM</acronym> 3 Events [DOM3EV], primarily
-      but not exclusively for purposes of transmission. It enables one endpoint to interact remotely with
-      another endpoint holding a DOM representation by sending it DOM Events as if they
-      had occurred directly at the same location.
+      but not exclusively for purposes of transmission. It enables one endpoint to 
+      interact remotely with another endpoint holding a DOM representation by 
+      sending it DOM Events as if they had occurred directly at the same location.
     </p>
   </section>
 
@@ -107,7 +107,7 @@
         <example>
           <title>Setting an attribute</title>
           <![CDATA[
-          <rex xmlns='http://www.w3.org/2006/rex'>
+          <rex xmlns='http://www.w3.org/ns/rex#'>
             <event target='id("spot")' attrName='fetch' name='DOMAttrModified' newValue='ball'/>
           </rex>
           ]]>
@@ -133,7 +133,7 @@
         <example>
           <title>Inserting an element</title>
           <![CDATA[
-          <rex xmlns='http://www.w3.org/2006/rex' xmlns:x='http://www.w3.org/1999/xhtml'>
+          <rex xmlns='http://www.w3.org/ns/rex#' xmlns:x='http://www.w3.org/1999/xhtml'>
             <event target='/x:html/x:body/x:table[2]' name='DOMNodeInserted' position='7'>
               <tr xmlns='http://www.w3.org/1999/xhtml'>
                 <td>Rover</td>
@@ -156,7 +156,7 @@
         <example>
           <title>Removing an element</title>
           <![CDATA[
-          <rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'>
+          <rex xmlns='http://www.w3.org/ns/rex#' xmlns:svg='http://www.w3.org/2000/svg'>
             <event target='id("poodle-stylist-location-layer")/svg:circle' name='DOMNodeRemoved'/>
           </rex>
           ]]>
@@ -179,7 +179,7 @@
         <example>
           <title>Replacing an element</title>
           <![CDATA[
-          <rex xmlns='http://www.w3.org/2006/rex'>
+          <rex xmlns='http://www.w3.org/ns/rex#'>
             <event target='id("femur")' name='DOMNodeRemoved'>
               <bone xmlns='http://example.org/BoneML' xml:id='tibia'>
                 <taste>good</taste>
@@ -212,7 +212,7 @@
         <example>
           <title>Replacing an entire document</title>
           <![CDATA[
-          <rex xmlns='http://www.w3.org/2006/rex'>
+          <rex xmlns='http://www.w3.org/ns/rex#'>
             <event target='/' name='DOMNodeRemoved'>
               <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 400'>
                 <defs>
@@ -248,7 +248,7 @@
         <example>
           <title>Updating character data directly</title>
           <![CDATA[
-          <rex xmlns='http://www.w3.org/2006/rex' xmlns:svg='http://www.w3.org/2000/svg'>
+          <rex xmlns='http://www.w3.org/ns/rex#' xmlns:svg='http://www.w3.org/2000/svg'>
             <event target='/svg:svg/svg:g[2]/svg:tspan[7]/text()' name='DOMCharacterDataModified' newValue='Hello World!'/>
           </rex>
           ]]>
@@ -261,13 +261,13 @@
     <title>Structure of a REX message</title>
 
     <p>
-      The namespace for the REX language is: <code>http://www.w3.org/2006/rex</code>.
+      The namespace for the REX language is: <code>http://www.w3.org/ns/rex#</code>.
     </p>
     <p>
-      Future versions of this specification will use the same namespace, unless the
-      language is changed in such radical ways that an implementation of previous versions would
-      not be able to process it in a meaningful manner. Implementations of this specification
-      therefore MUST be able to process extensions to the syntax defined in this version,
+      Future versions of this specification will use the same namespace, unless the   
+      language is changed in such radical ways that an implementation of previous versions would 
+      not be able to process it in a meaningful manner. Implementations of this specification 
+       therefore MUST be able to process extensions to the syntax defined in this version,
       as detailed in the <a href='#extensibility'>Extensibility</a> section.
     </p>
     <p>
@@ -331,7 +331,7 @@
       <example>
         <title>a complete REX message</title>
         <![CDATA[
-        <rex xmlns='http://www.w3.org/2006/rex'
+        <rex xmlns='http://www.w3.org/ns/rex#'
              xmlns:svg='http://www.w3.org/2000/svg'>
 
           <event target='id("shiny-donkey")' name='DOMNodeRemoved'/>
@@ -1016,7 +1016,7 @@
       <example>
         <title>A REX message suitable as a tune-in point</title>
         <![CDATA[
-        <rex xmlns='http://www.w3.org/2006/rex' seq='1'>
+        <rex xmlns='http://www.w3.org/ns/rex#' seq='1'>
         	<event target='/' name='DOMNodeInserted'>
         	  <svg xmlns='http://www.w3.org/2000/svg'>
         	    <!-- more content -->
@@ -1034,7 +1034,7 @@
       <example>
         <title>A REX message meaningful only in context</title>
         <![CDATA[
-        <rex xmlns='http://www.w3.org/2006/rex' seq='2' target='1'>
+        <rex xmlns='http://www.w3.org/ns/rex#' seq='2' target='1'>
         	<event target='id("dahut")' name='DOMAttrModified' attrName='fill' newValue='red'/>
         </rex>
         ]]>
@@ -1138,9 +1138,12 @@
         element that it points to does not exist then the event MUST be ignored.
       </p>
       <p>
+        <!--
         After all direct child elements of the <el>event</el> element that are in the REX namespace
         have been removed together with their descendants, the remaining child nodes constitute the event's
-        payload. If there is more than one remaining child node in the payload, they MUST be inserted one after
+        payload. 
+        -->
+        If there is more than one child node in the payload, they MUST be inserted one after
         the other in document order, as if a DOM DocumentFragment were being inserted. Each of
         them in turn MUST produce a 
         <a href='http://www.w3.org/TR/DOM-Level-3-Events/events.html#event-DOMNodeInserted'>DOMNodeInserted</a>
@@ -1194,7 +1197,7 @@
       <example>
         <title>Adding a link</title>
         <![CDATA[
-        <rex xmlns='http://www.w3.org/2006/rex'>
+        <rex xmlns='http://www.w3.org/ns/rex#'>
           <event target='id("poodle-mania")/title' name='DOMNodeInserted'>
             Poodles are for maniacs!
           </event>
@@ -1992,6 +1995,9 @@
       tune-in part of the specification.
     </p>
     <p>
+      Many thanks to Karl Dubost and the QA WG for their very helpful review.
+    </p>
+    <p>
       The following individuals, in no particular order, have provided valuable comments that have
       helped shape REX: Ola Andersson, Stéphane Bortzmeyer, Gerd Castan, John Cowan, Elliotte Rusty Harold,
       Takanari Hayama, Ian Hickson, Björn Hörhmann, Philippe Le Hégaret, Paul Libbrecht,
@@ -2227,6 +2233,15 @@
       </li>
       <li>
         added tune-in support (Takanari Hayama)
+      </li>
+      <li>
+        slight incoherence between 5.1 and 8.3
+      </li>
+      <li>
+        clarification of the abstract
+      </li>
+      <li>
+        new namespace using the new improved nsuri rules
       </li>
     </ul>
   </section>
