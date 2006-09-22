@@ -2,7 +2,19 @@
 <html lang="en-US">
  <head>
   <title>The XMLHttpRequest Object</title>
-  <link rel="stylesheet" href="spec.css">
+  <style type="text/css">
+   pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
+   pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
+   div.example { margin-left:1em; padding-left:1em; border-left:double; color:#222; background:#fcfcfc }
+   p.note { margin-left:2em; font-weight:bold; font-style:italic; color:#008000 }
+   p.note::before { content:"Note: " }
+   p.issue { padding:.5em; border:solid #f00 }
+   p.issue::before { content:"Issue: " }
+   em.ct { text-transform:lowercase; font-variant:small-caps; font-style:normal }
+   dfn { font-weight:bold; font-style:normal }
+   code { color:orangered }
+   code :link, code :visited { color:inherit }
+  </style>
   <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base">
  </head>
  <body>
@@ -146,7 +158,7 @@
   <div class="example">
    <p>Some simple code to do something with data from an XML document fetched
     over the network:</p>
-   
+
    <pre>function test(data) {
  // taking care of data
 }
@@ -169,18 +181,18 @@ var client = new XMLHttpRequest();
 client.onreadystatechange = handler;
 client.open("GET", "test.xml");
 client.send();</pre>
-   
+
    <p>If you just want to ping the server with a message you could do something
     like:</p>
-   
+
    <pre>function ping(message) {
  var client = new XMLHttpRequest();
  client.open("POST", "/ping");
  client.send(message);
 }</pre>
-   
+
    <p>Or if you want to check the status of a document on the server:</p>
-   
+
    <pre>function fetchStatus(address) {
  var client = new XMLHttpRequest();
  client.onreadystatechange = function() {
@@ -194,7 +206,7 @@ client.send();</pre>
   </div>
 
   <!-- XXX: perhaps fetch some more examples from the web... -->
-  
+
   <h3 id="conformance">Conformance</h3>
 
   <p>Everying in this specification is normative except for diagrams, examples,
@@ -357,7 +369,7 @@ client.send();</pre>
      resetting the list of request headers.</p>
 
     <!-- XXX: what about multiple open() invocations? -->
-    
+
     <p>Same-origin security restrictions <em class="ct">should</em> apply.</p>
 
     <p>If the <var>method</var> argument doesn't match the <dfn>method
@@ -377,7 +389,7 @@ client.send();</pre>
      <li><code>PUT</code></li>
      <li><code>DELETE</code></li>
     </ul>
-    
+
     <p class="issue">There's a pending action on adding more "safe" methods.</p>
 
     <p>User agents <em class="ct">should</em> support any <var>method</var>
@@ -405,7 +417,7 @@ client.send();</pre>
     <p class="issue">The <var>user</var> and <var>password</var> arguments their
      productions are quoted-string (which is undefined) and "undefined" per
      [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]...</p>
-    
+
     <p class="issue">Actually, user is defined and password is not it seems.</p>
 
     <p>If <code>open()</code> is invoked when <code>readyState</code> is 4
@@ -497,6 +509,8 @@ X-Test: one, two
    <dt><dfn id="dfn-send" title="send"><code>send(<var>data</var>)</code></dfn>,
     method</dt>
 
+   <!-- what about multiple send() invocations -->
+
    <dd>
     <p>If the <code>readyState</code> attribute has a value other than 1 (Open),
      an <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
@@ -528,7 +542,7 @@ X-Test: one, two
       <code>DOMString</code>.</li>
     </ul>
 
-    <p>Invoking <code>send</code> without the <var>data</var> argument
+    <p>Invoking <code>send()</code> without the <var>data</var> argument
      <em class="ct">must</em> give the same result as if it was invoked with
      <code>null</code> as argument.</p>
 
@@ -559,12 +573,12 @@ X-Test: one, two
      (Loaded). In case of a <code>HEAD</code> request <code>readyState</code>
      <em class="ct">must</em> be set to 4 (Loaded) immediately after having gone
      to 3 (Receiving).</p>
-     
+
     <p>If something goes wrong (infinite loop, network errors) the
      <code>readyState</code> attribute <em class="ct">must</em> be set to 4
      (Loaded) and all other members of the object <em class="ct">must</em> be
      set to their initial value.</p>
-     
+
     <p class="note">In future versions of this specification user agents will be
      required to dispatch an <code>error</code> event if the above occurs.</p>
 
