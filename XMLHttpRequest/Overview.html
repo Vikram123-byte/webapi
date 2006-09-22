@@ -192,16 +192,67 @@
    href="#xmlhttprequest0">XMLHttpRequest</a></code> object.
 
   <p>Future versions of this specification (as opposed to future drafts of
-   this version) may add new features, after careful examination from browser
-   developers and Web content developers.
+   this version) may add <a href="#notcovered">new features</a>, after
+   careful examination from browser developers and Web content developers.
 
   <h3 id="examples"><span class="secno">1.2. </span>Examples of Usage</h3>
 
   <p><em>This section is non-normative.</em>
 
-  <p>Various examples are listed throughout the specification.
+  <p>Various [<cite><a href="#ref-ecmascript">ECMAScript</a></cite>] examples
+   are listed throughout the specification. In addition, you can find some
+   below.
 
-  <p class="issue">Search the web for usage...
+  <div class="example">
+   <p>Some simple code to do something with data from an XML document fetched
+    over the network:</p>
+
+   <pre>function test(data) {
+ // taking care of data
+}
+
+function handler() {
+ if(this.readyState == 4 && this.status == 200) {
+  // so far so good
+  if(this.responseXML != null && this.responseXML.getElementById('test').firstChild.data)
+   // success!
+   test(this.responseXML.getElementById('test').firstChild.data);
+  else
+   test(null);
+ } else if (this.readyState == 4 && this.status != 200) {
+  // fetched the wrong page or network error...
+  test(null);
+ }
+}
+
+var client = new XMLHttpRequest();
+client.onreadystatechange = handler;
+client.open("GET", "test.xml");
+client.send();</pre>
+
+   <p>If you just want to ping the server with a message you could do
+    something like:</p>
+
+   <pre>function ping(message) {
+ var client = new XMLHttpRequest();
+ client.open("POST", "/ping");
+ client.send(message);
+}</pre>
+
+   <p>Or if you want to check the status of a document on the server:</p>
+
+   <pre>function fetchStatus(address) {
+ var client = new XMLHttpRequest();
+ client.onreadystatechange = function() {
+  // in case of network errors this might not give reliable results
+  if(this.readyState == 4)
+   returnStatus(this.status);
+ }
+ client.open("HEAD", address);
+ client.send();
+}</pre>
+  </div>
+  <!-- XXX: perhaps fetch some more examples from the web... -->
 
   <h3 id="conformance"><span class="secno">1.3. </span>Conformance</h3>
 
@@ -213,8 +264,8 @@
    class="ct">shall not</em>, <em class="ct">should</em>, <em
    class="ct">should not</em>, <em class="ct">recommended</em>, <em
    class="ct">may</em> and <em class="ct">optional</em> in this document are
-   to be interpreted as described in RFC 2119 [<a
-   href="#RFC2119">RFC2119</a>].
+   to be interpreted as described in RFC 2119 [<cite><a
+   href="#RFC2119">RFC2119</a></cite>].
 
   <p>This specification defines the following classes of products:
 
@@ -261,8 +312,7 @@
 
    <li><code>progress</code> event and <code>onprogress</code> attribute;
 
-   <li><code><a href="#dfn-abort">abort</a></code> event and
-    <code>onabort</code> attribute;
+   <li><code title="">abort</code> event and <code>onabort</code> attribute;
 
    <li>Timers have been suggested, perhaps an <code>ontimeout</code>
     attribute;
@@ -278,8 +328,6 @@
   <h2 id="xmlhttprequest"><span class="secno">2. </span>The <code
    title="">XMLHttpRequest</code> Object</h2>
 
-  <p class="issue">Have everything throw or not throw?
-
   <p class="issue">What if the user cancels a request by leaving the page?
    How does that work for multiple windows and what's the effect on the
    object? Need to test.
@@ -291,11 +339,11 @@
   <p>Objects implementing the <code><a
    href="#xmlhttprequest0">XMLHttpRequest</a></code> interface <em
    class="ct">must</em> also implement the <code>EventTarget</code> interface
-   [<cite><a class="bibref" href="#DOM3EV">DOM3Events</a></cite>].
+   [<cite><a href="#DOM3EV">DOM3Events</a></cite>].
 
-  <p>In ECMAScript [ECMA262], an instance of <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> can be created using the
-   <code><a href="#xmlhttprequest0">XMLHttpRequest()</a></code> constructor:
+  <p>In [<cite><a href="#ref-ecmascript">ECMAScript</a></cite>], an instance
+   of <code><a href="#xmlhttprequest0">XMLHttpRequest</a></code> can be
+   created using the <code title="">XMLHttpRequest()</code> constructor:
 
   <div class="example">
    <pre>var client = new XMLHttpRequest();</pre>
@@ -309,8 +357,8 @@
   <p>A more complete description of what can be done with <code><a
    href="#xmlhttprequest0">XMLHttpRequest</a></code> can be found in the
    <abbr title="Interface Definition Language">IDL</abbr> below and its
-   associated details. The IDL is non-normative and does not necessarily
-   conform to [OMGIDL]. Only the language bindings are normative.
+   associated details. It's non-normative and does not conform to [OMGIDL].
+   Only the language bindings are normative.
 
   <pre class="idl">interface <dfn id="xmlhttprequest0">XMLHttpRequest</dfn> {
            attribute EventListener   <span><a href="#dfn-onreadystatechange">onreadystatechange</a></span>;
@@ -325,7 +373,7 @@
   void               <span><a href="#dfn-send">send</a></span>(in Document <var>data</var>);
   void               <span><a href="#dfn-abort">abort</a></span>();
   DOMString          <span><a href="#dfn-getallresponseheaders">getAllResponseHeaders</a></span>();
-  DOMString          <span><a href="#dfn-getresponseheader">getResponseHeader</a></span>(in DOMString <var>header</var>);
+  DOMString          <span>getResponseHeader</span>(in DOMString <var>header</var>);
   readonly attribute DOMString       <span><a href="#dfn-responsetext">responseText</a></span>;
   readonly attribute Document        <span><a href="#dfn-responsexml">responseXML</a></span>;
   readonly attribute unsigned short  <span><a href="#dfn-status">status</a></span>;
@@ -379,7 +427,9 @@
      <dd>The data transfer has been completed.
     </dl>
 
-   <dt><dfn id="dfn-open"><code>open</code></dfn>, method
+   <dt><dfn id="dfn-open" title="open"><code>open(<var>method</var>,
+    <var>url</var>, <var>async</var>, <var>user</var>,
+    <var>password</var>)</code></dfn>, method
 
    <dd>
     <p>Calling this method <em class="ct">must</em> initialize the object by
@@ -394,7 +444,7 @@
      href="#dfn-status">status</a></code>, and <code><a
      href="#dfn-statustext">statusText</a></code> attributes to their initial
      values, and resetting the list of request headers.</p>
-
+    <!-- XXX: what about multiple open() invocations? -->
     <p>Same-origin security restrictions <em class="ct">should</em> apply.</p>
 
     <p>If the <var>method</var> argument doesn't match the <dfn
@@ -419,6 +469,8 @@
      <li><code>DELETE</code>
     </ul>
 
+    <p class="issue">There's a pending action on adding more "safe" methods.</p>
+
     <p>User agents <em class="ct">should</em> support any <var>method</var>
      argument that matches the <span><a href="#method">method
      production</a></span>.</p>
@@ -428,21 +480,25 @@
      <code>DELETE</code> the user agent <em class="ct">must</em> use the
      uppercase equivalent instead.</p>
 
-    <p class="issue">If the <var>url</var> parameter doesn't match the
-     relative URI syntax defined in [<cite><a
-     href="#ref-rfc3986">RFC3986</a></cite>] a <code>SYNTAX_ERR</code> <em
-     class="ct">must</em> be raised.</p>
+    <p>If the <var>url</var> parameter doesn't match the syntax defined in
+     section 3.2.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
+     <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised. When a non
+     same-origin <var>url</var> argument is given user agents <em
+     class="ct">should</em> throw a <code>SECURITY_ERR</code> exception.</p>
 
     <p>If the URI (<var>url</var>) given to this method contains userinfo
-     ([RFC3986], section 3.2.1) then the user name and password specified <em
-     class="ct">must</em> be used if the <var>user</var> and
-     <var>password</var> arguments are omitted. If the arguments are not
-     omitted, they take precedence, even if they are <code>null</code>. The
-     usage of userinfo is discouraged and may not work in implementations.</p>
+     ([<cite><a href="#ref-rfc3986">RFC3986</a></cite>], section 3.2.1) then
+     the user name and password specified <em class="ct">must</em> be used if
+     the <var>user</var> and <var>password</var> arguments are omitted. If
+     the arguments are not omitted, they take precedence, even if they are
+     <code>null</code>. The usage of userinfo is discouraged and may not work
+     in implementations.</p>
 
-    <p class="issue">The <var>username</var> and <var>password</var>
-     arguments their productions are quoted-string (which is undefined) and
-     "undefined" per [RFC2617]...</p>
+    <p class="issue">The <var>user</var> and <var>password</var> arguments
+     their productions are quoted-string (which is undefined) and "undefined"
+     per [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]...</p>
+
+    <p class="issue">Actually, user is defined and password is not it seems.</p>
 
     <p>If <code><a href="#dfn-open">open()</a></code> is invoked when
      <code><a href="#dfn-readystate">readyState</a></code> is 4 (Loaded) all
@@ -453,11 +509,9 @@
      (sp?) throws in IE and is deprecated by the IETF. Perhaps we should
      disallow it?</p>
 
-    <p class="issue">Need to make sure all parameters have error handling
-     defined.</p>
-
-   <dt><dfn id="dfn-setrequestheader"><code>setRequestHeader</code></dfn>,
-    method
+   <dt><dfn id="dfn-setrequestheader"
+    title="setrequestheader"><code>setRequestHeader(<var>header</var>,
+    <var>value</var>)</code></dfn>, method
 
    <dd>
     <p>The nominated request header (<var>header</var>) field value <em
@@ -476,12 +530,12 @@
       <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised;
 
      <li>If the <var>value</var> argument doesn't match the <dfn
-      id="field-value"><code>field-value</code> production as defined by
-      section 4.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
-      <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised;</dfn></li>
+      id="field-value"><code>field-value</code> production</dfn> as defined
+      by section 4.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
+      <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised;</li>
      <!--
       XXX: this doesn't seem to be necessary anymore ...
-      
+
       <var>value</var> arguments contain any U+000A LINE FEED or U+000D CARRIAGE
       RETURN characters, or if the <var>header</var> argument contains any
       U+0020 SPACE or U+003A COLON characters.</li>
@@ -495,20 +549,6 @@
       <code>Trailer</code>, <code>Transfer-Encoding</code> or
       <code>Upgrade</code> case-insensitively.
     </ul>
-
-    <div class="example">
-     <pre>// The following script:
-var client = new XMLHttpRequest();
-client.open('GET', 'demo.cgi');
-client.setRequestHeader('X-Test', 'one');
-client.setRequestHeader('X-Test', 'two');
-client.send();
-
-// ...would result in the following header being sent:
-...
-X-Test: one, two
-...</pre>
-    </div>
 
     <p>Implementations <em class="ct">must</em> replace any existing value if
      the nominated request header field value is one of:
@@ -525,14 +565,30 @@ X-Test: one, two
 
     <p>Otherwise, if the nominated request header field already has a value,
      the new value <em class="ct">must</em> be combined with the existing
-     value (section 4.2, [<a href="#RFC2616">RFC2616</a>]). See also the
-     <code><a href="#dfn-send">send()</a></code> method regarding user agent
-     header handling for caching, authentication, proxies, and cookies.</p>
+     value (section 4.2, [<cite><a href="#RFC2616">RFC2616</a></cite>]). See
+     also the <code><a href="#dfn-send">send()</a></code> method regarding
+     user agent header handling for caching, authentication, proxies, and
+     cookies.</p>
+
+    <div class="example">
+     <pre>// The following script:
+var client = new XMLHttpRequest();
+client.open('GET', 'demo.cgi');
+client.setRequestHeader('X-Test', 'one');
+client.setRequestHeader('X-Test', 'two');
+client.send();
+
+// ...would result in the following header being sent:
+...
+X-Test: one, two
+...</pre>
+    </div>
 
     <p>The list of request headers <em class="ct">must</em> be reset when the
      <code><a href="#dfn-open">open()</a></code> method is invoked.</p>
 
-   <dt><dfn id="dfn-send"><code>send</code></dfn>, method
+   <dt><dfn id="dfn-send"
+    title="send"><code>send(<var>data</var>)</code></dfn>, method
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
@@ -548,11 +604,13 @@ X-Test: one, two
      completed. Otherwise, it <em class="ct">must</em> return immediately.
      (See: <code><a href="#dfn-open">open()</a></code>.)</p>
 
+    <p class="issue">The above needs to be rewritten.</p>
+
     <p>If <var>data</var> is passed to the <code><a
      href="#dfn-send">send()</a></code> method it <em class="ct">must</em> be
      used for the entity body following these rules (the term <dfn
-     id="dfn-entity-body">entity body</dfn> is defined by RFC 2616 ([<a
-     href="#RFC2616">RFC2616</a>], section 7.2.1)):</p>
+     id="dfn-entity-body">entity body</dfn> is defined by section 7.2.1 of
+     [<cite><a href="#RFC2616">RFC2616</a></cite>]):</p>
 
     <ul>
      <li>If <var>data</var> is a <code>DOMString</code>, it <em
@@ -561,7 +619,7 @@ X-Test: one, two
      <li>If the <var>data</var> is a <code>Document</code>, it <em
       class="ct">must</em> be serialized using the encoding given by
       <code><var>data</var>.xmlEncoding</code>, if specified and supported,
-      or UTF-8 otherwise [<a href="#DOM3">DOM3Core</a>].
+      or UTF-8 otherwise [<cite><a href="#DOM3">DOM3Core</a></cite>].
 
      <li>If <var>data</var> is not a <code>DOMString</code> or a
       <code>Document</code> the host language its stringification mechanisms
@@ -585,39 +643,44 @@ X-Test: one, two
      appropriate media type for other documents (using intrinsic knowledge
      about the document).</p>
 
-    <p>If the response is an HTTP redirect (status code 301, 302, 303 or
-     307), then it <em class="ct">must</em> be transparently followed (unless
-     it violates security, infinite loop precautions or the scheme isn't
-     supported). Note that HTTP [<a href="#RFC2616">RFC2616</a>] places
+    <p>If the response is an HTTP redirect (status code <code>301</code>,
+     <code>302</code>, <code>303</code> or <code>307</code>), then it <em
+     class="ct">must</em> be transparently followed (unless it violates
+     security, infinite loop precautions or the scheme isn't supported). Note
+     that HTTP ([<cite><a href="#RFC2616">RFC2616</a></cite>]) places
      requirements on user agents regarding the preservation of the request
      method during redirects, and also requires users to be notified of
      certain kinds of automatic redirections.</p>
-
+    <!-- XXX: this doesn't say what happens if you hit security or infinite loop
+     precautions... -->
+    
     <p>If the user agent allows the specification of a proxy it <em
      class="ct">should</em> modify the request appropriately; <abbr title="in
      other words">i.e.</abbr>, connect to the proxy host instead of the
      origin server, modify the <code>Request-Line</code> and send
      <code>Proxy-Authorization</code> headers as specified.</p>
 
-    <p>If the user agent supports HTTP Authentication [RFC2617] it <em
-     class="ct">should</em> consider requests originating from this object to
-     be part of the protection space that includes the accessed URIs and send
+    <p>If the user agent supports <cite>HTTP Authentication</cite> ([<cite><a
+     href="#ref-rfc2617">RFC2617</a></cite>]) it <em class="ct">should</em>
+     consider requests originating from this object to be part of the
+     protection space that includes the accessed URIs and send
      <code>Authorization</code> headers and handle 401 Unauthorised requests
      appropriately. if authentication fails, user agents <em
      class="ct">should</em> prompt the users for credentials.</p>
+    <!-- XXX: 401 Unauthorised should be most likely inside <code> -->
+    <p>If the user agent supports <cite>HTTP State Mangement</cite>
+     ([<cite><a href="#ref-rfc2109">RFC2109</a></cite>], [<cite><a
+     href="#ref-rfc2965">RFC2965</a></cite>]) it <em class="ct">should</em>
+     persist, discard and send cookies (as received in the
+     <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers,
+     and sent in the <code>Cookie</code> header) as applicable.</p>
 
-    <p>If the user agent supports HTTP State Mangement [RFC2109][RFC2965] it
-     <em class="ct">should</em> persist, discard and send cookies (as
-     received in the <code>Set-Cookie</code> and <code>Set-Cookie2</code>
-     response headers, and sent in the <code>Cookie</code> header) as
-     applicable.</p>
-
-    <p>If the user agent implements a HTTP cache [<a
-     href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> respect
-     <code>Cache-Control</code> request headers set by the author (<abbr
-     title="for example">e.g.</abbr>, <code>Cache-Control: no-cache</code>
-     bypasses the cache). It <em class="ct">must not</em> send
-     <code>Cache-Control</code> or <code>Pragma</code> request headers
+    <p>If the user agent implements a HTTP cache ([<cite><a
+     href="#RFC2616">RFC2616</a></cite>]) it <em class="ct">should</em>
+     respect <code>Cache-Control</code> request headers set by the author
+     (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
+     no-cache</code> bypasses the cache). It <em class="ct">must not</em>
+     send <code>Cache-Control</code> or <code>Pragma</code> request headers
      automatically unless the user explicitly requests such behaviour (e.g.,
      by (force-)reloading the page). <code>304 Not Modified</code> responses
      that are a result of a user agent generated conditional request <em
@@ -628,13 +691,18 @@ X-Test: one, two
      <code>If-Modified-Since</code>), in which case <code>304 Not
      Modified</code> responses <em class="ct">must</em> be passed through.</p>
 
-    <p>If the user agent implements server-driven content-negotiation [<a
-     href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> set
-     <code>Accept-Language</code>, <code>Accept-Encoding</code> and
-     <code>Accept-Charset</code> headers as appropriate; it <em
-     class="ct">must not</em> automatically set the <code>Accept</code>
-     header. Responses to such requests <em class="ct">must</em> have
-     content-codings automatically removed.</p>
+    <p>If the user agent implements server-driven content-negotiation
+     ([<cite><a href="#RFC2616">RFC2616</a></cite>]) it <em
+     class="ct">should</em> set <code>Accept-Language</code>,
+     <code>Accept-Encoding</code> and <code>Accept-Charset</code> headers as
+     appropriate; it <em class="ct">must not</em> automatically set the
+     <code>Accept</code> header. Responses to such requests <em
+     class="ct">must</em> have content-codings automatically removed.</p>
+
+    <p>If the user agent supports Expect/Continue for request bodies
+     ([<cite><a href="#RFC2616">RFC2616</a></cite>]) it <em
+     class="ct">should</em> insert <code>Expect</code> headers and handle
+     <code>100 Continue</code> responses appropriately.</p>
 
     <p>Immediately before receiving the message body (if any), the <code><a
      href="#dfn-readystate">readyState</a></code> attribute <em
@@ -644,14 +712,9 @@ X-Test: one, two
      class="ct">must</em> be set to 4 (Loaded). In case of a
      <code>HEAD</code> request <code><a
      href="#dfn-readystate">readyState</a></code> <em class="ct">must</em> be
-     set to 4 (Loaded) immediately after having gone to 3 (Receiving).
+     set to 4 (Loaded) immediately after having gone to 3 (Receiving).</p>
 
-    <p>If the user agent supports Expect/Continue for request bodies [<a
-     href="#RFC2616">RFC2616</a>] it <em class="ct">should</em> insert
-     <code>Expect</code> headers and handle <code>100 Continue</code>
-     responses appropriately.</p>
-
-   <dt><dfn id="dfn-abort"><code>abort</code></dfn>, method
+   <dt><dfn id="dfn-abort"><code>abort()</code></dfn>, method
 
    <dd>
     <p>When invoked, this method <em class="ct">must</em> cancel any network
@@ -659,21 +722,21 @@ X-Test: one, two
      the object to their initial values.</p>
 
    <dt><dfn
-    id="dfn-getallresponseheaders"><code>getAllResponseHeaders</code></dfn>,
+    id="dfn-getallresponseheaders"><code>getAllResponseHeaders()</code></dfn>,
     method
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
-     has a value other than 3 (Receiving) or 4 (Loaded), it <em
-     class="ct">must</em> return <code>null</code>. Otherwise, it <em
-     class="ct">must</em> return all the HTTP headers, as a single string,
-     with each header line separated by a CR (U+000D) LF (U+000A) pair. The
-     status line <em class="ct">must not</em> be included.</p>
+     has a value other than 3 (Receiving) or 4 (Loaded), user agents <em
+     class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+     Otherwise, it <em class="ct">must</em> return all the HTTP headers, as a
+     single string, with each header line separated by a CR (U+000D) LF
+     (U+000A) pair. The status line <em class="ct">must not</em> be included.</p>
 
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
-client.open('GET', 'test.txt', true);
+client.open("GET", "test.txt", true);
 client.send();
 client.onreadystatechange = function() {
  if(this.readyState == 3) {
@@ -690,7 +753,8 @@ Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</pre>
     </div>
 
-   <dt><dfn id="dfn-getresponseheader"><code>getResponseHeader</code></dfn>,
+   <dt><dfn id="dfn-getresponseheader"
+    title="getreponseheader"><code>getResponseHeader(<var>header</var>)</code></dfn>,
     method
 
    <dd>
@@ -700,14 +764,14 @@ Content-Type: text/plain; charset=utf-8</pre>
      this method works as described below.</p>
 
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
-     has a value other than 3 (Receiving) or 4 (Loaded), it <em
-     class="ct">must</em> return <code>null</code>. Otherwise, it <em
-     class="ct">must</em> represent the value of the given HTTP header
-     (<var>header</var>) in the data received so far for the last request
-     sent, as a single string. If more than one header of the given name was
-     received, then the values <em class="ct">must</em> be concatenated,
-     separated from each other by an U+002C COMMA followed by an U+0020
-     SPACE. If no headers of that name were received, then it <em
+     has a value other than 3 (Receiving) or 4 (Loaded), the user agent <em
+     class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+     Otherwise, it <em class="ct">must</em> represent the value of the given
+     HTTP header (<var>header</var>) in the data received so far for the last
+     request sent, as a single string. If more than one header of the given
+     name was received, then the values <em class="ct">must</em> be
+     concatenated, separated from each other by an U+002C COMMA followed by
+     an U+0020 SPACE. If no headers of that name were received, then it <em
      class="ct">must</em> return <code>null</code>. Header names <em
      class="ct">must</em> be compared case-insensitively to the method its
      argument (<var>header</var>).</p>
@@ -715,11 +779,11 @@ Content-Type: text/plain; charset=utf-8</pre>
     <div class="example">
      <pre>// The following script:
 var client = new XMLHttpRequest();
-client.open('GET', 'test.txt', true);
+client.open("GET", "test.txt", true);
 client.send();
 client.onreadystatechange = function() {
  if(this.readyState == 3) {
-  print(client.getResponseHeader('Content-Type'));
+  print(client.getResponseHeader("Content-Type"));
  }
 }
 
@@ -732,9 +796,9 @@ Content-Type: text/plain; charset=utf-8</pre>
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
-     has a value other than 3 (Receiving) or 4 (Loaded), it <em
-     class="ct">must</em> be <code>null</code>. Otherwise, it <em
-     class="ct">must</em> be the fragment of the <span><a
+     has a value other than 3 (Receiving) or 4 (Loaded), the user agent <em
+     class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+     Otherwise, it <em class="ct">must</em> be the fragment of the <span><a
      href="#dfn-entity-body">entity body</a></span> received so far (when
      <code><a href="#dfn-readystate">readyState</a></code> is 3 (Receiving))
      or the complete <span><a href="#dfn-entity-body">entity body</a></span>
@@ -744,13 +808,14 @@ Content-Type: text/plain; charset=utf-8</pre>
     <p>If the response includes a <code>Content-Type</code> understood by the
      user agent the characters are encoded following the relevant media type
      specification, with the exception that the rule in the final paragraph
-     of section 3.7.1 of [<a href="#RFC2616">RFC2616</a>], and the rules in
-     section 4.1.2 of [RFC2046] <em class="ct">must</em> be treated as if
-     they specified the default character encoding as being UTF-8. Invalid
-     bytes <em class="ct">must</em> be converted to U+FFFD REPLACEMENT
-     CHARACTER. If the user agent can't derive a character stream in accord
-     with the media type specification, <code>reponseText</code> <em
-     class="ct">must</em> be <code>null</code>.</p>
+     of section 3.7.1 of [<cite><a href="#RFC2616">RFC2616</a></cite>], and
+     the rules in section 4.1.2 of [<cite><a
+     href="#ref-rfc2046">RFC2046</a></cite>] <em class="ct">must</em> be
+     treated as if they specified the default character encoding as being
+     UTF-8. Invalid bytes <em class="ct">must</em> be converted to U+FFFD
+     REPLACEMENT CHARACTER. If the user agent can't derive a character stream
+     in accord with the media type specification, <code>reponseText</code>
+     <em class="ct">must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class="ct">must</em> be the <code>null</code>.</p>
 
@@ -759,16 +824,17 @@ Content-Type: text/plain; charset=utf-8</pre>
 
    <dd>
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
-     has a value other than 4 (Loaded), it <em class="ct">must</em> be
-     <code>null</code>. Otherwise, if the <code>Content-Type</code> header
-     contains a media type (ignoring any parameters) that is either
-     <code>text/xml</code>, <code>application/xml</code>, or ends in
-     <code>+xml</code>, it <em class="ct">must</em> be an object that
-     implements the <code>Document</code> interface representing the parsed
-     document. If <code>Content-Type</code> did not contain such a media
-     type, or if the document could not be parsed (due to an XML
-     well-formedness error or unsupported character encoding, for instance),
-     it <em class="ct">must</em> be <code>null</code>.</p>
+     has a value other than 4 (Loaded), user agents <em class="ct">must</em>
+     raise an <code>INVALID_STATE_ERR</code> exception. Otherwise, if the
+     <code>Content-Type</code> header contains a media type (ignoring any
+     parameters) that is either <code>text/xml</code>,
+     <code>application/xml</code>, or ends in <code>+xml</code>, it <em
+     class="ct">must</em> be an object that implements the
+     <code>Document</code> interface representing the parsed document. If
+     <code>Content-Type</code> did not contain such a media type, or if the
+     document could not be parsed (due to an XML well-formedness error or
+     unsupported character encoding, for instance), it <em
+     class="ct">must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class="ct">must</em> be <code>null</code>.</p>
 
@@ -821,9 +887,8 @@ Content-Type: text/plain; charset=utf-8</pre>
     href="#dfn-readystate">readyState</a></code> changes value. It <em
     class="ct">must not</em> bubble, <em class="ct">must not</em> be
     cancelable and <em class="ct">must</em> implement the <code>Event</code>
-    interface [<cite><a class="bibref" href="#DOM3EV">DOM3Events</a></cite>].
-    The event has no namespace (<code>Event.namespaceURI</code> is
-    <code>null</code>).
+    interface [<cite><a href="#DOM3EV">DOM3Events</a></cite>]. The event has
+    no namespace (<code>Event.namespaceURI</code> is <code>null</code>).
   </dl>
 
   <h2 class="no-num" id="bibref">References</h2>
@@ -841,6 +906,16 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document
     Object Model (DOM) Level 3 Events Specification</a></cite>, Björn
     Höhrmann, editor. World Wide Web Consortium, April 2006.
+
+   <dt id="ref-ecmascript">[ECMAScript]
+
+   <dd><cite><a
+    href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
+    Language Specification</a></cite>, Third Edition. ECMA, December 1999.
+
+   <dt id="ref-rfc2046">[RFC2046]
+
+   <dd>...
 
    <dt id="ref-rfc2109">[RFC2109]
 
@@ -863,7 +938,7 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dt id="ref-rfc2617">[RFC2617]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2617">HTTP Authentication: Basic
-    and Digest Access Authentication</a></cite>,
+    and Digest Access Authentication</a></cite>, ...
 
    <dt id="ref-rfc2965">[RFC2965]
 
