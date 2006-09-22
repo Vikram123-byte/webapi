@@ -11,6 +11,7 @@
   <status xmlns='http://berjon.com/ns/xslt-conf/'>
     <!-- add others as needed -->
     <item key='ED'   style='base'>W3C Editor's Draft</item>
+    <item key='PUB'  style='base'>W3C Public Working Group Document</item>
     <item key='EDMO' style='W3C-MO'>W3C Editor's Draft</item>
     <item key='N'    style='W3C-WG-NOTE'>W3C Working Group Note</item>
     <item key='INF'  style='W3C-MO'>Informal Document</item>
@@ -37,13 +38,13 @@
   <xsl:template name='type-specific-header'>
     <link rel='stylesheet' href='respec:respec-w3c.css' type='text/css'/>
     <link rel='stylesheet' href='http://www.w3.org/StyleSheets/TR/{$statusConf/@style}' type='text/css'/>
-    <meta name='revision' content='$Id: W3C-xhtml.xslt,v 1.1 2006-03-06 16:34:06 rberjon Exp $' />
+    <meta name='revision' content='$Id: W3C-xhtml.xslt,v 1.2 2006-09-22 12:36:30 rberjon Exp $' />
   </xsl:template>
 
   <xsl:template name='type-specific-body'>
     <div class="head">
       <p>
-        <a href="http://www.w3.org/"><img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"/></a>
+        <a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"/></a>
       </p>
 
       <h1 class='head'><xsl:value-of select='$title'/></h1>

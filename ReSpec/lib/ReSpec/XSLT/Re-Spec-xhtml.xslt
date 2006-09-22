@@ -82,11 +82,12 @@
   -->
   <xsl:template match='r:specification'>
         <xsl:comment>
-          ******* WARNING ********
+          ******* WARNING *********************************************************
           This document was automatically generated using the Re-Spec specification
-          publishing system. Edits made here are likely to be lost when it is
-          regenerated.
-          ******* WARNING ********
+          publishing system. Edits made here will be lost when it is regenerated
+          and chances are high that the editor will do something quite unpleasant
+          to you should that happen.
+          ******* WARNING *********************************************************
         </xsl:comment>
         <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='{$lang}'>
             <head>
@@ -385,7 +386,7 @@
 
       <xsl:if test='r:attribute'>
         <div class='section'>
-          <h4 class='idl-header'>Attributes</h4>
+          <h4 class='idl-header' id='idl-meths-{@name}'>Attributes</h4>
           <dl class='idl-attr'>
             <xsl:apply-templates select='r:attribute'>
               <xsl:sort select='@name'/>
@@ -396,7 +397,7 @@
 
       <xsl:if test='r:method'>
         <div class='section'>
-          <h4 class='idl-header'>Methods</h4>
+          <h4 class='idl-header' id='idl-meths-{@name}'>Methods</h4>
           <dl class='idl-meth'>
             <xsl:apply-templates select='r:method'>
             <xsl:sort select='@name'/>
@@ -516,16 +517,14 @@
           <xsl:when test='r:returns'>
             <dt>Return Value</dt>
             <dd>
-              <dl>
-                <table>
-                  <tr>
-                    <td><code><xsl:value-of select='@type'/></code></td>
-                    <td>
-                      <xsl:apply-templates select='r:returns/node()'/>
-                    </td>
-                  </tr>
-                </table>
-              </dl>
+              <table>
+                <tr>
+                  <td><code><xsl:value-of select='@type'/></code></td>
+                  <td>
+                    <xsl:apply-templates select='r:returns/node()'/>
+                  </td>
+                </tr>
+              </table>
             </dd>
           </xsl:when>
           <xsl:otherwise><dt>No Return Value</dt></xsl:otherwise>
