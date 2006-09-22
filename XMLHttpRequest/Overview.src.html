@@ -332,8 +332,7 @@ client.send();</pre>
      <dt>1 Open</dt>
      <dd>The <code>open()</code> method has been successfully called.</dd>
      <dt>2 Sent</dt>
-     <dd>The user agent successfully completed the request, but no data has yet
-      been received.</dd>
+     <dd>The user agent successfully acknowledged the request.</dd>
      <dt>3 Receiving</dt>
      <dd>Immediately before receiving the message body (if any). All HTTP
       headers have been received.</dd>
@@ -501,17 +500,14 @@ X-Test: one, two
    <dd>
     <p>If the <code>readyState</code> attribute has a value other than 1 (Open),
      an <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-     raised. Otherwise, the <code>readyState</code> attribute
-     <em class="ct">must</em> be set to 2 (Sent) and a request to <var>url</var>
-     using method <var>method</var> is sent. <var>url</var>, if relative,
+     raised. Otherwise, a request to <var>url</var> using method
+     <var>method</var> is sent. <var>url</var>, if relative,
      <em class="ct">must</em> be resolved using
      <code>window.document.baseURI</code> of the <code>window</code> whose
      constructor is used. If the <var>async</var> flag is set to false, then the
      method <em class="ct">must not</em> return until the request has completed.
      Otherwise, it <em class="ct">must</em> return immediately. (See:
      <code>open()</code>.)</p>
-
-    <p class="issue">The above needs to be rewritten.</p>
 
     <p>If <var>data</var> is passed to the <code>send()</code> method it
      <em class="ct">must</em> be used for the entity body following these rules
@@ -554,8 +550,23 @@ X-Test: one, two
      method during redirects, and also requires users to be notified of certain
      kinds of automatic redirections.</p>
 
-    <!-- XXX: this doesn't say what happens if you hit security or infinite loop
-     precautions... -->
+    <p>Once the request has been successfully acknowledged
+     <code>readyState</code> <em class="ct">must</em> be set to 2 (Sent).
+     Immediately before receiving the message body (if any), the
+     <code>readyState</code> attribute <em class="ct">must</em> be set to to 3
+     (Receiving). When the request has completed loading, the
+     <code>readyState</code> attribute <em class="ct">must</em> be set to 4
+     (Loaded). In case of a <code>HEAD</code> request <code>readyState</code>
+     <em class="ct">must</em> be set to 4 (Loaded) immediately after having gone
+     to 3 (Receiving).</p>
+     
+    <p>If something goes wrong (infinite loop, network errors) the
+     <code>readyState</code> attribute <em class="ct">must</em> be set to 4
+     (Loaded) and all other members of the object <em class="ct">must</em> be
+     set to their initial value.</p>
+     
+    <p class="note">In future versions of this specification user agents will be
+     required to dispatch an <code>error</code> event if the above occurs.</p>
 
     <p>If the user agent allows the specification of a proxy it
      <em class="ct">should</em> modify the request appropriately;
@@ -567,11 +578,9 @@ X-Test: one, two
      ([<cite><a href="#ref-rfc2617">RFC2617</a></cite>]) it
      <em class="ct">should</em> consider requests originating from this object
      to be part of the protection space that includes the accessed URIs and send
-     <code>Authorization</code> headers and handle 401 Unauthorised requests
-     appropriately. if authentication fails, user agents
+     <code>Authorization</code> headers and handle <code>401 Unauthorised</code>
+     requests appropriately. if authentication fails, user agents
      <em class="ct">should</em> prompt the users for credentials.</p>
-
-    <!-- XXX: 401 Unauthorised should be most likely inside <code> -->
 
     <p>If the user agent supports <cite>HTTP State Mangement</cite>
      ([<cite><a href="#ref-rfc2109">RFC2109</a></cite>],
@@ -608,14 +617,6 @@ X-Test: one, two
      ([<cite><a href="#RFC2616">RFC2616</a></cite>]) it
      <em class="ct">should</em> insert <code>Expect</code> headers and handle
      <code>100 Continue</code> responses appropriately.</p>
-
-     <p>Immediately before receiving the message body (if any), the
-     <code>readyState</code> attribute <em class="ct">must</em> be set to to 3
-     (Receiving). When the request has completed loading, the
-     <code>readyState</code> attribute <em class="ct">must</em> be set to 4
-     (Loaded). In case of a <code>HEAD</code> request <code>readyState</code>
-     <em class="ct">must</em> be set to 4 (Loaded) immediately after having gone
-     to 3 (Receiving).</p>
 
    </dd>
 
@@ -849,6 +850,7 @@ Content-Type: text/plain; charset=utf-8</pre>
 
   <ul>
    <li>Alex Vincent</li>
+   <li>Alexey Proskuryakov</li>
    <li>Asbjørn Ulsberg</li>
    <li>Boris Zbarsky</li>
    <li>Björn Höhrmann</li>
