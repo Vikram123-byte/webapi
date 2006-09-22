@@ -7,7 +7,7 @@
   <metadata>
     <title>File Upload</title>
     <styling type='W3C' status='ED'/>
-    <date year='2006' month='05' day='01'/>
+    <date year='2006' month='09' day='22'/>
     <editors>
       <person>
         <name>Robin Berjon</name>
@@ -34,7 +34,7 @@
     </p>
     <ednote>
       <p>
-        Last update: $Id: FileUpload.xml,v 1.2 2006-05-04 00:35:21 rberjon Exp $.
+        Last update: $Id: FileUpload.xml,v 1.3 2006-09-22 11:51:51 rberjon Exp $.
       </p>
     </ednote>
   </section>
@@ -93,7 +93,7 @@
     <p>
       It is desirable for Web applications to have the ability to manipulate as wide
       as possible a range of user input, including files that a user may wish to upload 
-      to a remote server or manipulate inside a rich application. This interface 
+      to a remote server or manipulate inside a rich application. This specification 
       provides application writers with the means to trigger a file selection prompt 
       with which the user can select one or more files. Unlike the file upload forms 
       control available to <acronym title='HyperText Markup Language'>HTML</acronym>, 
@@ -101,6 +101,11 @@
       form being submitted but also allows client-side manipulation of the content, for 
       instance to display an image or parse an <acronym title='eXtensible Markup Language'>XML</acronym>
       document from disk.
+    </p>
+    <p>
+      <strong>Important Note:</strong> this is a very rough first public working draft.
+      Its purpose is in exposing a first pass on the design of this API, in order to
+      gather feedback from the community.
     </p>
   </section>
 
@@ -131,10 +136,16 @@
   <section xml:id='dialog-if'>
     <title>The FileDialog interface</title>
     <p>
-      The purpose of the <if>FileDialog</if> interface is to control the apparition of a file dialogue, and to register the 
-      event listeners that will handle the selection of files. The <if>FileDialog</if> 
-      object inherits from <if>EventTarget</if> and it is this possible to attach event 
+      The purpose of the <if>FileDialog</if> interface is to control the 
+      display of a file dialogue, and to register the event listeners that 
+      will handle the selection of files. The <if>FileDialog</if> object 
+      inherits from <if>EventTarget</if> and it is this possible to attach event 
       listeners to it using the <meth>addEventListener</meth> method.
+    </p>
+    <p>
+      It is possible that some platforms will only allow for one file to be 
+      selected at a time, however when possible a user-agent SHOULD provide 
+      the option to select multiple files in one pass.
     </p>
 
     <schema>
@@ -146,7 +157,8 @@
               When called, this method MUST prompt the user with a means to select one 
               or more files. The exact manner in which the user is prompted is implementation
               dependent. On devices that have no file system, the user-agent MAY still open a
-              dialogue for data acquisition, for instance an interface to a built-in camera.
+              dialogue for data acquisition, for instance one providing access to a built-in
+              camera and a microphone.
             </p>
             <p>
               This method operates in an asynchronous manner such that the files which are 
@@ -171,9 +183,7 @@
     <title>The FileList interface</title>
     <p>
       This interface exposes the list of files that has been selected through the file
-      dialogue. When no file has been selected, its length is zero. It is possible that
-      some platforms will only allow for one file to be selected at a time, however when 
-      possible a user-agent SHOULD provide the option to select multiple files in one pass.
+      dialogue. When no file has been selected, its length is zero.
     </p>
 
     <schema>
@@ -251,8 +261,11 @@
             <p>
               The media type of the file, if known to the user-agent.
             </p>
+            <ednote>
+              How does this handle null and ""? May parameters be included?
+            </ednote>
           </attribute>
-          <attribute type='DOMString' name='fileSize' ro='true'>
+          <attribute type='unsigned long' name='fileSize' ro='true'>
             <p>
               The size of the file, in bytes. Users should keep in mind that in certain
               cases this information may not be available, and that it also may
@@ -312,7 +325,6 @@
       </idl>
     </schema>
   </section>
-
 
   <section xml:id='files-selected-event'>
     <title>The <ev>files-selected</ev> Event</title>
