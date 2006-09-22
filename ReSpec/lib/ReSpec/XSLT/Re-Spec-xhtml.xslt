@@ -397,7 +397,7 @@
 
       <xsl:if test='r:method'>
         <div class='section'>
-          <h4 class='idl-header' id='idl-meths-{@name}'>Methods</h4>
+          <h4 class='idl-header' id='idl-attrs-{@name}'>Methods</h4>
           <dl class='idl-meth'>
             <xsl:apply-templates select='r:method'>
             <xsl:sort select='@name'/>
