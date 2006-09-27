@@ -73,11 +73,12 @@
    found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
    at http://www.w3.org/TR/.</em></p>
 
-  <p>This is the third Working Draft of The <code>XMLHttpRequest</code> Object.
-   This document is produced by the <a href="http://www.w3.org/2006/webapi/">Web
-   APIs WG</a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich
-   Web Clients Activity</a> in the W3C
-   <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.</p>
+  <p>This is the "fourth" Working Draft of The
+   <code title="">XMLHttpRequest</code> Object. This document is produced by the
+   <a href="http://www.w3.org/2006/webapi/">Web APIs WG</a>, part of the
+   <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
+   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
+   Domain</a>.</p>
 
   <p>Web content and browser developers are encouraged to review this draft.
    Please send comments to
@@ -113,6 +114,7 @@
    6 of the W3C Patent Policy</a>.</p>
 
   <h2 class="no-num no-toc" id="toc">Table of Contents</h2>
+  
   <!--toc-->
 
   <h2 id="introduction">Introduction</h2>
@@ -389,12 +391,15 @@ client.send();</pre>
 
     <ul>
      <!-- RFC2616 -->
+     
      <li><code>GET</code></li>
      <li><code>POST</code></li>
      <li><code>HEAD</code></li>
      <li><code>PUT</code></li>
      <li><code>DELETE</code></li>
+     
      <!-- RFC2518 -->
+     
      <li><code>PROPFIND</code></li>
      <li><code>PROPPATCH</code></li>
      <li><code>MKCOL</code></li>
@@ -402,7 +407,9 @@ client.send();</pre>
      <li><code>MOVE</code></li>
      <li><code>LOCK</code></li>
      <li><code>UNLOCK</code></li>
+     
      <!-- RFC3253 -->
+     
      <li><code>VERSION-CONTROL</code></li>
      <li><code>REPORT</code></li>
      <li><code>CHECKOUT</code></li>
@@ -414,12 +421,20 @@ client.send();</pre>
      <li><code>MERGE</code></li>
      <li><code>BASELINE-CONTROL</code></li>
      <li><code>MKACTIVITY</code></li>
+     
      <!-- RFC3648 -->
+     
      <li><code>ORDERPATCH</code></li>
+     
      <!-- RFC3744 -->
+     
      <li><code>ACL</code></li>
     </ul>
 
+    <!-- XXX: It has been suggested to just include the methods defined by HTTP
+     because all other methods don't make much sense here and they "should" be
+     supported anyway. The editor tends to agree. -->
+    
     <p>User agents <em class="ct">should</em> support any <var>method</var>
      argument that matches the <span>method production</span>.</p>
 
@@ -464,19 +479,15 @@ client.send();</pre>
     <var>value</var>)</code></dfn>, method</dt>
 
    <dd>
-    <p class="issue">This should probably say that it can only be invoked
-     between the invocation of <code>open()</code> and the invocation of
-     <code>send()</code> given that <code>readyState</code> doesn't accurately
-     reflects that period.</p>
-
     <p>The nominated request header (<var>header</var>) field value
      <em class="ct">must</em> be set to <var>value</var>, with the following
      exceptions:</p>
 
     <ul>
      <li>If the <code>readyState</code> attribute has a value other than 1
-      (Open), an <code>INVALID_STATE_ERR</code> exception
-      <em class="ct">must</em> be raised;</li>
+      (Open) or the <span><code>send()</code> flag</span> is set an
+      <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+      raised;</li>
 
      <li>If the <var>header</var> argument doesn't match the
       <dfn><code>field-name</code> production</dfn> as defined by section 4.2
@@ -538,20 +549,23 @@ X-Test: one, two
     method</dt>
 
    <dd>
-    <p class="issue">What about multiple <code>send()</code> invocations? Note
-     that invoking <code>send()</code> doesn't change <code>readyState</code>
-     directly which makes this tricky.</p>
-
-    <p>If the <code>readyState</code> attribute has a value other than 1 (Open),
-     an <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-     raised. Otherwise, a request to <var>url</var> using method
-     <var>method</var> is sent. <var>url</var>, if relative,
-     <em class="ct">must</em> be resolved using
-     <code>window.document.baseURI</code> of the <code>window</code> whose
-     constructor is used. If the <var>async</var> flag is set to false, then the
+    <p>If the <code>readyState</code> attribute has a value other than 1 (Open)
+     or the <span><code>send()</code> flag</code> is set an
+     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. Otherwise user agents <em class="ct">must</em> make a request to
+     <var>url</var> using method <var>method</var> and set the
+     <dfn><code>send()</code> flag</dfn>. Every <code>XMLHttpRequest</code>
+     constructor is associated with the <code>window</code> object which
+     initially had it as a property. When <var>url</var> is relative, the
+     constructor <em class="ct">must</em> resolve it using
+     <code>window.document.baseURI</code> of its associated <code>window</code>
+     object as a base. If the <var>async</var> flag is set to false, then the
      method <em class="ct">must not</em> return until the request has completed.
      Otherwise, it <em class="ct">must</em> return immediately. (See:
      <code>open()</code>.)</p>
+    
+    <p class="note">The <span><code>send()</code> flag</span> is only relevant
+     when <code>readyState</code> is 1 (Open).</p>
 
     <p>If <var>data</var> is passed to the <code>send()</code> method it
      <em class="ct">must</em> be used for the entity body following these rules
@@ -607,7 +621,8 @@ X-Test: one, two
     <p>If something goes wrong (infinite loop, network errors) the
      <code>readyState</code> attribute <em class="ct">must</em> be set to 4
      (Loaded) and all other members of the object <em class="ct">must</em> be
-     set to their initial value.</p>
+     set to their initial value. Besides that, all registered event listeners
+     <em class="ct">must</em> be removed.</p>
 
     <p class="note">In future versions of this specification user agents will be
      required to dispatch an <code>error</code> event if the above occurs.</p>
@@ -765,6 +780,10 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>reponseText</code> <em class="ct">must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class="ct">must</em> be the <code>null</code>.</p>
+    
+    <p class="note">For <code>HEAD</code> requests for example, this attribute
+     will always be <code>null</code> (it remains unchanged). Similar to the
+     <code>responseXML</code> attribute.</p>
    </dd>
 
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
@@ -811,6 +830,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
      <em class="ct">must</em> represent the HTTP status text sent by the server
      (appears after the status code).</p>
+    
     <p>Its initial value <em class="ct">must</em> be the empty string.</p>
    </dd>
   </dl>

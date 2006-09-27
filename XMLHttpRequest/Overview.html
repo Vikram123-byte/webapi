@@ -91,12 +91,12 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the third Working Draft of The <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> Object. This document is
-   produced by the <a href="http://www.w3.org/2006/webapi/">Web APIs WG</a>,
-   part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients
-   Activity</a> in the W3C <a
-   href="http://www.w3.org/Interaction/">Interaction Domain</a>.
+  <p>This is the third Working Draft of The <code
+   title="">XMLHttpRequest</code> Object. This document is produced by the <a
+   href="http://www.w3.org/2006/webapi/">Web APIs WG</a>, part of the <a
+   href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
+   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
+   Domain</a>.
 
   <p>Web content and browser developers are encouraged to review this draft.
    Please send comments to <a
@@ -532,7 +532,10 @@ client.send();</pre>
 
      <li><code>ACL</code>
     </ul>
-
+    <!-- XXX: It has been suggested to just include the methods defined by HTTP
+     because all other methods don't make much sense here and they "should" be
+     supported anyway. The editor tends to agree. -->
+    
     <p>User agents <em class="ct">should</em> support any <var>method</var>
      argument that matches the <span><a href="#method">method
      production</a></span>.</p>
@@ -578,19 +581,14 @@ client.send();</pre>
     <var>value</var>)</code></dfn>, method
 
    <dd>
-    <p class="issue">This should probably say that it can only be invoked
-     between the invocation of <code><a href="#dfn-open">open()</a></code>
-     and the invocation of <code><a href="#dfn-send">send()</a></code> given
-     that <code><a href="#dfn-readystate">readyState</a></code> doesn't
-     accurately reflects that period.</p>
-
     <p>The nominated request header (<var>header</var>) field value <em
      class="ct">must</em> be set to <var>value</var>, with the following
      exceptions:</p>
 
     <ul>
      <li>If the <code><a href="#dfn-readystate">readyState</a></code>
-      attribute has a value other than 1 (Open), an
+      attribute has a value other than 1 (Open) or the <span><a
+      href="#send-flag"><code>send()</code> flag</a></span> is set an
       <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
       raised;
 
@@ -654,22 +652,26 @@ X-Test: one, two
     title="send"><code>send(<var>data</var>)</code></dfn>, method
 
    <dd>
-    <p class="issue">What about multiple <code><a
-     href="#dfn-send">send()</a></code> invocations? Note that invoking
-     <code><a href="#dfn-send">send()</a></code> doesn't change <code><a
-     href="#dfn-readystate">readyState</a></code> directly which makes this
-     tricky.</p>
-
     <p>If the <code><a href="#dfn-readystate">readyState</a></code> attribute
-     has a value other than 1 (Open), an <code>INVALID_STATE_ERR</code>
-     exception <em class="ct">must</em> be raised. Otherwise, a request to
-     <var>url</var> using method <var>method</var> is sent. <var>url</var>,
-     if relative, <em class="ct">must</em> be resolved using
-     <code>window.document.baseURI</code> of the <code>window</code> whose
-     constructor is used. If the <var>async</var> flag is set to false, then
-     the method <em class="ct">must not</em> return until the request has
-     completed. Otherwise, it <em class="ct">must</em> return immediately.
-     (See: <code><a href="#dfn-open">open()</a></code>.)</p>
+     has a value other than 1 (Open) or the <span><code><a
+     href="#dfn-send">send()</a></code> flag is set an
+     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+     raised. Otherwise user agents <em class="ct">must</em> make a request to
+     <var>url</var> using method <var>method</var> and set the <dfn
+     id="send-flag"><code>send()</code> flag</dfn>. Every <code><a
+     href="#xmlhttprequest0">XMLHttpRequest</a></code> constructor is
+     associated with the <code>window</code> object which initially had it as
+     a property. When <var>url</var> is relative, the constructor <em
+     class="ct">must</em> resolve it using
+     <code>window.document.baseURI</code> of its associated
+     <code>window</code> object as a base. If the <var>async</var> flag is
+     set to false, then the method <em class="ct">must not</em> return until
+     the request has completed. Otherwise, it <em class="ct">must</em> return
+     immediately. (See: <code><a href="#dfn-open">open()</a></code>.)</span></p>
+
+    <p class="note">The <span><a href="#send-flag"><code>send()</code>
+     flag</a></span> is only relevant when <code><a
+     href="#dfn-readystate">readyState</a></code> is 1 (Open).</p>
 
     <p>If <var>data</var> is passed to the <code><a
      href="#dfn-send">send()</a></code> method it <em class="ct">must</em> be
@@ -732,7 +734,9 @@ X-Test: one, two
     <p>If something goes wrong (infinite loop, network errors) the <code><a
      href="#dfn-readystate">readyState</a></code> attribute <em
      class="ct">must</em> be set to 4 (Loaded) and all other members of the
-     object <em class="ct">must</em> be set to their initial value.</p>
+     object <em class="ct">must</em> be set to their initial value. Besides
+     that, all registered event listeners <em class="ct">must</em> be
+     removed.</p>
 
     <p class="note">In future versions of this specification user agents will
      be required to dispatch an <code>error</code> event if the above occurs.</p>
@@ -891,6 +895,11 @@ Content-Type: text/plain; charset=utf-8</pre>
      <em class="ct">must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class="ct">must</em> be the <code>null</code>.</p>
+
+    <p class="note">For <code>HEAD</code> requests for example, this
+     attribute will always be <code>null</code> (it remains unchanged).
+     Similar to the <code><a href="#dfn-responsexml">responseXML</a></code>
+     attribute.</p>
 
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
     <code>Document</code>, readonly
