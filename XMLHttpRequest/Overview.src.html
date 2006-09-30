@@ -114,7 +114,7 @@
    6 of the W3C Patent Policy</a>.</p>
 
   <h2 class="no-num no-toc" id="toc">Table of Contents</h2>
-  
+
   <!--toc-->
 
   <h2 id="introduction">Introduction</h2>
@@ -287,15 +287,22 @@ client.send();</pre>
    <pre>var client = new XMLHttpRequest();</pre>
   </div>
 
-  <h3 id="xmlhttprequest-idl">The <code title="">XMLHttpRequest</code> IDL</h3>
+  <p>When the constructor is invoked the <dfn><code>XMLHttpRequest</code> base
+   resource identifier reference</dfn> <em class="ct">must</em> be set to the
+   value of the <code>baseURI</code> attribute of the <code>Document</code>
+   object that's associated with the <code>Window</code> object which initially
+   had <code title="">XMLHttpRequest</code> as an attribute of which the
+   constructor was invoked. When <code>baseURI</code> is <code>null</code> there
+   is no <span><code>XMLHttpRequest</code> base resource identifier
+   reference</span>.</p>
 
-  <p><em>This section is non-normative.</em></p>
+  <h3 id="xmlhttprequest-members">Members of the <code>XMLHttpRequest</code>
+   Object</h3>
 
   <p>A more complete description of what can be done with
    <code>XMLHttpRequest</code> can be found in the
    <abbr title="Interface Definition Language">IDL</abbr> below and its
-   associated details. It's non-normative and does not conform to [OMGIDL]. Only
-   the language bindings are normative.</p>
+   associated details. It's non-normative and does not conform to [OMGIDL].</p>
 
   <pre class="idl">interface <dfn>XMLHttpRequest</dfn> {
            attribute EventListener   <span>onreadystatechange</span>;
@@ -316,9 +323,6 @@ client.send();</pre>
   readonly attribute unsigned short  <span>status</span>;
   readonly attribute DOMString       <span>statusText</span>;
 };</pre>
-
-  <h3 id="xmlhttprequest-members">Members of the <code>XMLHttpRequest</code>
-   Object</h3>
 
   <dl>
 
@@ -353,6 +357,10 @@ client.send();</pre>
      <dt>4 Loaded</dt>
      <dd>The data transfer has been completed.</dd>
     </dl>
+
+    <p class="note">When <code>readyState</code> changes value a
+     <code>readystatechange</code> event is to be dispatched on the
+     <code>XMLHttpRequest</code> object.</p>
    </dd>
 
    <dt><dfn id="dfn-open" title="open"><code>open(<var>method</var>,
@@ -373,8 +381,6 @@ client.send();</pre>
      and <code>statusText</code> attributes to their initial values, and
      resetting the list of request headers.</p>
 
-    <p>Same-origin security restrictions <em class="ct">should</em> apply.</p>
-
     <p>If the <var>method</var> argument doesn't match the <dfn>method
      production</dfn> defined in section 5.1.1 of
      [<cite><a href="#RFC2616">RFC2616</a></cite>] a <code>SYNTAX_ERR</code>
@@ -383,58 +389,16 @@ client.send();</pre>
      <code>SECURITY_ERR</code> <em class="ct">should</em> be raised.</p>
 
     <p>User agents <em class="ct">must</em> at least support the following list
-     of methods (see [<cite><a href="#RFC2616">RFC2616</a></cite>],
-     [<cite><a href="#ref-rfc2518">RFC2518</a></cite>],
-     [<cite><a href="#ref-rfc3253">RFC3253</a></cite>],
-     [<cite><a href="#ref-rfc3648">RFC3648</a></cite>] and
-     [<cite><a href="#ref-rfc3744">RFC3744</a></cite>]):</p>
+     of methods (see [<cite><a href="#RFC2616">RFC2616</a></cite>]):</p>
 
     <ul>
-     <!-- RFC2616 -->
-     
      <li><code>GET</code></li>
      <li><code>POST</code></li>
      <li><code>HEAD</code></li>
      <li><code>PUT</code></li>
      <li><code>DELETE</code></li>
-     
-     <!-- RFC2518 -->
-     
-     <li><code>PROPFIND</code></li>
-     <li><code>PROPPATCH</code></li>
-     <li><code>MKCOL</code></li>
-     <li><code>COPY</code></li>
-     <li><code>MOVE</code></li>
-     <li><code>LOCK</code></li>
-     <li><code>UNLOCK</code></li>
-     
-     <!-- RFC3253 -->
-     
-     <li><code>VERSION-CONTROL</code></li>
-     <li><code>REPORT</code></li>
-     <li><code>CHECKOUT</code></li>
-     <li><code>CHECKIN</code></li>
-     <li><code>UNCHECKOUT</code></li>
-     <li><code>MKWORKSPACE</code></li>
-     <li><code>UPDATE</code></li>
-     <li><code>LABEL</code></li>
-     <li><code>MERGE</code></li>
-     <li><code>BASELINE-CONTROL</code></li>
-     <li><code>MKACTIVITY</code></li>
-     
-     <!-- RFC3648 -->
-     
-     <li><code>ORDERPATCH</code></li>
-     
-     <!-- RFC3744 -->
-     
-     <li><code>ACL</code></li>
     </ul>
 
-    <!-- XXX: It has been suggested to just include the methods defined by HTTP
-     because all other methods don't make much sense here and they "should" be
-     supported anyway. The editor tends to agree. -->
-    
     <p>User agents <em class="ct">should</em> support any <var>method</var>
      argument that matches the <span>method production</span>.</p>
 
@@ -443,15 +407,25 @@ client.send();</pre>
      <code>DELETE</code> the user agent <em class="ct">must</em> use the
      uppercase equivalent instead.</p>
 
-    <p>If the <var>url</var> parameter doesn't match the syntax defined in
-     section 3.2.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
-     <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised. When a non
-     same-origin <var>url</var> argument is given user agents
-     <em class="ct">should</em> throw a <code>SECURITY_ERR</code> exception.</p>
+
+    <p>When <var>url</var> is a relative reference, it <em class="ct">must</em>
+     be resolved using <span><code>XMLHttpRequest</code> base resource
+     identifier reference</span>. If that's not defined, or there's a failure in
+     resolving user agents <em class="ct">must</em> throw a
+     <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var> argument is
+     given user agents <em class="ct">should</em> throw a
+     <code>SECURITY_ERR</code> exception.</p>
+    
+    <p class="issue">What happens with fragment identifiers? Do we need to say
+     anything special about same-document references?</p>
 
     <p class="note">A future version or extension of this specification will
      define a way of doing cross-site requests.</p>
-    
+
+    <!--<p>If the <var>url</var> parameter doesn't match the syntax defined in
+     section 3.2.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
+     <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised.</p>-->
+
     <p>User agents <em class="ct">should not</em> support the "user:password"
      format in the <code>userinfo</code> production defined in section 3.2.1 of
      [<cite><a href="#ref-rfc3986">RFC3986</a></cite>] and
@@ -554,16 +528,11 @@ X-Test: one, two
      <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
      raised. Otherwise user agents <em class="ct">must</em> make a request to
      <var>url</var> using method <var>method</var> and set the
-     <dfn><code>send()</code> flag</dfn>. Every <code>XMLHttpRequest</code>
-     constructor is associated with the <code>window</code> object which
-     initially had it as a property. When <var>url</var> is relative, the
-     constructor <em class="ct">must</em> resolve it using
-     <code>window.document.baseURI</code> of its associated <code>window</code>
-     object as a base. If the <var>async</var> flag is set to false, then the
-     method <em class="ct">must not</em> return until the request has completed.
-     Otherwise, it <em class="ct">must</em> return immediately. (See:
-     <code>open()</code>.)</p>
-    
+     <dfn><code>send()</code> flag</dfn>. If the <var>async</var> flag is set to
+     <code>false</code>, then the method <em class="ct">must not</em> return
+     until the request has completed. Otherwise, it <em class="ct">must</em>
+     return immediately. (See: <code>open()</code>.)</p>
+
     <p class="note">The <span><code>send()</code> flag</span> is only relevant
      when <code>readyState</code> is 1 (Open).</p>
 
@@ -780,7 +749,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>reponseText</code> <em class="ct">must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class="ct">must</em> be the <code>null</code>.</p>
-    
+
     <p class="note">For <code>HEAD</code> requests for example, this attribute
      will always be <code>null</code> (it remains unchanged). Similar to the
      <code>responseXML</code> attribute.</p>
@@ -830,7 +799,7 @@ Content-Type: text/plain; charset=utf-8</pre>
      <code>readyState</code> is 3 (Receiving) or 4 (Loaded). When available, it
      <em class="ct">must</em> represent the HTTP status text sent by the server
      (appears after the status code).</p>
-    
+
     <p>Its initial value <em class="ct">must</em> be the empty string.</p>
    </dd>
   </dl>
@@ -889,11 +858,6 @@ Content-Type: text/plain; charset=utf-8</pre>
     for use in RFCs to Indicate Requirement Levels</a></cite>, S. Bradner.
     IETF, March 1997.</dd>
 
-   <dt id="ref-rfc2518">[RFC2518]</dt>
-   <dd><cite><a href="http://ietf.org/rfc/rfc2518">HTTP Extensions for
-    Distributed Authoring -- WEBDAV</a></cite>, Y. Goland, E. Whitehead,
-    A. Faizi, S. Carter, D. Jensen, editors. IETF, February 1999.</dd>
-
    <dt id="RFC2616">[RFC2616]</dt>
    <dd><cite><a href="http://ietf.org/rfc/rfc2616">Hypertext Transfer Protocol
     -- HTTP/1.1</a></cite>, R. Fielding, J. Gettys, J. Mogul, H. Frystyk, L.
@@ -907,21 +871,6 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc2965">HTTP State Management
     Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, October
     2000.</dd>
-
-   <dt id="ref-rfc3253">[RFC3253]</dt>
-   <dd><cite><a href="http://ietf.org/rfc/rfc3253">Versioning Extensions to
-    WebDAV</a></cite>, G. Clemm, J. Amsden, T. Ellison, C. Kaler, J. Whitehead,
-    editors. IETF, March 2002.</dd>
-
-   <dt id="ref-rfc3648">[RFC3648]</dt>
-   <dd><cite><a href="http://ietf.org/rfc/rfc3648">Web Distributed Authoring and
-    Versioning (WebDAV) Ordered Collections Protocol</a></cite>, J. Whitehead,
-    J. Reschke, editors. IETF, December 2003.</dd>
-
-   <dt id="ref-rfc3744">[RFC3744]</dt>
-   <dd><cite><a href="http://ietf.org/rfc/rfc3744">Web Distributed Authoring and
-    Versioning (WebDAV) Access Control Protocol</a></cite>, G. Clemm,
-    J. Reschke, E. Sedlar, J. Whitehead, editors. IETF, May 2004.</dd>
 
    <dt id="ref-rfc3986">[RFC3986]</dt>
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource Identifier
