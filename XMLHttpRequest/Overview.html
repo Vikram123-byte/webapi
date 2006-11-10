@@ -28,13 +28,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editors' draft
-    <!--W3C Working Draft--> 29 October 2006</h2>
+    <!--W3C Working Draft--> 10 November 2006</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061029">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061029/</a>
+     href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061110">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061110/</a>
 
     <dt>Latest Version:
 
@@ -96,7 +96,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 29 October 2006 Working Draft of The <code
+  <p>This is the 10 November 2006 Working Draft of The <code
    title="">XMLHttpRequest</code> Object. This document is produced by the <a
    href="http://www.w3.org/2006/webapi/">Web APIs WG</a>, part of the <a
    href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
@@ -455,14 +455,12 @@ client.send();</pre>
     <var>password</var>)</code></dfn>, method
 
    <dd>
-    <p class=issue>What about multiple <code><a
-     href="#dfn-open">open()</a></code> invocations? Like behind each other
-     or one after invoking <code><a href="#dfn-send">send()</a></code>, etc.</p>
-
     <p class=issue>Need to make it more clear what <code>null</code> means
      for <var>user</var> and <var>password</var>.</p>
-
-    <p>Calling this method <em class=ct>must</em> initialize the object by
+    <!-- XXX when password is null Internet Explorer doesn't send user ... -->
+    
+    <p>Invoking this method when the <code>readySteate</code> attribute is 0
+     (Uninitialized) <em class=ct>must</em> initialize the object by
      remembering the <var>method</var>, <var>url</var>, <var>async</var>
      (defaulting to <code>true</code> if omitted), <var>user</var>
      (defaulting to <code>null</code> if omitted), and <var>password</var>
@@ -474,6 +472,17 @@ client.send();</pre>
      href="#dfn-status">status</a></code>, and <code><a
      href="#dfn-statustext">statusText</a></code> attributes to their initial
      values, and resetting the list of request headers.</p>
+
+    <p>Invocations of this method when <code><a
+     href="#dfn-readystate">readyState</a></code> is not 0 (Uninitialized) or
+     4 (Loaded) <em class=ct>must</em> be ignored.</p>
+    <!-- XXX I made this up. -->
+    <p>Invoking this method when <code><a
+     href="#dfn-readystate">readyState</a></code> is 4 (Loaded) <em
+     class=ct>must</em> be identical to when <code><a
+     href="#dfn-readystate">readyState</a></code> is 0 (Uninitialized). Also,
+     all members of the object <em class=ct>must</em> be set to their initial
+     values.</p>
 
     <p>If the <var>method</var> argument doesn't match the <dfn
      id=method>method production</dfn> defined in section 5.1.1 of [<cite><a
@@ -507,17 +516,18 @@ client.send();</pre>
 
     <p>When <var>url</var> is a relative reference, it <em class=ct>must</em>
      be resolved using <a href="#xmlhttprequest0"><code>XMLHttpRequest</code>
-     base resource identifier reference</a>. If that's not defined, or
-     there's a failure in resolving user agents <em class=ct>must</em> throw
-     a <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var>
-     argument is given user agents <em class=ct>should</em> throw a
+     base resource identifier reference</a> and the fragment identifier
+     component, if any, <em class=ct>must</em> be dropped. If it can't be
+     resolved user agents <em class=ct>must</em> throw a
+     <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var> argument
+     is given user agents <em class=ct>should</em> throw a
      <code>SECURITY_ERR</code> exception.</p>
-
-    <p class=issue>What happens with fragment identifiers? Do we need to say
-     anything special about same-document references?</p>
 
     <p class=note>A future version or extension of this specification will
      define a way of doing cross-site requests.</p>
+
+    <p class=issue>Do we need to say anything special about same-document
+     references?</p>
     <!--<p>If the <var>url</var> parameter doesn't match the syntax defined in
      section 3.2.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
      <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised.</p>-->
@@ -540,11 +550,6 @@ client.send();</pre>
     <p class=issue>Need to look at the <var>password</var> argument. What
      syntax does it need to match. Can it be UTF-8 on transmission? When it's
      omitted, do UAs still use the user argument? IE doesn't.</p>
-
-    <p>If <code><a href="#dfn-open">open()</a></code> is invoked when
-     <code><a href="#dfn-readystate">readyState</a></code> is 4 (Loaded) all
-     members of the object <em class=ct>must</em> be set to their initial
-     values.</p>
 
    <dt><dfn id=dfn-setrequestheader
     title=setrequestheader><code>setRequestHeader(<var>header</var>,
@@ -762,6 +767,9 @@ X-Test: one, two
      activity for which the object is responsible and set all the members of
      the object to their initial values.</p>
 
+    <p class=note>This means that the object <em>can</em> be used for another
+     request in which case this method will work again to cancel it.</p>
+
    <dt><dfn
     id=dfn-getallresponseheaders><code>getAllResponseHeaders()</code></dfn>,
     method
@@ -860,9 +868,9 @@ Content-Type: text/plain; charset=utf-8</pre>
 
     <p>Its initial value <em class=ct>must</em> be the <code>null</code>.</p>
 
-    <p class=note>For <code>HEAD</code> requests for example, this attribute
-     will always be <code>null</code> (it remains unchanged). Similar to the
-     <code><a href="#dfn-responsexml">responseXML</a></code> attribute.</p>
+    <p class=note>For <code>HEAD</code> requests this attribute will always
+     be <code>null</code> (it remains unchanged). Similar to the <code><a
+     href="#dfn-responsexml">responseXML</a></code> attribute.</p>
 
    <dt><dfn id=dfn-responsexml><code>responseXML</code></dfn> of type
     <code>Document</code>, readonly
@@ -1065,6 +1073,8 @@ Content-Type: text/plain; charset=utf-8</pre>
    <li>Mark Nottingham
 
    <li>Pawel Glowacki
+
+   <li>Q42
 
    <li>Robin Berjon
 
