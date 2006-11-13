@@ -1,4 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- XXX Mark up up all states. -->
 <html lang="en-US">
  <head>
   <title>The XMLHttpRequest Object</title>
@@ -84,19 +85,22 @@
    at http://www.w3.org/TR/.</em></p>
 
   <p>This is the [DATE: 3 August 2002] Working Draft of The
-   <code title="">XMLHttpRequest</code> Object. This document is produced by the
-   <a href="http://www.w3.org/2006/webapi/">Web APIs WG</a>, part of the
-   <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
-   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
-   Domain</a>.</p>
+   <code title="">XMLHttpRequest</code> Object specifcation. This document is
+   produced by the <a href="http://www.w3.org/2006/webapi/">Web API Working
+   Group</a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web
+   Clients Activity</a> in the W3C
+   <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.</p>
 
   <p>Web content and browser developers are encouraged to review this draft.
    Please send comments to
-   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the W3C's
-   public email list for issues related to Web APIs.
+   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> with either
+   <samp>[XHR]</samp> or <samp>[XMLHttpRequest]</samp> at the start of the
+   subject line.
    <a href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of
-   the list are available.</p>
+   this list are available.</p>
 
+  <!-- XXX dino shouldn't remove the following: -->
+  
   <p>Implementors should be aware that this specification is not stable.
    <strong>Implementors who are not taking part in the discussions are likely
    to find the specification changing out from under them in incompatible
@@ -220,8 +224,6 @@ client.send();</pre>
 }</pre>
   </div>
 
-  <!-- XXX: perhaps fetch some more examples from the web... -->
-
   <h3 id="conformance">Conformance</h3>
 
   <p>Everying in this specification is normative except for diagrams, examples,
@@ -259,7 +261,7 @@ client.send();</pre>
 
   <p><em>This section is non-normative.</em></p>
 
-  <p>Extensions of the APIs defined in this specification are <em>strongly
+  <p>Extensions of the APIs defined by this specification are <em>strongly
   discouraged</em>. User agents, Working Groups and other interested parties
   should discuss extensions on a relevant public forum, such as
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
@@ -287,7 +289,8 @@ client.send();</pre>
 
   <p class="issue">What if the user cancels a request by leaving the page? How
   does that work for multiple windows and what's the effect on the object? Need
-  to test.</p>
+  to test. It has been tested what happens when an iframe is removed... Not sure
+  if anything should be said about this specifically...</p>
 
   <p>The <code>XMLHttpRequest</code> interface may be used to allow scripts to
   programmatically connect to their originating server via HTTP.</p>
@@ -304,15 +307,28 @@ client.send();</pre>
    <pre>var client = new XMLHttpRequest();</pre>
   </div>
 
-  <p>When the constructor is invoked the <dfn><code>XMLHttpRequest</code> base
-  resource identifier reference</dfn> <em class="ct">must</em> be set to the
+  <p>When the constructor is invoked a pointer to the <code>Window</code> object
+  which initially had <code title="">XMLHttpRequest</code> as an attribute of
+  which the constructor was invoked <em class="ct">must</em> be stored on the
+  newly created objected, called the
+  <dfn title="Window pointer" id="window-pointer"><code>Window</code>
+  pointer</dfn>. This <span title="Window pointer">pointer</span>
+  <em class="ct">must</em> persist even if the browsing context in which the
+  <code>Window</code> is located is destroyed (by removing it from a parent
+  browsing context, for instance).</p>
+  <!-- XXX need to define the terms!!! -->
+
+  <!--
+  to
+  the <code>baseURI</code> attribute of the <code>Document</code> that's associate
   value of the <code>baseURI</code> attribute of the <code>Document</code>
   object that's associated with the <code>Window</code> object which initially
   had <code title="">XMLHttpRequest</code> as an attribute of which the
   constructor was invoked. When <code>baseURI</code> is <code>null</code> there
   is no <span><code>XMLHttpRequest</code> base resource identifier
   reference</span>.</p>
-
+  -->
+  
   <h3 id="xmlhttprequest-members">Members of the <code>XMLHttpRequest</code>
   Object</h3>
 
@@ -362,24 +378,24 @@ client.send();</pre>
     the following values:</p>
 
     <dl>
-     <dt>0 Uninitialized</dt>
+     <dt><dfn title="uninitialized state">0 Uninitialized</dfn></dt>
 
      <dd>The initial value.</dd>
 
-     <dt>1 Open</dt>
+     <dt><dfn title="open state">1 Open</dfn></dt>
 
      <dd>The <code>open()</code> method has been successfully called.</dd>
 
-     <dt>2 Sent</dt>
+     <dt><dfn title="sent state">2 Sent</dfn></dt>
 
      <dd>The user agent successfully acknowledged the request.</dd>
 
-     <dt>3 Receiving</dt>
+     <dt><dfn title="receiving state">3 Receiving</dfn></dt>
 
      <dd>Immediately before receiving the message body (if any). All HTTP
      headers have been received.</dd>
 
-     <dt>4 Loaded</dt>
+     <dt><dfn title="loaded state">4 Loaded</dfn></dt>
 
      <dd>The data transfer has been completed.</dd>
     </dl>
@@ -399,26 +415,29 @@ client.send();</pre>
 
     <!-- XXX when password is null Internet Explorer doesn't send user ... -->
 
-    <p>Invoking this method when the <code>readySteate</code> attribute is 0
-    (Uninitialized) <em class="ct">must</em> initialize the object by
-    remembering the <var>method</var>, <var>url</var>, <var>async</var>
-    (defaulting to <code>true</code> if omitted), <var>user</var> (defaulting
-    to <code>null</code> if omitted), and <var>password</var> (defaulting to
-    <code>null</code> if omitted) arguments, setting the
-    <code>readyState</code> attribute to 1 (Open), resetting the
+    <p>Invoking this method when the state is
+    <span title="uninitialized state">uninitialized</span> or
+    <span title="loaded state">loaded</span> <em class="ct">must</em>
+    initialize the object by remembering the <var>method</var>, <var>url</var>,
+    <var>async</var> (defaulting to <code>true</code> if omitted),
+    <var>user</var> (defaulting to <code>null</code> if omitted), and
+    <var>password</var> (defaulting to <code>null</code> if omitted) arguments,
+    setting the state to <span title="open state">open</span>, resetting the
     <code>responseText</code>, <code>responseXML</code>, <code>status</code>,
     and <code>statusText</code> attributes to their initial values, and
     resetting the list of request headers.</p>
 
-    <p>Invocations of this method when <code>readyState</code> is not 0
-    (Uninitialized) or 4 (Loaded) <em class="ct">must</em> be ignored.</p>
+    <p>In addition, when the state is <span title="loaded state">loaded</span>,
+    <em>all members</em> of the object <em class="ct">must</em> be set to their
+    initial values.</p>
+
+    <p>Otherwise, when the state is not
+    <span title="uninitialized state">uninitialized</span> or
+    <span title="loaded state">loaded</span>, invocations
+    <em class="ct">must</em> be ignored (and have no effect, unless stated
+    otherwise).</p>
 
     <!-- XXX I made this up. -->
-
-    <p>Invoking this method when <code>readyState</code> is 4 (Loaded)
-    <em class="ct">must</em> be identical to when <code>readyState</code> is 0
-    (Uninitialized). Also, all members of the object <em class="ct">must</em> be
-    set to their initial values.</p>
 
     <p>If the <var>method</var> argument doesn't match the <dfn>method
     production</dfn> defined in section 5.1.1 of
@@ -443,21 +462,24 @@ client.send();</pre>
 
     <p>When <var>method</var> case-insensitively matches <code>GET</code>,
     <code>POST</code>, <code>HEAD</code>, <code>PUT</code> or
-    <code>DELETE</code> the user agent <em class="ct">must</em> use the
+    <code>DELETE</code> user agents <em class="ct">must</em> use the
     uppercase equivalent instead.</p>
 
     <p>When <var>url</var> is a relative reference, it <em class="ct">must</em>
-    be resolved using <span><code>XMLHttpRequest</code> base resource
-    identifier reference</span> and the fragment identifier component, if any,
-    <em class="ct">must</em> be dropped. If it can't be resolved user agents
-    <em class="ct">must</em> throw a <code>SYNTAX_ERR</code>. When a non
-    same-origin <var>url</var> argument is given user agents
-    <em class="ct">should</em> throw a <code>SECURITY_ERR</code> exception.</p>
+    be resolved using the current value of the <code>baseURI</code> attribute of
+    the <code>Document</code> object currently associated with the
+    <span><code>Window</code> pointer</span> and the fragment identifier
+    component, if any, <em class="ct">must</em> be dropped. If it can't be
+    resolved user agents <em class="ct">must</em> throw a
+    <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var> argument is
+    given user agents <em class="ct">should</em> throw a
+    <code>SECURITY_ERR</code> exception.</p>
 
     <p class="note">A future version or extension of this specification will
     define a way of doing cross-site requests.</p>
 
     <p class="issue">Do we need to say anything special about same-document references?</p>
+    
     <!--<p>If the <var>url</var> parameter doesn't match the syntax defined in
      section 3.2.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
      <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised.</p>-->
@@ -491,8 +513,8 @@ client.send();</pre>
     exceptions:</p>
 
     <ul>
-     <li>If the <code>readyState</code> attribute has a value other than 1
-     (Open) or the <span><code>send()</code> flag</span> is set an
+     <li>If the state is not <span title="open state">open</span> or the
+     <span><code>send()</code> flag</span> is set an
      <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
      raised;</li>
 
@@ -558,18 +580,21 @@ X-Test: one, two
    method</dt>
 
    <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 1 (Open)
-    or the <span><code>send()</code> flag</code> is set an
-    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-    raised. Otherwise user agents <em class="ct">must</em> make a request to
+    <p>If the state is not <span title="open state">open</span> or the
+    <span><code>send()</code> flag</code> is set an
+    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be raised.
+    Otherwise user agents <em class="ct">must</em> make a request to
     <var>url</var> using method <var>method</var> and set the
     <dfn><code>send()</code> flag</dfn>. If the <var>async</var> flag is set to
     <code>false</code>, then the method <em class="ct">must not</em> return
     until the request has completed. Otherwise, it <em class="ct">must</em>
     return immediately. (See: <code>open()</code>.)</p>
 
+    <p class="note">Even when <var>async</var> is set to <code>false</code> the
+    <code>readystatechange</code> event will still be dispatched.</p>
+    
     <p class="note">The <span><code>send()</code> flag</span> is only relevant
-    when <code>readyState</code> is 1 (Open).</p>
+    when the state is <span title="open state">open</span>.</p>
 
     <p>If <var>data</var> is passed to the <code>send()</code> method it
     <em class="ct">must</em> be used for the entity body following these rules
@@ -614,20 +639,22 @@ X-Test: one, two
     method during redirects, and also requires users to be notified of certain
     kinds of automatic redirections.</p>
 
-    <p>Once the request has been successfully acknowledged
-    <code>readyState</code> <em class="ct">must</em> be set to 2 (Sent).
-    Immediately before receiving the message body (if any), the
-    <code>readyState</code> attribute <em class="ct">must</em> be set to to 3
-    (Receiving). When the request has completed loading, the
-    <code>readyState</code> attribute <em class="ct">must</em> be set to 4
-    (Loaded). In case of a <code>HEAD</code> request <code>readyState</code>
-    <em class="ct">must</em> be set to 4 (Loaded) immediately after having gone
-    to 3 (Receiving).</p>
+    <p>Once the request has been successfully acknowledged the state
+    <em class="ct">must</em> be set to <span title="sent state">sent</span>.
+    Immediately before receiving the message body (if any), the state
+    <em class="ct">must</em> be set to to
+    <span title="receiving state">receiving</span>. When the request has
+    completed loading, the state <em class="ct">must</em> be set to
+    <span title="loaded state">loaded</span>.</p>
+    
+    <p class="note">This means that in case of a <code>HEAD</code> request the
+    state is set to <span title="loaded state">loaded</span> immediately after
+    having being set to <span title="receiving state">receiving</span>.</p>
 
-    <p>If something goes wrong (infinite loop, network errors) the
-    <code>readyState</code> attribute <em class="ct">must</em> be set to 4
-    (Loaded) and all other members of the object <em class="ct">must</em> be set
-    to their initial value. Besides that, all registered event listeners
+    <p>If something goes wrong (infinite loop, network errors) the state
+    <em class="ct">must</em> be set to <span title="loaded state">loaded</span>
+    and all other members of the object <em class="ct">must</em> be set to their
+    initial value. Besides that, all registered event listeners
     <em class="ct">must</em> be removed.</p>
 
     <p class="note">In future versions of this specification user agents will be
@@ -699,12 +726,12 @@ X-Test: one, two
    method</dt>
 
    <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 3
-    (Receiving) or 4 (Loaded), user agents <em class="ct">must</em> raise an
-    <code>INVALID_STATE_ERR</code> exception. Otherwise, it
-    <em class="ct">must</em> return all the HTTP headers, as a single string,
-    with each header line separated by a CR (U+000D) LF (U+000A) pair. The
-    status line <em class="ct">must not</em> be included.</p>
+    <p>If the state is not <span title="receiving state">receiving</span> or
+    <span title="loaded state">loaded</span>, user agents
+    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+    Otherwise, it <em class="ct">must</em> return all the HTTP headers, as a
+    single string, with each header line separated by a CR (U+000D) LF (U+000A)
+    pair. The status line <em class="ct">must not</em> be included.</p>
 
     <div class="example">
      <pre>// The following script:
@@ -736,16 +763,16 @@ Content-Type: text/plain; charset=utf-8</pre>
     <em class="ct">must</em> be raised. Otherwise this method works as described
     below.</p>
 
-    <p>If the <code>readyState</code> attribute has a value other than 3
-    (Receiving) or 4 (Loaded), the user agent <em class="ct">must</em> raise an
-    <code>INVALID_STATE_ERR</code> exception. Otherwise, it
-    <em class="ct">must</em> represent the value of the given HTTP header
-    (<var>header</var>) in the data received so far for the last request sent,
-    as a single string. If more than one header of the given name was received,
-    then the values <em class="ct">must</em> be concatenated, separated from
-    each other by an U+002C COMMA followed by an U+0020 SPACE. If no headers of
-    that name were received, then it <em class="ct">must</em> return
-    <code>null</code>. Header names <em class="ct">must</em> be compared
+    <p>If the state is not <span title="receiving state">receiving</span> or
+    <span title="loaded state">loaded</span>, the user agent
+    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+    Otherwise, it <em class="ct">must</em> represent the value of the given HTTP
+    header (<var>header</var>) in the data received so far for the last request
+    sent, as a single string. If more than one header of the given name was
+    received, then the values <em class="ct">must</em> be concatenated,
+    separated from each other by an U+002C COMMA followed by an U+0020 SPACE. If
+    no headers of that name were received, then it <em class="ct">must</em>
+    return <code>null</code>. Header names <em class="ct">must</em> be compared
     case-insensitively to the method its argument (<var>header</var>).</p>
 
     <div class="example">
@@ -768,13 +795,14 @@ Content-Type: text/plain; charset=utf-8</pre>
    <code>DOMString</code>, readonly</dt>
 
    <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 3
-    (Receiving) or 4 (Loaded), the user agent <em class="ct">must</em> raise an
-    <code>INVALID_STATE_ERR</code> exception. Otherwise, it
-    <em class="ct">must</em> be the fragment of the <span>entity body</span>
-    received so far (when <code>readyState</code> is 3 (Receiving)) or the
-    complete <span>entity body</span> (when <code>readyState</code> is 4
-    (Loaded)), interpreted as a stream of characters.</p>
+    <p>If the state is not <span title="receiving state">receiving</span> or
+    <span title="loaded state">loaded</span>, the user agent
+    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+    Otherwise, it <em class="ct">must</em> be the fragment of the <span>entity
+    body</span> received so far (when the state is
+    <span title="receiving state">receiving</span>) or the complete <span>entity
+    body</span> (when the state is <span title="loaded state">loaded</span>),
+    interpreted as a stream of characters.</p>
 
     <p>If the response includes a <code>Content-Type</code> understood by the
     user agent the characters are encoded following the relevant media type
@@ -798,11 +826,10 @@ Content-Type: text/plain; charset=utf-8</pre>
    <code>Document</code>, readonly</dt>
 
    <dd>
-    <p>If the <code>readyState</code> attribute has a value other than 4
-    (Loaded), user agents <em class="ct">must</em> raise an
-    <code>INVALID_STATE_ERR</code> exception. Otherwise, if the
-    <code>Content-Type</code> header contains a media type (ignoring any
-    parameters) that is either <code>text/xml</code>,
+    <p>If the state is not <span title="loaded state">loaded</span>, user agents
+    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+    Otherwise, if the <code>Content-Type</code> header contains a media type
+    (ignoring any parameters) that is either <code>text/xml</code>,
     <code>application/xml</code>, or ends in <code>+xml</code>, it
     <em class="ct">must</em> be an object that implements the
     <code>Document</code> interface representing the parsed document. If
@@ -820,11 +847,12 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd>
     <p>If the <code>status</code> attribute is not available an
     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be raised.
-    It <em class="ct">must</em> be available when <code>readyState</code> is 3
-    (Receiving) or 4 (Loaded). When available, it <em class="ct">must</em>
-    represent the HTTP status code (typically <code>200</code> for a successful
-    connection).</p>
-
+    It <em class="ct">must</em> be available when the state is
+    <span title="receiving state">receiving</span> or
+    <span title="loaded state">loaded</span>. When available, it
+    <em class="ct">must</em> represent the HTTP status code (typically
+    <code>200</code> for a successful connection).</p>
+    
     <p>Its initial value <em class="ct">must</em> be <code>0</code>.</p>
    </dd>
 
@@ -834,10 +862,11 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd>
     <p>If the <code>statusText</code> attribute is not available an
     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be raised.
-    It <em class="ct">must</em> be available when <code>readyState</code> is 3
-    (Receiving) or 4 (Loaded). When available, it <em class="ct">must</em>
-    represent the HTTP status text sent by the server (appears after the status
-    code).</p>
+    It <em class="ct">must</em> be available when the state is
+    <span title="receiving state">receiving</span> or
+    <span title="loaded state">loaded</span>). When available, it
+    <em class="ct">must</em> represent the HTTP status text sent by the server
+    (appears after the status code).</p>
 
     <p>Its initial value <em class="ct">must</em> be the empty string.</p>
    </dd>
