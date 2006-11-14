@@ -29,13 +29,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editors' draft
-    <!--W3C Working Draft--> 13 November 2006</h2>
+    <!--W3C Working Draft--> 14 November 2006</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061113">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061113/</a>
+     href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061114">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20061114/</a>
 
     <dt>Latest Version:
 
@@ -97,7 +97,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 13 November 2006 Working Draft of The <code
+  <p>This is the 14 November 2006 Working Draft of The <code
    title="">XMLHttpRequest</code> Object specifcation. This document is
    produced by the <a href="http://www.w3.org/2006/webapi/">Web API Working
    Group</a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich
@@ -370,7 +370,7 @@ client.send();</pre>
   <p>When the constructor is invoked a pointer to the <code>Window</code>
    object which initially had <code title="">XMLHttpRequest</code> as an
    attribute of which the constructor was invoked <em class=ct>must</em> be
-   stored on the newly created objected, called the <dfn id=window-pointer
+   stored on the newly created object, called the <dfn id=window-pointer
    title="Window pointer"><code>Window</code> pointer</dfn>. This <a
    href="#window-pointer" title="Window pointer">pointer</a> <em
    class=ct>must</em> persist even if the browsing context in which the
@@ -475,30 +475,24 @@ client.send();</pre>
      for <var>user</var> and <var>password</var>.</p>
     <!-- XXX when password is null Internet Explorer doesn't send user ... -->
     
-    <p>Invoking this method when the state is <a href="#uninitialized"
-     title="uninitialized state">uninitialized</a> or <a href="#loaded"
-     title="loaded state">loaded</a> <em class=ct>must</em> initialize the
-     object by remembering the <var>method</var>, <var>url</var>,
-     <var>async</var> (defaulting to <code>true</code> if omitted),
-     <var>user</var> (defaulting to <code>null</code> if omitted), and
-     <var>password</var> (defaulting to <code>null</code> if omitted)
-     arguments, setting the state to <a href="#open" title="open
-     state">open</a>, resetting the <code><a
-     href="#dfn-responsetext">responseText</a></code>, <code><a
+    <p>Invoking this method <em class=ct>must</em> initialize the object by
+     remembering the <var>method</var>, <var>url</var>, <var>async</var>
+     (defaulting to <code>true</code> if omitted), <var>user</var>
+     (defaulting to <code>null</code> if omitted), and <var>password</var>
+     (defaulting to <code>null</code> if omitted) arguments, setting the
+     state to <a href="#open" title="open state">open</a>, resetting the
+     <code><a href="#dfn-responsetext">responseText</a></code>, <code><a
      href="#dfn-responsexml">responseXML</a></code>, <code><a
      href="#dfn-status">status</a></code>, and <code><a
      href="#dfn-statustext">statusText</a></code> attributes to their initial
      values, and resetting the list of request headers.</p>
 
-    <p>In addition, when the state is <a href="#loaded" title="loaded
-     state">loaded</a>, <em>all members</em> of the object <em
-     class=ct>must</em> be set to their initial values.</p>
+    <p>In addition, when the state is not <a href="#uninitialized"
+     title="uninitialized state">uninitialized</a>, <em>all members</em> of
+     the object <em class=ct>must</em> be set to their initial values and
+     user agents <em class=ct>must</em> behave as if <code><a
+     href="#dfn-abort">abort()</a></code> was invoked.</p>
 
-    <p>Otherwise, when the state is not <a href="#uninitialized"
-     title="uninitialized state">uninitialized</a> or <a href="#loaded"
-     title="loaded state">loaded</a>, invocations <em class=ct>must</em> be
-     ignored (and have no effect, unless stated otherwise).</p>
-    <!-- XXX I made this up. -->
     <p>If the <var>method</var> argument doesn't match the <dfn
      id=method>method production</dfn> defined in section 5.1.1 of [<cite><a
      href="#RFC2616">RFC2616</a></cite>] a <code>SYNTAX_ERR</code> <em
@@ -566,6 +560,9 @@ client.send();</pre>
     <p class=issue>Need to look at the <var>password</var> argument. What
      syntax does it need to match. Can it be UTF-8 on transmission? When it's
      omitted, do UAs still use the user argument? IE doesn't.</p>
+    <!-- XXX: say something about it being undefined but that implementatoins may
+    throw a SYNTAX_ERR exception here, in case of characters not being supported -->
+    
 
    <dt><dfn id=dfn-setrequestheader
     title=setrequestheader><code>setRequestHeader(<var>header</var>,

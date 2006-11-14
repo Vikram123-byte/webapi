@@ -310,7 +310,7 @@ client.send();</pre>
   <p>When the constructor is invoked a pointer to the <code>Window</code> object
   which initially had <code title="">XMLHttpRequest</code> as an attribute of
   which the constructor was invoked <em class="ct">must</em> be stored on the
-  newly created objected, called the
+  newly created object, called the
   <dfn title="Window pointer" id="window-pointer"><code>Window</code>
   pointer</dfn>. This <span title="Window pointer">pointer</span>
   <em class="ct">must</em> persist even if the browsing context in which the
@@ -415,29 +415,21 @@ client.send();</pre>
 
     <!-- XXX when password is null Internet Explorer doesn't send user ... -->
 
-    <p>Invoking this method when the state is
-    <span title="uninitialized state">uninitialized</span> or
-    <span title="loaded state">loaded</span> <em class="ct">must</em>
-    initialize the object by remembering the <var>method</var>, <var>url</var>,
-    <var>async</var> (defaulting to <code>true</code> if omitted),
-    <var>user</var> (defaulting to <code>null</code> if omitted), and
-    <var>password</var> (defaulting to <code>null</code> if omitted) arguments,
-    setting the state to <span title="open state">open</span>, resetting the
+    <p>Invoking this method <em class="ct">must</em> initialize the object by
+    remembering the <var>method</var>, <var>url</var>, <var>async</var>
+    (defaulting to <code>true</code> if omitted), <var>user</var> (defaulting to
+    <code>null</code> if omitted), and <var>password</var> (defaulting to
+    <code>null</code> if omitted) arguments, setting the state to
+    <span title="open state">open</span>, resetting the
     <code>responseText</code>, <code>responseXML</code>, <code>status</code>,
     and <code>statusText</code> attributes to their initial values, and
     resetting the list of request headers.</p>
 
-    <p>In addition, when the state is <span title="loaded state">loaded</span>,
-    <em>all members</em> of the object <em class="ct">must</em> be set to their
-    initial values.</p>
-
-    <p>Otherwise, when the state is not
-    <span title="uninitialized state">uninitialized</span> or
-    <span title="loaded state">loaded</span>, invocations
-    <em class="ct">must</em> be ignored (and have no effect, unless stated
-    otherwise).</p>
-
-    <!-- XXX I made this up. -->
+    <p>In addition, when the state is not
+    <span title="uninitialized state">uninitialized</span>, <em>all members</em>
+    of the object <em class="ct">must</em> be set to their initial values and
+    user agents <em class="ct">must</em> behave as if <code>abort()</code> was
+    invoked.</p>
 
     <p>If the <var>method</var> argument doesn't match the <dfn>method
     production</dfn> defined in section 5.1.1 of
@@ -502,6 +494,9 @@ client.send();</pre>
     <p class="issue">Need to look at the <var>password</var> argument. What
     syntax does it need to match. Can it be UTF-8 on transmission? When it's
     omitted, do UAs still use the user argument? IE doesn't.</p>
+    
+    <!-- XXX: say something about it being undefined but that implementatoins may
+    throw a SYNTAX_ERR exception here, in case of characters not being supported -->
    </dd>
 
    <dt><dfn id="dfn-setrequestheader" title="setrequestheader"><code>setRequestHeader(<var>header</var>,
