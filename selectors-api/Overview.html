@@ -7,6 +7,7 @@
   <style type="text/css">
    pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
    pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
+   div.example { border-left:double; padding-left:1em }
    dfn { font-style:normal; font-weight:bolder }
    em.ct { font-style:normal; font-weight:normal; font-variant:small-caps }
    p.note {  margin-left:2em; color:green; font-style:italic; font-weight:bold }
@@ -29,13 +30,13 @@
    just silly so we got stuck with this weird name. -->
    
    <h2 class="no-num no-toc" id=W3C-doctype>Editor's Draft
-    <!--W3C Working Draft--> 15 November 2006</h2>
+    <!--W3C Working Draft--> 18 November 2006</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2006/WD-selectors-api-20061115">http://www.w3.org/TR/2006/WD-selectors-api-20061115/</a>
+     href="http://www.w3.org/TR/2006/WD-selectors-api-20061118">http://www.w3.org/TR/2006/WD-selectors-api-20061118/</a>
 
     <dt>Latest Version:
 
@@ -153,7 +154,7 @@
    <li><a href="#documentselector"><span class=secno>3. </span>The <code
     title="">Selector</code> Interface</a>
 
-   <li><a href="#nsresolver"><span class=secno>4. </span>The <code
+   <li><a href="#nsresolver-interface"><span class=secno>4. </span>The <code
     title="">NSResolver</code> Interface</a>
 
    <li><a href="#staticnodelist"><span class=secno>5. </span>The <code
@@ -189,7 +190,8 @@
 
   <p>Some [<cite><a href="#ref-ecma262">ECMAScript</a></cite>] examples:
 
-  <pre>function resolver(str) {
+  <div class=example>
+   <pre>function resolver(str) {
   var prefixes = {
     h:  "http://www.w3.org/1999/xhtml",
     g: "http://www.w3.org/2000/svg"}
@@ -198,39 +200,40 @@
 var <var>a</var> = document.matchAll("h|div &gt; g|svg", resolver);
 var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
-  <p><var>a</var> contains a <code><a
-   href="#staticnodelist0">StaticNodeList</a></code> of all the nodes matched
-   by <code>h|div &gt; g|svg</code> (namespace prefixes are resolved using
-   the function in this case). <var>b</var> would contain the first
-   <code>div</code> element which has the classes <code>foo</code> and
-   <code>bar</code> set.
+   <p><var>a</var> contains a <code><a
+    href="#dom-staticnodelist">StaticNodeList</a></code> of all the nodes
+    matched by <code>h|div &gt; g|svg</code> (namespace prefixes are resolved
+    using the function in this case). <var>b</var> would contain the first
+    <code>div</code> element which has the classes <code>foo</code> and
+    <code>bar</code> set.</p>
 
-  <pre>function test(){
+   <pre>function test(){
   var c = document.matchAll(":root"),
       d = document.documentElement;
   return c[0] === d;
 }</pre>
 
-  <p><code>test()</code> would return <code>true</code> when both <code><a
-   href="#matchall">matchAll()</a></code> and <code>:root</code> are
-   supported. When using <code>:root</code> like this it's probably better
-   (and faster) to use <code><a href="#matchsingle">matchSingle()</a></code>
-   given that there's only one possible result. This is just to illustrate
-   how it works.
+   <p><code>test()</code> would return <code>true</code> when both <code><a
+    href="#matchall">matchAll()</a></code> and <code>:root</code> are
+    supported. When using <code>:root</code> like this it's probably better
+    (and faster) to use <code><a href="#matchsingle">matchSingle()</a></code>
+    given that there's only one possible result. This is just to illustrate
+    how it works.</p>
 
-  <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
+   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
 
-  <p>The above code snippet shows that besides using a single selector you
-   can also pass a group of selectors (basically comma-separated selectors)
-   as argument. <var>e</var> would contain a <code><a
-   href="#staticnodelist0">StaticNodeList</a></code> with all <code>p</code>
-   elements in the document that have a <code>warning</code> or
-   <code>alert</code> class.
+   <p>The above code snippet shows that besides using a single selector you
+    can also pass a group of selectors (basically comma-separated selectors)
+    as argument. <var>e</var> would contain a <code><a
+    href="#dom-staticnodelist">StaticNodeList</a></code> with all
+    <code>p</code> elements in the document that have a <code>warning</code>
+    or <code>alert</code> class.</p>
 
-  <pre>var <var>f</var> = document.matchSingle("#foo, #bar");</pre>
+   <pre>var <var>f</var> = document.matchSingle("#foo, #bar");</pre>
 
-  <p><var>f</var> would contain the first element in the document either
-   having an ID of <code>foo</code> or <code>bar</code> (or both).
+   <p><var>f</var> would contain the first element in the document either
+    having an ID of <code>foo</code> or <code>bar</code> (or both).</p>
+  </div>
 
   <h3 id=conformance><span class=secno>1.2. </span>Conformance Requirements</h3>
 
@@ -249,20 +252,20 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    specification:
 
   <dl>
-   <dt><dfn id=conforming>conforming implementation</dfn>
+   <dt><dfn id=conforming-implementation>conforming implementation</dfn>
 
    <dd>A user agent that implements all interfaces described in this
     specification and follows all <em class=ct>must</em>-, <em
     class=ct>required</em>- and <em class=ct>shall</em>-level of critera in
     this specification.
 
-   <dt><dfn id=conforming0>conforming document</dfn>
+   <dt><dfn id="conforming document">conforming document</dfn>
 
    <dd>A document that follows all <em class=ct>must</em>-, <em
     class=ct>required</em>- and <em class=ct>shall</em>-level of critera in
     this specification that apply to document authors.
 
-   <dt><dfn id=conforming1>conforming authoring tool</dfn>
+   <dt><dfn id=conforming-authoring-tool>conforming authoring tool</dfn>
 
    <dd>One that produces conforming documents.
   </dl>
@@ -299,7 +302,7 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
   <p>Another problem is hostile content. User agents <em class=ct>should</em>
    ensure they remain stable when facing a hostile <code><a
-   href="#nsresolver0">NSResolver</a></code> object. Potential hostile things
+   href="#nsresolver">NSResolver</a></code> object. Potential hostile things
    such an object could do include:
 
   <ul>
@@ -315,17 +318,17 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
   <p>Objects implementing the <code>Document</code> interface defined in
    <cite>DOM Level 3 Core</cite> <em class=ct>must</em> also implement the
-   <code><a href="#selector">Selector</a></code> interface [<cite><a
+   <code><a href="#dom-selector">Selector</a></code> interface [<cite><a
    href="#ref-dom3core">DOM3Core</a></cite>].
 
-  <pre class=idl>interface <dfn id=selector>Selector</dfn> {
-  Node            <a href="#matchsingle">matchSingle</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver0">NSResolver</a> <var title="">nsresolver</var>);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#matchall">matchAll</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver0">NSResolver</a> <var title="">nsresolver</var>);
+  <pre class=idl>interface <dfn id=dom-selector>Selector</dfn> {
+  Node            <a href="#matchsingle">matchSingle</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#matchall">matchAll</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
 };</pre>
 
   <p class=note>The interface is named <code><a
-   href="#selector">Selector</a></code> because it might be implemented by
-   <code>Element</code> nodes in the future.
+   href="#dom-selector">Selector</a></code> because it might be implemented
+   by <code>Element</code> nodes in the future.
 
   <p>The <dfn id=matchsingle
    title=matchsingle><code>matchSingle(<var>selectors</var>, <var
@@ -338,31 +341,31 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
   <p>The <dfn id=matchall title=matchall><code>matchAll(<var>selectors</var>,
    <var title="">nsresolver</var>)</code></dfn> method, when invoked, <em
    class=ct>must</em> return a <code><a
-   href="#staticnodelist0">StaticNodeList</a></code> of all the
+   href="#dom-staticnodelist">StaticNodeList</a></code> of all the
    <code>Element</code>s that match the group of selectors
    (<var>selectors</var>) in document order, if any. Otherwise it <em
    class=ct>must</em> return an empty <code><a
-   href="#staticnodelist0">StaticNodeList</a></code>.
+   href="#dom-staticnodelist">StaticNodeList</a></code>.
 
   <p>Both <code><a href="#matchsingle">matchSingle()</a></code> and <code><a
    href="#matchall">matchAll()</a></code> take a group of selectors
    (<var>selectors</var>) as defined in [<cite><a
    href="#ref-selectors">Selectors</a></cite>] as first argument and an
-   <code><a href="#nsresolver0">NSResolver</a></code> (<var
+   <code><a href="#nsresolver">NSResolver</a></code> (<var
    title="">nsresolver</var>) as second. User agents <em class=ct>must</em>
    use the <var title="">nsresolver</var> argument to <a
-   href="#resolve">resolve namespace prefixes</a> to namespaces. When the
-   <var title="">nsresolver</var> argument is <code>null</code> user agents
-   <em class=ct>must</em> ignore it.
+   href="#resolve-namespace-prefix">resolve namespace prefixes</a> to
+   namespaces or to <a href="#get-default-namespace">get the default
+   namespace</a>. When the <var title="">nsresolver</var> argument is
+   <code>null</code> user agents <em class=ct>must</em> ignore it.
 
-  <p>When authors use namespace prefixes within <var>selectors</var> they <em
-   class=ct>must</em> create an object implementing the <code><a
-   href="#nsresolver0">NSResolver</a></code> interface (or create a
-   <code>Function</code> in case of ECMAScript) and pass that as argument for
-   <var title="">nsresolver</var>. If they don't use namespace prefixes
-   within <var>selectors</var> authors <em class=ct>may</em> set <var
-   title="">nsresolver</var> to <code>null</code> or omit the argument
-   completely if the language binding allows it.
+  <p>When authors use namespace prefixes within <var>selectors</var> or want
+   to set a default namespace they <em class=ct>must</em> create an object
+   implementing the <code><a href="#nsresolver">NSResolver</a></code>
+   interface and pass that (or a <code>Function</code> in case of ECMAScript)
+   as argument for <var title="">nsresolver</var>. Otherwise, authors <em
+   class=ct>may</em> set the argument to <code>null</code> or omit it if the
+   language binding allows it.
 
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the
    user agent <em class=ct>must</em> raise a <code>SYNTAX_ERR</code>
@@ -372,29 +375,31 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    been omitted entirely) a <code>NAMESPACE_ERR</code> exception <em
    class=ct>must</em> be raised.
 
+  <p class=note>Not defining a default namespace is ok.
+
   <p>In languages that support optional arguments for methods, like
    ECMAScript, omitting the <var title="">nsresolver</var> argument in either
    the <code><a href="#matchsingle">matchSingle()</a></code> or <code><a
    href="#matchall">matchAll()</a></code> method <em class=ct>must</em>
-   return the same result as if the method was called with the <var
+   return the same result as if the method was invoked with the <var
    title="">nsresolver</var> argument being <code>null</code>.
 
   <p class=note>Using pseudo-elements in one of the selectors could mean that
    nothing is returned for that particular selector when it doesn't resolve
    in one or more <code>Element</code> nodes.
 
-  <h2 id=nsresolver><span class=secno>4. </span>The <code
+  <h2 id=nsresolver-interface><span class=secno>4. </span>The <code
    title="">NSResolver</code> Interface</h2>
 
-  <p>The <code><a href="#nsresolver0">NSResolver</a></code> interface allows
+  <p>The <code><a href="#nsresolver">NSResolver</a></code> interface allows
    prefixes to be bound to a namespace URI. The interface is to be
    implemented by authors.
 
   <p class=note>Other specifications may introduce methods that return an
-   object implementing <code><a href="#nsresolver0">NSResolver</a></code> in
+   object implementing <code><a href="#nsresolver">NSResolver</a></code> in
    which case it would be implemented by the user agent.
 
-  <pre class=idl>interface <dfn id=nsresolver0>NSResolver</dfn> {
+  <pre class=idl>interface <dfn id=nsresolver>NSResolver</dfn> {
   DOMString          <a href="#lookupnamespaceuri">lookupNamespaceURI</a>(in DOMString <var>prefix</var>);
 };</pre>
 
@@ -404,28 +409,53 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    (<var>prefix</var>) or the default namespace if the <var>prefix</var>
    argument is <code>null</code> or the empty string.
 
-  <p>To <dfn id=resolve>resolve namespace prefixes</dfn> user agents <em
-   class=ct>must</em> pass the prefix lowercased (A-Z maps to a-z) to the
-   <code><a href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method.
-   To get the default namespace user agents <em class=ct>must</em> invoke the
-   <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method
-   with the empty string. User agents <em class=ct>must</em> never invoke the
-   method with <code>null</code> as argument [<cite><a
-   href="#ref-selectors">Selectors</a></cite>].
+  <p>To <dfn id=resolve-namespace-prefix>resolve namespace prefixes</dfn>
+   user agents <em class=ct>must</em> pass the prefix lowercased (A-Z maps to
+   a-z) to the <code><a
+   href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method. User
+   agents <em class=ct>must not</em> invoke the method more than once for
+   each unique (after lowercasing) prefix. To <dfn
+   id=get-default-namespace>get the default namespace</dfn> user agents <em
+   class=ct>must</em> invoke the <code><a
+   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method with the
+   empty string. User agents <em class=ct>must</em> never invoke the method
+   with <code>null</code> as argument.</p>
+  <!-- used to have a reference to
+  [<cite><a href="#ref-selectors">Selectors</a></cite>] here for whatever
+  reason... -->
 
   <p>In ECMAScript (and languages that allow similar constructs) user agents
    <em class=ct>must</em> support <code><a
-   href="#nsresolver0">NSResolver</a></code> being implemented as a
+   href="#nsresolver">NSResolver</a></code> being implemented as a
    <code>Function</code> where the parameter of the function is identical to
    the <var>prefix</var> argument described above.
+
+  <div class=example>
+   <pre>var i = 0;
+function resolver(prefix) {
+  i++
+  var prefixes = {
+    1:  "http://www.w3.org/1999/xhtml",
+    2:  "http://www.w3.org/2000/svg"}
+  return prefixes[i];
+}
+var <var>x</var> = document.matchSingle("tESt|x > test|x + q|x")</pre>
+
+   <p>Variable <var>x</var> represents the first element in document order
+    with local name <code>x</code> and namespace
+    <code>http://www.w3.org/2000/svg</code> who's previous sibling is
+    <code>x</code> in namespace <code>http://www.w3.org/1999/xhtml</code> and
+    who's parent is <code>x</code> also in namespace
+    <code>http://www.w3.org/1999/xhtml</code>.</p>
+  </div>
 
   <h2 id=staticnodelist><span class=secno>5. </span>The <code
    title="">StaticNodeList</code> Interface</h2>
 
   <pre
-   class=idl>typedef <dfn id=staticnodelist0>StaticNodeList</dfn> NodeList;</pre>
+   class=idl>typedef <dfn id=dom-staticnodelist>StaticNodeList</dfn> NodeList;</pre>
 
-  <p>The <code><a href="#staticnodelist0">StaticNodeList</a></code> <em
+  <p>The <code><a href="#dom-staticnodelist">StaticNodeList</a></code> <em
    class=ct>must</em> be implemented identically to the <code>NodeList</code>
    interface as defined in [<cite><a
    href="#ref-dom3core">DOM3Core</a></cite>] with the exception that the
@@ -498,6 +528,8 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    <li>Mohamed Zergaoui
 
    <li>Robin Berjon
+
+   <li>Tarquin Wilton-Jones
   </ul>
 
   <p>Thanks to all those who have helped to improve this specification by
