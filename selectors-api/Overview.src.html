@@ -141,7 +141,7 @@
   based on certain criteria. So instead of having to filter the result of a
   <code>getElementsByTagName()</code> call authors can directly "filter" in the
   query.</p>
-
+  
   <h3 id="examples">Examples</h3>
 
   <p><em>This section is non-normative.</em></p>
@@ -190,6 +190,19 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    an ID of <code>foo</code> or <code>bar</code> (or both).</p>
   </div>
 
+  <h3 id="terminology">Terminology and Conventions</h3>
+
+  <p>The terminology used in this specification is that from
+  [<cite><a href="#ref-selectors">Selectors</a></cite>].</p>
+  
+  <p>The algorithms described in this specification are there for clarity. User
+  agents are not required to follow them as long as the result is the same. In
+  doing so user agents <a href="#interoperability">may</a> assume that the
+  object implementing the <code>NSResolver</code> interface (or ECMAScript
+  <code>Function</code>) only relies on scoped variables, doesn't invoke
+  processes outside the object and returns consistent results when its
+  <code>lookupNamespaceURI</code> method is invoked.</p>
+
   <h3 id="conformance">Conformance Requirements</h3>
 
   <p>Everything in this specification is normative except for diagrams,
@@ -224,7 +237,7 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
    <dd>One that produces conforming documents.</dd>
   </dl>
-
+  
   <h3 id="extensibility">Extensibility</h3>
 
   <p><em>This section is non-normative.</em></p>
@@ -234,15 +247,7 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
   should discuss extensions on a relevant public forum, such as
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
 
-  <h3 id="notcovered">Not in this Specification</h3>
-
-  <p><em>This section is non-normative.</em></p>
-
-  <p>This specification does not cover scoped selectors. In a future version you
-  might be able to do <code>event.target.matchSingle("foo")</code> or
-  similar.</p>
-
-  <h2 id="security">Security Considerations</h2>
+  <h3 id="security">Security Considerations</h3>
 
   <p>It is expected that implementing this specification introduces no new risks
   for users.</p>
@@ -266,8 +271,31 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 
    <li>Changing the DOM during the operation.</li>
   </ul>
+  
+  <h3 id="interoperability">Interoperability Considerations</h3>
+  
+  <p>User agents are allowed to optimize the algorithms described within this
+  specification. This entails that some might use the object implementing the
+  <code>NSResolver</code> interface more than others. If the object (or
+  ECMAScript <code>Function</code>) causes side effects this might lead to some
+  small interoperability concerns. The same goes for not getting back identical
+  results when the method is invoked with the same prefix as argument. Authors
+  are strongly discouraged from creating content that does that.</p>
+  
+  <div class="example">
+   <pre>var <var>x</var> = document.matchAll("test|*:empty > test|p", resolver)
+function resolver(prefix) {
+  sideEffect()
+  if("test" == prefix)
+    return "http://example.org/test"
+}</pre>
+   <p>Some user agents may have decided not to <span>resolve namespace
+   prefixes</span> in order to determine <var>x</var>. This causes
+   <code>sideEffect()</code> not to be invoked.</p> 
+  </div>
 
-  <h2 id="documentselector">The <code title="">Selector</code> Interface</h2>
+  <h2 id="documentselector">The <code title="">matchSingle</code> and
+  <code title="">matchAll</code> methods</h2>
 
   <p>Objects implementing the <code>Document</code> interface defined in
   <cite>DOM Level 3 Core</cite> <em class="ct">must</em> also implement the
@@ -357,15 +385,13 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
   agents <em class="ct">must</em> pass the prefix lowercased (A-Z maps to a-z)
   to the <code>lookupNamespaceURI</code> method. User agents <em class="ct">must
   not</em> invoke the method more than once for each unique (after lowercasing)
-  prefix. To <dfn id="get-default-namespace">get the default namespace</dfn>
-  user agents <em class="ct">must</em> invoke the
+  prefix. The order in which prefixes are resolved is not defined by this
+  specification. To <dfn id="get-default-namespace">get the default
+  namespace</dfn> user agents <em class="ct">must</em> invoke the
   <code>lookupNamespaceURI()</code> method with the empty string. User agents
   <em class="ct">must</em> never invoke the method with <code>null</code> as
   argument.</p>
-  <!-- used to have a reference to
-  [<cite><a href="#ref-selectors">Selectors</a></cite>] here for whatever
-  reason... -->
-  
+
   <p>In ECMAScript (and languages that allow similar constructs) user agents
   <em class="ct">must</em> support <code>NSResolver</code> being implemented as
   a <code>Function</code> where the parameter of the function is identical to
@@ -376,18 +402,25 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
 function resolver(prefix) {
   i++
   var prefixes = {
-    1:  "http://www.w3.org/1999/xhtml",
-    2:  "http://www.w3.org/2000/svg"}
+    1:  "http://example.org/foo",
+    2:  "http://example.org/bar"}
   return prefixes[i];
 }
-var <var>x</var> = document.matchSingle("tESt|x > test|x + q|x")</pre>
+var <var>x</var> = document.matchSingle("tESt|x > test|x", resolver)
+var <var>y</var> = document.matchSingle("x|x" > "y|x", resolver)</pre>
 
-   <p>Variable <var>x</var> represents the first element in document order
-    with local name <code>x</code> and namespace
-    <code>http://www.w3.org/2000/svg</code> who's previous sibling is
-    <code>x</code> in namespace <code>http://www.w3.org/1999/xhtml</code> and
-    who's parent is <code>x</code> also in namespace
-    <code>http://www.w3.org/1999/xhtml</code>.</p>
+   <p>Variable <var>x</var> represents a <code>NodeList</code> containing all
+   <code>x</code> elements in the <code>http://example.org/foo</code> namespace
+   that are a child of an <code>x</code> element in the same namespace in
+   document order.</p>
+   <p>Variable <var>y</var> either represents all <code>x</code> elements in the
+   <code>http://example.org/foo</code> namespace that are child of an
+   <code>x</code> element in the <code>http://example.org/bar</code> namespace
+   in document order or represents all <code>x</code> elements in the
+   <code>http://example.org/bar</code> namespace that are child of an
+   <code>x</code> element in the <code>http://example.org/foo</code> namespace
+   in document order <a href="#interoperability">depending on the particular
+   implementation</a>.</p>
   </div>
 
   <h2 id="staticnodelist">The <code title="">StaticNodeList</code> Interface</h2>
