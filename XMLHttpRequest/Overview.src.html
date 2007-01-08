@@ -1,5 +1,4 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- XXX Mark up up all states. -->
 <html lang="en-US">
  <head>
   <title>The XMLHttpRequest Object</title>
@@ -100,7 +99,7 @@
    this list are available.</p>
 
   <!-- XXX dino shouldn't remove the following: -->
-  
+
   <p>Implementors should be aware that this specification is not stable.
    <strong>Implementors who are not taking part in the discussions are likely
    to find the specification changing out from under them in incompatible
@@ -226,8 +225,8 @@ client.send();</pre>
 
   <h3 id="conformance">Conformance</h3>
 
-  <p>Everying in this specification is normative except for diagrams, examples,
-  notes and sections marked non-normative.</p>
+  <p>Everything in this specification is normative except for diagrams,
+  examples, notes and sections marked non-normative.</p>
 
   <p>The key words <em class="ct">must</em>, <em class="ct">must not</em>,
   <em class="ct">required</em>, <em class="ct">shall</em>, <em class="ct">shall
@@ -243,13 +242,13 @@ client.send();</pre>
 
    <dd>A user agent that implements all interfaces described in this
    specification and follows all <em class="ct">must</em>-,
-   <em class="ct">required</em>- and <em class="ct">shall</em>-level of critera
+   <em class="ct">required</em>- and <em class="ct">shall</em>-level of criteria
    in this specification.</dd>
 
    <dt><dfn>conforming document</dfn></dt>
 
    <dd>A document that follows all <em class="ct">must</em>-,
-   <em class="ct">required</em>- and <em class="ct">shall</em>-level of critera
+   <em class="ct">required</em>- and <em class="ct">shall</em>-level of criteria
    in this specification that apply to document authors.</dd>
 
    <dt><dfn>conforming authoring tool</dfn></dt>
@@ -287,11 +286,6 @@ client.send();</pre>
 
   <h2 id="xmlhttprequest">The <code title="">XMLHttpRequest</code> Object</h2>
 
-  <p class="issue">What if the user cancels a request by leaving the page? How
-  does that work for multiple windows and what's the effect on the object? Need
-  to test. It has been tested what happens when an iframe is removed... Not sure
-  if anything should be said about this specifically...</p>
-
   <p>The <code>XMLHttpRequest</code> interface may be used to allow scripts to
   programmatically connect to their originating server via HTTP.</p>
 
@@ -316,19 +310,13 @@ client.send();</pre>
   <em class="ct">must</em> persist even if the browsing context in which the
   <code>Window</code> is located is destroyed (by removing it from a parent
   browsing context, for instance).</p>
-  <!-- XXX need to define the terms!!! -->
 
-  <!--
-  to
-  the <code>baseURI</code> attribute of the <code>Document</code> that's associate
-  value of the <code>baseURI</code> attribute of the <code>Document</code>
-  object that's associated with the <code>Window</code> object which initially
-  had <code title="">XMLHttpRequest</code> as an attribute of which the
-  constructor was invoked. When <code>baseURI</code> is <code>null</code> there
-  is no <span><code>XMLHttpRequest</code> base resource identifier
-  reference</span>.</p>
-  -->
-  
+  <p>The term browsing context is defined by the <cite>Window Object 1.0</cite>
+  specification [Window].</p>
+
+  <!-- XXX if the document object changes in the browsing context you get an
+  exception -->
+
   <h3 id="xmlhttprequest-members">Members of the <code>XMLHttpRequest</code>
   Object</h3>
 
@@ -410,11 +398,6 @@ client.send();</pre>
    <var>password</var>)</code></dfn>, method</dt>
 
    <dd>
-    <p class="issue">Need to make it more clear what <code>null</code> means for
-    <var>user</var> and <var>password</var>.</p>
-
-    <!-- XXX when password is null Internet Explorer doesn't send user ... -->
-
     <p>Invoking this method <em class="ct">must</em> initialize the object by
     remembering the <var>method</var>, <var>url</var>, <var>async</var>
     (defaulting to <code>true</code> if omitted), <var>user</var> (defaulting to
@@ -426,10 +409,10 @@ client.send();</pre>
     resetting the list of request headers.</p>
 
     <p>In addition, when the state is not
-    <span title="uninitialized state">uninitialized</span>, <em>all members</em>
-    of the object <em class="ct">must</em> be set to their initial values and
-    user agents <em class="ct">must</em> behave as if <code>abort()</code> was
-    invoked.</p>
+    <span title="uninitialized state">uninitialized</span>, all members of the
+    object with the exception of <code>onreadystate</code>
+    <em class="ct">must</em> be set to their initial values and user agents
+    <em class="ct">must</em> behave as if <code>abort()</code> was invoked.</p>
 
     <p>If the <var>method</var> argument doesn't match the <dfn>method
     production</dfn> defined in section 5.1.1 of
@@ -470,12 +453,6 @@ client.send();</pre>
     <p class="note">A future version or extension of this specification will
     define a way of doing cross-site requests.</p>
 
-    <p class="issue">Do we need to say anything special about same-document references?</p>
-    
-    <!--<p>If the <var>url</var> parameter doesn't match the syntax defined in
-     section 3.2.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] a
-     <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised.</p>-->
-
     <p>User agents <em class="ct">should not</em> support the "user:password"
     format in the <code>userinfo</code> production defined in section 3.2.1 of
     [<cite><a href="#ref-rfc3986">RFC3986</a></cite>] and
@@ -486,17 +463,27 @@ client.send();</pre>
     arguments are not omitted, they take precedence, even if they are
     <code>null</code>.</p>
 
+    <p class="issue">Need to make it more clear what <code>null</code> means for
+    <var>user</var> and <var>password</var>.</p>
+
+    <!-- XXX when password is null Internet Explorer doesn't send user ... -->
+    <!-- XXX what do UAs do with the user and password arguments? -->
+
     <p>If the <var>user</var> argument doesn't match the
     <code>username-value</code> production defined in section 3.2.2 of
     [<cite><a href="#ref-rfc2617">RFC2617</a></cite>] user agents
     <em class="ct">must</em> throw a <code>SYNTAX_ERR</code> exception.</p>
 
-    <p class="issue">Need to look at the <var>password</var> argument. What
-    syntax does it need to match. Can it be UTF-8 on transmission? When it's
-    omitted, do UAs still use the user argument? IE doesn't.</p>
-    
-    <!-- XXX: say something about it being undefined but that implementatoins may
-    throw a SYNTAX_ERR exception here, in case of characters not being supported -->
+    <p>It is undefined in this specification what production <var>password</var>
+    has to match. User agents <em class="ct">may</em> throw a
+    <code>SYNTAX_ERR</code> for a production they don't accept.</p>
+
+    <p class="note">[<cite><a href="#ref-rfc2617">RFC2617</a></cite>] doesn't
+    clearly define what the passwd production can or can't contain.</p>
+
+    <p>The empty string value for the <var>user</var> and <var>password</var>
+    arguments <em class="ct">must</em> be identical to the <code>null</code>
+    value.</p>
    </dd>
 
    <dt><dfn id="dfn-setrequestheader" title="setrequestheader"><code>setRequestHeader(<var>header</var>,
@@ -587,30 +574,39 @@ X-Test: one, two
 
     <p class="note">Even when <var>async</var> is set to <code>false</code> the
     <code>readystatechange</code> event will still be dispatched.</p>
-    
+
     <p class="note">The <span><code>send()</code> flag</span> is only relevant
     when the state is <span title="open state">open</span>.</p>
 
     <p>If <var>data</var> is passed to the <code>send()</code> method it
-    <em class="ct">must</em> be used for the entity body following these rules
-    (the term <dfn id="dfn-entity-body">entity body</dfn> is defined by section
-    7.2.1 of [<cite><a href="#RFC2616">RFC2616</a></cite>]):</p>
+    <em class="ct">must</em> be used for the <dfn id="dfn-entity-body">entity
+    body</dfn> as defined by section 7.2.1 of
+    [<cite><a href="#RFC2616">RFC2616</a></cite>]). The following rules
+    apply:</p>
 
-    <ul>
-     <li>If <var>data</var> is a <code>DOMString</code>, it
-     <em class="ct">must</em> be encoded as UTF-8 for transmission.</li>
+    <dl>
+     <dt><var>data</var> is a <code>DOMString</code></dt>
 
-     <li>If the <var>data</var> is a <code>Document</code>, it
-     <em class="ct">must</em> be serialized using the encoding given by
-     <code><var>data</var>.xmlEncoding</code>, if specified and supported, or
-     UTF-8 otherwise [<cite><a href="#DOM3">DOM3Core</a></cite>].</li>
+     <dd><var>data</var> <em class="ct">must</em> be encoded as UTF-8 for
+     transmission.</dd>
 
-     <li>If <var>data</var> is not a <code>DOMString</code> or a
-     <code>Document</code> the host language its stringification mechanisms
-     <em class="ct">must</em> be used on the argument that was passed and the
-     result <em class="ct">must</em> be treated as if <var>data</var> is a
-     <code>DOMString</code>.</li>
-    </ul>
+     <dt><var>data</var> is a <code>Document</code>
+
+     <dd><var>data</var> <em class="ct">must</em> be serialized into a namespace
+     well-formed XML document and encoded using the encoding given by
+     <code><var>data</var>.xmlEncoding</code> (the XML declaration), if
+     specified, or UTF-8 otherwise. The serialization <em class="ct">must</em>
+     include an XML declaration when the final encoding is not UTF-8 or
+     UTF-16.</dd>
+
+     <dt><var>data</var> is not a <code>DOMString</code> or
+     <code>Document</code></dt>
+
+     <dd>The stringification mechanisms of the host language
+     <em class="ct">must</em> be used on <var>data</var> and the result
+     <em class="ct">must</em> be treated as if <var>data</var> is a
+     <code>DOMString</code>.</dd>
+    </dl>
 
     <p>Invoking <code>send()</code> without the <var>data</var> argument
     <em class="ct">must</em> give the same result as if it was invoked with
@@ -641,16 +637,19 @@ X-Test: one, two
     <span title="receiving state">receiving</span>. When the request has
     completed loading, the state <em class="ct">must</em> be set to
     <span title="loaded state">loaded</span>.</p>
-    
+
     <p class="note">This means that in case of a <code>HEAD</code> request the
     state is set to <span title="loaded state">loaded</span> immediately after
     having being set to <span title="receiving state">receiving</span>.</p>
 
     <p>If something goes wrong (infinite loop, network errors) the state
     <em class="ct">must</em> be set to <span title="loaded state">loaded</span>
-    and all other members of the object <em class="ct">must</em> be set to their
-    initial value. Besides that, all registered event listeners
-    <em class="ct">must</em> be removed.</p>
+    and all members (excluding <code>readyState</code>) of the object
+    <em class="ct">must</em> be set to their initial value. In addition, if
+    <code>async</code> is set to <code>false</code>, an exception
+    <em class="ct">must</em> be raised. In addition, all registered event
+    listeners <em class="ct">must</em> be removed.</p>
+    <!-- XXX do we need to specify which exception? -->
 
     <p class="note">In future versions of this specification user agents will be
     required to dispatch an <code>error</code> event if the above occurs.</p>
@@ -711,7 +710,7 @@ X-Test: one, two
    <dd>
     <p>When invoked, this method <em class="ct">must</em> cancel any network
     activity for which the object is responsible and set all the members of the
-    object to their initial values.</p>
+    object to their initial values as well as removing all event listeners.</p>
 
     <p class="note">This means that the object <em>can</em> be used for another
     request in which case this method will work again to cancel it.</p>
@@ -847,7 +846,7 @@ Content-Type: text/plain; charset=utf-8</pre>
     <span title="loaded state">loaded</span>. When available, it
     <em class="ct">must</em> represent the HTTP status code (typically
     <code>200</code> for a successful connection).</p>
-    
+
     <p>Its initial value <em class="ct">must</em> be <code>0</code>.</p>
    </dd>
 
