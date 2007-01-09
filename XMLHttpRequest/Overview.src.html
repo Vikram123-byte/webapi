@@ -302,8 +302,8 @@ client.send();</pre>
   <!-- XXX if the document object changes in the browsing context you get an
   exception -->
 
-  <h3 id="xmlhttprequest-members">Members of the <code>XMLHttpRequest</code>
-  Object</h3>
+  <h3 id="xmlhttprequest-members">Members of the
+  <code title="">XMLHttpRequest</code> Object</h3>
 
   <pre class="idl">interface <dfn>XMLHttpRequest</dfn> {
            attribute EventListener   <span>onreadystatechange</span>;
@@ -621,11 +621,10 @@ X-Test: one, two
     <p>If something goes wrong (infinite loop, network errors) the state
     <em class="ct">must</em> be set to <span title="loaded state">loaded</span>
     and all members (excluding <code>readyState</code>) of the object
-    <em class="ct">must</em> be set to their initial value. In addition, if
-    <code>async</code> is set to <code>false</code>, an exception
-    <em class="ct">must</em> be raised. In addition, all registered event
-    listeners <em class="ct">must</em> be removed.</p>
-    <!-- XXX do we need to specify which exception? -->
+    <em class="ct">must</em> be set to their initial value. Also, if
+    <code>async</code> is set to <code>false</code>, a <code>NETWORK_ERR</code>
+    exception <em class="ct">must</em> be raised. In addition, all registered
+    event listeners <em class="ct">must</em> be removed.</p>
 
     <p class="note">In future versions of this specification user agents will be
     required to dispatch an <code>error</code> event if the above occurs.</p>
@@ -846,7 +845,8 @@ Content-Type: text/plain; charset=utf-8</pre>
   objects in succession <em class="ct">should</em> be pipelined into shared HTTP
   connections.</p>
 
-  <h3 id="events">Events for the <code>XMLHttpRequest</code> Object</h3>
+  <h3 id="events">Events for the <code title="">XMLHttpRequest</code>
+  Object</h3>
 
   <p>These sections describe the various events that can be dispatched on the
   object implementing the <code>XMLHttpRequest</code> interface. For this
@@ -862,6 +862,19 @@ Content-Type: text/plain; charset=utf-8</pre>
    [<cite><a href="#DOM3EV">DOM3Events</a></cite>]. The event has no namespace
    (<code>Event.namespaceURI</code> is <code>null</code>).</dd>
   </dl>
+  
+  <h3 id="exceptions">Exceptions for the <code title="">XMLHttpRequest</code>
+  Object</h3>
+
+  <pre>exception <dfn>XMLHttpRequestException</dfn> {
+  unsigned short     code;
+};
+const unsigned short <span>NETWORK_ERR</span> = 101;</pre>
+
+  <p>The <dfn id="network-err">NETWORK_ERR</dfn> exception is thrown when a
+  network error occurs in synchronous requests. See the section on
+  <code>send()</code> for more details.</p>
+  <!-- Other specifications should probably be able to reuse this... -->
 
   <h2 class="no-num" id="notcovered">Not in this Specification</h2>
 

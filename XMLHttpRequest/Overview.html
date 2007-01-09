@@ -28,13 +28,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editors' draft
-    <!--W3C Working Draft--> 8 January 2007</h2>
+    <!--W3C Working Draft--> 9 January 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070108">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070108/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070109">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070109/</a>
 
     <dt>Latest Version:
 
@@ -93,7 +93,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 8 January 2007 Working Draft of The <code
+  <p>This is the 9 January 2007 Working Draft of The <code
    title="">XMLHttpRequest</code> Object specifcation. This document is
    produced by the <a href="http://www.w3.org/2006/webapi/">Web API Working
    Group</a>, part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich
@@ -158,10 +158,13 @@
     title="">XMLHttpRequest</code> Object</a>
     <ul class=toc>
      <li><a href="#xmlhttprequest-members"><span class=secno>2.1.
-      </span>Members of the <code>XMLHttpRequest</code> Object</a>
+      </span>Members of the <code title="">XMLHttpRequest</code> Object</a>
 
-     <li><a href="#events"><span class=secno>2.2. </span>Events for the
-      <code>XMLHttpRequest</code> Object</a>
+     <li><a href="#events"><span class=secno>2.2. </span>Events for the <code
+      title="">XMLHttpRequest</code> Object</a>
+
+     <li><a href="#exceptions"><span class=secno>2.3. </span>Exceptions for
+      the <code title="">XMLHttpRequest</code> Object</a>
     </ul>
 
    <li class=no-num><a href="#notcovered">Not in this Specification</a>
@@ -354,7 +357,7 @@ client.send();</pre>
   exception -->
 
   <h3 id=xmlhttprequest-members><span class=secno>2.1. </span>Members of the
-   <code><a href="#xmlhttprequest0">XMLHttpRequest</a></code> Object</h3>
+   <code title="">XMLHttpRequest</code> Object</h3>
 
   <pre class=idl>interface <dfn id=xmlhttprequest0>XMLHttpRequest</dfn> {
            attribute EventListener   <a href="#dfn-onreadystatechange">onreadystatechange</a>;
@@ -687,11 +690,12 @@ X-Test: one, two
      class=ct>must</em> be set to <a href="#loaded" title="loaded
      state">loaded</a> and all members (excluding <code><a
      href="#dfn-readystate">readyState</a></code>) of the object <em
-     class=ct>must</em> be set to their initial value. In addition, if
-     <code>async</code> is set to <code>false</code>, an exception <em
+     class=ct>must</em> be set to their initial value. Also, if
+     <code>async</code> is set to <code>false</code>, a <code><a
+     href="#network-err">NETWORK_ERR</a></code> exception <em
      class=ct>must</em> be raised. In addition, all registered event
      listeners <em class=ct>must</em> be removed.</p>
-    <!-- XXX do we need to specify which exception? -->
+
     <p class=note>In future versions of this specification user agents will
      be required to dispatch an <code>error</code> event if the above occurs.</p>
 
@@ -914,8 +918,8 @@ Content-Type: text/plain; charset=utf-8</pre>
    href="#xmlhttprequest0">XMLHttpRequest</a></code> objects in succession
    <em class=ct>should</em> be pipelined into shared HTTP connections.
 
-  <h3 id=events><span class=secno>2.2. </span>Events for the <code><a
-   href="#xmlhttprequest0">XMLHttpRequest</a></code> Object</h3>
+  <h3 id=events><span class=secno>2.2. </span>Events for the <code
+   title="">XMLHttpRequest</code> Object</h3>
 
   <p>These sections describe the various events that can be dispatched on the
    object implementing the <code><a
@@ -933,6 +937,19 @@ Content-Type: text/plain; charset=utf-8</pre>
     [<cite><a href="#DOM3EV">DOM3Events</a></cite>]. The event has no
     namespace (<code>Event.namespaceURI</code> is <code>null</code>).
   </dl>
+
+  <h3 id=exceptions><span class=secno>2.3. </span>Exceptions for the <code
+   title="">XMLHttpRequest</code> Object</h3>
+
+  <pre>exception <dfn id=xmlhttprequestexception>XMLHttpRequestException</dfn> {
+  unsigned short     code;
+};
+const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
+
+  <p>The <dfn id=network-err>NETWORK_ERR</dfn> exception is thrown when a
+   network error occurs in synchronous requests. See the section on <code><a
+   href="#dfn-send">send()</a></code> for more details.</p>
+  <!-- Other specifications should probably be able to reuse this... -->
 
   <h2 class=no-num id=notcovered>Not in this Specification</h2>
 
