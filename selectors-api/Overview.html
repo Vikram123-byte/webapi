@@ -1,4 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!--
+ 22 Dec 2006:
+   <anne>  some use cases for matchesSelector()?
+   <Hixie> i'm afraid the guy who asked for it just went offline for 2 weeks
+   <Hixie> ask me again in jan?
+-->
 
 <html lang=en-US>
  <head>
@@ -30,13 +36,13 @@
    just silly so we got stuck with this weird name. -->
    
    <h2 class="no-num no-toc" id=W3C-doctype>Editor's Draft
-    <!--W3C Working Draft--> 23 November 2006</h2>
+    <!--W3C Working Draft--> 9 January 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2006/WD-selectors-api-20061123">http://www.w3.org/TR/2006/WD-selectors-api-20061123/</a>
+     href="http://www.w3.org/TR/2007/WD-selectors-api-20070109">http://www.w3.org/TR/2007/WD-selectors-api-20070109/</a>
 
     <dt>Latest Version:
 
@@ -79,7 +85,7 @@
 
   <h2 class="no-num no-toc" id=abstract>Abstract</h2>
 
-  <p>Selectors API defines two methods for retrieving <code>Element</code>
+  <p>Selectors API defines four methods for retrieving <code>Element</code>
    nodes in the <abbr title="Document Object Model">DOM</abbr> using a group
    of selectors as defined in [<cite><a
    href="#ref-selectors">Selectors</a></cite>].
@@ -138,31 +144,32 @@
     <ul class=toc>
      <li><a href="#examples"><span class=secno>1.1. </span>Examples</a>
 
-     <li><a href="#terminology"><span class=secno>1.2. </span>Terminology and
-      Conventions</a>
-
-     <li><a href="#conformance"><span class=secno>1.3. </span>Conformance
+     <li><a href="#conformance"><span class=secno>1.2. </span>Conformance
       Requirements</a>
+      <ul class=toc>
+       <li><a href="#terminology"><span class=secno>1.2.1. </span>Terminology
+        and Conventions</a>
 
-     <li><a href="#extensibility"><span class=secno>1.4.
-      </span>Extensibility</a>
+       <li><a href="#interoperability"><span class=secno>1.2.2.
+        </span>Interoperability Considerations</a>
 
-     <li><a href="#security"><span class=secno>1.5. </span>Security
+       <li><a href="#extensibility"><span class=secno>1.2.3.
+        </span>Extensibility</a>
+      </ul>
+
+     <li><a href="#security"><span class=secno>1.3. </span>Security
       Considerations</a>
-
-     <li><a href="#interoperability"><span class=secno>1.6.
-      </span>Interoperability Considerations</a>
     </ul>
 
    <li><a href="#documentselector"><span class=secno>2. </span>The <code
-    title="">matchSingle</code> and <code title="">matchAll</code>
-    methods</a>
+    title="">get()</code> and <code title="">getAll()</code> methods</a>
+    <ul class=toc>
+     <li><a href="#nsresolver-interface"><span class=secno>2.1. </span>The
+      <code title="">NSResolver</code> Interface</a>
 
-   <li><a href="#nsresolver-interface"><span class=secno>3. </span>The <code
-    title="">NSResolver</code> Interface</a>
-
-   <li><a href="#staticnodelist"><span class=secno>4. </span>The <code
-    title="">StaticNodeList</code> Interface</a>
+     <li><a href="#staticnodelist"><span class=secno>2.2. </span>The <code
+      title="">StaticNodeList</code> Interface</a>
+    </ul>
 
    <li class=no-num><a href="#references">References</a>
 
@@ -189,6 +196,7 @@
    "filter" in the query.
 
   <h3 id=examples><span class=secno>1.1. </span>Examples</h3>
+  <!-- XXX I should rewrite this section to include multiple markup snippets -->
 
   <p><em>This section is non-normative.</em>
 
@@ -201,30 +209,31 @@
     g: "http://www.w3.org/2000/svg"}
   return prefixes[str];
 }
-var <var>a</var> = document.matchAll("h|div &gt; g|svg", resolver);
-var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
+var <var>a</var> = document.get("h|div &gt; g|svg", resolver);
+var <var>b</var> = document.getAll("div.foo.bar");
+var <var>c</var> = b[0].get("#baz");</pre>
 
    <p><var>a</var> contains a <code><a
     href="#dom-staticnodelist">StaticNodeList</a></code> of all the nodes
     matched by <code>h|div &gt; g|svg</code> (namespace prefixes are resolved
     using the function in this case). <var>b</var> would contain the first
     <code>div</code> element which has the classes <code>foo</code> and
-    <code>bar</code> set.</p>
+    <code>bar</code> set. <var>c</var> contains the first descendent element
+    with an ID of <code>baz</code> of the first result of <var>b</var>.</p>
 
    <pre>function test(){
-  var c = document.matchAll(":root"),
+  var c = document.get(":root"),
       d = document.documentElement;
   return c[0] === d;
 }</pre>
 
-   <p><code>test()</code> would return <code>true</code> when both <code><a
-    href="#matchall">matchAll()</a></code> and <code>:root</code> are
-    supported. When using <code>:root</code> like this it's probably better
-    (and faster) to use <code><a href="#matchsingle">matchSingle()</a></code>
-    given that there's only one possible result. This is just to illustrate
-    how it works.</p>
+   <p><code>test()</code> would return <code>true</code> when both
+    <code>getAll()</code> and <code>:root</code> are supported. When using
+    <code>:root</code> like this it's probably better (and faster) to use
+    <code>get()</code> given that there's only one possible result. This is
+    just to illustrate how it works.</p>
 
-   <pre>var <var>e</var> = document.matchAll("p.warning, p.alert");</pre>
+   <pre>var <var>e</var> = document.get("p.warning, p.alert");</pre>
 
    <p>The above code snippet shows that besides using a single selector you
     can also pass a group of selectors (basically comma-separated selectors)
@@ -233,29 +242,13 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
     <code>p</code> elements in the document that have a <code>warning</code>
     or <code>alert</code> class.</p>
 
-   <pre>var <var>f</var> = document.matchSingle("#foo, #bar");</pre>
+   <pre>var <var>f</var> = document.getAll("#foo, #bar");</pre>
 
    <p><var>f</var> would contain the first element in the document either
     having an ID of <code>foo</code> or <code>bar</code> (or both).</p>
   </div>
 
-  <h3 id=terminology><span class=secno>1.2. </span>Terminology and
-   Conventions</h3>
-
-  <p>The terminology used in this specification is that from [<cite><a
-   href="#ref-selectors">Selectors</a></cite>].
-
-  <p>The algorithms described in this specification are there for clarity.
-   User agents are not required to follow them as long as the result is the
-   same. In doing so user agents <a href="#interoperability">may</a> assume
-   that the object implementing the <code><a
-   href="#nsresolver">NSResolver</a></code> interface (or ECMAScript
-   <code>Function</code>) only relies on scoped variables, doesn't invoke
-   processes outside the object and returns consistent results when its
-   <code><a href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method
-   is invoked.
-
-  <h3 id=conformance><span class=secno>1.3. </span>Conformance Requirements</h3>
+  <h3 id=conformance><span class=secno>1.2. </span>Conformance Requirements</h3>
 
   <p>Everything in this specification is normative except for diagrams,
    examples, notes and sections marked non-normative.
@@ -290,7 +283,35 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    <dd>One that produces conforming documents.
   </dl>
 
-  <h3 id=extensibility><span class=secno>1.4. </span>Extensibility</h3>
+  <h4 id=terminology><span class=secno>1.2.1. </span>Terminology and
+   Conventions</h4>
+
+  <p>The terminology used in this specification is that from [<cite><a
+   href="#ref-selectors">Selectors</a></cite>].
+
+  <p>The algorithms described in this specification are there for clarity.
+   User agents are not required to follow them as long as the result is the
+   same. In doing so user agents <a href="#interoperability">may</a> assume
+   that the object implementing the <code><a
+   href="#nsresolver">NSResolver</a></code> interface (or ECMAScript
+   <code>Function</code>) only relies on scoped variables, doesn't invoke
+   processes outside the object and returns consistent results when its
+   <code><a href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method
+   is invoked.
+
+  <h4 id=interoperability><span class=secno>1.2.2. </span>Interoperability
+   Considerations</h4>
+
+  <p>User agents are allowed to optimize the algorithms described within this
+   specification. This entails that some might use the object implementing
+   the <code><a href="#nsresolver">NSResolver</a></code> interface more than
+   others. If the object (or ECMAScript <code>Function</code>) causes side
+   effects this might lead to some small interoperability concerns. The same
+   goes for not getting back identical results when the method is invoked
+   with the same prefix as argument. Authors are strongly discouraged from
+   creating content that does that.
+
+  <h4 id=extensibility><span class=secno>1.2.3. </span>Extensibility</h4>
 
   <p><em>This section is non-normative.</em>
 
@@ -299,7 +320,7 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    should discuss extensions on a relevant public forum, such as <a
    href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.
 
-  <h3 id=security><span class=secno>1.5. </span>Security Considerations</h3>
+  <h3 id=security><span class=secno>1.3. </span>Security Considerations</h3>
 
   <p>It is expected that implementing this specification introduces no new
    risks for users.
@@ -325,20 +346,8 @@ var <var>b</var> = document.matchSingle("div.foo.bar");</pre>
    <li>Changing the DOM during the operation.
   </ul>
 
-  <h3 id=interoperability><span class=secno>1.6. </span>Interoperability
-   Considerations</h3>
-
-  <p>User agents are allowed to optimize the algorithms described within this
-   specification. This entails that some might use the object implementing
-   the <code><a href="#nsresolver">NSResolver</a></code> interface more than
-   others. If the object (or ECMAScript <code>Function</code>) causes side
-   effects this might lead to some small interoperability concerns. The same
-   goes for not getting back identical results when the method is invoked
-   with the same prefix as argument. Authors are strongly discouraged from
-   creating content that does that.
-
   <div class=example>
-   <pre>var <var>x</var> = document.matchAll("test|*:empty > test|p", resolver)
+   <pre>var <var>x</var> = document.get("test|*:empty > test|p", resolver)
 function resolver(prefix) {
   sideEffect()
   if("test" == prefix)
@@ -352,32 +361,40 @@ function resolver(prefix) {
   </div>
 
   <h2 id=documentselector><span class=secno>2. </span>The <code
-   title="">matchSingle</code> and <code title="">matchAll</code> methods</h2>
+   title="">get()</code> and <code title="">getAll()</code> methods</h2>
 
-  <p>Objects implementing the <code>Document</code> interface defined in
-   <cite>DOM Level 3 Core</cite> <em class=ct>must</em> also implement the
-   <code><a href="#dom-selector">Selector</a></code> interface [<cite><a
-   href="#ref-dom3core">DOM3Core</a></cite>].
+  <p>Objects implementing the <code>Document</code> interface <em
+   class=ct>must</em> also implement the <code><a
+   href="#dom-document-selector">DocumentSelector</a></code> interface.
+   Likewise objects implementing the <code>Element</code> interface <em
+   class=ct>must</em> also implement the <code><a
+   href="#dom-element-selector">ElementSelector</a></code> interface.
+   [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
 
-  <pre class=idl>interface <dfn id=dom-selector>Selector</dfn> {
-  Node            <a href="#matchsingle">matchSingle</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
-  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#matchall">matchAll</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
-};</pre>
+  <pre
+   class=idl>interface <dfn id=dom-document-selector>DocumentSelector</dfn> {
+  Node            <a href="#document-get" title=document-get>get</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#document-getall" title=document-getall>getAll</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+};
 
-  <p class=note>The interface is named <code><a
-   href="#dom-selector">Selector</a></code> because it might be implemented
-   by <code>Element</code> nodes in the future.
+interface <dfn id=dom-element-selector>ElementSelector</dfn> {
+  Node            <a href="#element-get" title=element-get>get</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#element-getall" title=element-getall>getAll</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+}
 
-  <p>The <dfn id=matchsingle
-   title=matchsingle><code>matchSingle(<var>selectors</var>, <var
+</pre>
+
+  <p>The <dfn id=document-get
+   title=document-get><code>get(<var>selectors</var>, <var
    title="">nsresolver</var>)</code></dfn> method, when invoked, <em
    class=ct>must</em> return the first <code>Element</code> node in document
    order (using depth-first pre-order traversal) that matches the group of
    selectors (<var>selectors</var>), if any. Otherwise it <em
    class=ct>must</em> return <code>null</code>.
 
-  <p>The <dfn id=matchall title=matchall><code>matchAll(<var>selectors</var>,
-   <var title="">nsresolver</var>)</code></dfn> method, when invoked, <em
+  <p>The <dfn id=document-getall
+   title=document-getall><code>getAll(<var>selectors</var>, <var
+   title="">nsresolver</var>)</code></dfn> method, when invoked, <em
    class=ct>must</em> return a <code><a
    href="#dom-staticnodelist">StaticNodeList</a></code> of all the
    <code>Element</code>s that match the group of selectors
@@ -385,17 +402,18 @@ function resolver(prefix) {
    class=ct>must</em> return an empty <code><a
    href="#dom-staticnodelist">StaticNodeList</a></code>.
 
-  <p>Both <code><a href="#matchsingle">matchSingle()</a></code> and <code><a
-   href="#matchall">matchAll()</a></code> take a group of selectors
-   (<var>selectors</var>) as defined in [<cite><a
-   href="#ref-selectors">Selectors</a></cite>] as first argument and an
-   <code><a href="#nsresolver">NSResolver</a></code> (<var
-   title="">nsresolver</var>) as second. User agents <em class=ct>must</em>
-   use the <var title="">nsresolver</var> argument to <a
+  <p>Both <code title=document-get><a href="#document-get">get()</a></code>
+   and <code title=document-getall><a
+   href="#document-getall">getAll()</a></code> take a group of selectors
+   (<var>selectors</var>) as first argument and an <code><a
+   href="#nsresolver">NSResolver</a></code> (<var title="">nsresolver</var>)
+   as second. User agents <em class=ct>must</em> use the <var
+   title="">nsresolver</var> argument to <a
    href="#resolve-namespace-prefix">resolve namespace prefixes</a> to
    namespaces or to <a href="#get-default-namespace">get the default
    namespace</a>. When the <var title="">nsresolver</var> argument is
-   <code>null</code> user agents <em class=ct>must</em> ignore it.
+   <code>null</code> user agents <em class=ct>must</em> ignore it. [<cite><a
+   href="#ref-selectors">Selectors</a></cite>]
 
   <p>When authors use namespace prefixes within <var>selectors</var> or want
    to set a default namespace they <em class=ct>must</em> create an object
@@ -417,17 +435,38 @@ function resolver(prefix) {
 
   <p>In languages that support optional arguments for methods, like
    ECMAScript, omitting the <var title="">nsresolver</var> argument in either
-   the <code><a href="#matchsingle">matchSingle()</a></code> or <code><a
-   href="#matchall">matchAll()</a></code> method <em class=ct>must</em>
-   return the same result as if the method was invoked with the <var
-   title="">nsresolver</var> argument being <code>null</code>.
+   the <code title=document-get><a href="#document-get">get()</a></code> or
+   <code title=document-getall><a href="#document-getall">getAll()</a></code>
+   method <em class=ct>must</em> return the same result as if the method was
+   invoked with the <var title="">nsresolver</var> argument being
+   <code>null</code>.
 
   <p class=note>Using pseudo-elements in one of the selectors could mean that
    nothing is returned for that particular selector when it doesn't resolve
    in one or more <code>Element</code> nodes.
 
-  <h2 id=nsresolver-interface><span class=secno>3. </span>The <code
-   title="">NSResolver</code> Interface</h2>
+  <p>The <dfn id=element-get title=element-get>get()</dfn> method on the
+   <code><a href="#dom-element-selector">ElementSelector</a></code> interface
+   <em class=ct>must</em> return the first element descendent of the element
+   that <code><a href="#dom-document-selector">DocumentSelector</a></code>
+   <code title=document-getall><a href="#document-getall">getAll()</a></code>
+   would return of the object implementing <code><a
+   href="#dom-element-selector">ElementSelector</a></code> on which the
+   method was invoked. Otherwise, if there is no such element this method <em
+   class=ct>must</em> return <code>null</code>.
+
+  <p>The <dfn id=element-getall title=element-getall>getAll()</dfn> method on
+   the <code><a href="#dom-element-selector">ElementSelector</a></code>
+   interface <em class=ct>must</em> return the element nodes that <code><a
+   href="#dom-document-selector">DocumentSelector</a></code> <code
+   title=document-getall><a href="#document-getall">getAll()</a></code> would
+   return, excluding any elements that are not descendents of the object
+   implementing <code><a
+   href="#dom-element-selector">ElementSelector</a></code> on which the
+   method was invoked.
+
+  <h3 id=nsresolver-interface><span class=secno>2.1. </span>The <code
+   title="">NSResolver</code> Interface</h3>
 
   <p>The <code><a href="#nsresolver">NSResolver</a></code> interface allows
    prefixes to be bound to a namespace URI. The interface is to be
@@ -475,8 +514,8 @@ function resolver(prefix) {
     2:  "http://example.org/bar"}
   return prefixes[i];
 }
-var <var>x</var> = document.matchSingle("tESt|x > test|x", resolver)
-var <var>y</var> = document.matchSingle("x|x" > "y|x", resolver)</pre>
+var <var>x</var> = document.getAll("tESt|x > test|x", resolver)
+var <var>y</var> = document.getAll("x|x" > "y|x", resolver)</pre>
 
    <p>Variable <var>x</var> represents a <code>NodeList</code> containing all
     <code>x</code> elements in the <code>http://example.org/foo</code>
@@ -493,8 +532,8 @@ var <var>y</var> = document.matchSingle("x|x" > "y|x", resolver)</pre>
     particular implementation</a>.</p>
   </div>
 
-  <h2 id=staticnodelist><span class=secno>4. </span>The <code
-   title="">StaticNodeList</code> Interface</h2>
+  <h3 id=staticnodelist><span class=secno>2.2. </span>The <code
+   title="">StaticNodeList</code> Interface</h3>
 
   <pre
    class=idl>typedef <dfn id=dom-staticnodelist>StaticNodeList</dfn> NodeList;</pre>
