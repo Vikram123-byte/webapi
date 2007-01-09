@@ -88,17 +88,17 @@
   at http://www.w3.org/TR/.</em></p>
 
   <p>This document is produced by the
-  <a href="http://www.w3.org/2006/webapi/">Web APIs WG</a>, part of the
+  <a href="http://www.w3.org/2006/webapi/">Web API WG</a>, part of the
   <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
   Domain</a>.</p>
 
   <p>Web content and browser developers are encouraged to review this draft.
   Please send comments to
-  <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the W3C's
-  public email list for issues related to this specification.
+  <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> with
+  <samp>[selectors-api]</samp> at the start of the subject line.
   <a href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of
-  the list are available. The editor's copy of this specification is
+  this list are available. The editor's copy of this specification is
   <a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/selectors-api/Overview.html?content-type=text/html;%20charset=utf-8">available
   in W3C CVS</a>. A detailed list of changes is also available
   <a href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/">from the CVS
@@ -135,13 +135,13 @@
   <p><em>This section is non-normative.</em></p>
 
   <p>It is often desirable to perform script and or DOM operations on a specific
-  set of elements in a document. Selectors
-  [<cite><a href="#ref-selectors">Selectors</a></cite>], mostly used in
-  <abbr title="Cascading Style Sheets">CSS</abbr>
-  [<cite><a href="#ref-css21">CSS21</a></cite>] context, provides a way of
+  set of elements in a document. Selectors, mostly used in
+  <abbr title="Cascading Style Sheets">CSS</abbr> context, provides a way of
   matching such a set of elements. This specification introduces two methods
   which take a group of selectors (often simply referred to as selector) as
-  argument and return the matched elements as result.</p>
+  argument and return the matched elements as result.
+  [<cite><a href="#ref-selectors">Selectors</a></cite>]
+  [<cite><a href="#ref-css21">CSS21</a></cite>]</p>
 
   <p>With these methods it's easier to match a set of <code>Element</code> nodes
   based on certain criteria. So instead of having to filter the result of a
@@ -156,46 +156,67 @@
   <p>Some [<cite><a href="#ref-ecma262">ECMAScript</a></cite>] examples:</p>
 
   <div class="example">
+   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  &lt;head> … &lt;/head>
+  &lt;body>
+    &lt;p>
+      I like graphics:
+      &lt;svg xmlns="http://www.w3.org/2000/svg" …> … &lt;/svg>
+      &lt;svg xmlns="http://www.w3.org/2000/svg" …> … &lt;/svg>
+    &lt/p>
+    &lt;p id="x" xmlns:svg="http://www.w3.org/2000/svg">
+      They are great:
+      &lt;svg:svg …> … &lt;/svg:svg>
+    &lt/p>
+  &lt;/body>
+&lt;/html></pre>
+
+   <p>If you apply the following script to the above XML document …
+
    <pre>function resolver(str) {
   var prefixes = {
     h:  "http://www.w3.org/1999/xhtml",
     g: "http://www.w3.org/2000/svg"}
   return prefixes[str];
 }
-var <var>a</var> = document.get("h|div &gt; g|svg", resolver);
-var <var>b</var> = document.getAll("div.foo.bar");
-var <var>c</var> = b[0].get("#baz");</pre>
+var <var>a</var> = document.get("#x");
+var <var>b</var> = document.getAll("h|p &gt; g|svg", resolver);
+var <var>c</var> = a.get("svg, span");</pre>
 
-   <p><var>a</var> contains a <code>StaticNodeList</code> of all the nodes
-   matched by <code>h|div &gt; g|svg</code> (namespace prefixes are resolved
-   using the function in this case). <var>b</var> would contain the first
-   <code>div</code> element which has the classes <code>foo</code> and
-   <code>bar</code> set. <var>c</var> contains the first descendent element with
-   an ID of <code>baz</code> of the first result of <var>b</var>.</p>
+   <p>… <var>a</var> will be the first element in the document with an ID of
+   <code>x</code>. <var>b</var> will be a <code>StaticNodeList</code> containing
+   all the nodes <code>svg</code> elements in the
+   <code>http://www.w3.org/2000/svg</code> namespace whose parent is the
+   <code>p</code> element in the <code>http://www.w3.org/2000/svg</code>
+   namespace. <var>c</var> will be a <code>svg</code> or <code>span</code>
+   element (whichever comes first) which is a descendent of the first element in
+   the document with an ID of <code>x</code>. So in this case it will be the
+   <code>svg</code> element.</p>
 
    <pre>function test(){
-  var c = document.get(":root"),
-      d = document.documentElement;
-  return c[0] === d;
+  var d = document.getAll(":root"),
+      e = document.documentElement;
+  return d[0] === e;
 }</pre>
 
    <p><code>test()</code> would return <code>true</code> when both
-   <code>getAll()</code> and <code>:root</code> are supported. When using
-   <code>:root</code> like this it's probably better (and faster) to use
-   <code>get()</code> given that there's only one possible result. This
-   is just to illustrate how it works.</p>
+   <code>getAll()</code> and <code>:root</code> are supported. Note that this
+   example is just to illustrate how it would work. In the real world you would
+   use <code>get()</code> for things that can only yield a single result and for
+   selecting the root element you would simply use
+   <code>document.documentElement</code>.</p>
 
-   <pre>var <var>e</var> = document.get("p.warning, p.alert");</pre>
+   <pre>var <var>f</var> = document.get("p.warning, p.alert");</pre>
 
    <p>The above code snippet shows that besides using a single selector you can
    also pass a group of selectors (basically comma-separated selectors) as
-   argument. <var>e</var> would contain a <code>StaticNodeList</code> with all
+   argument. <var>f</var> would contain a <code>StaticNodeList</code> with all
    <code>p</code> elements in the document that have a <code>warning</code> or
    <code>alert</code> class.</p>
 
-   <pre>var <var>f</var> = document.getAll("#foo, #bar");</pre>
+   <pre>var <var>g</var> = document.get("#foo, #bar");</pre>
 
-   <p><var>f</var> would contain the first element in the document either having
+   <p><var>g</var> would contain the first element in the document either having
    an ID of <code>foo</code> or <code>bar</code> (or both).</p>
   </div>
 
