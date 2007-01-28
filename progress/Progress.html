@@ -13,6 +13,7 @@
 ]]>
 
 
+
   </style>
   <link rel="stylesheet" type="text/css" media="screen"
   href="http://www.w3.org/Stylesheets/TR/Base.css" />
@@ -30,7 +31,7 @@ alt="W3C" height="48" width="72" /> </a>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.3">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.3</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dd>
   <dt>Latest Editor's draft:</dt>
     <dd><a
       href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
@@ -59,9 +60,10 @@ use</a> rules apply.</p>
 <div>
 <h2 class="notoc"><a id="abstract" name="abstract">Abstract</a></h2>
 
-<p>This document describes an event that can be used for monitoring the
+<p>This document describes event types that can be used for monitoring the
 progress of an operation. It is primarily intended for network operations
-such as XMLHTTPRequest, but should be usable in other relevant contexts.</p>
+such as XMLHTTPRequest [<a href="#XHR">XHR</a>], but should be usable in
+other relevant contexts.</p>
 </div>
 <hr />
 
@@ -75,11 +77,12 @@ found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
 at http://www.w3.org/TR/.</em></p>
 
 <p>This document is an editor's draft specification of the ProgressEvent
-event from the <a href="http://www.w3.org/2006/webapi/">Web API group</a>,
+events from the <a href="http://www.w3.org/2006/webapi/">Web API group</a>,
 part of the Rich Web Client Activity. It defines events which can be used to
 monitor a process and provide feedback to a user, particularly for
-network-based events. This editor's draft does not imply consensus of or
-endorsement by any member of the working group.</p>
+network-based events. This editor's draft does not imply any consensus of or
+endorsement by any member of the working group, and may contain minor or
+major errors.</p>
 
 <p>This document is published following the working group's face to face
 meeting of January 2007, to solicit comments from interested parties. All
@@ -111,20 +114,6 @@ document as other than work in progress.</p>
 
 <h2>Contents</h2>
 
-<div class="toc">
-<ul>
-  <li><a href="#Conformanc">Conformance</a></li>
-  <li><a href="#Progress">The ProgressEvent event</a></li>
-  <li><a href="#References">References</a> 
-    <ul>
-      <li><a href="#Normative">Normative references</a></li>
-      <li><a href="#Informativ">Informative references</a></li>
-    </ul>
-  </li>
-  <li><a href="#Acknowledg">Acknowledgements</a></li>
-</ul>
-</div>
-
 <h2 id="Conformanc">Conformance</h2>
 
 <p>The terms <strong>must</strong>, <strong>should</strong>,
@@ -136,38 +125,45 @@ specification meets all requirements identified by the use of these terms.</p>
 <h2 id="Progress">The <code>ProgressEvent</code> events</h2>
 </div>
 
-<p>A <code>ProgressEvent</code> occurs when the user agent makes progress in
-some network operation, such as loading a resource from the web via
-XMLHTTPRequest [<a href="#XHR">XHR</a>].</p>
+<p>A progress event occurs when the user agent makes progress in some network
+operation, such as loading a resource from the web via XMLHTTPRequest [<a
+href="#XHR">XHR</a>].</p>
 
-<p>The user agent <span class="term">may</span> dispatch a
-<code>ProgressEvent</code> event between the 'preload' event and the
-'postload' events. If the user agent is downloading content, the event
+<p>The user agent <span class="term">may</span> dispatch a progress event
+while an asynchronous network opertation such as a <code>load</code> event is
+taking place. If the user agent is downloading content, the event
 <em>must</em> be of type '<code>progress</code>', and if it is uploading
-content the event <em>must</em> be of type '<code>loadprogress</code>'. These
-events <em>should not</em> bubble, and can be canceled.</p>
+content the event <em>must</em> be of type '<code>uploadprogress</code>'.
+These events <em>should not</em> bubble, and can be canceled.</p>
 
-<p>The ProgressEvent has two corresponding event attributes on elements:
-<code>onprogress</code> and <code>onloadprogress</code>.</p>
+<p>These events are in the null namespace. Initialisation methods are
+provided in both namespace and un-namespaced versions for use as appropriate.
+This specification does not recommend one over the other.</p>
 
 <p>Below is an example of the Progress Event being used to update a progress
 bar in an SVG document:</p>
 <pre class="example"><code>&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"
      xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
    
-   &lt;script type="text/ecmascript"&gt;&lt;![CDATA[
+   &lt;script type="application/ecmascript"&gt;&lt;![CDATA[
    var svgNS = "http://www.w3.org/2000/svg"
    var xlinkNS = "http://www.w3.org/1999/xlink"
 
    function showImage(imageHref) {
        var image = document.getElementById('myImage');
        image.setAttributeNS(xlinkNS, "href", imageHref);
+       image.addEventListener("progress",imageLoadProgress,false);
+       //could also have added a load listener here I suppose, for purity and theoretical beauty
    }           
 
    function imageLoadProgress(evt) {  
-       var progressBar = document.getElementById('progressBar');
-       progressBar.setAttributeNS(svgNS, "width", 100*evt.loaded/evt.total);
-   }
+       if !(evt.total == 0) { // we know the size and don't divide by zero
+          var progressBar = document.getElementById('progressBar');
+          progressBar.setAttributeNS(svgNS, "width", 100*evt.loaded/evt.total);
+       } else { // evt.total zero means we don't know the size
+          doSomeTextThing(); //to be written...
+       }   
+}
                
    function imageLoadComplete(evt) {
        var progressBar = document.getElementById('progressBar');  
@@ -179,7 +175,6 @@ bar in an SVG document:</p>
    ]]&gt;&lt;/script&gt;
 
    &lt;image id="myImage" xlink:href="imageA.png" width="300" height="400"
-          onprogress="imageLoadProgress(evt)"
           onload="imageLoadComplete(evt)"/&gt;
 
    &lt;rect onclick="showImage('imageB.png')" width="120" 
@@ -199,13 +194,13 @@ bar in an SVG document:</p>
      readonly attribute unsigned long   loaded;
      readonly attribute unsigned long   total;
      void               initProgressEvent(in DOMString typeArg,
-                                          in unsigned long loaded,
-                                          in unsigned long total
+                                          in unsigned long loadedArg,
+                                          in unsigned long totalArg,
                                           in boolean       cancelableArg);
      void               initProgressEventNS(in DOMString namespaceURI,
                                             in DOMString typeArg,
-                                            in unsigned long loaded,
-                                            in unsigned long total
+                                            in unsigned long loadedArg,
+                                            in unsigned long totalArg,
                                             in boolean       cancelableArg);
 };</pre>
       </div>
@@ -217,24 +212,31 @@ bar in an SVG document:</p>
         class="dom-attr-type">unsigned long</span> <span
         class="dom-attr-name">loaded</span></dt>
           <dd>Specifies the number of bytes downloaded since the beginning of
-            the download.</dd>
+            the download. This refers to the content, excluding headers and
+            overhead from the transaction <span class="issue">@@issue: do we
+            need to include the headers or other overhead content?</span>,
+            and where there is a content-encoding or transfer encoding refers
+            to the number of bytes transferred, i.e. with the relevant
+            encodings applied <span class="issue">@@issue: should it be while
+            encodings are still applied?</span>.</dd>
       </dl>
     </dd>
     <dd><dl>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long</span> <span
         class="dom-attr-name">total</span></dt>
-          <dd>Specifies the expected total number of bytes expected in a load
-            operation. Where the size of the transfer is for some reason
-            unknown, the value of this attribute <em>must</em> be zero.</dd>
+          <dd>Specifies the expected total number of bytes of the content
+            transferred in the operation. Where the size of the transfer is
+            for some reason unknown, the value of this attribute
+            <em>must</em> be zero.</dd>
       </dl>
     </dd>
   <dt><b>Methods</b></dt>
     <dd><dl>
         <dt><span class="dom-method-name">initProgressEvent</span></dt>
           <dd>The initProgressEvent method is used to initialize the value of
-            a ProgressEvent created through the DocumentEvent interface. This
-            method may only be called before the ProgressEvent has been
+            a progress event created through the DocumentEvent interface.
+            This method may only be called before the progress event has been
             dispatched via the dispatchEvent method, though it may be called
             multiple times during that phase if necessary. If called multiple
             times, the final invocation takes precedence. 
@@ -253,7 +255,8 @@ bar in an SVG document:</p>
                       <tr>
                         <td valign="top">in <span
                           class="dom-parameter-type">unsigned long</span>
-                          <span class="dom-parameter-name">loaded</span></td>
+                          <span
+                        class="dom-parameter-name">loadedArg</span></td>
                         <td></td>
                         <td>Specifies the number of bytes that have been
                           retrieved. This is a positive value.</td>
@@ -261,7 +264,8 @@ bar in an SVG document:</p>
                       <tr>
                         <td valign="top">in <span
                           class="dom-parameter-type">unsigned long</span>
-                          <span class="dom-parameter-name">total</span></td>
+                          <span
+                        class="dom-parameter-name">totalArg</span></td>
                         <td></td>
                         <td>Specifies the expected total number of bytes in
                           this load operation.</td>
@@ -288,12 +292,11 @@ bar in an SVG document:</p>
       <dl>
         <dt><span class="dom-method-name">initProgressEventNS</span></dt>
           <dd>The initProgressEvent method is used to initialize the value of
-            a namespaced ProgressEvent created through the DocumentEvent
-            interface. This method may only be called before the
-            ProgressEvent has been dispatched via the dispatchEvent method,
-            though it may be called multiple times during that phase if
-            necessary. If called multiple times, the final invocation takes
-            precedence. 
+            a namespaced progress event created through the DocumentEvent
+            interface. This method may only be called before the progress
+            event has been dispatched via the dispatchEvent method, though it
+            may be called multiple times during that phase if necessary. If
+            called multiple times, the final invocation takes precedence. 
             <dl>
               <dt><span class="dom-parameters">Parameters</span></dt>
                 <dd>
@@ -302,7 +305,7 @@ bar in an SVG document:</p>
                       <tr>
                         <td valign="top">in <span
                           class="dom-parameter-type">DOMString</span> <span
-                          class="dom-parameter-name">namnespaceURI</span></td>
+                          class="dom-parameter-name">namespaceURI</span></td>
                         <td></td>
                         <td>Specifies the URI for the namespace of the
                         event.</td>
@@ -317,7 +320,8 @@ bar in an SVG document:</p>
                       <tr>
                         <td valign="top">in <span
                           class="dom-parameter-type">unsigned long</span>
-                          <span class="dom-parameter-name">loaded</span></td>
+                          <span
+                        class="dom-parameter-name">loadedArg</span></td>
                         <td></td>
                         <td>Specifies the number of bytes that have been
                           retrieved. This is a positive value.</td>
@@ -325,7 +329,8 @@ bar in an SVG document:</p>
                       <tr>
                         <td valign="top">in <span
                           class="dom-parameter-type">unsigned long</span>
-                          <span class="dom-parameter-name">total</span></td>
+                          <span
+                        class="dom-parameter-name">totalArg</span></td>
                         <td></td>
                         <td>Specifies the expected total number of bytes in
                           this load operation.</td>
@@ -351,6 +356,35 @@ bar in an SVG document:</p>
       </dl>
     </dd>
 </dl>
+
+<h2>Change History</h2>
+<dl>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dt>
+    <dd><ul>
+        <li>Specified what is and isn't counted in <code>total</code> and
+          <code>loaded</code></li>
+        <li>Specified that the events are in the null namespace</li>
+      </ul>
+    </dd>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.3">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.3</a></dt>
+    <dd><ul>
+        <li>Specified that events don't bubble, and can be canceled</li>
+        <li>Removed the <code>preload</code> and <code>postload</code> event
+          types, added <code>uploadprogress</code></li>
+        <li>Removed the <code>lengthComputable</code> attribute</li>
+        <li>Specified value of <code>total</code> as zero if it is
+        unknown</li>
+      </ul>
+    </dd>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.2">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.2</a></dt>
+    <dd>First real version</dd>
+</dl>
+
+<p>Various editorial changes and corrections and modifications to the
+examples are made from draft to draft.</p>
 
 <h2 id="References">References</h2>
 
