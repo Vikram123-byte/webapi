@@ -31,10 +31,13 @@ alt="W3C" height="48" width="72" /> </a>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.5">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.5</a></dd>
   <dt>Latest Editor's draft:</dt>
     <dd><a
       href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
+  <dt>Previous Editor's draft:</dt>
+    <dd><a
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -114,6 +117,21 @@ document as other than work in progress.</p>
 
 <h2>Contents</h2>
 
+<div class="toc">
+<ul>
+  <li><a href="#Conformanc">Conformance</a></li>
+  <li><a href="#Progress">The <code>ProgressEvent</code> events</a></li>
+  <li><a href="#Change">Change History</a></li>
+  <li><a href="#References">References</a>
+    <ul>
+      <li><a href="#Normative">Normative references</a></li>
+      <li><a href="#Informativ">Informative references</a></li>
+    </ul>
+  </li>
+  <li><a href="#Acknowledg">Acknowledgements</a></li>
+</ul>
+</div>
+
 <h2 id="Conformanc">Conformance</h2>
 
 <p>The terms <strong>must</strong>, <strong>should</strong>,
@@ -140,34 +158,36 @@ These events <em>should not</em> bubble, and can be canceled.</p>
 provided in both namespace and un-namespaced versions for use as appropriate.
 This specification does not recommend one over the other.</p>
 
-<p>Below is an example of the Progress Event being used to update a progress
-bar in an SVG document:</p>
+<p>Below is an example of a <code>progress</code> event being used to update
+a progress bar in an SVG document. Where the size of a download is unknown
+there is simply an animation (@@should reflect the actual speed, and be less
+lame overall. To do...)</p>
 <pre class="example"><code>&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"
      xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
    
    &lt;script type="application/ecmascript"&gt;&lt;![CDATA[
-   var svgNS = "http://www.w3.org/2000/svg"
    var xlinkNS = "http://www.w3.org/1999/xlink"
 
    function showImage(imageHref) {
        var image = document.getElementById('myImage');
        image.setAttributeNS(xlinkNS, "href", imageHref);
        image.addEventListener("progress",imageLoadProgress,false);
-       //could also have added a load listener here I suppose, for purity and theoretical beauty
+       //could also use a load listener for purity and theoretical beauty
    }           
 
    function imageLoadProgress(evt) {  
        if !(evt.total == 0) { // we know the size and don't divide by zero
           var progressBar = document.getElementById('progressBar');
-          progressBar.setAttributeNS(svgNS, "width", 100*evt.loaded/evt.total);
+          progressBar.setAttribute("width", 100*evt.loaded/evt.total);
        } else { // evt.total zero means we don't know the size
-          doSomeTextThing(); //to be written...
+          var progressBar = document.getElementById('progressBar');
+          progressBar.setAttribute("width", 20);
        }   
-}
+   }
                
    function imageLoadComplete(evt) {
        var progressBar = document.getElementById('progressBar');  
-       progressBar.setAttributeNS(svgNS, "width", 100);
+       progressBar.setAttribute("width", 100);
         var loadAnimation = document.getElementById('loadAnimation');
        loadAnimation.endElement();
                
@@ -180,9 +200,13 @@ bar in an SVG document:</p>
    &lt;rect onclick="showImage('imageB.png')" width="120" 
          height="30" y="400" id="button" /&gt;
 
-   &lt;animate id="loadAnimation" begin="button.click" /&gt;
+   &lt;animate id="loadAnimation" attributeName="x"
+     xlink:href="#progressBar" values="1,81,1"&gt;
 
-   &lt;rect id="progressBar" ... /&gt;
+   &lt;g id="meter" opacity="0"&gt;
+     &lt;rect width="102" fill="none" height="5" x=".5" y=".5" stroke-width="1"/&gt;
+     &lt;rect id="progressBar" color="#444" height="3" x="1" y="1"/&gt;
+  &lt;/g&gt;
 &lt;/svg&gt;</code></pre>
 
 <p></p>
@@ -194,14 +218,16 @@ bar in an SVG document:</p>
      readonly attribute unsigned long   loaded;
      readonly attribute unsigned long   total;
      void               initProgressEvent(in DOMString typeArg,
+                                          in boolean       canBubbleArg,
+                                          in boolean       cancelableArg,
                                           in unsigned long loadedArg,
                                           in unsigned long totalArg,
-                                          in boolean       cancelableArg);
      void               initProgressEventNS(in DOMString namespaceURI,
                                             in DOMString typeArg,
+                                            in boolean       canBubbleArg,
+                                            in boolean       cancelableArg,
                                             in unsigned long loadedArg,
                                             in unsigned long totalArg,
-                                            in boolean       cancelableArg);
 };</pre>
       </div>
       <br />
@@ -357,7 +383,7 @@ bar in an SVG document:</p>
     </dd>
 </dl>
 
-<h2>Change History</h2>
+<h2 id="Change">Change History</h2>
 <dl>
   <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dt>
