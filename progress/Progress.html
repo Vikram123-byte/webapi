@@ -14,6 +14,9 @@
 
 
 
+
+
+
   </style>
   <link rel="stylesheet" type="text/css" media="screen"
   href="http://www.w3.org/Stylesheets/TR/Base.css" />
@@ -31,7 +34,7 @@ alt="W3C" height="48" width="72" /> </a>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.6">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.6</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7</a></dd>
   <dt>Latest Editor's draft:</dt>
     <dd><a
       href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
@@ -85,7 +88,7 @@ part of the Rich Web Client Activity. It defines events which can be used to
 monitor a process and provide feedback to a user, particularly for
 network-based events. This editor's draft does not imply any consensus of or
 endorsement by any member of the working group, and may contain minor or
-major errors.</p>
+major errors. (Currently it probably contains some of both).</p>
 
 <p>This document is published following the working group's face to face
 meeting of January 2007, to solicit comments from interested parties. All
@@ -120,9 +123,15 @@ document as other than work in progress.</p>
 <div class="toc">
 <ul>
   <li><a href="#Conformanc">Conformance</a></li>
-  <li><a href="#Progress">The <code>ProgressEvent</code> events</a></li>
+  <li><a href="#Progress">The <code>ProgressEvent</code> events</a> 
+    <ul>
+      <li><a href="#Considerat">Considerations for Backward
+      Compatibility</a></li>
+      <li><a href="#Interface">Interface definitions</a></li>
+    </ul>
+  </li>
   <li><a href="#Change">Change History</a></li>
-  <li><a href="#References">References</a>
+  <li><a href="#References">References</a> 
     <ul>
       <li><a href="#Normative">Normative references</a></li>
       <li><a href="#Informativ">Informative references</a></li>
@@ -144,26 +153,34 @@ specification meets all requirements identified by the use of these terms.</p>
 </div>
 
 <p>A progress event occurs when the user agent makes progress in some network
-operation, such as loading a resource from the web via XMLHTTPRequest [<a
-href="#XHR">XHR</a>].</p>
+operation, such as loading a resource from the web via XmlHttpRequest [<a
+href="#XHR">XHR</a>]. Other specifications <em>may</em> define when progress
+events should be used, but in order to support backward compatibility with
+existing user agents, in general specifications <em>should not</em> specify
+that progress events <em>must</em> occur.<span class="issue">@@issue: should
+we restore start and end events so you can rely just on the progress event to
+make controls?</span></p>
 
-<p>The user agent <span class="term">may</span> dispatch a progress event
-while an asynchronous network opertation such as a <code>load</code> event is
-taking place. If the user agent is downloading content, the event
+<p>User agents <span class="term"><code>may</code></span> dispatch a progress
+event while an asynchronous network opertation such as a load operation is
+taking place. <span class="issue">@@issue: is this the most sensible approach
+or should we require firing at some point, and even suggest firing
+frequency?</span>  If the user agent is downloading content, the event
 <em>must</em> be of type '<code>progress</code>', and if it is uploading
 content the event <em>must</em> be of type '<code>uploadprogress</code>'.
-These events <em>should not</em> bubble, and can be canceled.</p>
+These events <em>must not</em> bubble, and <em>must</em> be cancelable.</p>
 
 <p>These events are in the null namespace. Initialisation methods are
-provided in both namespace and un-namespaced versions for use as appropriate.
-This specification does not recommend one over the other.</p>
+provided in both namespaced and un-namespaced versions for use as
+appropriate. This specification does not recommend one over the other.</p>
 
 <p>Below is an example of a <code>progress</code> event being used to update
 a progress bar in an SVG document. Where the size of a download is unknown
-there is simply an animation (@@should reflect the actual speed, and be less
-lame overall. To do...)</p>
+there is simply an animation (@@should reflect the actual speed, and be
+better overall. To do...)</p>
 <pre class="example"><code>&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-     xmlns:xlink="http://www.w3.org/1999/xlink"&gt;
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     viewbox="0 0 400 400"&gt;
    
    &lt;script type="application/ecmascript"&gt;&lt;![CDATA[
    var xlinkNS = "http://www.w3.org/1999/xlink"
@@ -179,9 +196,13 @@ lame overall. To do...)</p>
        if (evt.total != 0) { // we know the size, don't divide by zero
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 100*evt.loaded/evt.total);
+          var loadAnimation = document.getElementById('loadAnimation');
+          loadAnimation.endElement();
        } else { // evt.total zero means we don't know the size
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 20);
+          var loadAnimation = document.getElementById('loadAnimation');
+          loadAnimation.beginElement();
        }   
    }
                
@@ -195,22 +216,44 @@ lame overall. To do...)</p>
    ]]&gt;&lt;/script&gt;
 
    &lt;image id="myImage" xlink:href="imageA.png" width="300" height="400"
-          onload="imageLoadComplete(evt)"/&gt;
+          onload="imageLoadComplete()"/&gt;
 
    &lt;rect onclick="showImage('imageB.png')" width="120" 
          height="30" y="400" id="button" /&gt;
 
-   &lt;animate id="loadAnimation" attributeName="x"
-     xlink:href="#progressBar" values="1,81,1"&gt;
+   &lt;animate id="loadAnimation" xlink:href="#progressBar" attributeName="x" 
+     by="80" dur="1s" begin="button.click" repeatCount="indefinite"/&gt;
 
    &lt;g id="meter" opacity="0"&gt;
      &lt;set attributeName="opacity" to=".7" begin="button.click" end="myImage.load"/&gt;
-     &lt;rect width="102" fill="none" height="5" x=".5" y=".5" stroke-width="1"/&gt;
-     &lt;rect id="progressBar" color="#444" height="3" x="1" y="1"/&gt;
+     &lt;rect width="101" fill="none" height="5" x="5" y="5" stroke-width="1"/&gt;
+     &lt;rect id="progressBar" fill="#444" height="4" x="5.5" y="5.5"/&gt;
   &lt;/g&gt;
 &lt;/svg&gt;</code></pre>
 
-<p></p>
+<h3 id="Considerat">Considerations for Backward Compatibility</h3>
+
+<p>This section is informative</p>
+
+<p>Existing user agents do not raise progress events. In order to provide for
+the greatest possible backward compatibility, this specification is designed
+in such a way that progress events may not fire at all. Instead, the
+operation whose progress the event describes can be used to find the start
+and end of the operation, with progress events optionally used to maximise
+feedback to the application.</p>
+
+<p>For this reason, in this specification no requirements are made on when
+progress events should fire, and at least for technology designed to be used
+on the open Web, it is not recommended that specifications require progress
+events to be fired.</p>
+
+<p>This means that authors should not rely on receiving progress events to
+determine the start and end of an operation, although where such events can
+improve the application (providing user feedback, network metrics for
+dynamically optimising the application, etc) they should be caught and used
+opportunistically.</p>
+
+<h3 id="Interface">Interface definitions</h3>
 <dl>
   <dt><b>IDL Definition</b></dt>
     <dd>
@@ -242,10 +285,11 @@ lame overall. To do...)</p>
             the download. This refers to the content, excluding headers and
             overhead from the transaction <span class="issue">@@issue: do we
             need to include the headers or other overhead content?</span>,
-            and where there is a content-encoding or transfer encoding refers
-            to the number of bytes transferred, i.e. with the relevant
-            encodings applied <span class="issue">@@issue: should it be while
-            encodings are still applied?</span>.</dd>
+            and where there is a content-encoding or transfer-encoding refers
+            to the number of bytes to be transferred, i.e. with the relevant
+            encodings applied. For more details on HTTP see [RFC2616]. <span
+            class="issue">@@issue: presumably this should be workable with
+            non-HTTP transfers?</span></dd>
       </dl>
     </dd>
     <dd><dl>
@@ -255,7 +299,10 @@ lame overall. To do...)</p>
           <dd>Specifies the expected total number of bytes of the content
             transferred in the operation. Where the size of the transfer is
             for some reason unknown, the value of this attribute
-            <em>must</em> be zero.</dd>
+            <em>must</em> be zero. <span class="issue">@@issue: This means it
+            is impossible to distinguish between a zero-length transfer "in
+            progress", and the start of a transfer of unknown length.</span>
+          </dd>
       </dl>
     </dd>
   <dt><b>Methods</b></dt>
@@ -266,7 +313,9 @@ lame overall. To do...)</p>
             This method may only be called before the progress event has been
             dispatched via the dispatchEvent method, though it may be called
             multiple times during that phase if necessary. If called multiple
-            times, the final invocation takes precedence. 
+            times, the final invocation takes precedence <span
+            class="issue">@@issue: or should we defer to the definition of
+            initEvent?</span>. 
             <dl>
               <dt><span class="dom-parameters">Parameters</span></dt>
                 <dd>
@@ -278,6 +327,20 @@ lame overall. To do...)</p>
                           class="dom-parameter-name">typeArg</span></td>
                         <td></td>
                         <td>Specifies the event type.</td>
+                      </tr>
+                      <tr>
+                        <td valign="top">in <span
+                          class="dom-parameter-type">boolean </span><span
+                          class="dom-parameter-name">canBubbleArg</span></td>
+                        <td></td>
+                        <td>Specifies whether the event can be canceled.</td>
+                      </tr>
+                      <tr>
+                        <td valign="top">in <span
+                          class="dom-parameter-type">boolean </span><span
+                          class="dom-parameter-name">cancelableArg</span></td>
+                        <td></td>
+                        <td>Specifies whether the event can be canceled.</td>
                       </tr>
                       <tr>
                         <td valign="top">in <span
@@ -296,13 +359,6 @@ lame overall. To do...)</p>
                         <td></td>
                         <td>Specifies the expected total number of bytes in
                           this load operation.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">cancelableArg</span></td>
-                        <td></td>
-                        <td>Specifies whether the event can be canceled.</td>
                       </tr>
                     </tbody>
                   </table>
@@ -346,6 +402,20 @@ lame overall. To do...)</p>
                       </tr>
                       <tr>
                         <td valign="top">in <span
+                          class="dom-parameter-type">boolean </span><span
+                          class="dom-parameter-name">canBubbleArg</span></td>
+                        <td></td>
+                        <td>Specifies whether the event can be canceled.</td>
+                      </tr>
+                      <tr>
+                        <td valign="top">in <span
+                          class="dom-parameter-type">boolean </span><span
+                          class="dom-parameter-name">cancelableArg</span></td>
+                        <td></td>
+                        <td>Specifies whether the event can be canceled.</td>
+                      </tr>
+                      <tr>
+                        <td valign="top">in <span
                           class="dom-parameter-type">unsigned long</span>
                           <span
                         class="dom-parameter-name">loadedArg</span></td>
@@ -361,13 +431,6 @@ lame overall. To do...)</p>
                         <td></td>
                         <td>Specifies the expected total number of bytes in
                           this load operation.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">cancelableArg</span></td>
-                        <td></td>
-                        <td>Specifies whether the event can be canceled.</td>
                       </tr>
                     </tbody>
                   </table>
@@ -386,6 +449,13 @@ lame overall. To do...)</p>
 
 <h2 id="Change">Change History</h2>
 <dl>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7</a></dt>
+    <dd><ul>
+        <li>Tightened the restriction on bubbling and cancelable</li>
+        <li>Fixed init method prototypes</li>
+      </ul>
+    </dd>
   <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dt>
     <dd><ul>
@@ -417,10 +487,14 @@ examples are made from draft to draft.</p>
 
 <h3 id="Normative">Normative references</h3>
 <dl>
-  <dt id="ref-rfc2119">[<a name="RFC2119" id="RFC2119">RFC2119</a>]</dt>
-    <dd>The specification for how to use english to specify normativity, as
-      if it were a technical language. Available at <a
+  <dt id="ref-rfc2119">[<a name="RFC2119" id="RFC2119">RFC2119</a>] Key words
+  for use in RFCs to indicate Requirement Levels</dt>
+    <dd>S Bradner, 1997. The specification for how to use english to specify
+      normativity, as if it were a technical language. Available at <a
       href="http://rfc.net/rfc2119.html">http://rfc.net/rfc2119.html</a></dd>
+  <dt>[<a name="RFC2616" id="RFC2616">RFC2616</a>] Hypertext Transfer
+  Protocol -- HTTP/1.1</dt>
+    <dd>R Fielding et al., 1999. </dd>
 </dl>
 
 <h3 id="Informativ">Informative references</h3>
@@ -450,9 +524,10 @@ progress event proposal [<a href="#WPE">WPE</a>] and In addition, the
 following individuals' comments have been invaluable in preparing this
 draft:</p>
 
-<p>Robin Berjon, Marcos Caceres, Alex Danilo, João Eiras, Gorm Eriksen, Ian
-Hickson, Bjoern Hoehrmann, Björn Höhrmann, Bjoern Höhrmann, Anne van
-Kesteren, Travis Leithead, Jim Ley, Nandini Ramani, Alan Schepers, Doug
-Schepers, Ellen Siegel, Maciej Stachowiak, Boris Zbarsky</p>
+<p>Robin Berjon, Marcos Caceres, Suresh Chitturi, Alex Danilo, Jean-Claude
+Duford, João Eiras, Gorm Eriksen, Ian Hickson, Bjoern Hoehrmann, Björn
+Hoehrmann, David Håsäther, Björn Höhrmann, Bjoern Höhrmann, Anne van
+Kesteren, Travis Leithead, Jim Ley, Michael Antony Puls, Nandini Ramani, Alan
+Schepers, Doug Schepers, Ellen Siegel, Maciej Stachowiak, Boris Zbarsky</p>
 </body>
 </html>
