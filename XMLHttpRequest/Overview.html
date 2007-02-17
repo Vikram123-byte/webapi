@@ -787,7 +787,7 @@ X-Test: one, two
      <code>Accept-Encoding</code> and <code>Accept-Charset</code> headers as
      appropriate; it <em class=ct>must not</em> automatically set the
      <code>Accept</code> header. Responses to such requests <em
-     class=ct>must</em> have content-codings automatically removed.</p>
+     class=ct>must</em> have the content-codings automatically decoded.</p>
 
    <dt><dfn id=dfn-abort><code>abort()</code></dfn>, method
 
@@ -879,7 +879,9 @@ Content-Type: text/plain; charset=utf-8</pre>
     <p>If the state is not <a href="#receiving" title="receiving
      state">receiving</a> or <a href="#loaded" title="loaded
      state">loaded</a>, the user agent <em class=ct>must</em> raise an
-     <code>INVALID_STATE_ERR</code> exception. Otherwise, it <em
+     <code>INVALID_STATE_ERR</code> exception. Otherwise, if there's no <a
+     href="#dfn-entity-body">entity body</a> this attribute <em
+     class=ct>must</em> be <code>null</code>. If there is, it <em
      class=ct>must</em> be the fragment of the <a
      href="#dfn-entity-body">entity body</a> received so far (when the state
      is <a href="#receiving" title="receiving state">receiving</a>) or the
@@ -902,17 +904,15 @@ Content-Type: text/plain; charset=utf-8</pre>
 
     <p>Its initial value <em class=ct>must</em> be the <code>null</code>.</p>
 
-    <p class=note>For <code>HEAD</code> requests this attribute will always
-     be <code>null</code> (it remains unchanged). Similar to the <code><a
-     href="#dfn-responsexml">responseXML</a></code> attribute.</p>
-
    <dt><dfn id=dfn-responsexml><code>responseXML</code></dfn> of type
     <code>Document</code>, readonly
 
    <dd>
     <p>If the state is not <a href="#loaded" title="loaded state">loaded</a>,
      user agents <em class=ct>must</em> raise an
-     <code>INVALID_STATE_ERR</code> exception. Otherwise, if the
+     <code>INVALID_STATE_ERR</code> exception. Otherwise, if there's no <a
+     href="#dfn-entity-body">entity body</a> this attribute <em
+     class=ct>must</em> be <code>null</code>. If there is, and the
      <code>Content-Type</code> header contains a media type (ignoring any
      parameters) that is either <code>text/xml</code>,
      <code>application/xml</code>, or ends in <code>+xml</code>, it <em
@@ -957,7 +957,7 @@ Content-Type: text/plain; charset=utf-8</pre>
 
   <p>HTTP requests sent from multiple different <code><a
    href="#xmlhttprequest0">XMLHttpRequest</a></code> objects in succession
-   <em class=ct>should</em> be pipelined into shared HTTP connections.
+   <em class=ct>should</em> use a shared HTTP connection.
 
   <h3 id=events><span class=secno>2.2. </span>Events for the <code
    title="">XMLHttpRequest</code> Object</h3>
@@ -974,9 +974,9 @@ Content-Type: text/plain; charset=utf-8</pre>
     event <em class=ct>must</em> be dispatched when <code><a
     href="#dfn-readystate">readyState</a></code> changes value. It <em
     class=ct>must not</em> bubble, <em class=ct>must not</em> be cancelable
-    and <em class=ct>must</em> implement the <code>Event</code> interface
-    [<cite><a href="#DOM3EV">DOM3Events</a></cite>]. The event has no
-    namespace (<code>Event.namespaceURI</code> is <code>null</code>).
+    and <em class=ct>must</em> implement the <code>Event</code> interface.
+    The event has no namespace (<code>Event.namespaceURI</code> is
+    <code>null</code>). [<cite><a href="#DOM3EV">DOM3Events</a></cite>]
   </dl>
 
   <h3 id=exceptions><span class=secno>2.3. </span>Exceptions for the <code
@@ -990,8 +990,7 @@ const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
 
   <p>The <dfn id=network-err><code>NETWORK_ERR</code></dfn> exception is
    thrown when a network error occurs in synchronous requests. See the
-   section on <code><a href="#dfn-send">send()</a></code> for more details.</p>
-  <!-- Other specifications should probably be able to reuse this... -->
+   section on <code><a href="#dfn-send">send()</a></code> for more details.
 
   <h2 class=no-num id=notcovered>Not in this Specification</h2>
 
@@ -1017,7 +1016,11 @@ const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
    <li><code title="">responseXML</code> for <code>text/html</code>
     documents;
 
-   <li>Cross-site <code title="">XMLHttpRequest</code>.
+   <li>Cross-site <code title="">XMLHttpRequest</code>;
+
+   <li>Deal with byte streams;
+
+   <li><code>getRequestHeader</code> and <code>removeRequestHeader</code>.
   </ul>
 
   <h2 class=no-num id=bibref>References</h2>

@@ -689,7 +689,8 @@ X-Test: one, two
     <code>Accept-Encoding</code> and <code>Accept-Charset</code> headers as
     appropriate; it <em class="ct">must not</em> automatically set the
     <code>Accept</code> header. Responses to such requests
-    <em class="ct">must</em> have content-codings automatically removed.</p>
+    <em class="ct">must</em> have the content-codings automatically
+    decoded.</p>
    </dd>
 
    <dt><dfn id="dfn-abort"><code>abort()</code></dfn>, method</dt>
@@ -778,12 +779,15 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dd>
     <p>If the state is not <span title="receiving state">receiving</span> or
     <span title="loaded state">loaded</span>, the user agent
-    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
-    Otherwise, it <em class="ct">must</em> be the fragment of the <span>entity
-    body</span> received so far (when the state is
-    <span title="receiving state">receiving</span>) or the complete <span>entity
-    body</span> (when the state is <span title="loaded state">loaded</span>),
-    interpreted as a stream of characters.</p>
+    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+    exception. Otherwise, if there's no <span>entity body</span> this
+    attribute <em class="ct">must</em> be <code>null</code>. If there is, it
+    <em class="ct">must</em> be the fragment of the <span>entity body</span>
+    received so far (when the state is
+    <span title="receiving state">receiving</span>) or the complete
+    <span>entity body</span> (when the state is
+    <span title="loaded state">loaded</span>), interpreted as a stream of
+    characters.</p>
 
     <p>If the response includes a <code>Content-Type</code> understood by the
     user agent the characters are encoded following the relevant media type
@@ -797,21 +801,20 @@ Content-Type: text/plain; charset=utf-8</pre>
     <code>responseText</code> <em class="ct">must</em> be
     <code>null</code>.</p>
 
-    <p>Its initial value <em class="ct">must</em> be the <code>null</code>.</p>
-
-    <p class="note">For <code>HEAD</code> requests this attribute will always
-    be <code>null</code> (it remains unchanged). Similar to the
-    <code>responseXML</code> attribute.</p>
+    <p>Its initial value <em class="ct">must</em> be the
+    <code>null</code>.</p>
    </dd>
 
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
    <code>Document</code>, readonly</dt>
 
    <dd>
-    <p>If the state is not <span title="loaded state">loaded</span>, user agents
-    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code> exception.
-    Otherwise, if the <code>Content-Type</code> header contains a media type
-    (ignoring any parameters) that is either <code>text/xml</code>,
+    <p>If the state is not <span title="loaded state">loaded</span>, user
+    agents <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+    exception. Otherwise, if there's no <span>entity body</span> this
+    attribute <em class="ct">must</em> be <code>null</code>. If there is, and
+    the <code>Content-Type</code> header contains a media type (ignoring any
+    parameters) that is either <code>text/xml</code>,
     <code>application/xml</code>, or ends in <code>+xml</code>, it
     <em class="ct">must</em> be an object that implements the
     <code>Document</code> interface representing the parsed document. If
@@ -828,8 +831,8 @@ Content-Type: text/plain; charset=utf-8</pre>
 
    <dd>
     <p>If the <code>status</code> attribute is not available an
-    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be raised.
-    It <em class="ct">must</em> be available when the state is
+    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+    raised. It <em class="ct">must</em> be available when the state is
     <span title="receiving state">receiving</span> or
     <span title="loaded state">loaded</span>. When available, it
     <em class="ct">must</em> represent the HTTP status code (typically
@@ -843,8 +846,8 @@ Content-Type: text/plain; charset=utf-8</pre>
 
    <dd>
     <p>If the <code>statusText</code> attribute is not available an
-    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be raised.
-    It <em class="ct">must</em> be available when the state is
+    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
+    raised. It <em class="ct">must</em> be available when the state is
     <span title="receiving state">receiving</span> or
     <span title="loaded state">loaded</span>). When available, it
     <em class="ct">must</em> represent the HTTP status text sent by the server
@@ -855,8 +858,8 @@ Content-Type: text/plain; charset=utf-8</pre>
   </dl>
 
   <p>HTTP requests sent from multiple different <code>XMLHttpRequest</code>
-  objects in succession <em class="ct">should</em> be pipelined into shared HTTP
-  connections.</p>
+  objects in succession <em class="ct">should</em> use a shared HTTP
+  connection.</p>
 
   <h3 id="events">Events for the <code title="">XMLHttpRequest</code>
   Object</h3>
@@ -869,11 +872,11 @@ Content-Type: text/plain; charset=utf-8</pre>
    <dt><dfn id="dfn-readystatechange"><code>readystatechange</code></dfn></dt>
 
    <dd>The <code>readystatechange</code> event <em class="ct">must</em> be
-   dispatched when <code>readyState</code> changes value. It <em class="ct">must
-   not</em> bubble, <em class="ct">must not</em> be cancelable and
-   <em class="ct">must</em> implement the <code>Event</code> interface
-   [<cite><span>DOM3Events</span></cite>]. The event has no namespace
-   (<code>Event.namespaceURI</code> is <code>null</code>).</dd>
+   dispatched when <code>readyState</code> changes value. It
+   <em class="ct">must not</em> bubble, <em class="ct">must not</em> be
+   cancelable and <em class="ct">must</em> implement the <code>Event</code>
+   interface. The event has no namespace (<code>Event.namespaceURI</code> is
+   <code>null</code>). [<cite><span>DOM3Events</span></cite>]</dd>
   </dl>
 
   <h3 id="exceptions">Exceptions for the <code title="">XMLHttpRequest</code>
@@ -887,7 +890,6 @@ const unsigned short <span>NETWORK_ERR</span> = 101;</pre>
   <p>The <dfn id="network-err"><code>NETWORK_ERR</code></dfn> exception is
   thrown when a network error occurs in synchronous requests. See the section
   on <code>send()</code> for more details.</p>
-  <!-- Other specifications should probably be able to reuse this... -->
 
   <h2 class="no-num" id="notcovered">Not in this Specification</h2>
 
@@ -906,7 +908,10 @@ const unsigned short <span>NETWORK_ERR</span> = 101;</pre>
    <li>Property to disable following redirects;</li>
    <li><code title="">responseXML</code> for <code>text/html</code>
    documents;</li>
-   <li>Cross-site <code title="">XMLHttpRequest</code>.</li>
+   <li>Cross-site <code title="">XMLHttpRequest</code>;</li>
+   <li>Deal with byte streams;</li>
+   <li><code>getRequestHeader</code> and
+   <code>removeRequestHeader</code>.</li>
   </ul>
 
   <h2 class="no-num" id="bibref">References</h2>
@@ -1030,6 +1035,5 @@ const unsigned short <span>NETWORK_ERR</span> = 101;</pre>
   <p>Thanks also to all those who have helped to improve this specification by
   sending suggestions and corrections. (Please, keep bugging us with your
   issues!)</p>
-
  </body>
 </html>
