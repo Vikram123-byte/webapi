@@ -508,12 +508,13 @@ client.send();</pre>
 
     <p>The syntax for the <var>user</var> or <var>password</var> arguments
      depends on the scheme being used. If the syntax for either is incorrect
-     user agents <em class=ct>must</em> throw a <code>SYNTAX_ERR</code>
-     exception.</p>
+     per the production given in the relevant scheme user agents <em
+     class=ct>must</em> throw a <code>SYNTAX_ERR</code> exception. The
+     <var>user</var> and <var>password</var> <em class=ct>must</em> be
+     encoded using the encoding specified by the scheme. If the scheme fails
+     to specify an encoding they <em class=ct>must</em> be encoded using
+     UTF-8.</p>
 
-    <p class=note>The relevant specification for the scheme will provide the
-     exact production for <var>user</var> and <var>password</var> to match.</p>
-    <!-- RFC2617 does in fact not do this for "password" ... -->
     <p>When <code>null</code> is passed for either <var>user</var> or
      <var>password</var> user agents <em class=ct>must</em> act as if the
      relevant data (the user name or password) is not provided.</p>
@@ -528,6 +529,10 @@ client.send();</pre>
     <var>value</var>)</code></dfn>, method
 
    <dd>
+    <p>Each request has a list of request headers with associated values.
+     This method can be used to manipulate those values and set new request
+     headers.</p>
+
     <p>The nominated request header (<var>header</var>) field value <em
      class=ct>must</em> be set to <var>value</var>, with the following
      exceptions:</p>
@@ -582,7 +587,7 @@ client.send();</pre>
     </ul>
     <!-- Add "Expect" back in below if we remove it above. -->
     <p>Implementations <em class=ct>must</em> replace any existing value if
-     the nominated request header field value is one of:</p>
+     the <var>header</var> argument case-insensitively matches one of:</p>
 
     <ul>
      <li><code>Authorization</code>
@@ -631,12 +636,16 @@ client.send();</pre>
     <p class=note>The value of other headers cannot be reset, additional
      values will be appended to the existing value instead.</p>
 
-    <p>Otherwise, if the nominated request header field already has a value,
-     the new value <em class=ct>must</em> be combined with the existing value
-     (section 4.2, RFC 2616). See also the <code><a
-     href="#dfn-send">send()</a></code> method regarding user agent header
-     handling for caching, authentication, proxies, and cookies. [<cite><a
+    <p>If the <var>header</var> argument didn't match any of the above and
+     already has a value that value <em class=ct>must</em> be retained. User
+     agents <em class=ct>may</em> either use multiple headers to express the
+     various values or combine the values (section 4.2, RFC 2616) or use a
+     combination of those in this case. [<cite><a
      href="#RFC2616">RFC2616</a></cite>]</p>
+
+    <p class=note>See also the <code><a href="#dfn-send">send()</a></code>
+     method regarding user agent header handling for caching, authentication,
+     proxies, and cookies.</p>
 
     <div class=example>
      <pre>// The following script:
@@ -935,8 +944,8 @@ Content-Type: text/plain; charset=utf-8</pre>
      that implements the <code>Document</code> interface representing the
      parsed document. If <code>Content-Type</code> did not contain such a
      media type, or if the document could not be parsed (due to an XML
-     well-formedness error or unsupported character encoding, for instance),
-     it <em class=ct>must</em> be <code>null</code>.</p>
+     namespace well-formedness error or unsupported character encoding, for
+     instance), it <em class=ct>must</em> be <code>null</code>.</p>
 
     <p>Its initial value <em class=ct>must</em> be <code>null</code>.</p>
 
