@@ -28,13 +28,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editors' draft
-    <!--W3C Working Draft--> 17 February 2007</h2>
+    <!--W3C Working Draft--> 18 February 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070217">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070217/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070218">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070218/</a>
 
     <dt>Latest Version:
 
@@ -93,7 +93,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 17 February 2007 <strong>Last Call</strong> Working Draft of
+  <p>This is the 18 February 2007 <strong>Last Call</strong> Working Draft of
    The <code title="">XMLHttpRequest</code> Object specifcation. This
    document is produced by the <a href="http://www.w3.org/2006/webapi/">Web
    API Working Group</a>, part of the <a
@@ -470,6 +470,8 @@ client.send();</pre>
      <li><code>PUT</code>
 
      <li><code>DELETE</code>
+
+     <li><code>OPTIONS</code>
     </ul>
 
     <p>User agents <em class=ct>should</em> support any <var>method</var>
@@ -628,9 +630,10 @@ client.send();</pre>
 
     <p>Otherwise, if the nominated request header field already has a value,
      the new value <em class=ct>must</em> be combined with the existing value
-     (section 4.2, [<cite><a href="#RFC2616">RFC2616</a></cite>]). See also
-     the <code><a href="#dfn-send">send()</a></code> method regarding user
-     agent header handling for caching, authentication, proxies, and cookies.</p>
+     (section 4.2, RFC 2616). See also the <code><a
+     href="#dfn-send">send()</a></code> method regarding user agent header
+     handling for caching, authentication, proxies, and cookies. [<cite><a
+     href="#RFC2616">RFC2616</a></cite>]</p>
 
     <div class=example>
      <pre>// The following script:
@@ -759,44 +762,44 @@ X-Test: one, two
      origin server, modify the <code>Request-Line</code> and send
      <code>Proxy-Authorization</code> headers as specified.</p>
 
-    <p>If the user agent supports <cite>HTTP Authentication</cite> ([<cite><a
-     href="#ref-rfc2617">RFC2617</a></cite>]) it <em class=ct>should</em>
-     consider requests originating from this object to be part of the
-     protection space that includes the accessed URIs and send
+    <p>If the user agent supports HTTP Authentication it <em
+     class=ct>should</em> consider requests originating from this object to
+     be part of the protection space that includes the accessed URIs and send
      <code>Authorization</code> headers and handle <code>401
      Unauthorised</code> requests appropriately. if authentication fails,
-     user agents <em class=ct>should</em> prompt the users for credentials.</p>
+     user agents <em class=ct>should</em> prompt the users for credentials.
+     [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]</p>
 
-    <p>If the user agent supports <cite>HTTP State Mangement</cite>
-     ([<cite><a href="#ref-rfc2109">RFC2109</a></cite>], [<cite><a
-     href="#ref-rfc2965">RFC2965</a></cite>]) it <em class=ct>should</em>
-     persist, discard and send cookies (as received in the
-     <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers,
-     and sent in the <code>Cookie</code> header) as applicable.</p>
+    <p>If the user agent supports HTTP State Mangement it <em
+     class=ct>should</em> persist, discard and send cookies (as received in
+     the <code>Set-Cookie</code> and <code>Set-Cookie2</code> response
+     headers, and sent in the <code>Cookie</code> header) as applicable.
+     [<cite><a href="#ref-rfc2109">RFC2109</a></cite>] [<cite><a
+     href="#ref-rfc2965">RFC2965</a></cite>]</p>
 
-    <p>If the user agent implements a HTTP cache ([<cite><a
-     href="#RFC2616">RFC2616</a></cite>]) it <em class=ct>should</em> respect
-     <code>Cache-Control</code> request headers set by the script (<abbr
-     title="for example">e.g.</abbr>, <code>Cache-Control: no-cache</code>
-     bypasses the cache). It <em class=ct>must not</em> send
+    <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
+     respect <code>Cache-Control</code> request headers set by the script
+     (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
+     no-cache</code> bypasses the cache). It <em class=ct>must not</em> send
      <code>Cache-Control</code> or <code>Pragma</code> request headers
-     automatically unless the user explicitly requests such behaviour (e.g.,
-     by (force-)reloading the page). <code>304 Not Modified</code> responses
-     that are a result of a user agent generated conditional request <em
-     class=ct>must</em> be presented as <code>200 OK</code> responses with
-     the appropriate content. Such user agents <em class=ct>must</em> allow
-     scripts to override automatic cache validation by setting request
-     headers (e.g., <code>If-None-Match</code>,
+     automatically unless the user explicitly requests such behaviour
+     (<abbr>e.g.</abbr>, by (force-)reloading the page). <code>304 Not
+     Modified</code> responses that are a result of a user agent generated
+     conditional request <em class=ct>must</em> be presented as <code>200
+     OK</code> responses with the appropriate content. Such user agents <em
+     class=ct>must</em> allow scripts to override automatic cache validation
+     by setting request headers (e.g., <code>If-None-Match</code>,
      <code>If-Modified-Since</code>), in which case <code>304 Not
-     Modified</code> responses <em class=ct>must</em> be passed through.</p>
+     Modified</code> responses <em class=ct>must</em> be passed through.
+     [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
 
-    <p>If the user agent implements server-driven content-negotiation
-     ([<cite><a href="#RFC2616">RFC2616</a></cite>]) it <em
+    <p>If the user agent implements server-driven content-negotiation it <em
      class=ct>should</em> set <code>Accept-Language</code>,
      <code>Accept-Encoding</code> and <code>Accept-Charset</code> headers as
      appropriate; it <em class=ct>must not</em> automatically set the
      <code>Accept</code> header. Responses to such requests <em
-     class=ct>must</em> have the content-codings automatically decoded.</p>
+     class=ct>must</em> have the content-codings automatically decoded.
+     [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
 
    <dt><dfn id=dfn-abort><code>abort()</code></dfn>, method
 
