@@ -17,6 +17,7 @@
 
 
 
+
   </style>
   <link rel="stylesheet" type="text/css" media="screen"
   href="http://www.w3.org/Stylesheets/TR/Base.css" />
@@ -34,13 +35,13 @@ alt="W3C" height="48" width="72" /> </a>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.8">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.8</a></dd>
   <dt>Latest Editor's draft:</dt>
     <dd><a
       href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous Editor's draft:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.4</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -154,21 +155,26 @@ specification meets all requirements identified by the use of these terms.</p>
 
 <p>A progress event occurs when the user agent makes progress in some network
 operation, such as loading a resource from the web via XmlHttpRequest [<a
-href="#XHR">XHR</a>]. Other specifications <em>may</em> define when progress
-events should be used, but in order to support backward compatibility with
-existing user agents, in general specifications <em>should not</em> specify
-that progress events <em>must</em> occur.<span class="issue">@@issue: should
-we restore start and end events so you can rely just on the progress event to
-make controls?</span></p>
+href="#XHR">XHR</a>]. Other specifications <em>should</em> define when
+progress events can be used, but in order to support backward compatibility
+with existing user agents, in general specifications <em>should not</em>
+specify that progress events <em>must</em> occur.</p>
+<ul>
+  <li>User agents <em>must</em> dispatch an event of type
+    <em>progressStart</em> when a relevant operation has begun. </li>
+  <li>User agents <span class="term"><em>may</em></span> dispatch one or more
+    ProgressEvent of type <em>progress</em> while a network operation is
+    taking place. <span class="issue">@@issue: should we require some firing
+    frequency for the progress type events?</span></li>
+  <li>If the operation fails to complete the user agent <em>must</em> fire
+    either a ProgressEvent of type <em>progressError</em> or a ProgressEvent
+    of type <em>progressCanceled</em>.</li>
+  <li>User agents <em>must</em> dispatch a ProgressEvent of type
+    <em>progressComplete</em> when the operation has successfully completed.
+  </li>
+</ul>
 
-<p>User agents <span class="term"><code>may</code></span> dispatch a progress
-event while an asynchronous network opertation such as a load operation is
-taking place. <span class="issue">@@issue: is this the most sensible approach
-or should we require firing at some point, and even suggest firing
-frequency?</span>  If the user agent is downloading content, the event
-<em>must</em> be of type '<code>progress</code>', and if it is uploading
-content the event <em>must</em> be of type '<code>uploadprogress</code>'.
-These events <em>must not</em> bubble, and <em>must</em> be cancelable.</p>
+<p>These events <em>must not</em> bubble, and <em>must</em> be cancelable.</p>
 
 <p>These events are in the null namespace. Initialisation methods are
 provided in both namespaced and un-namespaced versions for use as
@@ -176,8 +182,7 @@ appropriate. This specification does not recommend one over the other.</p>
 
 <p>Below is an example of a <code>progress</code> event being used to update
 a progress bar in an SVG document. Where the size of a download is unknown
-there is simply an animation (@@should reflect the actual speed, and be
-better overall. To do...)</p>
+there is simply an animation.</p>
 <pre class="example"><code>&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      viewbox="0 0 400 400"&gt;
@@ -189,11 +194,12 @@ better overall. To do...)</p>
        var image = document.getElementById('myImage');
        image.setAttributeNS(xlinkNS, "href", imageHref);
        image.addEventListener("progress",imageLoadProgress,false);
+       image.addEventListener("progressComplete",imageLoadComplete,false);
        //could also use a load listener for purity and theoretical beauty
    }           
 
    function imageLoadProgress(evt) {  
-       if (evt.total != 0) { // we know the size, don't divide by zero
+       if (evt.lengthComputable) { // we know the size, don't divide by zero
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 100*evt.loaded/evt.total);
           var loadAnimation = document.getElementById('loadAnimation');
@@ -215,8 +221,7 @@ better overall. To do...)</p>
    }
    ]]&gt;&lt;/script&gt;
 
-   &lt;image id="myImage" xlink:href="imageA.png" width="300" height="400"
-          onload="imageLoadComplete()"/&gt;
+   &lt;image id="myImage" xlink:href="imageA.png" width="300" height="400"/&gt;
 
    &lt;rect onclick="showImage('imageB.png')" width="120" 
          height="30" y="400" id="button" /&gt;
@@ -259,6 +264,7 @@ opportunistically.</p>
     <dd>
       <div class="idl-code">
       <pre>interface ProgressEvent : events::Event {
+     readonly attribute boolean         lengthComputable;
      readonly attribute unsigned long   loaded;
      readonly attribute unsigned long   total;
      void               initProgressEvent(in DOMString typeArg,
@@ -278,6 +284,8 @@ opportunistically.</p>
     </dd>
   <dt><b>Attributes</b></dt>
     <dd><dl>
+        <dt>readonly boolean lengthComputable</dt>
+          <dd>Specifies whether the total size of the transfer is known.</dd>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long</span> <span
         class="dom-attr-name">loaded</span></dt>
@@ -288,8 +296,11 @@ opportunistically.</p>
             and where there is a content-encoding or transfer-encoding refers
             to the number of bytes to be transferred, i.e. with the relevant
             encodings applied. For more details on HTTP see [RFC2616]. <span
-            class="issue">@@issue: presumably this should be workable with
-            non-HTTP transfers?</span></dd>
+            class="issue">@@issue: presumably this spec should be workable
+            with non-HTTP transfers, HTTP HEAD requests, etc?</span><span
+            class="issue">@@issue: How do you measure the progress of an HTTP
+            POST where a measurable amount of data goes up, and another one
+            comes back?</span></dd>
       </dl>
     </dd>
     <dd><dl>
@@ -299,10 +310,7 @@ opportunistically.</p>
           <dd>Specifies the expected total number of bytes of the content
             transferred in the operation. Where the size of the transfer is
             for some reason unknown, the value of this attribute
-            <em>must</em> be zero. <span class="issue">@@issue: This means it
-            is impossible to distinguish between a zero-length transfer "in
-            progress", and the start of a transfer of unknown length.</span>
-          </dd>
+            <em>must</em> be zero. </dd>
       </dl>
     </dd>
   <dt><b>Methods</b></dt>
@@ -341,6 +349,14 @@ opportunistically.</p>
                           class="dom-parameter-name">cancelableArg</span></td>
                         <td></td>
                         <td>Specifies whether the event can be canceled.</td>
+                      </tr>
+                      <tr>
+                        <td valign="top">in <span
+                          class="dom-parameter-type">boolean </span><span
+                          class="dom-parameter-name">lengthComputable</span></td>
+                        <td></td>
+                        <td>Specifies whether the total number of bytes to
+                          transfer is known.</td>
                       </tr>
                       <tr>
                         <td valign="top">in <span
@@ -416,6 +432,14 @@ opportunistically.</p>
                       </tr>
                       <tr>
                         <td valign="top">in <span
+                          class="dom-parameter-type">boolean </span><span
+                          class="dom-parameter-name">lengthComputable</span></td>
+                        <td></td>
+                        <td>Specifies whether the total number of bytes to
+                          transfer is known.</td>
+                      </tr>
+                      <tr>
+                        <td valign="top">in <span
                           class="dom-parameter-type">unsigned long</span>
                           <span
                         class="dom-parameter-name">loadedArg</span></td>
@@ -449,6 +473,13 @@ opportunistically.</p>
 
 <h2 id="Change">Change History</h2>
 <dl>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.8">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.8</a></dt>
+    <dd><ul>
+        <li>Added a start and various end events back in</li>
+        <li>Added <code>lengthComputable</code> back</li>
+      </ul>
+    </dd>
   <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.7</a></dt>
     <dd><ul>
@@ -524,10 +555,11 @@ progress event proposal [<a href="#WPE">WPE</a>] and In addition, the
 following individuals' comments have been invaluable in preparing this
 draft:</p>
 
-<p>Robin Berjon, Marcos Caceres, Suresh Chitturi, Alex Danilo, Jean-Claude
-Duford, João Eiras, Gorm Eriksen, Ian Hickson, Bjoern Hoehrmann, Björn
-Hoehrmann, David Håsäther, Björn Höhrmann, Bjoern Höhrmann, Anne van
-Kesteren, Travis Leithead, Jim Ley, Michael Antony Puls, Nandini Ramani, Alan
-Schepers, Doug Schepers, Ellen Siegel, Maciej Stachowiak, Boris Zbarsky</p>
+<p>Robin Berjon, Marcos Caceres, Suresh Chitturi, Alex Danilo, Erik
+Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm Eriksen, Ian
+Hickson, Bjoern Hoehrmann, Björn Hoehrmann, David Håsäther, Björn Höhrmann,
+Bjoern Höhrmann, Anne van Kesteren, Travis Leithead, Jim Ley, Chrus Lilley,
+Michael Antony Puls, Nandini Ramani, Alan Schepers, Doug Schepers, Andrew
+Shellshear, Ellen Siegel, Andy Sledd, Maciej Stachowiak, Boris Zbarsky</p>
 </body>
 </html>
