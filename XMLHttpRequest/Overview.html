@@ -415,8 +415,8 @@ client.send();</pre>
 
      <dt><dfn id=receiving title="receiving state">3 Receiving</dfn>
 
-     <dd>Immediately before receiving the message body (if any). All HTTP
-      headers have been received.
+     <dd>All HTTP headers have been received. The message body (if any) has
+      not yet been fully received.
 
      <dt><dfn id=loaded title="loaded state">4 Loaded</dfn>
 
@@ -491,12 +491,12 @@ client.send();</pre>
     <p>When <var>url</var> is a relative reference, it <em class=ct>must</em>
      be resolved using the current value of the <code>baseURI</code>
      attribute of the <code>Document</code> object currently associated with
-     the <a href="#window-pointer"><code>Window</code> pointer</a> and the
-     fragment identifier component, if any, <em class=ct>must</em> be
-     dropped. If it can't be resolved user agents <em class=ct>must</em>
-     throw a <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var>
-     argument is given user agents <em class=ct>should</em> throw a
-     <code>SECURITY_ERR</code> exception.</p>
+     the <a href="#window-pointer"><code>Window</code> pointer</a>. If it
+     can't be resolved user agents <em class=ct>must</em> throw a
+     <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var> argument
+     is given user agents <em class=ct>should</em> throw a
+     <code>SECURITY_ERR</code> exception. The fragment identifier component
+     of <var>url</var>, if any, <em class=ct>must</em> be dropped.</p>
 
     <p class=note>A future version or extension of this specification will
      most likely define a way of doing cross-site requests.</p>
@@ -692,10 +692,10 @@ X-Test: one, two
      state">open</a>.</p>
 
     <p>If <var>data</var> is passed to the <code><a
-     href="#dfn-send">send()</a></code> method it <em class=ct>must</em> be
-     used for the <dfn id=dfn-entity-body>entity body</dfn> as defined by
-     section 7.2 of [<cite><a href="#RFC2616">RFC2616</a></cite>] The
-     following rules apply:</p>
+     href="#dfn-send">send()</a></code> method and it's not <code>null</code>
+     it <em class=ct>must</em> be used for the <dfn id=dfn-entity-body>entity
+     body</dfn> as defined by section 7.2 of [<cite><a
+     href="#RFC2616">RFC2616</a></cite>]. The following rules apply:</p>
 
     <dl>
      <dt><var>data</var> is a <code>DOMString</code>
@@ -727,7 +727,8 @@ X-Test: one, two
 
     <p>Invoking <code><a href="#dfn-send">send()</a></code> without the
      <var>data</var> argument <em class=ct>must</em> give the same result as
-     if it was invoked with <code>null</code> as argument.</p>
+     if it was invoked with <code>null</code> as argument. (Results in a
+     request without an <a href="#dfn-entity-body">entity body</a>.)</p>
 
     <p>Scripts <em class=ct>should</em> specify the <code>Content-Type</code>
      header via <code><a
@@ -767,13 +768,13 @@ X-Test: one, two
 
     <p>If something goes wrong (infinite loop, network errors) the state <em
      class=ct>must</em> be set to <a href="#loaded" title="loaded
-     state">loaded</a> and all members (excluding <code><a
-     href="#dfn-readystate">readyState</a></code>) of the object <em
-     class=ct>must</em> be set to their initial value. Also, if
+     state">loaded</a> and all members, excluding <code><a
+     href="#dfn-readystate">readyState</a></code> and <code><a
+     href="#dfn-readystatechange">readystatechange</a></code>, of the object
+     <em class=ct>must</em> be set to their initial value. Also, if
      <code>async</code> is set to <code>false</code>, a <code><a
      href="#network-err">NETWORK_ERR</a></code> exception <em
-     class=ct>must</em> be raised. In addition, all registered event
-     listeners <em class=ct>must</em> be removed.</p>
+     class=ct>must</em> be raised.</p>
 
     <p class=note>In future versions of this specification user agents will
      be required to dispatch an <code>error</code> event if the above occurs.</p>
@@ -825,10 +826,10 @@ X-Test: one, two
    <dt><dfn id=dfn-abort><code>abort()</code></dfn>, method
 
    <dd>
-    <p>When invoked, this method <em class=ct>must</em> cancel any network
-     activity for which the object is responsible and set all the members of
-     the object to their initial values as well as removing all event
-     listeners.</p>
+    <p>When invoked, this method <em class=ct>must</em> (in order) cancel any
+     network activity for which the object is responsible and set all the
+     members of the object to their initial values as well as removing all
+     event listeners.</p>
 
     <p class=note>This means that the object <em>can</em> be used for another
      request in which case this method will work again to cancel it.</p>
