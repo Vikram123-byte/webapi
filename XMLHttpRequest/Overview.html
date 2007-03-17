@@ -29,13 +29,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 9 March 2007</h2>
+    draft<!--W3C Working Draft--> 17 March 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070309/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070309/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070317/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070317/</a>
 
     <dt>Latest Version:
 
@@ -94,8 +94,8 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 9 March 2007 <strong>Last Call</strong> Working Draft of The
-   <code title="">XMLHttpRequest</code> Object specification. Please send
+  <p>This is the 17 March 2007 <strong>Last Call</strong> Working Draft of
+   The <code title="">XMLHttpRequest</code> Object specification. Please send
    comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
    (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
@@ -229,6 +229,7 @@ client.send();</pre>
    <pre>function log(message) {
  var client = new XMLHttpRequest();
  client.open("POST", "/log");
+ client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
  client.send(message);
 }</pre>
 
@@ -449,7 +450,7 @@ client.send();</pre>
      title="uninitialized state">uninitialized</a>, all members of the object
      with the exception of <code><a
      href="#dfn-onreadystatechange">onreadystatechange</a></code> <em
-     class=ct>must</em> be set to their initial values and user agents <em
+     class=ct>must</em> be set to their initial values and the user agent <em
      class=ct>must</em> behave as if <code><a
      href="#dfn-abort">abort()</a></code> was invoked.</p>
 
@@ -461,8 +462,8 @@ client.send();</pre>
      class=ct>should</em> be raised. [<cite><a
      href="#RFC2616">RFC2616</a></cite>]</p>
 
-    <p>User agents <em class=ct>must</em> at least support the following list
-     of methods (see [<cite><a href="#RFC2616">RFC2616</a></cite>]):</p>
+    <p>The user agent <em class=ct>must</em> at least support the following
+     list of methods (see [<cite><a href="#RFC2616">RFC2616</a></cite>]):</p>
 
     <ul>
      <li><code>GET</code>
@@ -478,49 +479,49 @@ client.send();</pre>
      <li><code>OPTIONS</code>
     </ul>
 
-    <p>User agents <em class=ct>should</em> support any <var>method</var>
+    <p>The user agent <em class=ct>should</em> support any <var>method</var>
      argument that matches the <a href="#method"><code>Method</code>
      production</a>.</p>
 
     <p>When <var>method</var> case-insensitively matches <code>GET</code>,
      <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
-     <code>DELETE</code> or <code>OPTIONS</code> user agents <em
+     <code>DELETE</code> or <code>OPTIONS</code> the user agent <em
      class=ct>must</em> use the uppercase equivalent instead.</p>
 
     <p>When <var>url</var> is a relative reference, it <em class=ct>must</em>
      be resolved using the current value of the <code>baseURI</code>
      attribute of the <code>Document</code> object currently associated with
      the <a href="#window-pointer"><code>Window</code> pointer</a>. If it
-     can't be resolved user agents <em class=ct>must</em> throw a
+     can't be resolved the user agent <em class=ct>must</em> throw a
      <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var> argument
-     is given user agents <em class=ct>should</em> throw a
+     is given the user agent <em class=ct>should</em> throw a
      <code>SECURITY_ERR</code> exception. The fragment identifier component
      of <var>url</var>, if any, <em class=ct>must</em> be dropped.</p>
 
     <p class=note>A future version or extension of this specification will
      most likely define a way of doing cross-site requests.</p>
 
-    <p>User agents <em class=ct>should not</em> support the
+    <p>The user agent <em class=ct>should not</em> support the
      <code>"user:password"</code> format in the <code>userinfo</code>
      production defined in section 3.2.1 of RFC 3986 and <em
      class=ct>must</em> throw a <code>SYNTAX_ERR</code> when doing so (not
-     supporting it). When they do support it, or in case of people using the
-     format "user", user agents <em class=ct>must</em> use them if the
+     supporting it). When it does support it, or in case of people using the
+     format "user", the user agent <em class=ct>must</em> use them if the
      <var>user</var> and <var>password</var> arguments are omitted. If the
      arguments are not omitted, they take precedence, even if they are
      <code>null</code>. [<cite><a href="#ref-rfc3986">RFC3986</a></cite>]</p>
 
     <p>The syntax for the <var>user</var> or <var>password</var> arguments
-     depends on the scheme being used. If the syntax for either is incorrect
-     per the production given in the relevant scheme user agents <em
-     class=ct>must</em> throw a <code>SYNTAX_ERR</code> exception. The
-     <var>user</var> and <var>password</var> <em class=ct>must</em> be
-     encoded using the encoding specified by the scheme. If the scheme fails
-     to specify an encoding they <em class=ct>must</em> be encoded using
-     UTF-8.</p>
+     depends on the authentication scheme being used. If the syntax for
+     either is incorrect per the production given in the relevant scheme the
+     user agent <em class=ct>must</em> throw a <code>SYNTAX_ERR</code>
+     exception. The <var>user</var> and <var>password</var> <em
+     class=ct>must</em> be encoded using the encoding specified by the
+     scheme. If the scheme fails to specify an encoding they <em
+     class=ct>must</em> be encoded using UTF-8.</p>
 
     <p>When <code>null</code> is passed for either <var>user</var> or
-     <var>password</var> user agents <em class=ct>must</em> act as if the
+     <var>password</var> the user agent <em class=ct>must</em> act as if the
      relevant data (the user name or password) is not provided.</p>
 
     <p class=note>The empty string value is not to be treated as the
@@ -594,7 +595,11 @@ client.send();</pre>
      the <var>header</var> argument case-insensitively matches one of:</p>
 
     <ul>
+     <li><code>Apply-To-Redirect-Ref</code>
+
      <li><code>Authorization</code>
+
+     <li><code>C-Ext</code>
 
      <li><code>Content-Base</code>
 
@@ -608,6 +613,10 @@ client.send();</pre>
 
      <li><code>Content-Version</code>
 
+     <li><code>Cookie</code>
+
+     <li><code>Cookie2</code>
+
      <li><code>Delta-Base</code>
 
      <li><code>Depth</code>
@@ -616,7 +625,11 @@ client.send();</pre>
 
      <li><code>ETag</code>
 
+     <li><code>Ext</code>
+
      <li><code>From</code>
+
+     <li><code>If</code>
 
      <li><code>If-Modified-Since</code>
 
@@ -624,15 +637,25 @@ client.send();</pre>
 
      <li><code>If-Unmodified-Since</code>
 
+     <li><code>Label</code>
+
+     <li><code>Lock-Token</code>
+
      <li><code>Max-Forwards</code>
 
      <li><code>MIME-Version</code>
+
+     <li><code>Ordering-Type</code>
 
      <li><code>Overwrite</code>
 
      <li><code>Proxy-Authorization</code>
 
+     <li><code>Redirect-Ref</code>
+
      <li><code>SOAPAction</code>
+
+     <li><code>Status-URI</code>
 
      <li><code>Timeout</code>
     </ul>
@@ -642,7 +665,7 @@ client.send();</pre>
 
     <p>Otherwise, if the <var>header</var> argument does not match any of the
      listed headers and already has a value that value <em class=ct>must</em>
-     be retained. User agents <em class=ct>may</em> either use multiple
+     be retained. The user agent <em class=ct>may</em> either use multiple
      headers, combine the values or use a combination of those (section 4.2,
      RFC 2616). [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
 
@@ -674,13 +697,13 @@ X-Test: one, two
     <p>If the state is not <a href="#open" title="open state">open</a> or the
      <span><code><a href="#dfn-send">send()</a></code> flag is set an
      <code>INVALID_STATE_ERR</code> exception <em class=ct>must</em> be
-     raised. Otherwise user agents <em class=ct>must</em> make a request to
-     <var>url</var> using method <var>method</var> and set the <dfn
-     id=send-flag><code>send()</code> flag</dfn>. If the <var>async</var>
-     flag is set to <code>false</code>, then the method <em class=ct>must
-     not</em> return until the request has completed. Otherwise, it <em
-     class=ct>must</em> return immediately. (See: <code><a
-     href="#dfn-open">open()</a></code>.)</span></p>
+     raised. Otherwise a request to <var>url</var> using method
+     <var>method</var> <em class=ct>must</em> be made and the <dfn
+     id=send-flag><code>send()</code> flag</dfn> <em class=ct>must</em> be
+     set. If the <var>async</var> flag is set to <code>false</code>, then the
+     method <em class=ct>must not</em> return until the request has
+     completed. Otherwise, it <em class=ct>must</em> return immediately.
+     (See: <code><a href="#dfn-open">open()</a></code>.)</span></p>
 
     <p class=note>Even when <var>async</var> is set to <code>false</code> the
      <code><a href="#dfn-readystatechange">readystatechange</a></code> event
@@ -709,7 +732,7 @@ X-Test: one, two
        namespace well-formed XML document and encoded using the encoding
        given by <code><var>data</var>.xmlEncoding</code>, if specified, or
        UTF-8 otherwise. If this fails because the <code>Document</code>
-       cannot be serialized user agents <em class=ct>must</em> act as if
+       cannot be serialized the user agent <em class=ct>must</em> act as if
        <var>data</var> was <code>null</code>.</p>
 
       <p class=note>Subsequent changes to the <code>Document</code> have no
@@ -735,7 +758,7 @@ X-Test: one, two
      <code><a href="#dfn-send">send()</a></code> with an argument. If the
      argument to <code><a href="#dfn-send">send()</a></code> is a
      <code>Document</code> and no <code>Content-Type</code> header has been
-     set user agents <em class=ct>must</em> set it to
+     set the user agent <em class=ct>must</em> set it to
      <code>application/xml</code> for XML documents and to the most
      appropriate media type for other documents (using intrinsic knowledge
      about the document).</p>
@@ -745,7 +768,7 @@ X-Test: one, two
      class=ct>must</em> be transparently followed (unless it violates
      security, infinite loop precautions or the scheme isn't supported).
 
-    <p class=note>HTTP places requirements on user agents regarding the
+    <p class=note>HTTP places requirements on the user agent regarding the
      preservation of the request method and entity body during redirects, and
      also requires users to be notified of certain kinds of automatic
      redirections.</p>
@@ -775,8 +798,9 @@ X-Test: one, two
      href="#network-err">NETWORK_ERR</a></code> exception <em
      class=ct>must</em> be raised.</p>
 
-    <p class=note>In future versions of this specification user agents will
-     be required to dispatch an <code>error</code> event if the above occurs.</p>
+    <p class=note>In future versions of this specification the user agent
+     will be required to dispatch an <code>error</code> event if the above
+     occurs.</p>
 
     <p>If the user agent allows the specification of a proxy it <em
      class=ct>should</em> modify the request appropriately; <abbr title="in
@@ -792,7 +816,7 @@ X-Test: one, two
      user agents <em class=ct>should</em> prompt the users for credentials.
      [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]</p>
 
-    <p>If the user agent supports HTTP State Mangement it <em
+    <p>If the user agent supports HTTP State Management it <em
      class=ct>should</em> persist, discard and send cookies (as received in
      the <code>Set-Cookie</code> and <code>Set-Cookie2</code> response
      headers, and sent in the <code>Cookie</code> header) as applicable.
@@ -807,7 +831,7 @@ X-Test: one, two
      (<abbr>e.g.</abbr>, by (force-)reloading the page). <code>304 Not
      Modified</code> responses that are a result of a user agent generated
      conditional request <em class=ct>must</em> be presented as <code>200
-     OK</code> responses with the appropriate content. Such user agents <em
+     OK</code> responses with the appropriate content. The user agent <em
      class=ct>must</em> allow scripts to override automatic cache validation
      by setting request headers (e.g., <code>If-None-Match</code>,
      <code>If-Modified-Since</code>), in which case <code>304 Not
@@ -840,7 +864,7 @@ X-Test: one, two
    <dd>
     <p>If the state is not <a href="#receiving" title="receiving
      state">receiving</a> or <a href="#loaded" title="loaded
-     state">loaded</a>, user agents <em class=ct>must</em> raise an
+     state">loaded</a>, the user agent <em class=ct>must</em> raise an
      <code>INVALID_STATE_ERR</code> exception. Otherwise, it <em
      class=ct>must</em> return all the HTTP headers, as a single string, with
      each header line separated by a CR (U+000D) LF (U+000A) pair. The status
