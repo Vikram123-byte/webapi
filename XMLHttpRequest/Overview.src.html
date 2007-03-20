@@ -732,6 +732,14 @@ X-Test: one, two
      body, list of request headers and the rules listed directly after this
      set of steps.</p></li>
 
+     <li>
+      <p>The user agent <em class="ct">must</em> then synchronously
+      dispatch a <code>readystatechange</code> event on the object.</p>
+
+      <p class="note">The state of the object doesn't actually change, but the
+      event is dispatched for historical reasons.</p>
+     </li>
+
      <li><p>If <var>async</var> is <code>true</code> the user agent
      <em class="ct">must</em> set the <dfn><code>send()</code> flag</dfn>,
      directly unset it when the state changes and return the
@@ -742,14 +750,14 @@ X-Test: one, two
      state to <span title="SENT state">SENT</span>; the user agent
      <em class="ct">must</em> then synchronously dispatch a
      <code>readystatechange</code> event on the object.</p></li>
-     <!-- only do this for async = true? -->
+     <!-- IE does this regardless of the async value -->
 
      <li><p>If all HTTP headers have been receieved, immediately before
      receiving the message body (if any), switch the state to
      <span title="RECEIVING state">RECEIVING</span>; the user agent
      <em class="ct">must</em> then synchronously dispatch a
      <code>readystatechange</code> event on the object.</p></li>
-     <!-- only do this for async = true? -->
+     <!-- IE does this regardless of the async value -->
 
      <li>
       <p>If the response is an HTTP redirect (status code <code>301</code>,
@@ -859,6 +867,10 @@ X-Test: one, two
 
      <li><p>Any network activity for which the object responsible
      <em class="ct">should</em> be cancelled.</p></li>
+
+     <li>Switch the state to <span title="LOADED state">LOADED</span>; the
+     user agent <em class="ct">must</em> then synchronously dispatch a
+     <code>readystatechange</code> event on the object.</li>
 
      <li>
       <p>Switch the state to
