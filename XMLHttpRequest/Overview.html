@@ -599,8 +599,8 @@ client.send();</code></pre>
       <p>
 
      <li>
-      <p>If the object is currently performing a request the user agent <em
-       class=ct>should</em> cancel the request.
+      <p>Any network activity for which the object responsible <em
+       class=ct>should</em> be cancelled.
      </li>
      <!-- we can hardly require it... -->
 
@@ -775,7 +775,7 @@ X-Test: one, two
      scripts <em class=ct>should</em> ensure that they have specified (before
      invoking <code><a href="#dfn-send">send()</a></code>) the
      <code>Content-Type</code> header via <code><a
-     href="#dfn-setrequestheader">setRequestHeader</a></code>.</p>
+     href="#dfn-setrequestheader">setRequestHeader()</a></code>.</p>
 
     <p>When invoked, the user agent <em class=ct>must</em> follow the
      following steps:</p>
@@ -970,21 +970,38 @@ X-Test: one, two
    <dt><dfn id=dfn-abort><code>abort()</code></dfn>, method
 
    <dd>
-    <p>When invoked, the user agent <em class=ct>must</em> (in order) cancel
-     any network activity for which the object is responsible and set all the
-     members of the object to their initial values as well as removing all
-     event listeners.</p>
+    <p>When invoked, the user agent <em class=ct>must</em> run the following
+     steps:</p>
 
-    <p class=note>This means that the object <em>can</em> be used for another
-     request in which case this method will work again to cancel it.</p>
+    <ol>
+     <li>
+      <p>Set the <code><a href="#dfn-responsetext">responseText</a></code>,
+       <code><a href="#dfn-responsexml">responseXML</a></code>, <code><a
+       href="#dfn-status">status</a></code> and <code><a
+       href="#dfn-responsetext">responseText</a></code> attributes to their
+       initial value as well as removing any registered request headers.
+
+     <li>
+      <p>Any network activity for which the object responsible <em
+       class=ct>should</em> be cancelled.
+
+     <li>
+      <p>Switch the state to <a href="#uninitialized" title="UNINITIALIZED
+       state">UNINITIALIZED</a>. (Don't dispatch the <code><a
+       href="#dfn-readystatechange">readystatechange</a></code> event.)</p>
+
+      <p class=note>It's likely that a future version of the <code><a
+       href="#xmlhttprequest-object">XMLHttpRequest</a></code> will dispatch
+       an <code title="">abort</code> event here.</p>
+    </ol>
 
    <dt><dfn
     id=dfn-getallresponseheaders><code>getAllResponseHeaders()</code></dfn>,
     method
 
    <dd>
-    <p>When the method is invoked, the user agent <em class=ct>must</em> run
-     the following steps:</p>
+    <p>When invoked, the user agent <em class=ct>must</em> run the following
+     steps:</p>
 
     <ol>
      <li>If the state is not <a href="#receiving" title="receiving

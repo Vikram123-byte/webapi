@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="en-US">
  <head>
   <title>The XMLHttpRequest Object</title>
@@ -512,8 +512,8 @@ client.send();</code></pre>
      <code>status</code> and <code>statusText</code> to their initial
      values and reset the list of request headers.<p></li>
 
-     <li><p>If the object is currently performing a request the user agent
-     <em class="ct">should</em> cancel the request.</p></li>
+     <li><p>Any network activity for which the object responsible
+     <em class="ct">should</em> be cancelled.</p></li>
      <!-- we can hardly require it... -->
 
      <li><p>Switch the object to the <span title="OPEN state">OPEN</span>
@@ -668,7 +668,7 @@ X-Test: one, two
     argument <em class="ct">may</em> be used by scripts to provide the entity
     body. When the argument is provided scripts <em class="ct">should</em>
     ensure that they have specified (before invoking <code>send()</code>) the
-    <code>Content-Type</code> header via <code>setRequestHeader</code>.</p>
+    <code>Content-Type</code> header via <code>setRequestHeader()</code>.</p>
 
     <p>When invoked, the user agent <em class="ct">must</em> follow the
     following steps:</p>
@@ -731,7 +731,7 @@ X-Test: one, two
      <var>stored password</var> (if provided) taking into account the entity
      body, list of request headers and the rules listed directly after this
      set of steps.</p></li>
-     
+
      <li><p>If <var>async</var> is <code>true</code> the user agent
      <em class="ct">must</em> set the <dfn><code>send()</code> flag</dfn>,
      directly unset it when the state changes and return the
@@ -756,7 +756,7 @@ X-Test: one, two
       <code>302</code>, <code>303</code> or <code>307</code>), then it
       <em class="ct">must</em> be transparently followed (unless it violates
       security, infinite loop precautions or the scheme isn't supported).</p>
-      
+
       <p class="note">HTTP places requirements on the user agent regarding the
       preservation of the request method and entity body during redirects, and
       also requires users to be notified of certain kinds of automatic
@@ -764,29 +764,29 @@ X-Test: one, two
       <!-- Arguably HTTP should be fixed for the latter case. No browser
       follows that as far as I know. -->
      </li>
-     
+
      <li>
       <p>If something goes wrong (infinite loop, network errors) the user
       agent <em class="ct">must</em> follow the following set of steps:</p>
-     
+
       <ol>
        <li><p>Set <code>responseText</code>, <code>responseXML</code>,
        <code>status</code> and <code>statusText</code> to their initial
        values and reset the list of request headers.</p></li>
-      
+
        <li><p>Switch the state to
        <span title="LOADED state">LOADED</span>.</p></li>
-      
+
        <li><p>If <var>async</var> is set to <code>false</code> the user agent
        <em class="ct">must</em> raise a <code>NETWORK_ERR</code> exception.
        (Don't abort these steps.)</p></li>
-      
+
        <li><p>Synchronously dispatch a <code>readystatechange</code> event on
        the object.</p></li>
-      
+
        <li><p>Abort the overall algorithm.</p></li>
       </ol>
-    
+
       <p class="note">In future versions of this specification the user agent
       will be required to dispatch an <code>error</code> event if the above
       occurs.</p>
@@ -848,21 +848,35 @@ X-Test: one, two
    <dt><dfn id="dfn-abort"><code>abort()</code></dfn>, method</dt>
 
    <dd>
-    <p>When invoked, the user agent <em class="ct">must</em> (in order) cancel
-    any network activity for which the object is responsible and set all the
-    members of the object to their initial values as well as removing all
-    event listeners.</p>
+    <p>When invoked, the user agent <em class="ct">must</em> run the following
+    steps:</p>
 
-    <p class="note">This means that the object <em>can</em> be used for
-    another request in which case this method will work again to cancel
-    it.</p>
+    <ol>
+     <li><p>Set the <code>responseText</code>, <code>responseXML</code>,
+     <code>status</code> and <code>responseText</code> attributes to their
+     initial value as well as removing any registered request
+     headers.</p></li>
+
+     <li><p>Any network activity for which the object responsible
+     <em class="ct">should</em> be cancelled.</p></li>
+
+     <li>
+      <p>Switch the state to
+      <span title="UNINITIALIZED state">UNINITIALIZED</span>. (Don't dispatch
+      the <code>readystatechange</code> event.)</p>
+
+      <p class="note">It's likely that a future version of the
+      <code>XMLHttpRequest</code> will dispatch an <code title="">abort</code>
+      event here.</p>
+     </li>
+    </ol>
    </dd>
 
    <dt><dfn id="dfn-getallresponseheaders"><code>getAllResponseHeaders()</code></dfn>,
    method</dt>
 
    <dd>
-    <p>When the method is invoked, the user agent <em class="ct">must</em> run
+    <p>When invoked, the user agent <em class="ct">must</em> run
     the following steps:</p>
 
     <ol>
