@@ -5,6 +5,7 @@
   <style type="text/css">
    pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
    pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
+   pre code { color:inherit; background:transparent }
    div.example { margin-left:1em; padding-left:1em; border-left:double; color:#222; background:#fcfcfc }
    p.note { margin-left:2em; font-weight:bold; font-style:italic; color:#008000 }
    p.note::before { content:"Note: " }
@@ -16,7 +17,7 @@
    code :link, code :visited { color:inherit }
   </style>
   <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base">
-  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD">
+  <!--<link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD">-->
  </head>
  <body>
   <div class="head">
@@ -36,6 +37,8 @@
     <dd><a href="http://www.w3.org/TR/XMLHttpRequest/">http://www.w3.org/TR/XMLHttpRequest/</a></dd>
 
     <dt>Previous Versions:</dt>
+
+    <dd><a href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070227/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070227/</a></dd>
 
     <dd><a href="http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060927/">http://www.w3.org/TR/2006/WD-XMLHttpRequest-20060927/</a></dd>
 
@@ -146,7 +149,7 @@
    <p>Some simple code to do something with data from an XML document fetched
    over the network:</p>
 
-   <pre>function test(data) {
+   <pre><code>function test(data) {
  // taking care of data
 }
 
@@ -167,20 +170,20 @@ function handler() {
 var client = new XMLHttpRequest();
 client.onreadystatechange = handler;
 client.open("GET", "test.xml");
-client.send();</pre>
+client.send();</code></pre>
 
    <p>If you just want to log a message to the server:</p>
 
-   <pre>function log(message) {
+   <pre><code>function log(message) {
  var client = new XMLHttpRequest();
  client.open("POST", "/log");
  client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
  client.send(message);
-}</pre>
+}</code></pre>
 
    <p>Or if you want to check the status of a document on the server:</p>
 
-   <pre>function fetchStatus(address) {
+   <pre><code>function fetchStatus(address) {
  var client = new XMLHttpRequest();
  client.onreadystatechange = function() {
   // in case of network errors this might not give reliable results
@@ -189,7 +192,7 @@ client.send();</pre>
  }
  client.open("HEAD", address);
  client.send();
-}</pre>
+}</code></pre>
   </div>
 
   <h3 id="conformance">Conformance</h3>
@@ -243,7 +246,21 @@ client.send();</pre>
 
    <dd>
     <p>Implementations <em class="ct">must</em> support some version of the
-    HTTP protocol. Other requirements regarding HTTP are made throughout the
+    HTTP protocol. The user agent <em class="ct">should</em> support any HTTP
+    method that matches the <span><code>Method</code> production</span> and
+    <em class="ct">must</em> at least support the following list of
+    methods:</p>
+
+    <ul>
+     <li><code>GET</code></li>
+     <li><code>POST</code></li>
+     <li><code>HEAD</code></li>
+     <li><code>PUT</code></li>
+     <li><code>DELETE</code></li>
+     <li><code>OPTIONS</code></li>
+    </ul>
+
+    <p>Other requirements regarding HTTP are made throughout the
     specification. [<cite><span>RFC2616</span></cite>]</p>
    </dd>
 
@@ -268,28 +285,31 @@ client.send();</pre>
 
   <h2 id="xmlhttprequest">The <code title="">XMLHttpRequest</code> Object</h2>
 
-  <p>The <code>XMLHttpRequest</code> interface can be used by scripts to
+  <p>The <code>XMLHttpRequest</code> object can be used by scripts to
   programmatically connect to their originating server via HTTP.</p>
 
   <p>Objects implementing the <code>XMLHttpRequest</code> interface
   <em class="ct">must</em> also implement the <code>EventTarget</code>
-  interface [<cite><span>DOM3Events</span></cite>].</p>
+  interface. [<cite><span>DOM3Events</span></cite>]</p>
 
-  <p>In [<cite><span>ECMAScript</span></cite>], an instance
-  of <code>XMLHttpRequest</code> can be created using the
-  <code title="">XMLHttpRequest()</code> constructor:</p>
+  <p>Objects implementing the <code title="">Window</code> interface
+  <em class="ct">must</em> provide an <code title="">XMLHttpRequest()</code>
+  constructor. [<cite><span>Window</span></cite>]</p>
 
   <div class="example">
-   <pre>var client = new XMLHttpRequest();</pre>
+   <p>In ECMAScript this can be used as follows:</p>
+   <!-- [<cite><span>ECMAScript</span></cite>] -->
+
+   <pre><code>var client = new XMLHttpRequest();</code></pre>
   </div>
 
-  <p>When the constructor is invoked a pointer to the
-  <code title="">Window</code> object which initially had
-  <code title="">XMLHttpRequest</code> as an attribute of which the
-  constructor was invoked <em class="ct">must</em> be stored on the newly
-  created object, called the
+  <p>When the <code title="">XMLHttpRequest()</code> constructor is invoked a
+  persistent pointer to the associated <code title="">Window</code> object
+  <em class="ct">must</em> be stored on the newly created object. This is the
   <dfn title="Window pointer" id="window-pointer"><code>Window</code>
-  pointer</dfn>. This <span title="Window pointer">pointer</span>
+  pointer</dfn>. The associated <code title="">Window</code> object is the one
+  of which the <code title="">XMLHttpRequest</code> constructor was
+  invoked. This <span title="Window pointer">pointer</span>
   <em class="ct">must</em> persist even if the browsing context in which the
   <code title="">Window</code> is located is destroyed (by removing it from a
   parent browsing context, for instance).</p>
@@ -300,12 +320,27 @@ client.send();</pre>
   <!-- XXX if the document object changes in the browsing context you get an
   exception in some implementations. -->
 
-  <h3 id="xmlhttprequest-members">Members of the
-  <code title="">XMLHttpRequest</code> Object</h3>
+  <div class="example">
+   <p>If <var><code>x</code></var> is a <code>Window</code> object
+   <var><code>y</code></var> will have a pointer to <var><code>x</code></var>
+   in the following example:</p>
 
-  <pre class="idl">interface <dfn>XMLHttpRequest</dfn> {
-           attribute EventListener   <span>onreadystatechange</span>;
+   <pre><code>var y = new x.XMLHttpRequest()</code></pre>
+  </div>
+
+  <pre class="idl">interface <dfn id="xmlhttprequest-object">XMLHttpRequest</dfn> {
+  // event handler
+         attribute EventListener   <span>onreadystatechange</span>;
+
+  // state
+  const unsigned short <span title="UNINITIALIZED state">UNINITIALIZED</span> = 0;
+  const unsigned short <span title="OPEN state">OPEN</span> = 1;
+  const unsigned short <span title="SENT state">SENT</span> = 2;
+  const unsigned short <span title="RECEIVING state">RECEIVING</span> = 3;
+  const unsigned short <span title="LOADED state">LOADED</span> = 4;
   readonly attribute unsigned short  <span>readyState</span>;
+
+  // request
   void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
   void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
   void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
@@ -315,6 +350,8 @@ client.send();</pre>
   void               <span>send</span>(in DOMString <var>data</var>);
   void               <span>send</span>(in Document <var>data</var>);
   void               <span>abort</span>();
+
+  // response
   DOMString          <span>getAllResponseHeaders</span>();
   DOMString          <span>getResponseHeader</span>(in DOMString <var>header</var>);
   readonly attribute DOMString       <span>responseText</span>;
@@ -323,6 +360,44 @@ client.send();</pre>
   readonly attribute DOMString       <span>statusText</span>;
 };</pre>
 
+  <p>The <code>XMLHttpRequest</code> object can be in five states:
+  <span title="UNINITIALIZED state">UNINITIALIZED</span>,
+  <span title="OPEN state">OPEN</span>, <span title="SENT state">SENT</span>,
+  <span title="RECEIVING state">RECEIVING</span> and
+  <span title="LOADED state">LOADED</span>. The current state is exposed
+  through the <code>readyState</code> attribute. The method definitions below
+  define when exactly a state transition takes place.</p>
+
+  <p>When constructed, the <code>XMLHttpRequest</code> object
+  <em class="ct">must</em> be in the UNINITIALIZED state. This state is
+  represented by the
+  <dfn id="uninitialized" title="UNINITIALIZED state"><code>UNINITIALIZED</code></dfn>
+  constant, whose value is <code>0</code>.</p>
+
+  <p>The OPEN state is the state of the object when the <code>open()</code>
+  method has been successfully invoked. During this state reqeust headers can
+  be set using <code>setRequestHeader()</code> and the request can be made
+  using <code>send()</code>. This state is represented by the
+  <dfn id="open" title="OPEN state"><code>OPEN</code></dfn> constant, whose
+  value is <code>1</code>.</p>
+
+  <p>The SENT state is the state of the object when the user agent
+  successfully acknowledged the request. This state is represented by the
+  <dfn id="sent" title="SENT state"><code>SENT</code></dfn> constant, whose
+  value is <code>2</code>.</p>
+
+  <p>The RECEIVING state is the state of the object when all HTTP headers have
+  been received. The object typically remains in this state until the complete
+  message body (if any) has been received. This state is represented by the
+  <dfn id="receiving" title="RECEIVING state"><code>RECEIVING</code></dfn>
+  constant, whose value is <code>3</code>.</p>
+
+  <p>The LOADED state is the state of the object when either the data transfer
+  has been completed or something went wrong during the transfer (infinite
+  redirects for instance). This state is represented by the
+  <dfn id="loaded" title="LOADED state"><code>LOADED</code></dfn> constant,
+  whose value is <code>4</code>.</p>
+
   <dl>
 
    <dt><dfn id="dfn-onreadystatechange"><code>onreadystatechange</code></dfn>
@@ -330,45 +405,18 @@ client.send();</pre>
 
    <dd>
     <p>An attribute that takes an <code>EventListener</code> as value that
-    <em class="ct">must</em> be invoked when <code>readystatechange</code> is
-    dispatched on the object implementing the <code>XMLHttpRequest</code>
-    interface. Its initial value <em class="ct">must</em> be
-    <code>null</code>.</p>
+    <em class="ct">must</em> be invoked along with any other appropriate event
+    listeners that are registered on this object when a
+    <code>readystatechange</code> event is dispatched on it. Its initial value
+    <em class="ct">must</em> be <code>null</code>.</p>
    </dd>
 
    <dt><dfn id="dfn-readystate"><code>readyState</code></dfn> of type
    <code>unsigned short</code>, readonly</dt>
 
    <dd>
-    <p>The state of the object. The attribute <em class="ct">must</em> be one
-    of the following values:</p>
-
-    <dl>
-     <dt><dfn title="uninitialized state">0 Uninitialized</dfn></dt>
-
-     <dd>The initial value.</dd>
-
-     <dt><dfn title="open state">1 Open</dfn></dt>
-
-     <dd>The <code>open()</code> method has been successfully called.</dd>
-
-     <dt><dfn title="sent state">2 Sent</dfn></dt>
-
-     <dd>The user agent successfully acknowledged the request.</dd>
-
-     <dt><dfn title="receiving state">3 Receiving</dfn></dt>
-
-     <dd>All HTTP headers have been received. The message body (if any) has
-     not yet been fully received.</dd>
-
-     <dt><dfn title="loaded state">4 Loaded</dfn></dt>
-
-     <dd>The data transfer has been completed.</dd>
-    </dl>
-
-    <p class="note">When <code>readyState</code> changes value a
-    <code>readystatechange</code> event is to be dispatched on the
-    <code>XMLHttpRequest</code> object.</p>
+    <p>The attribute <em class="ct">must</em> be the value of the constant
+    corresponding to the object's current state.</p>
    </dd>
 
    <dt><dfn id="dfn-open" title="open"><code>open(<var>method</var>,
@@ -376,91 +424,106 @@ client.send();</pre>
    <var>password</var>)</code></dfn>, method</dt>
 
    <dd>
-    <p>Invoking this method <em class="ct">must</em> initialize the object by
-    remembering the <var>method</var>, <var>url</var>, <var>async</var>
-    (defaulting to <code>true</code> if omitted), <var>user</var> (defaulting
-    to <code>null</code> if omitted), and <var>password</var> (defaulting to
-    <code>null</code> if omitted) arguments, setting the state to
-    <span title="open state">open</span>, resetting the
-    <code>responseText</code>, <code>responseXML</code>, <code>status</code>,
-    and <code>statusText</code> attributes to their initial values, and
-    resetting the list of request headers.</p>
+    <p>When invoked, the user agent <em class="ct">must</em> follow the
+    following steps:</p>
 
-    <p>In addition, when the state is not
-    <span title="uninitialized state">uninitialized</span>, all members of the
-    object with the exception of <code>onreadystatechange</code>
-    <em class="ct">must</em> be set to their initial values and the user agent
-    <em class="ct">must</em> behave as if <code>abort()</code> was
-    invoked.</p>
+    <ol>
+     <li><p>If the <var>method</var> argument doesn't match the
+     <dfn><code>Method</code> production</dfn> defined in section 5.1.1 of RFC
+     2616 the user agent <em class="ct">must</em> raise a
+     <code>SYNTAX_ERR</code> exception and abort these steps.
+     [<cite><span>RFC2616</span></cite>]</p></li>
 
-    <p>If the <var>method</var> argument doesn't match the
-    <dfn><code>Method</code> production</dfn> defined in section 5.1.1 of RFC
-    2616 a <code>SYNTAX_ERR</code>
-    <em class="ct">must</em> be raised by the user agent. If the user agent
-    doesn't support the given method for security reasons a
-    <code>SECURITY_ERR</code> <em class="ct">should</em> be raised.
-    [<cite><span>RFC2616</span></cite>]</p>
+     <li><p>If the given <var>method</var> is not supported for security
+     reasons the user agent <em class="ct">should</em> raise a
+     <code>SECURITY_ERR</code> exception and abort these steps.</p></li>
 
-    <p>The user agent <em class="ct">must</em> at least support the following
-    list of methods (see [<cite><span>RFC2616</span></cite>]):</p>
+     <li><p>Let <var>stored method</var> be <var>method</var>.</p></li>
 
-    <ul>
-     <li><code>GET</code></li>
-     <li><code>POST</code></li>
-     <li><code>HEAD</code></li>
-     <li><code>PUT</code></li>
-     <li><code>DELETE</code></li>
-     <li><code>OPTIONS</code></li>
-    </ul>
+     <li><p>If <var>method</var> case-insensitively matches <code>GET</code>,
+     <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
+     <code>DELETE</code> or <code>OPTIONS</code> the user agent
+     <em class="ct">must</em> use convert it to its uppercase equivalent and
+     let <var>stored method</var> be the result.</p></li>
 
-    <p>The user agent <em class="ct">should</em> support any <var>method</var>
-    argument that matches the <span><code>Method</code> production</span>.</p>
+     <li><p>Drop the fragment identifier (if any) from <var>url</var> and let
+     <var>stored url</var> be the result of that operation.</p></li>
 
-    <p>When <var>method</var> case-insensitively matches <code>GET</code>,
-    <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
-    <code>DELETE</code> or <code>OPTIONS</code> the user agent
-    <em class="ct">must</em> use the uppercase equivalent instead.</p>
+     <li><p>If <var>stored url</var> is a relative reference it
+     <em class="ct">must</em> be resolved using the current value of the
+     <code>baseURI</code> attribute of the <code>Document</code> object
+     currently associated with the <span><code>Window</code> pointer</span>.
+     If this fails the user agent <em class="ct">must</em> raise a
+     <code>SYNTAX_ERR</code> exception and abort these steps.</p></li>
 
-    <p>When <var>url</var> is a relative reference, it
-    <em class="ct">must</em> be resolved using the current value of the
-    <code>baseURI</code> attribute of the <code>Document</code> object
-    currently associated with the <span><code>Window</code> pointer</span>. If
-    it can't be resolved the user agent <em class="ct">must</em> throw a
-    <code>SYNTAX_ERR</code>. When a non same-origin <var>url</var> argument is
-    given the user agent <em class="ct">should</em> throw a
-    <code>SECURITY_ERR</code> exception. The fragment identifier component of
-    <var>url</var>, if any, <em class="ct">must</em> be dropped.</p>
+     <li><p>If the <code>"user:password"</code> format in the
+     <code>userinfo</code> production defined in section 3.2.1 of RFC 3986 is
+     not supported for the relevant scheme and <var>stored url</var> contains
+     this format the user agent <em class="ct">must</em> throw a
+     <code>SYNTAX_ERR</code>. [<cite><span>RFC3986</span></cite>]</p></li>
+
+     <li><p>If <var>stored url</var> contains the <code>"user:password"</code>
+     format let <var>stored user</var> be the user part and <var>stored
+     password</var> be the password part.</p></li>
+
+     <li><p>If <var>stored url</var> just contains the <code>"user"</code>
+     format let <var>stored user</var> be the user part.</p></li>
+
+     <li><p>If <var>stored url</var> is non same-origin the user agent
+     <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
+     and abort these steps. This specification does not define what
+     constitutes as non same-origin.<!-- reference HTML5? --></p></li>
+
+     <li><p>Let <var>async</var> be the value of the <var>async</var> argument
+     or <code>false</code> if it was omitted.</p></li>
+
+     <li><p>If the <var>user</var> argument was not omitted and its syntax
+     does not match that specified by the relevant authentication scheme the
+     user agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code>
+     exception and abort these steps.</p></li>
+
+     <li>
+      <p>If the <var>user</var> argument was not omitted and is not
+      <code>null</code> let <var>stored user</var> be <var>user</var> encoded
+      using the encoding specified in the relevant authentication scheme or
+      UTF-8 if the scheme fails to specify an encoding.</p>
+
+      <p class="note">This step overrides any user that may have been set by
+      the <var>url</var> argument.</p>
+     </li>
+
+     <li><p>If the <var>user</var> argument was not omitted and is
+     <code>null</code> remove <var>stored user</var>.</p></li>
+
+     <li><p>If the <var>password</var> argument was not omitted and its syntax
+     does not match that specified by the relevant authentication scheme the
+     user agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code>
+     exception and abort these steps.</p></li>
+
+     <li><p>If the <var>password</var> argument was not omitted and is not
+     <code>null</code> let <var>stored password</var> be <var>password</var>
+     encoded using the encoding specified in the relevant authentication
+     scheme or UTF-8 if the scheme fails to specify an encoding.</p></li>
+
+     <li><p>If the <var>password</var> argument was not omitted and is
+     <code>null</code> remove <var>stored password</var>.</p></li>
+
+     <li><p>Set <code>responseText</code>, <code>responseXML</code>,
+     <code>status</code> and <code>statusText</code> to their initial
+     values and reset the list of request headers.<p></li>
+
+     <li><p>If the object is currently performing a request the user agent
+     <em class="ct">should</em> cancel the request.</p></li>
+     <!-- we can hardly require it... -->
+
+     <li><p>Switch the object to the <span title="OPEN state">OPEN</span>
+     state; the user agent <em class="ct">must</em> then synchronously
+     dispatch a <code>readystatechange</code> event on the object and abort
+     these steps (returning the method call).</p></li>
+    </ol>
 
     <p class="note">A future version or extension of this specification will
     most likely define a way of doing cross-site requests.</p>
-
-    <p>The user agent <em class="ct">should not</em> support the
-    <code>"user:password"</code> format in the <code>userinfo</code>
-    production defined in section 3.2.1 of RFC 3986 and
-    <em class="ct">must</em> throw a <code>SYNTAX_ERR</code> when doing so
-    (not supporting it). When it does support it, or in case of people using
-    the format "user", the user agent <em class="ct">must</em> use them if the
-    <var>user</var> and <var>password</var> arguments are omitted. If the
-    arguments are not omitted, they take precedence, even if they are
-    <code>null</code>. [<cite><span>RFC3986</span></cite>]</p>
-
-    <p>The syntax for the <var>user</var> or <var>password</var> arguments
-    depends on the authentication scheme being used. If the syntax for either
-    is incorrect per the production given in the relevant scheme the user
-    agent <em class="ct">must</em> throw a <code>SYNTAX_ERR</code> exception.
-    The <var>user</var> and <var>password</var> <em class="ct">must</em> be
-    encoded using the encoding specified by the scheme. If the scheme fails to
-    specify an encoding they <em class="ct">must</em> be encoded using
-    UTF-8.</p>
-
-    <p>When <code>null</code> is passed for either <var>user</var> or
-    <var>password</var> the user agent <em class="ct">must</em> act as if the
-    relevant data (the user name or password) is not provided.</p>
-
-    <p class="note">The empty string value is not to be treated as the
-    <code>null</code> value. If it's disallowed by the syntax for either
-    <var>user</var> or <var>password</var> a <code>SYNTAX_ERR</code> has to be
-    thrown as indicated above.</p>
    </dd>
 
    <dt><dfn id="dfn-setrequestheader" title="setrequestheader"><code>setRequestHeader(<var>header</var>,
@@ -471,30 +534,36 @@ client.send();</pre>
     method can be used to manipulate those values and set new request
     headers.</p>
 
-    <p>The nominated request header (<var>header</var>) field value
-    <em class="ct">must</em> be set to <var>value</var>, with the following
-    exceptions:</p>
+    <p>When invoked, the user agent <em class="ct">must</em> follow the
+    following steps:</p>
 
-    <ul>
-     <li>If the state is not <span title="open state">open</span> or the
-     <span><code>send()</code> flag</span> is set an
-     <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-     raised;</li>
+    <ol>
+     <li><p>If the state of the object is not
+     <span title="OPEN state">OPEN</span> the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</p></li>
 
-     <li>If the <var>header</var> argument doesn't match the
+     <li><p>If the <span><code>send()</code> flag</span> is set the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</p></li>
+
+     <li><p>If the <var>header</var> argument doesn't match the
      <dfn><code>field-name</code> production</dfn> as defined by section 4.2
-     of [<cite><span>RFC2616</span></cite>] a
-     <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised;</li>
+     of RFC 2616 the user agent <em class="ct">must</em> raise a
+     <code>SYNTAX_ERR</code> and abort these steps.
+     [<cite><span>RFC2616</span></cite>]</p></li>
 
-     <li>If the <var>value</var> argument doesn't match the
+     <li><p>If the <var>value</var> argument doesn't match the
      <dfn><code>field-value</code> production</dfn> as defined by section 4.2
-     of [<cite><span>RFC2616</span></cite>] a
-     <code>SYNTAX_ERR</code> <em class="ct">must</em> be raised;</li>
+     of RFC 2616 the user agent <em class="ct">must</em> raise a
+     <code>SYNTAX_ERR</code> and abort these steps.
+     [<cite><span>RFC2616</span></cite>]</p></li>
 
      <li>
-      <p>For security reasons the invocation <em class="ct">should</em> be
-      ignored if the <var>header</var> argument matches one of the following
-      headers case-insensitively:</p>
+      <p>For security reasons these steps <em class="ct">should</em> be
+      aborted if the <var>header</var> argument case-insensitively matches one
+      of the following headers:</p>
+
       <ul>
        <li><code>Accept-Charset</code></li>
        <li><code>Accept-Encoding</code></li>
@@ -509,63 +578,70 @@ client.send();</pre>
        <li><code>Transfer-Encoding</code></li>
        <li><code>Upgrade</code></li>
       </ul>
-      <!-- XXX or should this throw an exception? -->
      </li>
-    </ul>
+     <!-- XXX or should this throw an exception? -->
 
-    <!-- Add "Expect" back in below if we remove it above. -->
-    <p>Implementations <em class="ct">must</em> replace any existing value if
-    the <var>header</var> argument case-insensitively matches one of:</p>
+     <li>
+      <p class="issue">This part is only supported by Opera it seems. It might
+      be better to kill it.</p>
 
-    <ul>
-     <li><code>Apply-To-Redirect-Ref</code></li>
-     <li><code>Authorization</code></li>
-     <li><code>C-Ext</code></li>
-     <li><code>Content-Base</code></li>
-     <li><code>Content-Location</code></li>
-     <li><code>Content-MD5</code></li>
-     <li><code>Content-Range</code></li>
-     <li><code>Content-Type</code></li>
-     <li><code>Content-Version</code></li>
-     <li><code>Cookie</code></li>
-     <li><code>Cookie2</code></li>
-     <li><code>Delta-Base</code></li>
-     <li><code>Depth</code></li>
-     <li><code>Destination</code></li>
-     <li><code>ETag</code></li>
-     <li><code>Ext</code></li>
-     <li><code>From</code></li>
-     <li><code>If</code></li>
-     <li><code>If-Modified-Since</code></li>
-     <li><code>If-Range</code></li>
-     <li><code>If-Unmodified-Since</code></li>
-     <li><code>Label</code></li>
-     <li><code>Lock-Token</code></li>
-     <li><code>Max-Forwards</code></li>
-     <li><code>MIME-Version</code></li>
-     <li><code>Ordering-Type</code></li>
-     <li><code>Overwrite</code></li>
-     <li><code>Proxy-Authorization</code></li>
-     <li><code>Redirect-Ref</code></li>
-     <li><code>SOAPAction</code></li>
-     <li><code>Status-URI</code></li>
-     <li><code>Timeout</code></li>
-    </ul>
+      <p>If the <var>header</var> argument case-insensitively matches one of
+      the following headers the user agent <em class="ct">must</em> set the
+      value of that HTTP header to <var>value</var> and abort these steps:</p>
 
-    <p class="note">The value of other headers cannot be reset, additional
-    values will be appended to the existing value instead.</p>
+      <ul>
+       <li><code>Apply-To-Redirect-Ref</code></li>
+       <li><code>Authorization</code></li>
+       <li><code>C-Ext</code></li>
+       <li><code>Content-Base</code></li>
+       <li><code>Content-Location</code></li>
+       <li><code>Content-MD5</code></li>
+       <li><code>Content-Range</code></li>
+       <li><code>Content-Type</code></li>
+       <li><code>Content-Version</code></li>
+       <li><code>Cookie</code></li>
+       <li><code>Cookie2</code></li>
+       <li><code>Delta-Base</code></li>
+       <li><code>Depth</code></li>
+       <li><code>Destination</code></li>
+       <li><code>ETag</code></li>
+       <li><code>Ext</code></li>
+       <li><code>From</code></li>
+       <li><code>If</code></li>
+       <li><code>If-Modified-Since</code></li>
+       <li><code>If-Range</code></li>
+       <li><code>If-Unmodified-Since</code></li>
+       <li><code>Label</code></li>
+       <li><code>Lock-Token</code></li>
+       <li><code>Max-Forwards</code></li>
+       <li><code>MIME-Version</code></li>
+       <li><code>Ordering-Type</code></li>
+       <li><code>Overwrite</code></li>
+       <li><code>Proxy-Authorization</code></li>
+       <li><code>Redirect-Ref</code></li>
+       <li><code>SOAPAction</code></li>
+       <li><code>Status-URI</code></li>
+       <li><code>Timeout</code></li>
+      </ul>
+     </li>
 
-    <p>Otherwise, if the <var>header</var> argument does not match any of the
-    listed headers and already has a value that value <em class="ct">must</em>
-    be retained. The user agent <em class="ct">may</em> either use multiple
-    headers, combine the values or use a combination of those (section 4.2,
-    RFC 2616). [<cite><span>RFC2616</span></cite>]</p>
+     <li><p>If the <var>header</var> argument is not in the list of request
+     headers the user agent <em class="ct">must</em> append the
+     <var>header</var> with its associated <var>value</var> to the list and
+     abort these steps.</p></li>
+
+     <li><p>If the <var>header</var> argument is in the list of request
+     headers the user agent <em class="ct">must</em> either use multiple
+     headers, combine the values or use a combination of those (section 4.2,
+     RFC 2616) and abort these steps.
+     [<cite><span>RFC2616</span></cite>]</p></li>
+    </ol>
 
     <p class="note">See also the <code>send()</code> method regarding user
     agent header handling for caching, authentication, proxies, and cookies.</p>
 
     <div class="example">
-     <pre>// The following script:
+     <pre><code>// The following script:
 var client = new XMLHttpRequest();
 client.open('GET', 'demo.cgi');
 client.setRequestHeader('X-Test', 'one');
@@ -575,7 +651,7 @@ client.send();
 // ...would result in the following header being sent:
 ...
 X-Test: one, two
-...</pre>
+...</code></pre>
     </div>
 
     <p>The list of request headers <em class="ct">must</em> be reset when the
@@ -586,106 +662,141 @@ X-Test: one, two
    method</dt>
 
    <dd>
-    <p>If the state is not <span title="open state">open</span> or the
-    <span><code>send()</code> flag</code> is set an
-    <code>INVALID_STATE_ERR</code> exception <em class="ct">must</em> be
-    raised. Otherwise a request to <var>url</var> using method
-    <var>method</var> <em class="ct">must</em> be made and the
-    <dfn><code>send()</code> flag</dfn> <em class="ct">must</em> be set. If
-    the <var>async</var> flag is set to <code>false</code>, then the method
-    <em class="ct">must not</em> return until the request has completed.
-    Otherwise, it <em class="ct">must</em> return immediately.
-    (See: <code>open()</code>.)</p>
+    <p>The <code>send()</code> method initiates the request and its optional
+    argument <em class="ct">may</em> be used by scripts to provide the entity
+    body. When the argument is provided scripts <em class="ct">should</em>
+    ensure that they have specified (before invoking <code>send()</code>) the
+    <code>Content-Type</code> header via <code>setRequestHeader</code>.</p>
 
-    <p class="note">Even when <var>async</var> is set to <code>false</code>
-    the <code>readystatechange</code> event will still be dispatched.</p>
+    <p>When invoked, the user agent <em class="ct">must</em> follow the
+    following steps:</p>
 
-    <p class="note">The <span><code>send()</code> flag</span> is only relevant
-    when the state is <span title="open state">open</span>.</p>
+    <ol>
+     <li><p>If the state of the object is not
+     <span title="OPEN state">OPEN</span> the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</p></li>
 
-    <p>If <var>data</var> is passed to the <code>send()</code> method and it's
-    not <code>null</code> it <em class="ct">must</em> be used for the
-    <dfn id="dfn-entity-body">entity body</dfn> as defined by section 7.2 of 
-    [<cite><span>RFC2616</span></cite>]. The following rules apply:</p>
+     <li><p>If the <span><code>send()</code> flag</span> is set the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</p></li>
 
-    <dl>
-     <dt><var>data</var> is a <code>DOMString</code></dt>
+     <li>
+      <p>If the <var>data</var> argument has not been omitted and is not
+      <code>null</code> it <em class="ct">must</em> be used for the
+      <dfn id="dfn-entity-body">entity body</dfn> as defined by section 7.2 of
+      RFC 2616. [<cite><span>RFC2616</span></cite>].</p>
 
-     <dd><var>data</var> <em class="ct">must</em> be encoded as UTF-8 for
-     transmission.</dd>
+      <dl>
+       <dt><var>data</var> is a <code>DOMString</code></dt>
 
-     <dt><var>data</var> is a <code>Document</code>
+       <dd><var>data</var> <em class="ct">must</em> be encoded as UTF-8 for
+       transmission.</dd>
 
-     <dd>
-      <p><var>data</var> <em class="ct">must</em> be serialized into a
-      namespace well-formed XML document and encoded using the encoding given
-      by <code><var>data</var>.xmlEncoding</code>, if specified, or UTF-8
-      otherwise. If this fails because the <code>Document</code> cannot be
-      serialized the user agent <em class="ct">must</em> act as if
-      <var>data</var> was <code>null</code>.</p>
+       <dt><var>data</var> is a <code>Document</code>
 
-      <p class="note">Subsequent changes to the <code>Document</code> have no
-      effect on what is submitted.</p>
-     </dd>
+       <dd>
+        <p><var>data</var> <em class="ct">must</em> be serialized into a
+        namespace well-formed XML document and encoded using the encoding
+        given by <code><var>data</var>.xmlEncoding</code>, if specified, or
+        UTF-8 otherwise. If this fails because the <code>Document</code>
+        cannot be serialized the user agent <em class="ct">must</em> act as if
+        <var>data</var> was <code>null</code>.</p>
 
-     <dt><var>data</var> is not a <code>DOMString</code> or
-     <code>Document</code></dt>
+        <p>If no <code>Content-Type</code> header has been set by the script
+        the user agent <em class="ct">must</em> set append it to the list of
+        request headers with a value of <code>application/xml</code>.</p>
 
-     <dd>The stringification mechanisms of the host language
-     <em class="ct">must</em> be used on <var>data</var> and the result
-     <em class="ct">must</em> be treated as if <var>data</var> is a
-     <code>DOMString</code>.</dd>
-    </dl>
+        <p class="note">Subsequent changes to the <code>Document</code> have
+        no effect on what is submitted.</p>
+       </dd>
 
-    <p>Invoking <code>send()</code> without the <var>data</var> argument
-    <em class="ct">must</em> give the same result as if it was invoked with
-    <code>null</code> as argument. (Results in a request without an
-    <span>entity body</span>.)</p>
+       <dt><var>data</var> is not a <code>DOMString</code> or
+       <code>Document</code></dt>
 
-    <p>Scripts <em class="ct">should</em> specify the
-    <code>Content-Type</code> header via <code>setRequestHeader</code> before
-    invoking <code>send()</code> with an argument. If the argument to
-    <code>send()</code> is a <code>Document</code> and no
-    <code>Content-Type</code> header has been set the user agent
-    <em class="ct">must</em> set it to <code>application/xml</code> for XML
-    documents and to the most appropriate media type for other documents
-    (using intrinsic knowledge about the document).</p>
+       <dd>The stringification mechanisms of the host language
+       <em class="ct">must</em> be used on <var>data</var> and the result
+       <em class="ct">must</em> be treated as if <var>data</var> is a
+       <code>DOMString</code>.</dd>
+      </dl>
 
-    <p>If the response is an HTTP redirect (status code <code>301</code>,
-    <code>302</code>, <code>303</code> or <code>307</code>), then it
-    <em class="ct">must</em> be transparently followed (unless it violates
-    security, infinite loop precautions or the scheme isn't supported).
+      <p>If the data argument has been omitted or is <code>null</code> no
+      entity body <em class="ct">must</em> be used in the request.</p>
+     </li>
 
-    <p class="note">HTTP places requirements on the user agent regarding the
-    preservation of the request method and entity body during redirects, and
-    also requires users to be notified of certain kinds of automatic
-    redirections.</p>
-    <!-- Arguably HTTP should be fixed for the latter case. No browser follows
-    that as far as I know. -->
+     <li><p>Make a request to <var>stored url</var> using
+     <var>stored method</var>, <var>stored user</var> (if provided) and
+     <var>stored password</var> (if provided) taking into account the entity
+     body, list of request headers and the rules listed directly after this
+     set of steps.</p></li>
+     
+     <li><p>If <var>async</var> is <code>true</code> the user agent
+     <em class="ct">must</em> set the <dfn><code>send()</code> flag</dfn>,
+     directly unset it when the state changes and return the
+     <code>send()</code> method call. (Don't abort the steps in the algorithm
+     though.)</p></li>
 
-    <p>Once the request has been successfully acknowledged the state
-    <em class="ct">must</em> be set to <span title="sent state">sent</span>.
-    Immediately before receiving the message body (if any), the state
-    <em class="ct">must</em> be set to
-    <span title="receiving state">receiving</span>. When the request has
-    completed loading, the state <em class="ct">must</em> be set to
-    <span title="loaded state">loaded</span>.</p>
+     <li><p>If the request has been successfully acknowledged switch the
+     state to <span title="SENT state">SENT</span>; the user agent
+     <em class="ct">must</em> then synchronously dispatch a
+     <code>readystatechange</code> event on the object.</p></li>
+     <!-- only do this for async = true? -->
 
-    <p class="note">This means that in case of a <code>HEAD</code> request the
-    state is set to <span title="loaded state">loaded</span> immediately after
-    having been set to <span title="receiving state">receiving</span>.</p>
+     <li><p>If all HTTP headers have been receieved, immediately before
+     receiving the message body (if any), switch the state to
+     <span title="RECEIVING state">RECEIVING</span>; the user agent
+     <em class="ct">must</em> then synchronously dispatch a
+     <code>readystatechange</code> event on the object.</p></li>
+     <!-- only do this for async = true? -->
 
-    <p>If something goes wrong (infinite loop, network errors) the state
-    <em class="ct">must</em> be set to
-    <span title="loaded state">loaded</span> and all members, excluding
-    <code>readyState</code> and <code>readystatechange</code>, of the object
-    <em class="ct">must</em> be set to their initial value. Also, if
-    <code>async</code> is set to <code>false</code>, a
-    <code>NETWORK_ERR</code> exception <em class="ct">must</em> be raised.</p>
+     <li>
+      <p>If the response is an HTTP redirect (status code <code>301</code>,
+      <code>302</code>, <code>303</code> or <code>307</code>), then it
+      <em class="ct">must</em> be transparently followed (unless it violates
+      security, infinite loop precautions or the scheme isn't supported).</p>
+      
+      <p class="note">HTTP places requirements on the user agent regarding the
+      preservation of the request method and entity body during redirects, and
+      also requires users to be notified of certain kinds of automatic
+      redirections.</p>
+      <!-- Arguably HTTP should be fixed for the latter case. No browser
+      follows that as far as I know. -->
+     </li>
+     
+     <li>
+      <p>If something goes wrong (infinite loop, network errors) the user
+      agent <em class="ct">must</em> follow the following set of steps:</p>
+     
+      <ol>
+       <li><p>Set <code>responseText</code>, <code>responseXML</code>,
+       <code>status</code> and <code>statusText</code> to their initial
+       values and reset the list of request headers.</p></li>
+      
+       <li><p>Switch the state to
+       <span title="LOADED state">LOADED</span>.</p></li>
+      
+       <li><p>If <var>async</var> is set to <code>false</code> the user agent
+       <em class="ct">must</em> raise a <code>NETWORK_ERR</code> exception.
+       (Don't abort these steps.)</p></li>
+      
+       <li><p>Synchronously dispatch a <code>readystatechange</code> event on
+       the object.</p></li>
+      
+       <li><p>Abort the overall algorithm.</p></li>
+      </ol>
+    
+      <p class="note">In future versions of this specification the user agent
+      will be required to dispatch an <code>error</code> event if the above
+      occurs.</p>
+     </li>
 
-    <p class="note">In future versions of this specification the user agent
-    will be required to dispatch an <code>error</code> event if the above
-    occurs.</p>
+     <li><p>When the request has successfully completed loading, switch the
+     state to <span title="LOADED state">LOADED</span>; the user agent
+     <em class="ct">must</em> then synchronously dispatch a
+     <code>readystatechange</code> event on the object and abort these
+     steps (and return the method call in case of <var>async</var> being
+     <code>false</code>).</p></li>
+    </ol>
 
     <p>If the user agent allows the specification of a proxy it
     <em class="ct">should</em> modify the request appropriately;
@@ -735,7 +846,7 @@ X-Test: one, two
    <dt><dfn id="dfn-abort"><code>abort()</code></dfn>, method</dt>
 
    <dd>
-    <p>When invoked, this method <em class="ct">must</em> (in order) cancel
+    <p>When invoked, the user agent <em class="ct">must</em> (in order) cancel
     any network activity for which the object is responsible and set all the
     members of the object to their initial values as well as removing all
     event listeners.</p>
@@ -749,16 +860,22 @@ X-Test: one, two
    method</dt>
 
    <dd>
-    <p>If the state is not <span title="receiving state">receiving</span> or
-    <span title="loaded state">loaded</span>, the user agent
-    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-    exception. Otherwise, it <em class="ct">must</em> return all the HTTP
-    headers, as a single string, with each header line separated by a CR
-    (U+000D) LF (U+000A) pair. The status line <em class="ct">must not</em> be
-    included.</p>
+    <p>When the method is invoked, the user agent <em class="ct">must</em> run
+    the following steps:</p>
+
+    <ol>
+     <li>If the state is not <span title="receiving state">receiving</span> or
+     <span title="loaded state">loaded</span> the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</li>
+
+     <li>The user agent <em class="ct">must</em> return all the HTTP headers,
+     as a single string, with each header line separated by a U+000D CR U+000A
+     LF pair excluding the status line.</li>
+    </ol>
 
     <div class="example">
-     <pre>// The following script:
+     <pre><code>// The following script:
 var client = new XMLHttpRequest();
 client.open("GET", "test.txt", true);
 client.send();
@@ -774,7 +891,7 @@ Server: Apache/1.3.31 (Unix)
 Keep-Alive: timeout=15, max=99
 Connection: Keep-Alive
 Transfer-Encoding: chunked
-Content-Type: text/plain; charset=utf-8</pre>
+Content-Type: text/plain; charset=utf-8</code></pre>
     </div>
    </dd>
 
@@ -782,26 +899,36 @@ Content-Type: text/plain; charset=utf-8</pre>
    method</dt>
 
    <dd>
-    <p>If the <var>header</var> argument doesn't match the
-    <span><code>field-name</code> production</span> a <code>SYNTAX_ERR</code>
-    <em class="ct">must</em> be raised. Otherwise this method works as
-    described below.</p>
+    <p>When the method is invoked, the user agent <em class="ct">must</em> run
+    the following steps:</p>
 
-    <p>If the state is not <span title="receiving state">receiving</span> or
-    <span title="loaded state">loaded</span>, the user agent
-    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-    exception. Otherwise, it <em class="ct">must</em> represent the value of
-    the given HTTP header (<var>header</var>) in the data received so far for
-    the last request sent, as a single string. If more than one header of the
-    given name was received, then the values <em class="ct">must</em> be
-    concatenated, separated from each other by an U+002C COMMA followed by an
-    U+0020 SPACE. If no headers of that name were received, then it
-    <em class="ct">must</em> return <code>null</code>. Header names
-    <em class="ct">must</em> be compared case-insensitively to the method's
-    argument (<var>header</var>).</p>
+    <ol>
+     <li>If the state is not <span title="receiving state">receiving</span> or
+     <span title="loaded state">loaded</span> the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</li>
+
+     <li>If the <var>header</var> argument doesn't match the
+     <span><code>field-name</code> production</span> the user agent
+     <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception and
+     abort these steps.</li>
+
+     <li>If the <var>header</var> argument case-insensitively matches multiple
+     HTTP headers for the last request sent the user agent
+     <em class="ct">must</em> return the values of these headers as a single
+     concatenated string separated from each other by an U+OO2C COMMA followed
+     by an U+0020 SPACE and abort these steps.</li>
+
+     <li>If the <var>header</var> argument case-insensitively matches a single
+     HTTP header for the last request sent the user agent
+     <em class="ct">must</em> return the  value of that header and abort these
+     steps.</li>
+
+     <li>The method <em class="ct">must</em> return <code>null</code>.</li>
+    </ol>
 
     <div class="example">
-     <pre>// The following script:
+     <pre><code>// The following script:
 var client = new XMLHttpRequest();
 client.open("GET", "test.txt", true);
 client.send();
@@ -812,7 +939,7 @@ client.onreadystatechange = function() {
 }
 
 // ...should output something similar to the following text:
-Content-Type: text/plain; charset=utf-8</pre>
+Content-Type: text/plain; charset=utf-8</code></pre>
     </div>
    </dd>
 
