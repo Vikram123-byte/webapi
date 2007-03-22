@@ -331,7 +331,7 @@ client.send();</code></pre>
 
   <pre class="idl">interface <dfn id="xmlhttprequest-object">XMLHttpRequest</dfn> {
   // event handler
-         attribute EventListener   <span>onreadystatechange</span>;
+           attribute EventListener <span>onreadystatechange</span>;
 
   // state
   const unsigned short <span title="UNINITIALIZED state">UNINITIALIZED</span> = 0;
@@ -339,26 +339,26 @@ client.send();</code></pre>
   const unsigned short <span title="SENT state">SENT</span> = 2;
   const unsigned short <span title="RECEIVING state">RECEIVING</span> = 3;
   const unsigned short <span title="LOADED state">LOADED</span> = 4;
-  readonly attribute unsigned short  <span>readyState</span>;
+  readonly attribute unsigned short <span>readyState</span>;
 
   // request
-  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
-  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
-  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
-  void               <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
-  void               <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
-  void               <span>send</span>();
-  void               <span>send</span>(in DOMString <var>data</var>);
-  void               <span>send</span>(in Document <var>data</var>);
-  void               <span>abort</span>();
+  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
+  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
+  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
+  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
+  void <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <span>send</span>();
+  void <span>send</span>(in DOMString <var>data</var>);
+  void <span>send</span>(in Document <var>data</var>);
+  void <span>abort</span>();
 
   // response
-  DOMString          <span>getAllResponseHeaders</span>();
-  DOMString          <span>getResponseHeader</span>(in DOMString <var>header</var>);
-  readonly attribute DOMString       <span>responseText</span>;
-  readonly attribute Document        <span>responseXML</span>;
-  readonly attribute unsigned short  <span>status</span>;
-  readonly attribute DOMString       <span>statusText</span>;
+  DOMString <span>getAllResponseHeaders</span>();
+  DOMString <span>getResponseHeader</span>(in DOMString <var>header</var>);
+  readonly attribute DOMString <span>responseText</span>;
+  readonly attribute Document <span>responseXML</span>;
+  readonly attribute unsigned short <span>status</span>;
+  readonly attribute DOMString <span>statusText</span>;
 };</pre>
 
   <p>The <code>XMLHttpRequest</code> object can be in five states:
@@ -558,10 +558,15 @@ client.send();</code></pre>
 
      <li><p>If the <var>header</var> argument doesn't match the
      <dfn><code>field-name</code> production</dfn> as defined by section 4.2
-     of RFC 2616 the user agent <em class="ct">must</em> raise a
-     <code>SYNTAX_ERR</code> and abort these steps.
-     [<cite><span>RFC2616</span></cite>]</p></li>
+     of RFC 2616 or is <code>null</code> the user agent
+     <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> and abort these
+     steps. [<cite><span>RFC2616</span></cite>]</p></li>
 
+     <li><p>If the <var>value</var> argument is <code>null</code> the user
+     agent <em class="ct">must</em> abort these steps. (Don't raise an
+     exception.)</li>
+     <!-- undefined is to be treated as null here... -->
+     
      <li><p>If the <var>value</var> argument doesn't match the
      <dfn><code>field-value</code> production</dfn> as defined by section 4.2
      of RFC 2616 the user agent <em class="ct">must</em> raise a
@@ -591,13 +596,9 @@ client.send();</code></pre>
        <li><code>Via</code></li>
       </ul>
      </li>
-     <!-- XXX or should this throw an exception? -->
 
      <!--
      <li>
-      <p class="issue">This part is only supported by Opera it seems. It might
-      be better to kill it.</p>
-
       <p>If the <var>header</var> argument case-insensitively matches one of
       the following headers the user agent <em class="ct">must</em> set the
       value of that HTTP header to <var>value</var> and abort these steps:</p>
