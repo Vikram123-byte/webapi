@@ -20,6 +20,8 @@
 
 
 
+
+
   </style>
   <link rel="stylesheet" type="text/css" media="screen"
   href="http://www.w3.org/Stylesheets/TR/Base.css" />
@@ -37,13 +39,13 @@ alt="W3C" height="48" width="72" /> </a>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10</a></dd>
   <dt>Latest Editor's draft:</dt>
     <dd><a
       href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous Editor's draft:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.8">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.8</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -133,7 +135,11 @@ document as other than work in progress.</p>
   <li><a href="#Conformanc">Conformance</a></li>
   <li><a href="#Progress">The <code>ProgressEvent</code> events</a> 
     <ul>
+      <li><a href="#Event">Event definitions</a></li>
       <li><a href="#Interface">Interface definitions</a></li>
+      <li><a href="#Referring">Referring to progress events from other
+        specifications</a></li>
+      <li><a href="#Using">Using progress events in Web content</a></li>
     </ul>
   </li>
   <li><a href="#Change">Change History</a></li>
@@ -153,37 +159,315 @@ document as other than work in progress.</p>
 <strong>may</strong>, <strong>must not</strong>, <strong>should not</strong>,
 are used in this document in accordance with [<a
 href="#RFC2119">RFC2119</a>]. A conformant implementation of this
-specification meets all requirements identified by the use of these terms.
-<span class="issue">@@issue: clarify conformance criteria for tools,
-specifications. Content?</span></p>
+specification meets all relevant requirements identified by the use of these
+terms.</p>
+
+<p>There are three classes of conformance to this specification:</p>
+<dl>
+  <dt>Specification</dt>
+    <dd>A specification may describe how progress events can be dispatched
+      for some operation. A conformant specification is one in which this
+      specification includes all the requirements identified in the section
+      <a href="#Referring">Referring to progress events from other
+      specifications</a>.</dd>
+  <dt>User agent</dt>
+    <dd>A conforming user agent implements all the requirements described for
+      user agents throughout this specification.</dd>
+  <dt>Content</dt>
+    <dd>Conforming content generates and consumes progress events in
+      accordance with the requirements defined in this specification, and in
+      accordance with any additional conformance requirements defined by a
+      specification which describes an operation that can lead to progress
+      events being dispatched. (Note that content which meets the
+      requirements of a non-conforming specification may not be conforming
+      content).</dd>
+</dl>
 
 <h2 id="Progress">The <code>ProgressEvent</code> events</h2>
+
+<h3 id="Event">Event definitions</h3>
 </div>
+
+<p>The following events are defined in this specification</p>
+
+<table border="1">
+  <caption></caption>
+  <tbody>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>How many?</th>
+      <th>When?</th>
+    </tr>
+    <tr>
+      <td><code>loadstart</code></td>
+      <td>The operation has begun</td>
+      <td>once</td>
+      <td>Must be dispatched first</td>
+    </tr>
+    <tr>
+      <td><code>progress</code></td>
+      <td>The operation is in progress</td>
+      <td>zero or more</td>
+      <td>May be dispatched zero or more times after a <code>loadstart</code>
+        event, before any of error, abort or load events are dispatched</td>
+    </tr>
+    <tr>
+      <td><code>error</code></td>
+      <td>The operation failed to complete, e.g. as a result of a network
+        error</td>
+      <td>never or once</td>
+      <td rowspan="3" valign="middle">Exactly one of these must be
+      dispatched</td>
+    </tr>
+    <tr>
+      <td><code>abort</code></td>
+      <td>The operation was cancelled, e.g. as a result of user
+      interaction</td>
+      <td>never or once</td>
+    </tr>
+    <tr>
+      <td><code>load</code></td>
+      <td>The operation successfuly completed</td>
+      <td>never or once</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>These events <em>must not</em> bubble, and <em>must</em> be cancelable.
+</p>
+
+<p>These events trigger event listeners attached on <code>Element</code>
+nodes for that event and on the capture and target phases. <span
+class="issue">@@issue: on anything else?</span></p>
+
+<p>No default action is defined for these events. </p>
+
+<p>These events are in the <samp>null</samp> namespace. Initialisation
+methods are provided in both namespaced and un-namespaced versions, but this
+specification does not recommend use of one over the other.</p>
+
+<h3 id="Interface">Interface definitions</h3>
+
+<p><span class="issue">@@issue: this section inherits from event.initEvent
+[@@]. Where there is any conflict, that specification should be taken as the
+normative version.</span></p>
+<dl>
+  <dt><b>IDL Definition</b></dt>
+    <dd>
+      <div class="idl-code">
+      <pre>interface ProgressEvent : events::Event {
+     readonly attribute boolean         lengthComputable;
+     readonly attribute unsigned long   loaded;
+     readonly attribute unsigned long   total;
+     void               initProgressEvent(in DOMString typeArg,
+                                          in boolean       canBubbleArg,
+                                          in boolean       cancelableArg,
+                                          in boolean       lengthComputableArg,
+                                          in unsigned long loadedArg,
+                                          in unsigned long totalArg,
+     void               initProgressEventNS(in DOMString namespaceURI,
+                                            in DOMString typeArg,
+                                            in boolean       canBubbleArg,
+                                            in boolean       cancelableArg,
+                                            in boolean       lengthComputableArg,
+                                            in unsigned long loadedArg,
+                                            in unsigned long totalArg,
+};</pre>
+      </div>
+      <p><br />
+      </p>
+    </dd>
+  <dt><b>Attributes</b></dt>
+    <dd><dl>
+        <dt>readonly boolean lengthComputable</dt>
+          <dd>Specifies whether the total size of the transfer is known.</dd>
+        <dt><span class="dom-readonly">readonly</span> <span
+        class="dom-attr-type">unsigned long</span> <span
+        class="dom-attr-name">loaded</span></dt>
+          <dd>Specifies the number of bytes downloaded since the beginning of
+            the download. This refers to the content, excluding headers and
+            overhead from the transaction <span class="issue">@@issue: do we
+            need to include the headers or other overhead content?</span>,
+            and where there is a content-encoding or transfer-encoding refers
+            to the number of bytes to be transferred, i.e. with the relevant
+            encodings applied. For more details on HTTP see [RFC2616]. <span
+            class="issue">@@issue: presumably this spec should be workable
+            with non-HTTP transfers, HTTP HEAD requests, etc?</span><span
+            class="issue">@@issue: How do you measure the progress of an HTTP
+            POST where a measurable amount of data goes up, and another one
+            comes back?</span></dd>
+      </dl>
+    </dd>
+    <dd><dl>
+        <dt><span class="dom-readonly">readonly</span> <span
+        class="dom-attr-type">unsigned long</span> <span
+        class="dom-attr-name">total</span></dt>
+          <dd>Specifies the expected total number of bytes of the content
+            transferred in the operation. Where the size of the transfer is
+            for some reason unknown, the value of this attribute
+            <em>must</em> be zero. </dd>
+      </dl>
+    </dd>
+  <dt><b>Methods</b></dt>
+    <dd><dl>
+        <dt><span class="dom-method-name">initProgressEvent</span></dt>
+          <dd>The initProgressEvent method is used to initialize the value of
+            a progress event created through the DocumentEvent interface. If
+            this method is called multiple times, the final invocation takes
+            precedence . 
+            <dl>
+              <dt><span class="dom-parameters">Parameters</span></dt>
+                <dd><dl>
+                    <dt>canBubbleArg</dt>
+                      <dd>This <em>must</em> be <var>false</var>. Where a
+                        value of <var>true</var> is passed, user agents
+                        <em>must</em> override that and change the value to
+                        <var>false</var>.</dd>
+                    <dt>cancelableArg</dt>
+                      <dd>This <em>must</em> be <var>true</var>. Where a
+                        value of <var>false</var> is passed, user agents
+                        <em>must</em> override that and change the value to
+                        <var>true</var>.</dd>
+                    <dt>lengthComputableArg</dt>
+                      <dd>If the user agent has reliable information about
+                        the value of total, then this should be true. If the
+                        user agent does not have reliable information about
+                        the vale of total, this should be false</dd>
+                    <dt>loadedArg</dt>
+                      <dd>This parameter specifies the total number of bytes
+                        already loaded, In most cases, this will be 0 (zero).
+                        If this value is not a non-negative number, the user
+                        agent must change it to zero.</dd>
+                    <dt>totalArg</dt>
+                      <dd>This specifies the total number of bytes to be
+                        loaded. If lengthComputable is false, this must be
+                        zero. If any other parameter is passed, and
+                        lengthComputable is false, the user agent must
+                        override this and set the value to zero. If
+                        lengthComputable is true, and the value of this
+                        parameter is not a non-negative number, the user
+                        agent must set lengthComputable to false and the
+                        value of total to zero. </dd>
+                  </dl>
+                </dd>
+            </dl>
+            <dl>
+              <dt><span class="dom-returnvalue">No Return Value</span></dt>
+            </dl>
+            <dl>
+              <dt><span class="dom-parameters">No Exceptions</span></dt>
+            </dl>
+          </dd>
+      </dl>
+      <dl>
+        <dt><span class="dom-method-name">initProgressEventNS</span></dt>
+          <dd>The initProgressEvent method is used to initialize the value of
+            a namespaced progress event created through the DocumentEvent
+            interface. This method may only be called before the progress
+            event has been dispatched via the dispatchEvent method, though it
+            may be called multiple times during that phase if necessary. If
+            called multiple times, the final invocation takes precedence. 
+            <dl>
+              <dt><span class="dom-parameters">Parameters</span></dt>
+                <dd><dl>
+                    <dt>namespaceURI</dt>
+                      <dd>For all events defined in this spcification, the
+                        value of this parameter is null.</dd>
+                    <dt>canBubbleArg</dt>
+                      <dd>This <em>must</em> be <var>false</var>. Where a
+                        value of <var>true</var> is passed, user agents
+                        <em>must</em> override that and change the value to
+                        <var>false</var>.</dd>
+                    <dt>cancelableArg</dt>
+                      <dd>This <em>must</em> be <var>true</var>. Where a
+                        value of <var>false</var> is passed, user agents
+                        <em>must</em> override that and change the value to
+                        <var>true</var>.</dd>
+                    <dt>lengthComputableArg</dt>
+                      <dd>If the user agent has reliable information about
+                        the value of total, then this should be true. If the
+                        user agent does not have reliable information about
+                        the vale of total, this should be false</dd>
+                    <dt>loadedArg</dt>
+                      <dd>This parameter specifies the total number of bytes
+                        already loaded, In most cases, this will be 0 (zero).
+                        If this value is not a non-negative number, the user
+                        agent must change it to zero.</dd>
+                    <dt>totalArg</dt>
+                      <dd>This specifies the total number of bytes to be
+                        loaded. If lengthComputable is false, this must be
+                        zero. If any other parameter is passed, and
+                        lengthComputable is false, the user agent must
+                        override this and set the value to zero. If
+                        lengthComputable is true, and the value of this
+                        parameter is not a non-negative number, the user
+                        agent must set lengthComputable to false and the
+                        value of total to zero. </dd>
+                  </dl>
+                  <p></p>
+                </dd>
+            </dl>
+            <dl>
+              <dt><span class="dom-returnvalue">No Return Value</span></dt>
+            </dl>
+            <dl>
+              <dt><span class="dom-parameters">No Exceptions</span></dt>
+            </dl>
+          </dd>
+      </dl>
+    </dd>
+</dl>
+
+<h3 id="Referring">Referring to progress events from other specifications</h3>
 
 <p>A progress event occurs when the user agent makes progress in some data
 transfer operation, such as loading a resource from the web via
 XMLHttpRequest [<a href="#XHR">XHR</a>]. Other specifications which have a
 use case for these events <em>should</em> define when ProgressEvent events
-are dispatched, according to the following common constraints.</p>
+are dispatched.</p>
 <ul>
-  <li>User agents <em>must</em> dispatch an event of type <em>begin</em> when
-    a relevant operation has begun. </li>
-  <li>User agents <span class="term"><em>may</em></span> dispatch one or more
-    ProgressEvent of type <em>progress</em> while a network operation is
-    taking place. <span class="issue">@@issue: should we require some firing
+  <li>The user agent <em>must</em> dispatch a <code>start</code> event when a
+    relevant operation has begun. </li>
+  <li>The user agent <span class="term"><em>may</em></span> dispatch one or
+    more <code>progress</code> events while a network operation is taking
+    place. <span class="issue">@@issue: should we require some firing
     frequency for the progress type events?</span></li>
-  <li>If the operation fails to complete the user agent <em>must</em> fire
-    either a ProgressEvent of type <em>error</em> or a ProgressEvent of type
-    <em>abort</em>.</li>
-  <li>User agents <em>must</em> dispatch a ProgressEvent of type
-    <em>load</em> when the operation has successfully completed. </li>
+  <li>If the operation fails to complete the user agent <em>must</em>
+    dispatch either an <code>error</code> event, if the failure to complete
+    was due to an error (such as a timeout, or network error), or an
+    <code>abort</code> event if the operation was deliberately cancelled
+    (e.g. by user interaction or through a script call).</li>
+  <li>If the Operation successfully completes, the user agent <em>must</em>
+    dispatch a <code>load</code> event. </li>
 </ul>
 
-<p>These events <em>must not</em> bubble, and <em>must</em> be cancelable.</p>
+<p>In short, there must be at least one <code>start</code> event, followed by
+zero or more <code>progress</code> events, followed by one event which may be
+any of <code>error</code>, <code>abort</code> or <code>load</code>, according
+to the outcome of the operation.</p>
 
-<p>These events are in the null namespace. Initialisation methods are
-provided in both namespaced and un-namespaced versions for use as
-appropriate. This specification does not recommend one over the other.</p>
+<h4>Example: Using progress events in another specification:</h4>
+
+<p>This example is informative and does not necessarily illustrate best
+practice.</p>
+
+<div class="example">
+<p>FooAPI has a <code>sendAndRetrieve()</code> method, which sends some
+content via a predefined SMTP server and retrieves some other content via
+HTTP HEAD from a URI given as a parameter. It specifies two event targets
+<code>send</code> and <code>receive</code>. Progress events as specified in
+the ProgressEvent events specification may be dispatched on these targets for
+the send and receive phases respectively. If any progress events are
+dispatched, then at least one <code>start</code> event, and one of
+<code>error</code>, <code>abort</code>, or <code>load</code> must be
+dispatched on each target. For the send phase, the <code>total</code>
+attribute of the progress events measures the size of the RFC822 message
+body. For the receive phase, the total attribute specifies the size of the
+content to be returned in the HTTP HEAD operation.</p>
+</div>
+
+<h3 id="Using">Using progress events in Web content</h3>
 
 <p>Below is an example of a <code>progress</code> event being used to update
 a progress bar in an SVG document. Where the size of a download is unknown
@@ -241,227 +525,23 @@ there is simply an animation.</p>
   &lt;/g&gt;
 &lt;/svg&gt;</code></pre>
 
-<h3 id="Interface">Interface definitions</h3>
-<dl>
-  <dt><b>IDL Definition</b></dt>
-    <dd>
-      <div class="idl-code">
-      <pre>interface ProgressEvent : events::Event {
-     readonly attribute boolean         lengthComputable;
-     readonly attribute unsigned long   loaded;
-     readonly attribute unsigned long   total;
-     void               initProgressEvent(in DOMString typeArg,
-                                          in boolean       canBubbleArg,
-                                          in boolean       cancelableArg,
-                                          in boolean       lengthComputableArg,
-                                          in unsigned long loadedArg,
-                                          in unsigned long totalArg,
-     void               initProgressEventNS(in DOMString namespaceURI,
-                                            in DOMString typeArg,
-                                            in boolean       canBubbleArg,
-                                            in boolean       cancelableArg,
-                                            in boolean       lengthComputableArg,
-                                            in unsigned long loadedArg,
-                                            in unsigned long totalArg,
-};</pre>
-      </div>
-      <br />
-    </dd>
-  <dt><b>Attributes</b></dt>
-    <dd><dl>
-        <dt>readonly boolean lengthComputable</dt>
-          <dd>Specifies whether the total size of the transfer is known.</dd>
-        <dt><span class="dom-readonly">readonly</span> <span
-        class="dom-attr-type">unsigned long</span> <span
-        class="dom-attr-name">loaded</span></dt>
-          <dd>Specifies the number of bytes downloaded since the beginning of
-            the download. This refers to the content, excluding headers and
-            overhead from the transaction <span class="issue">@@issue: do we
-            need to include the headers or other overhead content?</span>,
-            and where there is a content-encoding or transfer-encoding refers
-            to the number of bytes to be transferred, i.e. with the relevant
-            encodings applied. For more details on HTTP see [RFC2616]. <span
-            class="issue">@@issue: presumably this spec should be workable
-            with non-HTTP transfers, HTTP HEAD requests, etc?</span><span
-            class="issue">@@issue: How do you measure the progress of an HTTP
-            POST where a measurable amount of data goes up, and another one
-            comes back?</span></dd>
-      </dl>
-    </dd>
-    <dd><dl>
-        <dt><span class="dom-readonly">readonly</span> <span
-        class="dom-attr-type">unsigned long</span> <span
-        class="dom-attr-name">total</span></dt>
-          <dd>Specifies the expected total number of bytes of the content
-            transferred in the operation. Where the size of the transfer is
-            for some reason unknown, the value of this attribute
-            <em>must</em> be zero. </dd>
-      </dl>
-    </dd>
-  <dt><b>Methods</b></dt>
-    <dd><dl>
-        <dt><span class="dom-method-name">initProgressEvent</span></dt>
-          <dd>The initProgressEvent method is used to initialize the value of
-            a progress event created through the DocumentEvent interface.
-            This method may only be called before the progress event has been
-            dispatched via the dispatchEvent method, though it may be called
-            multiple times during that phase if necessary. If called multiple
-            times, the final invocation takes precedence <span
-            class="issue">@@issue: or should we defer to the definition of
-            initEvent?</span>. 
-            <dl>
-              <dt><span class="dom-parameters">Parameters</span></dt>
-                <dd>
-                  <table summary="method parameters" border="0">
-                    <tbody>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">DOMString</span> <span
-                          class="dom-parameter-name">typeArg</span></td>
-                        <td></td>
-                        <td>Specifies the event type.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">canBubbleArg</span></td>
-                        <td></td>
-                        <td>Specifies whether the event can be canceled.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">cancelableArg</span></td>
-                        <td></td>
-                        <td>Specifies whether the event can be canceled.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">lengthComputable</span></td>
-                        <td></td>
-                        <td>Specifies whether the total number of bytes to
-                          transfer is known.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">unsigned long</span>
-                          <span
-                        class="dom-parameter-name">loadedArg</span></td>
-                        <td></td>
-                        <td>Specifies the number of bytes that have been
-                          retrieved. This is a positive value.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">unsigned long</span>
-                          <span
-                        class="dom-parameter-name">totalArg</span></td>
-                        <td></td>
-                        <td>Specifies the expected total number of bytes in
-                          this load operation.</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </dd>
-            </dl>
-            <dl>
-              <dt><span class="dom-returnvalue">No Return Value</span></dt>
-            </dl>
-            <dl>
-              <dt><span class="dom-parameters">No Exceptions</span></dt>
-            </dl>
-          </dd>
-      </dl>
-      <dl>
-        <dt><span class="dom-method-name">initProgressEventNS</span></dt>
-          <dd>The initProgressEvent method is used to initialize the value of
-            a namespaced progress event created through the DocumentEvent
-            interface. This method may only be called before the progress
-            event has been dispatched via the dispatchEvent method, though it
-            may be called multiple times during that phase if necessary. If
-            called multiple times, the final invocation takes precedence. 
-            <dl>
-              <dt><span class="dom-parameters">Parameters</span></dt>
-                <dd>
-                  <table summary="method parameters" border="0">
-                    <tbody>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">DOMString</span> <span
-                          class="dom-parameter-name">namespaceURI</span></td>
-                        <td></td>
-                        <td>Specifies the URI for the namespace of the
-                        event.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">DOMString</span> <span
-                          class="dom-parameter-name">typeArg</span></td>
-                        <td></td>
-                        <td>Specifies the event type.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">canBubbleArg</span></td>
-                        <td></td>
-                        <td>Specifies whether the event can be canceled.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">cancelableArg</span></td>
-                        <td></td>
-                        <td>Specifies whether the event can be canceled.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">boolean </span><span
-                          class="dom-parameter-name">lengthComputable</span></td>
-                        <td></td>
-                        <td>Specifies whether the total number of bytes to
-                          transfer is known.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">unsigned long</span>
-                          <span
-                        class="dom-parameter-name">loadedArg</span></td>
-                        <td></td>
-                        <td>Specifies the number of bytes that have been
-                          retrieved. This is a positive value.</td>
-                      </tr>
-                      <tr>
-                        <td valign="top">in <span
-                          class="dom-parameter-type">unsigned long</span>
-                          <span
-                        class="dom-parameter-name">totalArg</span></td>
-                        <td></td>
-                        <td>Specifies the expected total number of bytes in
-                          this load operation.</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </dd>
-            </dl>
-            <dl>
-              <dt><span class="dom-returnvalue">No Return Value</span></dt>
-            </dl>
-            <dl>
-              <dt><span class="dom-parameters">No Exceptions</span></dt>
-            </dl>
-          </dd>
-      </dl>
-    </dd>
-</dl>
-
 <h2 id="Change">Change History</h2>
 <dl>
   <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10</a></dt>
+    <dd><ul>
+        <li><a name="#Considerat" id="#Considerat">Defined various error
+          conditions and handling</a></li>
+        <li>Made initProgressEvent() explicitly depend on
+        event.initEvent()</li>
+        <li>The events trigger on <code>Element</code> nodes</li>
+        <li>Described conformance according to what is trying to conform</li>
+      </ul>
+    </dd>
+  <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9</a></dt>
     <dd><ul>
-        <li><a name="#Considerat" id="#Considerat">Section 'Considerations
+        <li><a name="#Considerat1" id="#Considerat1">Section 'Considerations
           for Backward Compatibility</a>' removed, since the scope and
           structure changed.</li>
         <li>Added <code>lengthComputable</code> back to IDL definitions
@@ -547,9 +627,11 @@ examples are made from draft to draft.</p>
 
 <p>The editor would like to thank the SVG working group for producing the
 draft [<a href="#SVGD">SVGD</a>] that this was initially based on. The WHATWG
-progress element proposal [<a href="#WPE">WPE</a>] was also useful as an
-initial reference for this specification. In addition, the following
-individuals' comments have been invaluable in preparing this draft:</p>
+progress element proposal [<a href="#WPE">WPE</a>] and the documentation for
+Internet Explorer's <code>onProgress</code> implementation [<a
+href="#IEoP">IEoP</a>] were also useful as an initial reference for this
+specification. In addition, the following individuals' comments have been
+invaluable in preparing this draft:</p>
 
 <p>Robin Berjon, Marcos Caceres, Suresh Chitturi, Alex Danilo, Erik
 Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm Eriksen, Ian
