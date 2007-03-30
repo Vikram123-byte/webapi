@@ -30,13 +30,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 22 March 2007</h2>
+    draft<!--W3C Working Draft--> 30 March 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070322/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070322/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070330/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070330/</a>
 
     <dt>Latest Version:
 
@@ -99,7 +99,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 22 March 2007 <strong>Editor's</strong> Working Draft of The
+  <p>This is the 30 March 2007 <strong>Editor's</strong> Working Draft of The
    <code title="">XMLHttpRequest</code> Object specification. Please send
    comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
    (<a
@@ -393,7 +393,7 @@ client.send();</code></pre>
            attribute EventListener <a href="#dfn-onreadystatechange">onreadystatechange</a>;
 
   // state
-  const unsigned short <a href="#uninitialized" title="UNINITIALIZED state">UNINITIALIZED</a> = 0;
+  const unsigned short <a href="#unsent" title="UNSENT state">UNSENT</a> = 0;
   const unsigned short <a href="#open" title="OPEN state">OPEN</a> = 1;
   const unsigned short <a href="#sent" title="SENT state">SENT</a> = 2;
   const unsigned short <a href="#receiving" title="RECEIVING state">RECEIVING</a> = 3;
@@ -421,21 +421,19 @@ client.send();</code></pre>
 };</pre>
 
   <p>The <code><a href="#xmlhttprequest-object">XMLHttpRequest</a></code>
-   object can be in five states: <a href="#uninitialized"
-   title="UNINITIALIZED state">UNINITIALIZED</a>, <a href="#open" title="OPEN
-   state">OPEN</a>, <a href="#sent" title="SENT state">SENT</a>, <a
-   href="#receiving" title="RECEIVING state">RECEIVING</a> and <a
-   href="#loaded" title="LOADED state">LOADED</a>. The current state is
-   exposed through the <code><a href="#dfn-readystate">readyState</a></code>
-   attribute. The method definitions below define when a state transition
-   takes place.
+   object can be in five states: <a href="#unsent" title="UNSENT
+   state">UNSENT</a>, <a href="#open" title="OPEN state">OPEN</a>, <a
+   href="#sent" title="SENT state">SENT</a>, <a href="#receiving"
+   title="RECEIVING state">RECEIVING</a> and <a href="#loaded" title="LOADED
+   state">LOADED</a>. The current state is exposed through the <code><a
+   href="#dfn-readystate">readyState</a></code> attribute. The method
+   definitions below define when a state transition takes place.
 
   <p>When constructed, the <code><a
    href="#xmlhttprequest-object">XMLHttpRequest</a></code> object <em
-   class=ct>must</em> be in the UNINITIALIZED state. This state is
-   represented by the <dfn id=uninitialized title="UNINITIALIZED
-   state"><code>UNINITIALIZED</code></dfn> constant, whose value is
-   <code>0</code>.
+   class=ct>must</em> be in the UNSENT state. This state is represented by
+   the <dfn id=unsent title="UNSENT state"><code>UNSENT</code></dfn>
+   constant, whose value is <code>0</code>.
 
   <p>The OPEN state is the state of the object when the <code><a
    href="#dfn-open">open()</a></code> method has been successfully invoked.
@@ -554,7 +552,7 @@ client.send();</code></pre>
        abort these steps.</p>
 
       <p class=note>This specification does not define what constitutes as
-       non same-origin.<!-- reference HTML5? --></p>
+       non same-origin.<!-- XXX reference HTML5? --></p>
 
      <li>
       <p>Let <var>async</var> be the value of the <var>async</var> argument
@@ -776,9 +774,6 @@ X-Test: one, two
 ...</code></pre>
     </div>
 
-    <p>The list of request headers <em class=ct>must</em> be reset when the
-     <code><a href="#dfn-open">open()</a></code> method is invoked.</p>
-
    <dt><dfn id=dfn-send title=send><code>send(<var>data</var>)</code></dfn>,
     method
 
@@ -809,7 +804,10 @@ X-Test: one, two
       <p>If the <var>data</var> argument has not been omitted and is not
        <code>null</code> it <em class=ct>must</em> be used for the <dfn
        id=dfn-entity-body>entity body</dfn> as defined by section 7.2 of RFC
-       2616. [<cite><a href="#RFC2616">RFC2616</a></cite>].</p>
+       2616. [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
+
+      <p>The following rules <em class=ct>must</em> be followed by the user
+       agent:</p>
 
       <dl>
        <dt><var>data</var> is a <code>DOMString</code>
@@ -828,7 +826,7 @@ X-Test: one, two
          <var>data</var> was <code>null</code>.</p>
 
         <p>If no <code>Content-Type</code> header has been set by the script
-         the user agent <em class=ct>must</em> set append it to the list of
+         the user agent <em class=ct>must</em> append it to the list of
          request headers with a value of <code>application/xml</code>.</p>
 
         <p class=note>Subsequent changes to the <code>Document</code> have no
@@ -847,18 +845,18 @@ X-Test: one, two
        entity body <em class=ct>must</em> be used in the request.</p>
 
      <li>
-      <p>Make a request to <var>stored url</var> using <var>stored
-       method</var>, <var>stored user</var> (if provided) and <var>stored
-       password</var> (if provided) taking into account the entity body, list
-       of request headers and the rules listed directly after this set of
-       steps.
+      <p>Make a request to <var>stored url</var>, using HTTP method
+       <var>stored method</var>, user <var>stored user</var> (if provided)
+       and password <var>stored password</var> (if provided), taking into
+       account the entity body, list of request headers and the rules listed
+       directly after this set of steps.
 
      <li>
       <p>The user agent <em class=ct>must</em> then synchronously dispatch a
        <code><a href="#dfn-readystatechange">readystatechange</a></code>
        event on the object.</p>
 
-      <p class=note>The state of the object doesn't actually change, but the
+      <p class=note>The state of the object doesn't actually change as the
        event is dispatched for historical reasons.</p>
 
      <li>
@@ -1014,8 +1012,8 @@ X-Test: one, two
       object.
 
      <li>
-      <p>Switch the state to <a href="#uninitialized" title="UNINITIALIZED
-       state">UNINITIALIZED</a>. (Don't dispatch the <code><a
+      <p>Switch the state to <a href="#unsent" title="UNSENT
+       state">UNSENT</a>. (Don't dispatch the <code><a
        href="#dfn-readystatechange">readystatechange</a></code> event.)</p>
 
       <p class=note>It's likely that a future version of the <code><a

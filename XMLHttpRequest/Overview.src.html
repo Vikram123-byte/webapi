@@ -334,7 +334,7 @@ client.send();</code></pre>
            attribute EventListener <span>onreadystatechange</span>;
 
   // state
-  const unsigned short <span title="UNINITIALIZED state">UNINITIALIZED</span> = 0;
+  const unsigned short <span title="UNSENT state">UNSENT</span> = 0;
   const unsigned short <span title="OPEN state">OPEN</span> = 1;
   const unsigned short <span title="SENT state">SENT</span> = 2;
   const unsigned short <span title="RECEIVING state">RECEIVING</span> = 3;
@@ -362,7 +362,7 @@ client.send();</code></pre>
 };</pre>
 
   <p>The <code>XMLHttpRequest</code> object can be in five states:
-  <span title="UNINITIALIZED state">UNINITIALIZED</span>,
+  <span title="UNSENT state">UNSENT</span>,
   <span title="OPEN state">OPEN</span>, <span title="SENT state">SENT</span>,
   <span title="RECEIVING state">RECEIVING</span> and
   <span title="LOADED state">LOADED</span>. The current state is exposed
@@ -370,9 +370,8 @@ client.send();</code></pre>
   define when a state transition takes place.</p>
 
   <p>When constructed, the <code>XMLHttpRequest</code> object
-  <em class="ct">must</em> be in the UNINITIALIZED state. This state is
-  represented by the
-  <dfn id="uninitialized" title="UNINITIALIZED state"><code>UNINITIALIZED</code></dfn>
+  <em class="ct">must</em> be in the UNSENT state. This state is represented
+  by the <dfn id="unsent" title="UNSENT state"><code>UNSENT</code></dfn>
   constant, whose value is <code>0</code>.</p>
 
   <p>The OPEN state is the state of the object when the <code>open()</code>
@@ -480,7 +479,7 @@ client.send();</code></pre>
       <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
       and abort these steps.</p>
       <p class="note">This specification does not define what constitutes as
-      non same-origin.<!-- reference HTML5? --></p>
+      non same-origin.<!-- XXX reference HTML5? --></p>
      </li>
 
      <li><p>Let <var>async</var> be the value of the <var>async</var> argument
@@ -652,7 +651,8 @@ client.send();</code></pre>
     </ol>
 
     <p class="note">See also the <code>send()</code> method regarding user
-    agent header handling for caching, authentication, proxies, and cookies.</p>
+    agent header handling for caching, authentication, proxies, and
+    cookies.</p>
 
     <div class="example">
      <pre><code>// The following script:
@@ -667,9 +667,6 @@ client.send();
 X-Test: one, two
 ...</code></pre>
     </div>
-
-    <p>The list of request headers <em class="ct">must</em> be reset when the
-    <code>open()</code> method is invoked.</p>
    </dd>
 
    <dt><dfn id="dfn-send" title="send"><code>send(<var>data</var>)</code></dfn>,
@@ -699,7 +696,10 @@ X-Test: one, two
       <p>If the <var>data</var> argument has not been omitted and is not
       <code>null</code> it <em class="ct">must</em> be used for the
       <dfn id="dfn-entity-body">entity body</dfn> as defined by section 7.2 of
-      RFC 2616. [<cite><span>RFC2616</span></cite>].</p>
+      RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
+
+      <p>The following rules <em class="ct">must</em> be followed by the user
+      agent:</p>
 
       <dl>
        <dt><var>data</var> is a <code>DOMString</code></dt>
@@ -718,7 +718,7 @@ X-Test: one, two
         <var>data</var> was <code>null</code>.</p>
 
         <p>If no <code>Content-Type</code> header has been set by the script
-        the user agent <em class="ct">must</em> set append it to the list of
+        the user agent <em class="ct">must</em> append it to the list of
         request headers with a value of <code>application/xml</code>.</p>
 
         <p class="note">Subsequent changes to the <code>Document</code> have
@@ -738,17 +738,17 @@ X-Test: one, two
       entity body <em class="ct">must</em> be used in the request.</p>
      </li>
 
-     <li><p>Make a request to <var>stored url</var> using
-     <var>stored method</var>, <var>stored user</var> (if provided) and
-     <var>stored password</var> (if provided) taking into account the entity
-     body, list of request headers and the rules listed directly after this
-     set of steps.</p></li>
+     <li><p>Make a request to <var>stored url</var>, using HTTP method
+     <var>stored method</var>, user <var>stored user</var> (if provided) and
+     password <var>stored password</var> (if provided), taking into account
+     the entity body, list of request headers and the rules listed directly
+     after this set of steps.</p></li>
 
      <li>
       <p>The user agent <em class="ct">must</em> then synchronously
       dispatch a <code>readystatechange</code> event on the object.</p>
 
-      <p class="note">The state of the object doesn't actually change, but the
+      <p class="note">The state of the object doesn't actually change as the
       event is dispatched for historical reasons.</p>
      </li>
 
@@ -885,9 +885,8 @@ X-Test: one, two
      <code>readystatechange</code> event on the object.</li>
 
      <li>
-      <p>Switch the state to
-      <span title="UNINITIALIZED state">UNINITIALIZED</span>. (Don't dispatch
-      the <code>readystatechange</code> event.)</p>
+      <p>Switch the state to <span title="UNSENT state">UNSENT</span>. (Don't
+      dispatch the <code>readystatechange</code> event.)</p>
 
       <p class="note">It's likely that a future version of the
       <code>XMLHttpRequest</code> will dispatch an <code title="">abort</code>
