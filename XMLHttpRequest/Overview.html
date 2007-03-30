@@ -508,7 +508,7 @@ client.send();</code></pre>
       <p>If <var>method</var> case-insensitively matches <code>GET</code>,
        <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
        <code>DELETE</code> or <code>OPTIONS</code> the user agent <em
-       class=ct>must</em> use convert it to its uppercase equivalent and let
+       class=ct>must</em> convert it to its uppercase equivalent and let
        <var>stored method</var> be the result.
      </li>
      <!-- WebKit (and supposedly Firefox) also uppercase: CONNECT, COPY,
@@ -647,8 +647,8 @@ client.send();</code></pre>
       <p>If the <var>header</var> argument doesn't match the <dfn
        id=field-name><code>field-name</code> production</dfn> as defined by
        section 4.2 of RFC 2616 or is <code>null</code> the user agent <em
-       class=ct>must</em> raise a <code>SYNTAX_ERR</code> and abort these
-       steps. [<cite><a href="#RFC2616">RFC2616</a></cite>]
+       class=ct>must</em> raise a <code>SYNTAX_ERR</code> exception and abort
+       these steps. [<cite><a href="#RFC2616">RFC2616</a></cite>]
 
      <li>
       <p>If the <var>value</var> argument is <code>null</code> the user agent
@@ -953,7 +953,7 @@ X-Test: one, two
      class=ct>should</em> consider requests originating from this object to
      be part of the protection space that includes the accessed URIs and send
      <code>Authorization</code> headers and handle <code>401
-     Unauthorised</code> requests appropriately. if authentication fails,
+     Unauthorised</code> requests appropriately. If authentication fails,
      user agents <em class=ct>should</em> prompt the users for credentials.
      [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]</p>
 
@@ -1159,36 +1159,20 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     short</code>, readonly
 
    <dd>
-    <p>If the <code><a href="#dfn-status">status</a></code> attribute is not
-     available an <code>INVALID_STATE_ERR</code> exception <em
-     class=ct>must</em> be raised. It <em class=ct>must</em> be available
-     when the state is <a href="#receiving" title="RECEIVING
-     state">RECEIVING</a> or <a href="#loaded" title="LOADED
-     state">LOADED</a>. When available, it <em class=ct>must</em> represent
-     the HTTP status code (typically <code>200</code> for a successful
-     request).</p>
-
-    <p>Its initial value <em class=ct>must</em> be <code>0</code>.</p>
+    <p>On getting, if available, it <em class=ct>must</em> return the HTTP
+     status code sent by the server (typically <code>200</code> for a
+     successful request). Otherwise, if not available, the user agent <em
+     class=ct>must</em> raise an <code>INVALID_STATE_ERR</code> exception.</p>
 
    <dt><dfn id=dfn-statustext><code>statusText</code></dfn> of type
     <code>DOMString</code>, readonly
 
    <dd>
-    <p>If the <code><a href="#dfn-statustext">statusText</a></code> attribute
-     is not available an <code>INVALID_STATE_ERR</code> exception <em
-     class=ct>must</em> be raised. It <em class=ct>must</em> be available
-     when the state is <a href="#receiving" title="RECEIVING
-     state">RECEIVING</a> or <a href="#loaded" title="LOADED
-     state">LOADED</a>). When available, it <em class=ct>must</em> represent
-     the HTTP status text sent by the server (appears after the status code).</p>
-
-    <p>Its initial value <em class=ct>must</em> be the empty string.</p>
+    <p>On getting, if available, it <em class=ct>must</em> return the HTTP
+     status text sent by the server (appears after the status code).
+     Otherwise, if not available, the user agent <em class=ct>must</em> raise
+     an <code>INVALID_STATE_ERR</code> exception.</p>
   </dl>
-  <!--
-  <p>HTTP requests sent from multiple different <code>XMLHttpRequest</code>
-  objects in succession <em class="ct">should</em> use a shared HTTP
-  connection.</p>
-  -->
 
   <h3 id=events><span class=secno>2.1. </span>Events for the <code
    title="">XMLHttpRequest</code> Object</h3>
@@ -1201,12 +1185,12 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <dl>
    <dt><dfn id=dfn-readystatechange><code>readystatechange</code></dfn>
 
-   <dd>The <code title="">readystatechange</code> event is dispatched as
-    indicated in the detailed algorithms above. The event <em class=ct>must
-    not</em> bubble, <em class=ct>must not</em> be cancelable and <em
-    class=ct>must</em> implement the <code>Event</code> interface. The event
-    has no namespace (<code>Event.namespaceURI</code> is <code>null</code>).
-    [<cite><a href="#DOM3EV">DOM3Events</a></cite>]
+   <dd>When the user agent dispatches a <code
+    title="">readystatechange</code> event (as indicated above) it <em
+    class=ct>must not</em> bubble, <em class=ct>must not</em> be cancelable
+    and <em class=ct>must</em> implement the <code>Event</code> interface.
+    Its <code>namespaceURI</code> attribute <em class=ct>must</em> be
+    <code>null</code>. [<cite><a href="#DOM3EV">DOM3Events</a></cite>]
   </dl>
 
   <h3 id=exceptions><span class=secno>2.2. </span>Exceptions for the <code
@@ -1226,8 +1210,8 @@ const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
 
   <p><em>This section is non normative.</em>
 
-  <p>This specification does not include the following features that may or
-   may not be implemented by user agents:
+  <p>This specification does not include the following features which are
+   being considered for a future version of this specification:
 
   <ul>
    <li><code>load</code> event and <code>onload</code> attribute;
@@ -1355,6 +1339,8 @@ const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
    <li>Charles McCathieNevile
 
    <li>Dan Winship
+
+   <li>David Håsäther
 
    <li>Dean Jackson
 
