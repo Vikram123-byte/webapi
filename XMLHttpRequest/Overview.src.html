@@ -345,7 +345,7 @@ client.send();</code></pre>
   const unsigned short <span title="OPEN state">OPEN</span> = 1;
   const unsigned short <span title="SENT state">SENT</span> = 2;
   const unsigned short <span title="RECEIVING state">RECEIVING</span> = 3;
-  const unsigned short <span title="LOADED state">LOADED</span> = 4;
+  const unsigned short <span title="DONE state">DONE</span> = 4;
   readonly attribute unsigned short <span>readyState</span>;
 
   // request
@@ -372,9 +372,9 @@ client.send();</code></pre>
   <span title="UNSENT state">UNSENT</span>,
   <span title="OPEN state">OPEN</span>, <span title="SENT state">SENT</span>,
   <span title="RECEIVING state">RECEIVING</span> and
-  <span title="LOADED state">LOADED</span>. The current state is exposed
-  through the <code>readyState</code> attribute. The method definitions below
-  define when a state transition takes place.</p>
+  <span title="DONE state">DONE</span>. The current state is exposed through
+  the <code>readyState</code> attribute. The method definitions below define
+  when a state transition takes place.</p>
 
   <p>When constructed, the <code>XMLHttpRequest</code> object
   <em class="ct">must</em> be in the UNSENT state. This state is represented
@@ -399,11 +399,11 @@ client.send();</code></pre>
   <dfn id="receiving" title="RECEIVING state"><code>RECEIVING</code></dfn>
   constant, whose value is <code>3</code>.</p>
 
-  <p>The LOADED state is the state of the object when either the data transfer
+  <p>The DONE state is the state of the object when either the data transfer
   has been completed or something went wrong during the transfer (infinite
   redirects for instance). This state is represented by the
-  <dfn id="loaded" title="LOADED state"><code>LOADED</code></dfn> constant,
-  whose value is <code>4</code>.</p>
+  <dfn id="done" title="DONE state"><code>DONE</code></dfn> constant, whose
+  value is <code>4</code>.</p>
 
   <dl>
 
@@ -572,7 +572,7 @@ client.send();</code></pre>
      agent <em class="ct">must</em> abort these steps. (Don't raise an
      exception.)</li>
      <!-- undefined is to be treated as null here... -->
-     
+
      <li><p>If the <var>value</var> argument doesn't match the
      <dfn><code>field-value</code> production</dfn> as defined by section 4.2
      of RFC 2616 the user agent <em class="ct">must</em> raise a
@@ -804,7 +804,7 @@ X-Test: one, two
        values and reset the list of request headers.</p></li>
 
        <li><p>Switch the state to
-       <span title="LOADED state">LOADED</span>.</p></li>
+       <span title="DONE state">DONE</span>.</p></li>
 
        <li><p>If <var>async</var> is set to <code>false</code> the user agent
        <em class="ct">must</em> raise a <code>NETWORK_ERR</code> exception.
@@ -822,7 +822,7 @@ X-Test: one, two
      </li>
 
      <li><p>When the request has successfully completed loading, switch the
-     state to <span title="LOADED state">LOADED</span>; the user agent
+     state to <span title="DONE state">DONE</span>; the user agent
      <em class="ct">must</em> then synchronously dispatch a
      <code>readystatechange</code> event on the object and abort these
      steps (and return the method call in case of <var>async</var> being
@@ -889,9 +889,9 @@ X-Test: one, two
      <li><p>Any network activity for which the object responsible
      <em class="ct">should</em> be cancelled.</p></li>
 
-     <li>Switch the state to <span title="LOADED state">LOADED</span>; the
-     user agent <em class="ct">must</em> then synchronously dispatch a
-     <code>readystatechange</code> event on the object.</li>
+     <li><p>Switch the state to <span title="DONE state">DONE</span>; the user
+     agent <em class="ct">must</em> then synchronously dispatch a
+     <code>readystatechange</code> event on the object.</p></li>
 
      <li>
       <p>Switch the state to <span title="UNSENT state">UNSENT</span>. (Don't
@@ -913,7 +913,7 @@ X-Test: one, two
 
     <ol>
      <li><p>If the state is not <span title="RECEIVING state">RECEIVING</span>
-     or <span title="LOADED state">LOADED</span> the user agent
+     or <span title="DONE state">DONE</span> the user agent
      <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
@@ -952,7 +952,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
     <ol>
      <li><p>If the state is not <span title="RECEIVING state">RECEIVING</span>
-     or <span title="LOADED state">LOADED</span> the user agent
+     or <span title="DONE state">DONE</span> the user agent
      <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
@@ -997,7 +997,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <dd>
     <p>If the state is not <span title="RECEIVING state">RECEIVING</span> or
-    <span title="LOADED state">LOADED</span>, the user agent
+    <span title="DONE state">DONE</span>, the user agent
     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
     exception. Otherwise, if there's no <span>entity body</span> this
     attribute <em class="ct">must</em> be <code>null</code>. If there is, it
@@ -1005,7 +1005,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     received so far (when the state is
     <span title="RECEIVING state">RECEIVING</span>) or the complete
     <span>entity body</span> (when the state is
-    <span title="LOADED state">LOADED</span>), interpreted as a stream of
+    <span title="DONE state">DONE</span>), interpreted as a stream of
     characters.</p>
 
     <p>If the response includes a MIME type understood by the user agent the
@@ -1024,31 +1024,31 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <dd>
     <p>On getting, the user agent <em class="ct">must</em> run the following
     steps:</p>
-    
+
     <ol>
-     <li><p>If the state is not <span title="LOADED state">LOADED</span> the
-     user agent <em class="ct">must</em> raise an
-     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
+     <li><p>If the state is not <span title="DONE state">DONE</span> the user
+     agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</p></li>
 
      <li><p>If there's no <span>entity body</span> the user agent
      <em class="ct">must</em> return <code>null</code> and abort these
      steps.</p></li>
-     
+
      <li><p>If there is no <code>Content-Type</code> header the user agent
      <em class="ct">must</em> return <code>null</code> and abort these
      steps.</p></li>
-     
+
      <li><p>If the <code>Content-Type</code> header does not contain a media
      type (ignoring any parameters) that is <code>text/xml</code>,
      <code>application/xml</code> or ends in <code title="">+xml</code> the
      user agent <em class="ct">must</em> return <code>null</code> and abort
      these steps.</p></li>
-     
+
      <li><p>If the <span>entity body</span> can not be parsed into a namespace
      well-formed XML document the user agent <em class="ct">must</em> return
      <code>null</code> and abort these steps. [<cite><span>XML</span></cite>]
      [<cite><span>XMLNS</span></cite>]</p></li>
-     
+
      <li><p>The user agent <em class="ct">must</em> return an object
      implementing the <code>Document</code> interface representing the parsed
      document.</p></li>
