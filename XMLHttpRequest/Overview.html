@@ -269,11 +269,11 @@ client.send();</code></pre>
      specification in order to be considered conformant even when faced with
      non-conforming scripts.</p>
 
-    <p>User agents may optimize any algorithm given in this specification, so
-     long as the end result is indistinguishable from the result that would
-     be obtained by the specification's algorithms. (The algorithms in this
-     specification are generally written with more concern for clarity than
-     efficiency.)</p>
+    <p>User agents <em class=ct>may</em> optimize any algorithm given in this
+     specification, so long as the end result is indistinguishable from the
+     result that would be obtained by the specification's algorithms. (The
+     algorithms in this specification are generally written with more concern
+     for clarity than efficiency.)</p>
 
    <dt><dfn id=conforming-script>Conforming script</dfn>
 
@@ -1144,22 +1144,40 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <code>Document</code>, readonly
 
    <dd>
-    <p>If the state is not <a href="#loaded" title="LOADED state">LOADED</a>,
-     user agents <em class=ct>must</em> raise an
-     <code>INVALID_STATE_ERR</code> exception. Otherwise, if there's no <a
-     href="#dfn-entity-body">entity body</a> this attribute <em
-     class=ct>must</em> be <code>null</code>. If there is, and the
-     <code>Content-Type</code> header contains a media type (ignoring any
-     parameters) that is either <code>text/xml</code>,
-     <code>application/xml</code>, or ends in <code title="">+xml</code>, it
-     <em class=ct>must</em> be an object that implements the
-     <code>Document</code> interface representing the parsed document. If
-     <code>Content-Type</code> did not contain such a media type, or if the
-     document could not be parsed (due to an XML namespace well-formedness
-     error or unsupported character encoding, for instance), it <em
-     class=ct>must</em> be <code>null</code>.</p>
+    <p>On getting, the user agent <em class=ct>must</em> run the following
+     steps:</p>
 
-    <p>Its initial value <em class=ct>must</em> be <code>null</code>.</p>
+    <ol>
+     <li>
+      <p>If the state is not <a href="#loaded" title="LOADED
+       state">LOADED</a> the user agent <em class=ct>must</em> raise an
+       <code>INVALID_STATE_ERR</code> exception and abort these steps.
+
+     <li>
+      <p>If there's no <a href="#dfn-entity-body">entity body</a> the user
+       agent <em class=ct>must</em> return <code>null</code> and abort these
+       steps.
+
+     <li>
+      <p>If there is no <code>Content-Type</code> header the user agent <em
+       class=ct>must</em> return <code>null</code> and abort these steps.
+
+     <li>
+      <p>If the <code>Content-Type</code> header does not contain a media
+       type (ignoring any parameters) that is <code>text/xml</code>,
+       <code>application/xml</code> or ends in <code title="">+xml</code> the
+       user agent <em class=ct>must</em> return <code>null</code> and abort
+       these steps.
+
+     <li>
+      <p>If the <a href="#dfn-entity-body">entity body</a> can not be parsed
+       into a namespace well-formed XML document the user agent <em
+       class=ct>must</em> return <code>null</code> and abort these steps.
+
+     <li>
+      <p>The user agent <em class=ct>must</em> return an object implementing
+       the <code>Document</code> interface representing the parsed document.
+    </ol>
 
    <dt><dfn id=dfn-status><code>status</code></dfn> of type <code>unsigned
     short</code>, readonly
