@@ -257,7 +257,6 @@ client.send();</code></pre>
     HTTP protocol. The user agent <em class="ct">should</em> support any HTTP
     method that matches the <span><code>Method</code> production</span> and
     <em class="ct">must</em> at least support the following methods:</p>
-    <!-- define case-insensitive a-z -> A-Z -->
 
     <ul>
      <li><code>GET</code></li>
@@ -282,9 +281,13 @@ client.send();</code></pre>
    </dd>
   </dl>
 
-  <h3 id="extensibility">Extensibility</h3>
+  <h4 id="terminology">Terminology</h4>
 
-  <p><em>This section is non-normative.</em></p>
+  <p>There is a <dfn id="case-insensitive-match">case-insensitive match</dfn>
+  of strings <var>a</var> and <var>b</var> if after lowercasing both strings
+  (by mapping A-Z to a-z) they are identical.</p>
+
+  <h4 id="extensibility">Extensibility</h4>
 
   <p>Extensions of the APIs defined by this specification are <em>strongly
   discouraged</em>. User agents, Working Groups and other interested parties
@@ -447,11 +450,13 @@ client.send();</code></pre>
 
      <li><p>Let <var>stored method</var> be <var>method</var>.</p></li>
 
-     <li><p>If <var>method</var> case-insensitively matches <code>GET</code>,
-     <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
+     <li><p>If <var>method</var>
+     <span title="case-insensitive match">case-insensitively matches</span>
+     <code>GET</code>, <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
      <code>DELETE</code> or <code>OPTIONS</code> the user agent
-     <em class="ct">must</em> convert it to its uppercase equivalent and let
-     <var>stored method</var> be the result.</p></li>
+     <em class="ct">must</em> convert it to its uppercase equivalent (by
+     mapping a-z to A-Z) and let <var>stored method</var> be the
+     result.</p></li>
      <!-- WebKit (and supposedly Firefox) also uppercase: CONNECT, COPY,
      INDEX, LOCK, M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, TRACE and UNLOCK.
      Not sure if TRACE and CONNECT are worth it though. They raise a
@@ -581,8 +586,9 @@ client.send();</code></pre>
 
      <li>
       <p>For security reasons these steps <em class="ct">should</em> be
-      aborted if the <var>header</var> argument case-insensitively matches one
-      of the following headers:</p>
+      aborted if the <var>header</var> argument
+      <span title="case-insensitive match">case-insensitively matches</span>
+      one of the following headers:</p>
 
       <ul>
        <li><code>Accept-Charset</code></li>
@@ -961,13 +967,15 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception and
      abort these steps.</p></li>
 
-     <li><p>If the <var>header</var> argument case-insensitively matches
+     <li><p>If the <var>header</var> argument
+     <span title="case-insensitive match">case-insensitively matches</span>
      multiple HTTP headers for the last request sent the user agent
      <em class="ct">must</em> return the values of these headers as a single
      concatenated string separated from each other by an U+002C COMMA followed
      by an U+0020 SPACE and abort these steps.</p></li>
 
-     <li><p>If the <var>header</var> argument case-insensitively matches a
+     <li><p>If the <var>header</var> argument
+     <span title="case-insensitive match">case-insensitively matches</span> a
      single HTTP header for the last request sent the user agent
      <em class="ct">must</em> return the  value of that header and abort these
      steps.</p></li>
