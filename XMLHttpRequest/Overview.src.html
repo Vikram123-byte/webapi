@@ -347,7 +347,7 @@ client.send();</code></pre>
   const unsigned short <span title="UNSENT state">UNSENT</span> = 0;
   const unsigned short <span title="OPEN state">OPEN</span> = 1;
   const unsigned short <span title="SENT state">SENT</span> = 2;
-  const unsigned short <span title="RECEIVING state">RECEIVING</span> = 3;
+  const unsigned short <span title="LOADING state">LOADING</span> = 3;
   const unsigned short <span title="DONE state">DONE</span> = 4;
   readonly attribute unsigned short <span>readyState</span>;
 
@@ -374,7 +374,7 @@ client.send();</code></pre>
   <p>The <code>XMLHttpRequest</code> object can be in five states:
   <span title="UNSENT state">UNSENT</span>,
   <span title="OPEN state">OPEN</span>, <span title="SENT state">SENT</span>,
-  <span title="RECEIVING state">RECEIVING</span> and
+  <span title="LOADING state">LOADING</span> and
   <span title="DONE state">DONE</span>. The current state is exposed through
   the <code>readyState</code> attribute. The method definitions below define
   when a state transition takes place.</p>
@@ -396,11 +396,11 @@ client.send();</code></pre>
   <dfn id="sent" title="SENT state"><code>SENT</code></dfn> constant, whose
   value is <code>2</code>.</p>
 
-  <p>The RECEIVING state is the state of the object when all HTTP headers have
+  <p>The LOADING state is the state of the object when all HTTP headers have
   been received. The object typically remains in this state until the complete
   message body (if any) has been received. This state is represented by the
-  <dfn id="receiving" title="RECEIVING state"><code>RECEIVING</code></dfn>
-  constant, whose value is <code>3</code>.</p>
+  <dfn id="loading" title="LOADING state"><code>LOADING</code></dfn> constant,
+  whose value is <code>3</code>.</p>
 
   <p>The DONE state is the state of the object when either the data transfer
   has been completed or something went wrong during the transfer (infinite
@@ -781,7 +781,7 @@ X-Test: one, two
 
      <li><p>If all HTTP headers have been receieved, immediately before
      receiving the message body (if any), synchronously switch the state to
-     <span title="RECEIVING state">RECEIVING</span>; the user agent
+     <span title="LOADING state">LOADING</span>; the user agent
      <em class="ct">must</em> then synchronously dispatch a
      <code>readystatechange</code> event on the object.</p></li>
      <!-- IE does this regardless of the async value -->
@@ -925,8 +925,8 @@ X-Test: one, two
     the following steps:</p>
 
     <ol>
-     <li><p>If the state is not <span title="RECEIVING state">RECEIVING</span>
-     or <span title="DONE state">DONE</span> the user agent
+     <li><p>If the state is not <span title="LOADING state">LOADING</span> or
+     <span title="DONE state">DONE</span> the user agent
      <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
@@ -964,8 +964,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     the following steps:</p>
 
     <ol>
-     <li><p>If the state is not <span title="RECEIVING state">RECEIVING</span>
-     or <span title="DONE state">DONE</span> the user agent
+     <li><p>If the state is not <span title="LOADING state">LOADING</span> or
+     <span title="DONE state">DONE</span> the user agent
      <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
@@ -1011,17 +1011,16 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code>DOMString</code>, readonly</dt>
 
    <dd>
-    <p>If the state is not <span title="RECEIVING state">RECEIVING</span> or
+    <p>If the state is not <span title="LOADING state">LOADING</span> or
     <span title="DONE state">DONE</span>, the user agent
     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
     exception. Otherwise, if there's no <span>entity body</span> this
     attribute <em class="ct">must</em> be <code>null</code>. If there is, it
     <em class="ct">must</em> be the fragment of the <span>entity body</span>
     received so far (when the state is
-    <span title="RECEIVING state">RECEIVING</span>) or the complete
-    <span>entity body</span> (when the state is
-    <span title="DONE state">DONE</span>), interpreted as a stream of
-    characters.</p>
+    <span title="LOADING state">LOADING</span>) or the complete <span>entity
+    body</span> (when the state is <span title="DONE state">DONE</span>),
+    interpreted as a stream of characters.</p>
 
     <p>If the response includes a MIME type understood by the user agent the
     characters <em class="ct">must</em> be decoded following the relevant MIME

@@ -409,7 +409,7 @@ client.send();</code></pre>
   const unsigned short <a href="#unsent" title="UNSENT state">UNSENT</a> = 0;
   const unsigned short <a href="#open" title="OPEN state">OPEN</a> = 1;
   const unsigned short <a href="#sent" title="SENT state">SENT</a> = 2;
-  const unsigned short <a href="#receiving" title="RECEIVING state">RECEIVING</a> = 3;
+  const unsigned short <a href="#loading" title="LOADING state">LOADING</a> = 3;
   const unsigned short <a href="#done" title="DONE state">DONE</a> = 4;
   readonly attribute unsigned short <a href="#dfn-readystate">readyState</a>;
 
@@ -436,8 +436,8 @@ client.send();</code></pre>
   <p>The <code><a href="#xmlhttprequest-object">XMLHttpRequest</a></code>
    object can be in five states: <a href="#unsent" title="UNSENT
    state">UNSENT</a>, <a href="#open" title="OPEN state">OPEN</a>, <a
-   href="#sent" title="SENT state">SENT</a>, <a href="#receiving"
-   title="RECEIVING state">RECEIVING</a> and <a href="#done" title="DONE
+   href="#sent" title="SENT state">SENT</a>, <a href="#loading"
+   title="LOADING state">LOADING</a> and <a href="#done" title="DONE
    state">DONE</a>. The current state is exposed through the <code><a
    href="#dfn-readystate">readyState</a></code> attribute. The method
    definitions below define when a state transition takes place.
@@ -461,12 +461,11 @@ client.send();</code></pre>
    <dfn id=sent title="SENT state"><code>SENT</code></dfn> constant, whose
    value is <code>2</code>.
 
-  <p>The RECEIVING state is the state of the object when all HTTP headers
-   have been received. The object typically remains in this state until the
+  <p>The LOADING state is the state of the object when all HTTP headers have
+   been received. The object typically remains in this state until the
    complete message body (if any) has been received. This state is
-   represented by the <dfn id=receiving title="RECEIVING
-   state"><code>RECEIVING</code></dfn> constant, whose value is
-   <code>3</code>.
+   represented by the <dfn id=loading title="LOADING
+   state"><code>LOADING</code></dfn> constant, whose value is <code>3</code>.
 
   <p>The DONE state is the state of the object when either the data transfer
    has been completed or something went wrong during the transfer (infinite
@@ -899,8 +898,8 @@ X-Test: one, two
      <li>
       <p>If all HTTP headers have been receieved, immediately before
        receiving the message body (if any), synchronously switch the state to
-       <a href="#receiving" title="RECEIVING state">RECEIVING</a>; the user
-       agent <em class=ct>must</em> then synchronously dispatch a <code><a
+       <a href="#loading" title="LOADING state">LOADING</a>; the user agent
+       <em class=ct>must</em> then synchronously dispatch a <code><a
        href="#dfn-readystatechange">readystatechange</a></code> event on the
        object.
      </li>
@@ -1058,9 +1057,9 @@ X-Test: one, two
 
     <ol>
      <li>
-      <p>If the state is not <a href="#receiving" title="RECEIVING
-       state">RECEIVING</a> or <a href="#done" title="DONE state">DONE</a>
-       the user agent <em class=ct>must</em> raise an
+      <p>If the state is not <a href="#loading" title="LOADING
+       state">LOADING</a> or <a href="#done" title="DONE state">DONE</a> the
+       user agent <em class=ct>must</em> raise an
        <code>INVALID_STATE_ERR</code> exception and abort these steps.
 
      <li>
@@ -1099,9 +1098,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
     <ol>
      <li>
-      <p>If the state is not <a href="#receiving" title="RECEIVING
-       state">RECEIVING</a> or <a href="#done" title="DONE state">DONE</a>
-       the user agent <em class=ct>must</em> raise an
+      <p>If the state is not <a href="#loading" title="LOADING
+       state">LOADING</a> or <a href="#done" title="DONE state">DONE</a> the
+       user agent <em class=ct>must</em> raise an
        <code>INVALID_STATE_ERR</code> exception and abort these steps.
 
      <li>
@@ -1148,17 +1147,17 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <code>DOMString</code>, readonly
 
    <dd>
-    <p>If the state is not <a href="#receiving" title="RECEIVING
-     state">RECEIVING</a> or <a href="#done" title="DONE state">DONE</a>, the
+    <p>If the state is not <a href="#loading" title="LOADING
+     state">LOADING</a> or <a href="#done" title="DONE state">DONE</a>, the
      user agent <em class=ct>must</em> raise an
      <code>INVALID_STATE_ERR</code> exception. Otherwise, if there's no <a
      href="#dfn-entity-body">entity body</a> this attribute <em
      class=ct>must</em> be <code>null</code>. If there is, it <em
      class=ct>must</em> be the fragment of the <a
      href="#dfn-entity-body">entity body</a> received so far (when the state
-     is <a href="#receiving" title="RECEIVING state">RECEIVING</a>) or the
-     complete <a href="#dfn-entity-body">entity body</a> (when the state is
-     <a href="#done" title="DONE state">DONE</a>), interpreted as a stream of
+     is <a href="#loading" title="LOADING state">LOADING</a>) or the complete
+     <a href="#dfn-entity-body">entity body</a> (when the state is <a
+     href="#done" title="DONE state">DONE</a>), interpreted as a stream of
      characters.</p>
 
     <p>If the response includes a MIME type understood by the user agent the
