@@ -2,9 +2,11 @@
 <!-- http://www.w3.org/mid/op.tlv3d8sp64w2qv@id-c0020 -->
 <html lang="en-US">
  <head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
   <title>Selectors API</title>
   <style type="text/css">
    pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
+
    pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
    div.example { border-left:double; padding-left:1em }
    dfn { font-style:normal; font-weight:bolder }
@@ -45,8 +47,11 @@
 
     <dd><a href="http://www.w3.org/TR/2006/WD-selectors-api-20060525/">http://www.w3.org/TR/2006/WD-selectors-api-20060525/</a></dd>
 
-    <dt>Editor:</dt>
+    <dt>Editors:</dt>
 
+    <dd><a href="http://lachy.id.au/">Lachlan Hunt</a>
+    (Invited Expert)
+    &lt;<a href="mailto:lachlan.hunt@lachy.id.au">lachlan.hunt@lachy.id.au</a>&gt;</dd>
     <dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a>
     (<a href="http://www.opera.com/">Opera Software ASA</a>)
     &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</dd>
@@ -55,11 +60,14 @@
    <p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
     © 2006
     <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>®</sup>
+
     (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>,
     <a href="http://www.ercim.org/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>,
     <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
     <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+
     <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a>
+
     and
     <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document
     use</a> rules apply.</p>
@@ -82,22 +90,25 @@
   found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
   at http://www.w3.org/TR/.</em></p>
 
+
   <p>This document is produced by the
   <a href="http://www.w3.org/2006/webapi/">Web API WG</a>, part of the
   <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
   in the W3C <a href="http://www.w3.org/Interaction/">Interaction
   Domain</a>.</p>
 
+
   <p>Web content and browser developers are encouraged to review this draft.
   Please send comments to
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> with
-  <samp>[selectors-api]</samp> at the start of the subject line.
+  <kbd>[selectors-api]</kbd> at the start of the subject line.
   <a href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of
   this list are available. The editor's copy of this specification is
   <a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/selectors-api/Overview.html?content-type=text/html;%20charset=utf-8">available
   in W3C CVS</a>. A detailed list of changes is also available
   <a href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/">from the CVS
   server</a>.</p>
+
 
   <!-- XXX: dino!!! -->
 
@@ -157,7 +168,7 @@
       I like graphics:
       &lt;svg xmlns="http://www.w3.org/2000/svg" …> … &lt;/svg>
       &lt;svg xmlns="http://www.w3.org/2000/svg" …> … &lt;/svg>
-    &lt/p>
+    &lt;/p>
     &lt;p id="x" xmlns:svg="http://www.w3.org/2000/svg">
       They are great:
       &lt;svg:svg …> … &lt;/svg:svg>
@@ -168,10 +179,14 @@
    <p>If you apply the following script to the above XML document …
 
    <pre>function resolver(str) {
+
   var prefixes = {
     h:  "http://www.w3.org/1999/xhtml",
+
     g: "http://www.w3.org/2000/svg"}
+
   return prefixes[str];
+
 }
 var <var>a</var> = document.get("#x");
 var <var>b</var> = document.getAll("h|p &gt; g|svg", resolver);
@@ -204,7 +219,8 @@ var <var>c</var> = a.get("svg, span");</pre>
 
    <p>The above code snippet shows that besides using a single selector you can
    also pass a group of selectors (basically comma-separated selectors) as
-   argument. <var>f</var> would contain a <code>StaticNodeList</code> with all
+   the argument. <var>f</var> would contain a <code>StaticNodeList</code> with
+   all
    <code>p</code> elements in the document that have a <code>warning</code> or
    <code>alert</code> class.</p>
 
@@ -256,7 +272,7 @@ var <var>c</var> = a.get("svg, span");</pre>
 
   <p>The algorithms described in this specification are there for clarity. User
   agents are not required to follow them as long as the result is the same. In
-  doing so user agents <a href="#interoperability">may</a> assume that the
+  doing so, user agents <a href="#interoperability">may</a> assume that the
   object implementing the <code>NSResolver</code> interface (or ECMAScript
   <code>Function</code>) only relies on scoped variables, doesn't invoke
   processes outside the object and returns consistent results when its
@@ -341,43 +357,39 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
 
   <p>The
   <dfn id="document-get" title="document-get"><code>get(<var>selectors</var>,
-  <var title="">nsresolver</var>)</code></dfn> method, when invoked,
-  <em class="ct">must</em> return the first <code>Element</code> node in
+  <var title="">nsresolver</var>)</code></dfn> method <em class="ct">must</em>,
+  when invoked, return the first <code>Element</code> node in
   document order (using depth-first pre-order traversal) that matches the group
   of selectors (<var>selectors</var>), if any. Otherwise it
   <em class="ct">must</em> return <code>null</code>.</p>
 
   <p>The <dfn id="document-getall" title="document-getall"><code>getAll(<var>selectors</var>,
-  <var title="">nsresolver</var>)</code></dfn> method, when invoked,
-  <em class="ct">must</em> return a <code>StaticNodeList</code> of all the
+  <var title="">nsresolver</var>)</code></dfn> method <em class="ct">must</em>,
+  when invoked, return a <code>StaticNodeList</code> of all the
   <code>Element</code>s that match the group of selectors
   (<var>selectors</var>) in document order, if any. Otherwise it
   <em class="ct">must</em> return an empty <code>StaticNodeList</code>.</p>
 
-  <p>Both <code title="document-get">get()</code> and
-  <code title="document-getall">getAll()</code> take a group of selectors
-  (<var>selectors</var>) as first argument and an <code>NSResolver</code>
-  (<var title="">nsresolver</var>) as second. User agents
-  <em class="ct">must</em> use the <var title="">nsresolver</var> argument to
-  <span>resolve namespace prefixes</span> to namespaces or to <span>get the
-  default namespace</span>. When the <var title="">nsresolver</var> argument is
-  <code>null</code> user agents <em class="ct">must</em> ignore it.
-  [<cite><a href="#ref-selectors">Selectors</a></cite>]</p>
+  <p>Both <code title="document-get">get()</code> and <code title="document-getall">getAll()</code> take
+  	a group of selectors (<var>selectors</var>) as first argument and an <code>NSResolver</code> (<var title="">nsresolver</var>)
+  	as second. User agents <em class="ct">must</em> use the <var title="">nsresolver</var> argument
+  	to <span>resolve namespace prefixes</span> to namespaces or to <span>get the
+  	default namespace</span>. When the <var title="">nsresolver</var> argument
+  is <code>null</code> user agents <em class="ct">must</em> ignore it. [<cite><a href="#ref-selectors">Selectors</a></cite>]</p>
 
-  <p>When authors use namespace prefixes within <var>selectors</var> or want to
-  set a default namespace they <em class="ct">must</em> create an object
-  implementing the <code>NSResolver</code> interface and pass that (or a
-  <code>Function</code> in case of ECMAScript) as argument for
+  <p>When authors use namespace prefixes within <var>selectors</var> or wish
+  	to set a default namespace, they <em class="ct">must</em> create an object
+  implementing the <code>NSResolver</code> interface (or a
+  <code>Function</code> in the case of ECMAScript) and pass that  as the argument
+  for
   <var title="">nsresolver</var>. Otherwise, authors <em class="ct">may</em> set
-  the argument to <code>null</code> or omit it if the language binding allows
-  it.</p>
-
+  the argument to <code>null</code> or omit it if the language binding permits.</p>
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the user
   agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If
   the given group of selectors (<var>selectors</var>) uses namespace prefixes
-  and the prefix can not be resolved (the <var title="">nsresolver</var>
+  and the prefix cannot be resolved (the <var title="">nsresolver</var>
   argument doesn't provide the namespace or has been omitted entirely) a
-  <code>NAMESPACE_ERR</code> exception <em class="ct">must</em> be raised.</p>
+  <code>NAMESPACE_ERR</code> exception <em class="ct">must</em> be raised. </p>
 
   <p class="note">Not defining a default namespace is ok.</p>
 
@@ -393,8 +405,9 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   one or more <code>Element</code> nodes.</p>
 
   <p>The <dfn id="element-get" title="element-get"><code>get()</code></dfn>
-  method on the <code>ElementSelector</code> interface, when invoked,
-  <em class="ct">must</em> return the first <code>Element</code> node in
+  method on the <code>ElementSelector</code> interface
+  <em class="ct">must</em>, when invoked, return
+  the first <code>Element</code> node in
   document order (using depth-first pre-order traversal) that matches the group
   of selectors (<var>selectors</var>) within the group of descendents of the
   element on which the method was invoked, if any. Otherwise it
@@ -421,7 +434,9 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   implemented by the user agent.</p>
 
   <pre class="idl">interface <dfn id="nsresolver">NSResolver</dfn> {
+
   DOMString          <span>lookupNamespaceURI</span>(in DOMString <var>prefix</var>);
+
 };</pre>
 
   <p>The
@@ -431,15 +446,33 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
 
   <p>To <dfn id="resolve-namespace-prefix">resolve namespace prefixes</dfn> user
   agents <em class="ct">must</em> pass the prefix lowercased (A-Z maps to a-z)
-  to the <code>lookupNamespaceURI</code> method. User agents <em class="ct">must
-  not</em> invoke the method more than once for each unique (after lowercasing)
-  prefix. The order in which prefixes are resolved is not defined by this
-  specification. To <dfn id="get-default-namespace">get the default
-  namespace</dfn> user agents <em class="ct">must</em> invoke the
-  <code>lookupNamespaceURI()</code> method with the empty string. User agents
-  <em class="ct">must</em> never invoke the method with <code>null</code> as
-  argument.</p>
-
+  to the <code>lookupNamespaceURI()</code> method. If the method does not return
+  a <code>DOMString</code>, the namespace prefix cannot be resolved. User agents <em class="ct">must
+  	not</em> invoke the method more than once for each unique
+  	prefix (after lowercasing). The order in which prefixes are resolved is not
+  	defined by this specification.</p>
+  <p>To <dfn id="get-default-namespace">get the default
+  	namespace</dfn> user agents <em class="ct">must</em> invoke the <code>lookupNamespaceURI()</code> method
+  	with the empty string as the argument. User agents <em class="ct">must not</em> invoke
+  	the method with <code>null</code> as
+  	the argument. If the method returns an empty string, <code>null</code>, or
+  	does not return a value (<code>void</code>), then there is no default namespace.
+  	Otherwise, if the method does not return a <code>DOMString</code>, the default
+  	namespace cannot be resolved.</p>
+  <p>When the <code>lookupNamespaceURI()</code> method is invoked with a prefix
+  	as the argument, authors  <em class="ct">must</em> ensure that it returns
+  	the namespace URI for the given prefix. When the <code>lookupNamespaceURI()</code> method
+  	is invoked with an empty string as the argument (representing the default
+  	namespace), it <em class="ct">must</em> do either of the
+  	following:</p>
+  <ul>
+  	<li>If there is a default namespace, it <em class="ct">must</em> return the
+  		default namespace URI.</li>
+  	<li>If there is no default namespace, it <em class="ct">must</em> return either <code>null</code>,
+  		the empty string, or (if permitted by the language binding) no return
+  		value (<code>void</code>).<br>
+	  </li>
+ </ul>
   <p>In ECMAScript (and languages that allow similar constructs) user agents
   <em class="ct">must</em> support <code>NSResolver</code> being implemented as
   a <code>Function</code> where the parameter of the function is identical to
@@ -451,7 +484,9 @@ function resolver(prefix) {
   i++
   var prefixes = {
     1:  "http://example.org/foo",
+
     2:  "http://example.org/bar"}
+
   return prefixes[i];
 }
 var <var>x</var> = document.getAll("tESt|x > test|x", resolver)
@@ -497,6 +532,7 @@ var <var>y</var> = document.getAll("x|x" > "y|x", resolver)</pre>
    Consortium, April 2004.</dd>
 
    <dt id="ref-ecma262">[ECMAScript]</dt>
+
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
    Language Specification</a></cite>, Third Edition. ECMA, December 1999.</dd>
 
@@ -530,7 +566,6 @@ var <var>y</var> = document.getAll("x|x" > "y|x", resolver)</pre>
    <li>Jonas Sicking</li>
    <li>Jorgen Horstink</li>
    <li>Karl Dubost</li>
-   <li>Lachlan Hunt</li>
    <li>Maciej Stachowiak</li>
    <li>Mohamed Zergaoui</li>
    <li>Robert Sayre</li>
