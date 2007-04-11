@@ -22,6 +22,9 @@
 
 
 
+
+
+
   </style>
   <link rel="stylesheet" type="text/css" media="screen"
   href="http://www.w3.org/Stylesheets/TR/Base.css" />
@@ -33,19 +36,19 @@
 <a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home"
 alt="W3C" height="48" width="72" /> </a> 
 
-<h1 id="title">The ProgressEvent events</h1>
+<h1 id="title">Progress events 1.0</h1>
 
-<h2>Editor's Draft 12 December 2006</h2>
+<h2>Editor's Draft 12 April 2007</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.11">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.11</a></dd>
   <dt>Latest Editor's draft:</dt>
     <dd><a
       href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous Editor's draft:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -102,7 +105,7 @@ href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>. All messages
 received at this address are viewable in a <a
 href="http://lists.w3.org/Archives/Public/public-webapi/">public archive</a>.
 This document will hopefully be published as a first W3C Working Draft in
-March 2007, with the intention of making it a Last Call Working draft as soon
+April 2007, with the intention of making it a Last Call Working draft as soon
 as possible. Currently there are several known issues which are unresolved by
 this specification. These may be identified in the draft thus:<span
 class="issue">@@issue: Something that needs to be settled before the draft is
@@ -196,7 +199,7 @@ terms.</p>
     <tr>
       <th>Name</th>
       <th>Description</th>
-      <th>How many?</th>
+      <th>How often?</th>
       <th>When?</th>
     </tr>
     <tr>
@@ -249,8 +252,8 @@ specification does not recommend use of one over the other.</p>
 
 <h3 id="Interface">Interface definitions</h3>
 
-<p><span class="issue">@@issue: this section inherits from event.initEvent
-[@@]. Where there is any conflict, that specification should be taken as the
+<p><span class="issue">@@issue: clarify that this section inherits from
+event.initEvent [@@]. Where there is any conflict, that should be the
 normative version.</span></p>
 <dl>
   <dt><b>IDL Definition</b></dt>
@@ -297,9 +300,6 @@ normative version.</span></p>
             class="issue">@@issue: How do you measure the progress of an HTTP
             POST where a measurable amount of data goes up, and another one
             comes back?</span></dd>
-      </dl>
-    </dd>
-    <dd><dl>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long</span> <span
         class="dom-attr-name">total</span></dt>
@@ -319,6 +319,13 @@ normative version.</span></p>
             <dl>
               <dt><span class="dom-parameters">Parameters</span></dt>
                 <dd><dl>
+                    <dt>DOMString type</dt>
+                      <dd>This <em>must</em> be one of
+                        <samp>loadstart</samp>, <samp>progress</samp>,
+                        <samp>error</samp>, <samp>abort</samp>,
+                        <samp>load</samp>. If it is not one of those values
+                        then this specification does not define the resulting
+                        event.</dd>
                     <dt>canBubbleArg</dt>
                       <dd>This <em>must</em> be <var>false</var>. Where a
                         value of <var>true</var> is passed, user agents
@@ -373,7 +380,13 @@ normative version.</span></p>
                 <dd><dl>
                     <dt>namespaceURI</dt>
                       <dd>For all events defined in this spcification, the
-                        value of this parameter is null.</dd>
+                        value of this parameter is <samp>null</samp>.</dd>
+                    <dt>DOMString type</dt>
+                      <dd>This must be one of <samp>loadstart</samp>,
+                        <samp>progress</samp>, <samp>error</samp>,
+                        <samp>abort</samp>, <samp>load</samp>. If it is not
+                        one of those values then this specification does not
+                        define the resulting event.</dd>
                     <dt>canBubbleArg</dt>
                       <dd>This <em>must</em> be <var>false</var>. Where a
                         value of <var>true</var> is passed, user agents
@@ -483,17 +496,16 @@ there is simply an animation.</p>
        var image = document.getElementById('myImage');
        image.setAttributeNS(xlinkNS, "href", imageHref);
        image.addEventListener("progress",imageLoadProgress,false);
-       image.addEventListener("progressComplete",imageLoadComplete,false);
-       //could also use a load listener for purity and theoretical beauty
+       image.addEventListener("load",imageLoadComplete,false);
    }           
 
    function imageLoadProgress(evt) {  
-       if (evt.lengthComputable) { // we know the size, don't divide by zero
+       if (evt.lengthComputable &amp;&amp; evt.total != 0) { // we know the size, don't divide by zero
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 100*evt.loaded/evt.total);
           var loadAnimation = document.getElementById('loadAnimation');
           loadAnimation.endElement();
-       } else { // evt.total zero means we don't know the size
+       } else { // we don't know the size and we need not to divide by zero
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 20);
           var loadAnimation = document.getElementById('loadAnimation');
@@ -528,9 +540,16 @@ there is simply an animation.</p>
 <h2 id="Change">Change History</h2>
 <dl>
   <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.11">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.11</a></dt>
+    <dd><ul>
+        <li><a name="#Considerat" id="#Considerat">Defined something for
+          <code>typeArg</code></a></li>
+      </ul>
+    </dd>
+  <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.10</a></dt>
     <dd><ul>
-        <li><a name="#Considerat" id="#Considerat">Defined various error
+        <li><a name="#Considerat2" id="#Considerat2">Defined various error
           conditions and handling</a></li>
         <li>Made initProgressEvent() explicitly depend on
         event.initEvent()</li>
@@ -588,7 +607,8 @@ there is simply an animation.</p>
 </dl>
 
 <p>Various editorial changes and corrections and modifications to the
-examples are made from draft to draft.</p>
+examples are made from draft to draft. These are not noted in the change
+history.</p>
 
 <h2 id="References">References</h2>
 
@@ -626,18 +646,19 @@ examples are made from draft to draft.</p>
 <h2 id="Acknowledg">Acknowledgements</h2>
 
 <p>The editor would like to thank the SVG working group for producing the
-draft [<a href="#SVGD">SVGD</a>] that this was initially based on. The WHATWG
-progress element proposal [<a href="#WPE">WPE</a>] and the documentation for
-Internet Explorer's <code>onProgress</code> implementation [<a
-href="#IEoP">IEoP</a>] were also useful as an initial reference for this
-specification. In addition, the following individuals' comments have been
-invaluable in preparing this draft:</p>
+draft [<a href="#SVGD">SVGD</a>] that this was initially based on. The
+WHATWG's proposed <code>progress</code> element [<a href="#WPE">WPE</a>] and
+the documentation for Internet Explorer's <code>onProgress</code>
+implementation [<a href="#IEoP">IEoP</a>] were also useful as an initial
+reference for this specification. In addition, the following individuals'
+comments have been invaluable in preparing this draft:</p>
 
-<p>Robin Berjon, Marcos Caceres, Suresh Chitturi, Alex Danilo, Erik
-Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm Eriksen, Ian
-Hickson, Bjoern Hoehrmann, Björn Hoehrmann, David Håsäther, Björn Höhrmann,
-Bjoern Höhrmann, Anne van Kesteren, Travis Leithead, Jim Ley, Chrus Lilley,
-Michael Antony Puls, Nandini Ramani, Alan Schepers, Doug Schepers, Andrew
-Shellshear, Ellen Siegel, Andy Sledd, Maciej Stachowiak, Boris Zbarsky</p>
+<p>Robin Berjon, Jean-Yves Bitterlich, Marcos Caceres, Suresh Chitturi, Alex
+Danilo, Erik Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm
+Eriksen, Ian Hickson, Bjoern Hoehrmann, Björn Hoehrmann, David Håsäther,
+Björn Höhrmann, Bjoern Höhrmann, Anne van Kesteren, Travis Leithead, Jim Ley,
+Chrus Lilley, Michael Antony Puls, Nandini Ramani, Robert Sayre, Alan
+Schepers, Doug Schepers, Andrew Shellshear, Ellen Siegel, Andy Sledd, Maciej
+Stachowiak, Boris Zbarsky</p>
 </body>
 </html>
