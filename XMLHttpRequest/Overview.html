@@ -30,13 +30,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 2 April 2007</h2>
+    draft<!--W3C Working Draft--> 2 May 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070402/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070402/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070502/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070502/</a>
 
     <dt>Latest Version:
 
@@ -99,7 +99,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 2 April 2007 <strong>Editor's</strong> Working Draft of The
+  <p>This is the 2 May 2007 <strong>Editor's</strong> Working Draft of The
    <code title="">XMLHttpRequest</code> Object specification. Please send
    comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
    (<a
@@ -456,6 +456,12 @@ client.send();</code></pre>
    is represented by the <dfn id=open title="OPEN
    state"><code>OPEN</code></dfn> constant, whose value is <code>1</code>.
 
+  <p>During the OPEN state there is a <dfn id=send-flag><code>send()</code>
+   flag</dfn> which influences several algorithms described below. Outside
+   the OPEN state its value <em class=ct>must</em> (always) be "false".
+   During the OPEN state it can be set to "true" as described in the <code><a
+   href="#dfn-send">send()</a></code> method algorithm.
+
   <p>The SENT state is the state of the object when the user agent
    successfully acknowledged the request. This state is represented by the
    <dfn id=sent title="SENT state"><code>SENT</code></dfn> constant, whose
@@ -482,8 +488,8 @@ client.send();</code></pre>
      <em class=ct>must</em> be invoked along with any other appropriate event
      listeners that are registered on this object when a <code><a
      href="#dfn-readystatechange">readystatechange</a></code> event is
-     dispatched on it. Its initial value <em class=ct>must</em> be
-     <code>null</code>.</p>
+     dispatched on it during the bubbling phase. Its initial value <em
+     class=ct>must</em> be <code>null</code>.</p>
 
    <dt><dfn id=dfn-readystate><code>readyState</code></dfn> of type
     <code>unsigned short</code>, readonly
@@ -653,8 +659,8 @@ client.send();</code></pre>
        <code>INVALID_STATE_ERR</code> exception and abort these steps.
 
      <li>
-      <p>If the <a href="#send-flag"><code>send()</code> flag</a> is set the
-       user agent <em class=ct>must</em> raise an
+      <p>If the <a href="#send-flag0"><code>send()</code> flag</a> is "true"
+       the user agent <em class=ct>must</em> raise an
        <code>INVALID_STATE_ERR</code> exception and abort these steps.
 
      <li>
@@ -811,8 +817,8 @@ X-Test: one, two
        <code>INVALID_STATE_ERR</code> exception and abort these steps.
 
      <li>
-      <p>If the <a href="#send-flag"><code>send()</code> flag</a> is set the
-       user agent <em class=ct>must</em> raise an
+      <p>If the <a href="#send-flag0"><code>send()</code> flag</a> is "true"
+       the user agent <em class=ct>must</em> raise an
        <code>INVALID_STATE_ERR</code> exception and abort these steps.
 
      <li>
@@ -881,10 +887,10 @@ X-Test: one, two
 
      <li>
       <p>If <var>async</var> is <code>true</code> the user agent <em
-       class=ct>must</em> set the <dfn id=send-flag><code>send()</code>
-       flag</dfn>, directly unset it when the state changes and return the
-       <code><a href="#dfn-send">send()</a></code> method call. (Don't abort
-       the steps in the algorithm though.)
+       class=ct>must</em> set the <dfn id=send-flag0><code>send()</code>
+       flag</dfn> to "true" and return the <code><a
+       href="#dfn-send">send()</a></code> method call. (Don't abort the steps
+       in the algorithm though.)
 
      <li>
       <p>If the request has been successfully acknowledged synchronously
@@ -1028,7 +1034,7 @@ X-Test: one, two
      <li>
       <p>If the state is <a href="#unsent" title="UNSENT state">UNSENT</a>,
        <a href="#open" title="OPEN state">OPEN</a> and the <a
-       href="#send-flag"><code>send()</code> flag</a> is not set or <a
+       href="#send-flag0"><code>send()</code> flag</a> is "false", or <a
        href="#done" title="DONE state">DONE</a> go to the next step.</p>
 
       <p>Otherwise, switch the state to <a href="#done" title="DONE
@@ -1290,9 +1296,10 @@ const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
 
    <li>Cross-site <code title="">XMLHttpRequest</code>;
 
-   <li>Deal with byte streams;
+   <li><code>responseBody</code> to deal with byte streams;
 
-   <li><code>getRequestHeader</code> and <code>removeRequestHeader</code>.
+   <li><code>getRequestHeader()</code> and
+    <code>removeRequestHeader()</code>.
   </ul>
 
   <h2 class=no-num id=bibref>References</h2>
@@ -1437,6 +1444,8 @@ const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;</pre>
    <li>Marc Hadley
 
    <li>Marcos Caceres
+
+   <li>Mark Baker
 
    <li>Mark Nottingham
 

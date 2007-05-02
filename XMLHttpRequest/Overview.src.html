@@ -391,6 +391,12 @@ client.send();</code></pre>
   <dfn id="open" title="OPEN state"><code>OPEN</code></dfn> constant, whose
   value is <code>1</code>.</p>
 
+  <p>During the OPEN state there is a <dfn id="send-flag"><code>send()</code>
+  flag</dfn> which influences several algorithms described below. Outside the
+  OPEN state its value <em class="ct">must</em> (always) be "false". During
+  the OPEN state it can be set to "true" as described in the
+  <code>send()</code> method algorithm.</p>
+
   <p>The SENT state is the state of the object when the user agent
   successfully acknowledged the request. This state is represented by the
   <dfn id="sent" title="SENT state"><code>SENT</code></dfn> constant, whose
@@ -417,8 +423,9 @@ client.send();</code></pre>
     <p>An attribute that takes an <code>EventListener</code> as value that
     <em class="ct">must</em> be invoked along with any other appropriate event
     listeners that are registered on this object when a
-    <code>readystatechange</code> event is dispatched on it. Its initial value
-    <em class="ct">must</em> be <code>null</code>.</p>
+    <code>readystatechange</code> event is dispatched on it during the
+    bubbling phase. Its initial value <em class="ct">must</em> be
+    <code>null</code>.</p>
    </dd>
 
    <dt><dfn id="dfn-readystate"><code>readyState</code></dfn> of type
@@ -563,8 +570,8 @@ client.send();</code></pre>
      <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
-     <li><p>If the <span><code>send()</code> flag</span> is set the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     <li><p>If the <span><code>send()</code> flag</span> is "true" the user
+     agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
      <li><p>If the <var>header</var> argument doesn't match the
@@ -701,8 +708,8 @@ X-Test: one, two
      <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
-     <li><p>If the <span><code>send()</code> flag</span> is set the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     <li><p>If the <span><code>send()</code> flag</span> is "true" the user
+     agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
      <li>
@@ -768,10 +775,9 @@ X-Test: one, two
      </li>
 
      <li><p>If <var>async</var> is <code>true</code> the user agent
-     <em class="ct">must</em> set the <dfn><code>send()</code> flag</dfn>,
-     directly unset it when the state changes and return the
-     <code>send()</code> method call. (Don't abort the steps in the algorithm
-     though.)</p></li>
+     <em class="ct">must</em> set the <dfn><code>send()</code> flag</dfn> to
+     "true" and return the <code>send()</code> method call. (Don't abort the
+     steps in the algorithm though.)</p></li>
 
      <li><p>If the request has been successfully acknowledged synchronously
      switch the state to <span title="SENT state">SENT</span>; the user agent
@@ -898,8 +904,8 @@ X-Test: one, two
      <li>
       <p>If the state is <span title="UNSENT state">UNSENT</span>,
       <span title="OPEN state">OPEN</span> and the <span><code>send()</code>
-      flag</span> is not set or <span title="DONE state">DONE</span> go to the
-      next step.</p>
+      flag</span> is "false", or <span title="DONE state">DONE</span> go to
+      the next step.</p>
 
       <p>Otherwise, switch the state to <span title="DONE state">DONE</span>;
       the user agent <em class="ct">must</em> then synchronously dispatch a
@@ -1141,9 +1147,9 @@ const unsigned short <span>NETWORK_ERR</span> = 101;</pre>
    <li><code title="">responseXML</code> for <code>text/html</code>
    documents;</li>
    <li>Cross-site <code title="">XMLHttpRequest</code>;</li>
-   <li>Deal with byte streams;</li>
-   <li><code>getRequestHeader</code> and
-   <code>removeRequestHeader</code>.</li>
+   <li><code>responseBody</code> to deal with byte streams;</li>
+   <li><code>getRequestHeader()</code> and
+   <code>removeRequestHeader()</code>.</li>
   </ul>
 
   <h2 class="no-num" id="bibref">References</h2>
@@ -1258,6 +1264,7 @@ const unsigned short <span>NETWORK_ERR</span> = 101;</pre>
    <li>Magnus Kristiansen</li>
    <li>Marc Hadley</li>
    <li>Marcos Caceres</li>
+   <li>Mark Baker</li>
    <li>Mark Nottingham</li>
    <li>Pawel Glowacki</li>
    <li>Robin Berjon</li>
