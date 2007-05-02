@@ -413,39 +413,58 @@ client.send();</code></pre>
   redirects for instance). This state is represented by the
   <dfn id="done" title="DONE state"><code>DONE</code></dfn> constant, whose
   value is <code>4</code>.</p>
-  
+
   <p>The <dfn id="response-entity-body">response entity body</dfn> is the
   fragment of the <span>entity body</span> received so far (LOADING state) or
   the complete entity body (DONE state). If there is no entity body the
   response entity body is "null".</p>
 
   <p>The <dfn id="text-response-entity-body">text response entity body</dfn>
-  is the <span>response entity body</span> interpreted as a stream of
-  characters using the character encoding to decode as determined by the
-  following algorithm:</p>
-  
+  is either a <code>DOMString</code> or <code>null</code>. The value of the
+  text response entity body is determined by running the following
+  algorithm:</p>
+
   <ol>
-   <li class="issue">...</li>
+   <li><p>If the <span>response entity body</span> is "null" the value is
+   <code>null</code> and abort these steps.</p>
+
+   <li><p>Let <var>charset</var> be UTF-8.</p></li>
+
+   <li><p>If there is no <code>Content-Type</code> header or there is a
+   <code>Content-Type</code> header which contains a MIME type that is
+   <code>text/xml</code>, <code>application/xml</code> or ends in
+   <code>+xml</code> (ignoring any parameters) use the rules set forth in the
+   XML specification to determine the character encoding. Let
+   <var>charset</var> be the determined character encoding.</p></li>
+
+   <li><p>If the <code>Content-Type</code> MIME type contains a
+   <code>charset</code> parameter let <var>charset</var> be the value of that
+   parameter.</p></li>
+
+   <li><p>The value is the result of decoding the <span>resonse entity
+   body</span> using <var>charset</var>. If that fails the value is
+   <code>null</code>.</p></li>
   </ol>
-  
+
   <p>If the <span>response entity body</span> is "null" the text response
   entity body is <code>null</code>. If the user agent fails to decode the
   response entity body the text response entity body is also
   <code>null</code>.</p>
-  
+
   <p>The <dfn id="xml-response-entity-body">XML response entity body</dfn> is
   a <code>Document</code> representing the response entity body or
-  <code>null</code> and is determined by the following algorithm:</p>
-  
+  <code>null</code> and is determined by running the following algorithm:</p>
+
   <ol>
-   <li>If the <span>response entity body</span> is "null" the value is
+   <li><p>If the <span>response entity body</span> is "null" the value is
    <code>null</code>.</p></li>
 
    <li><p>If there is no <code>Content-Type</code> header the value is
    <code>null</code>.</p></li>
+   <!-- can it have no value? -->
 
-   <li><p>If the <code>Content-Type</code> header does not contain a media
-   type (ignoring any parameters) that is <code>text/xml</code>,
+   <li><p>If the <code>Content-Type</code> header does not contain a MIME type
+   (ignoring any parameters) that is <code>text/xml</code>,
    <code>application/xml</code> or ends in <code title="">+xml</code> the
    value is <code>null</code>.</p></li>
 
@@ -660,49 +679,6 @@ client.send();</code></pre>
       </ul>
      </li>
 
-     <!--
-     <li>
-      <p>If the <var>header</var> argument case-insensitively matches one of
-      the following headers the user agent <em class="ct">must</em> set the
-      value of that HTTP header to <var>value</var> and abort these steps:</p>
-
-      <ul>
-       <li><code>Apply-To-Redirect-Ref</code></li>
-       <li><code>Authorization</code></li>
-       <li><code>C-Ext</code></li>
-       <li><code>Content-Base</code></li>
-       <li><code>Content-Location</code></li>
-       <li><code>Content-MD5</code></li>
-       <li><code>Content-Range</code></li>
-       <li><code>Content-Type</code></li>
-       <li><code>Content-Version</code></li>
-       <li><code>Cookie</code></li>
-       <li><code>Cookie2</code></li>
-       <li><code>Delta-Base</code></li>
-       <li><code>Depth</code></li>
-       <li><code>Destination</code></li>
-       <li><code>ETag</code></li>
-       <li><code>Ext</code></li>
-       <li><code>From</code></li>
-       <li><code>If</code></li>
-       <li><code>If-Modified-Since</code></li>
-       <li><code>If-Range</code></li>
-       <li><code>If-Unmodified-Since</code></li>
-       <li><code>Label</code></li>
-       <li><code>Lock-Token</code></li>
-       <li><code>Max-Forwards</code></li>
-       <li><code>MIME-Version</code></li>
-       <li><code>Ordering-Type</code></li>
-       <li><code>Overwrite</code></li>
-       <li><code>Proxy-Authorization</code></li>
-       <li><code>Redirect-Ref</code></li>
-       <li><code>SOAPAction</code></li>
-       <li><code>Status-URI</code></li>
-       <li><code>Timeout</code></li>
-      </ul>
-     </li>
-     -->
-
      <li><p>If the <var>header</var> argument is not in the list of request
      headers the user agent <em class="ct">must</em> append the
      <var>header</var> with its associated <var>value</var> to the list and
@@ -827,14 +803,12 @@ X-Test: one, two
      switch the state to <span title="SENT state">SENT</span>; the user agent
      <em class="ct">must</em> then synchronously dispatch a
      <code>readystatechange</code> event on the object.</p></li>
-     <!-- IE does this regardless of the async value -->
 
      <li><p>If all HTTP headers have been receieved, immediately before
      receiving the message body (if any), synchronously switch the state to
      <span title="LOADING state">LOADING</span>; the user agent
      <em class="ct">must</em> then synchronously dispatch a
      <code>readystatechange</code> event on the object.</p></li>
-     <!-- IE does this regardless of the async value -->
 
      <li>
       <p>If the response is an HTTP redirect (status code <code>301</code>,
