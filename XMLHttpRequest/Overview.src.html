@@ -413,6 +413,51 @@ client.send();</code></pre>
   redirects for instance). This state is represented by the
   <dfn id="done" title="DONE state"><code>DONE</code></dfn> constant, whose
   value is <code>4</code>.</p>
+  
+  <p>The <dfn id="response-entity-body">response entity body</dfn> is the
+  fragment of the <span>entity body</span> received so far (LOADING state) or
+  the complete entity body (DONE state). If there is no entity body the
+  response entity body is "null".</p>
+
+  <p>The <dfn id="text-response-entity-body">text response entity body</dfn>
+  is the <span>response entity body</span> interpreted as a stream of
+  characters using the character encoding to decode as determined by the
+  following algorithm:</p>
+  
+  <ol>
+   <li class="issue">...</li>
+  </ol>
+  
+  <p>If the <span>response entity body</span> is "null" the text response
+  entity body is <code>null</code>. If the user agent fails to decode the
+  response entity body the text response entity body is also
+  <code>null</code>.</p>
+  
+  <p>The <dfn id="xml-response-entity-body">XML response entity body</dfn> is
+  a <code>Document</code> representing the response entity body or
+  <code>null</code> and is determined by the following algorithm:</p>
+  
+  <ol>
+   <li>If the <span>response entity body</span> is "null" the value is
+   <code>null</code>.</p></li>
+
+   <li><p>If there is no <code>Content-Type</code> header the value is
+   <code>null</code>.</p></li>
+
+   <li><p>If the <code>Content-Type</code> header does not contain a media
+   type (ignoring any parameters) that is <code>text/xml</code>,
+   <code>application/xml</code> or ends in <code title="">+xml</code> the
+   value is <code>null</code>.</p></li>
+
+   <li><p>Parse the <span>response entity body</span> following the rules from
+   the XML specifications. Let the result be <var>parsed document</var>. If
+   this fails (unsupported character encoding, namespace well-formedness error
+   et cetera) the value is <code>null</code>. [<cite><span>XML</span></cite>]
+   [<cite><span>XMLNS</span></cite>]</p></li>
+
+   <li><p>The value is an object implementing the <code>Document</code>
+   interface representing the <var>parsed document</var>.</p></li>
+  </ol>
 
   <dl>
 
@@ -1017,25 +1062,17 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code>DOMString</code>, readonly</dt>
 
    <dd>
-    <p>If the state is not <span title="LOADING state">LOADING</span> or
-    <span title="DONE state">DONE</span>, the user agent
-    <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-    exception. Otherwise, if there's no <span>entity body</span> this
-    attribute <em class="ct">must</em> be <code>null</code>. If there is, it
-    <em class="ct">must</em> be the fragment of the <span>entity body</span>
-    received so far (when the state is
-    <span title="LOADING state">LOADING</span>) or the complete <span>entity
-    body</span> (when the state is <span title="DONE state">DONE</span>),
-    interpreted as a stream of characters.</p>
+    <p>On getting, the user agent <em class="ct">must</em> run the following
+    steps:</p>
 
-    <p>If the response includes a MIME type understood by the user agent the
-    characters <em class="ct">must</em> be decoded following the relevant MIME
-    type specification. If the user agent cannot derive a character stream in
-    accord with the media type specification, <code>responseText</code>
-    <em class="ct">must</em> be <code>null</code>.</p>
+    <ol>
+     <li><p>If the state is not <span title="LOADING state">LOADING</span> or
+     <span title="DONE state">DONE</span>, the user agent
+     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
+     exception and abort these steps.</p></li>
 
-    <p>Its initial value <em class="ct">must</em> be the
-    <code>null</code>.</p>
+    <li><p>Return the <span>text response entity body</span>.</p></li>
+    </ol>
    </dd>
 
    <dt><dfn id="dfn-responsexml"><code>responseXML</code></dfn> of type
@@ -1050,30 +1087,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
      exception and abort these steps.</p></li>
 
-     <li><p>If there's no <span>entity body</span> the user agent
-     <em class="ct">must</em> return <code>null</code> and abort these
-     steps.</p></li>
-
-     <li><p>If there is no <code>Content-Type</code> header the user agent
-     <em class="ct">must</em> return <code>null</code> and abort these
-     steps.</p></li>
-
-     <li><p>If the <code>Content-Type</code> header does not contain a media
-     type (ignoring any parameters) that is <code>text/xml</code>,
-     <code>application/xml</code> or ends in <code title="">+xml</code> the
-     user agent <em class="ct">must</em> return <code>null</code> and abort
-     these steps.</p></li>
-
-     <li><p>Parse the <span>entity body</span> following the rules from the
-     XML specifications. Let the result be <var>parsed document</var>. If this
-     fails (unsupported character encoding, namespace well-formedness error et
-     cetera) the user agent <em class="ct">must</em> return <code>null</code>
-     and abort these steps. [<cite><span>XML</span></cite>]
-     [<cite><span>XMLNS</span></cite>]</p></li>
-
-     <li><p>The user agent <em class="ct">must</em> return an object
-     implementing the <code>Document</code> interface representing the
-     <var>parsed document</var>.</p></li>
+     <li><p>Return the <span>XML response entity body</span>.</p></li>
     </ol>
    </dd>
 
