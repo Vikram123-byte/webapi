@@ -546,16 +546,12 @@ client.send();</code></pre>
      "null" terminate these steps and return <code>null</code>.
 
    <li>
-    <p>If there is no <code>Content-Type</code> header terminate these steps
-     and return <code>null</code>.
-   </li>
-   <!-- can it have no value? -->
-
-   <li>
     <p>If the <code>Content-Type</code> header does not contain a MIME type
      (ignoring any parameters) that is <code>text/xml</code>,
      <code>application/xml</code>, <code>text/xsl</code> or ends in <code
      title="">+xml</code> terminate these steps and return <code>null</code>.
+     (Do not terminate these steps if there is no <code>Content-Type</code>
+     header at all.)
 
    <li>
     <p>Parse the <a href="#response-entity-body">response entity body</a>
@@ -965,8 +961,8 @@ X-Test: one, two
 
        <li>
         <p>If <var>async</var> is set to <code>false</code> raise a <code><a
-         href="#network-err">NETWORK_ERR</a></code> exception. (Do not
-         terminate these steps.)
+         href="#network-err">NETWORK_ERR</a></code> exception and terminate
+         the overall algorithm.
 
        <li>
         <p>Synchronously dispatch a <code><a

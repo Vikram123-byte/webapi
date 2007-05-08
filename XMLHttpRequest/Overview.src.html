@@ -470,15 +470,12 @@ client.send();</code></pre>
    <li><p>If the <span>response entity body</span> is "null" terminate these
    steps and return <code>null</code>.</p></li>
 
-   <li><p>If there is no <code>Content-Type</code> header terminate these
-   steps and return <code>null</code>.</p></li>
-   <!-- can it have no value? -->
-
    <li><p>If the <code>Content-Type</code> header does not contain a MIME type
    (ignoring any parameters) that is <code>text/xml</code>,
    <code>application/xml</code>, <code>text/xsl</code> or ends in
    <code title="">+xml</code> terminate these steps and return
-   <code>null</code>.</p></li>
+   <code>null</code>. (Do not terminate these steps if there is no
+   <code>Content-Type</code> header at all.)</p></li>
 
    <li><p>Parse the <span>response entity body</span> following the rules from
    the XML specifications. Let the result be <var>parsed document</var>. If
@@ -832,8 +829,8 @@ X-Test: one, two
        <span title="DONE state">DONE</span>.</p></li>
 
        <li><p>If <var>async</var> is set to <code>false</code> raise a
-       <code>NETWORK_ERR</code> exception. (Do not terminate these
-       steps.)</p></li>
+       <code>NETWORK_ERR</code> exception and terminate the overall
+       algorithm.</p></li>
 
        <li><p>Synchronously dispatch a <code>readystatechange</code> event on
        the object.</p></li>
