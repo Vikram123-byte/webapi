@@ -430,12 +430,12 @@ client.send();</code></pre>
 
   <p>The <dfn id="text-response-entity-body">text response entity body</dfn>
   is either a <code>DOMString</code> or <code>null</code>. The value of the
-  text response entity body is determined by running the following
-  algorithm:</p>
+  text response entity body <em class="ct">must</em> be determined by running
+  the following algorithm:</p>
 
   <ol>
-   <li><p>If the <span>response entity body</span> is "null" the value is
-   <code>null</code> and abort these steps.</p>
+   <li><p>If the <span>response entity body</span> is "null" return
+   <code>null</code> and terminate these steps.</p>
 
    <li><p>Let <var>charset</var> be UTF-8.</p></li>
 
@@ -451,8 +451,8 @@ client.send();</code></pre>
    <code>charset</code> parameter let <var>charset</var> be the value of that
    parameter.</p></li>
 
-   <li><p>The value is the result of decoding the <span>response entity
-   body</span> using <var>charset</var>. If that fails the value is
+   <li><p>Return the result of decoding the <span>response entity body</span>
+   using <var>charset</var>. Or, if that fails, return
    <code>null</code>.</p></li>
   </ol>
 
@@ -463,28 +463,30 @@ client.send();</code></pre>
 
   <p>The <dfn id="xml-response-entity-body">XML response entity body</dfn> is
   a <code>Document</code> representing the response entity body or
-  <code>null</code> and is determined by running the following algorithm:</p>
+  <code>null</code> and is determined by running the following algorithm
+  (the return value is its value):</p>
 
   <ol>
-   <li><p>If the <span>response entity body</span> is "null" the value is
-   <code>null</code>.</p></li>
+   <li><p>If the <span>response entity body</span> is "null" terminate these
+   steps and return <code>null</code>.</p></li>
 
-   <li><p>If there is no <code>Content-Type</code> header the value is
-   <code>null</code>.</p></li>
+   <li><p>If there is no <code>Content-Type</code> header terminate these
+   steps and return <code>null</code>.</p></li>
    <!-- can it have no value? -->
 
    <li><p>If the <code>Content-Type</code> header does not contain a MIME type
    (ignoring any parameters) that is <code>text/xml</code>,
    <code>application/xml</code>, <code>text/xsl</code> or ends in
-   <code title="">+xml</code> the value is <code>null</code>.</p></li>
+   <code title="">+xml</code> terminate these steps and return
+   <code>null</code>.</p></li>
 
    <li><p>Parse the <span>response entity body</span> following the rules from
    the XML specifications. Let the result be <var>parsed document</var>. If
    this fails (unsupported character encoding, namespace well-formedness error
-   et cetera) the value is <code>null</code>. [<cite><span>XML</span></cite>]
-   [<cite><span>XMLNS</span></cite>]</p></li>
+   et cetera) terminate these steps return <code>null</code>.
+   [<cite><span>XML</span></cite>] [<cite><span>XMLNS</span></cite>]</p></li>
 
-   <li><p>The value is an object implementing the <code>Document</code>
+   <li><p>Return an object implementing the <code>Document</code>
    interface representing the <var>parsed document</var>.</p></li>
   </ol>
 
@@ -516,13 +518,12 @@ client.send();</code></pre>
 
    <dd>
     <p>When invoked, the user agent <em class="ct">must</em> follow the
-    following steps:</p>
+    following steps (unless otherwise indicated):</p>
 
     <ol>
      <li><p>If the <var>method</var> argument doesn't match the
      <dfn><code>Method</code> production</dfn> defined in section 5.1.1 of RFC
-     2616 the user agent <em class="ct">must</em> raise a
-     <code>SYNTAX_ERR</code> exception and abort these steps.
+     2616 raise a <code>SYNTAX_ERR</code> exception and abort these steps.
      [<cite><span>RFC2616</span></cite>]</p></li>
 
      <li><p>If the given <var>method</var> is not supported for security
@@ -534,10 +535,9 @@ client.send();</code></pre>
      <li><p>If <var>method</var>
      <span title="case-insensitive match">case-insensitively matches</span>
      <code>GET</code>, <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
-     <code>DELETE</code> or <code>OPTIONS</code> the user agent
-     <em class="ct">must</em> convert it to its uppercase equivalent (by
-     mapping a-z to A-Z) and let <var>stored method</var> be the
-     result.</p></li>
+     <code>DELETE</code> or <code>OPTIONS</code> convert it to its uppercase
+     equivalent (by mapping a-z to A-Z) and let <var>stored method</var> be
+     the result.</p></li>
      <!-- WebKit (and supposedly Firefox) also uppercase: CONNECT, COPY,
      INDEX, LOCK, M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, TRACE and UNLOCK.
      Not sure if TRACE and CONNECT are worth it though. They raise a
@@ -546,18 +546,16 @@ client.send();</code></pre>
      <li><p>Drop the fragment identifier (if any) from <var>url</var> and let
      <var>stored url</var> be the result of that operation.</p></li>
 
-     <li><p>If <var>stored url</var> is a relative reference it
-     <em class="ct">must</em> be resolved using the current value of the
-     <code>baseURI</code> attribute of the <code>Document</code> object
-     currently associated with the <span><code>Window</code> pointer</span>.
-     If this fails the user agent <em class="ct">must</em> raise a
+     <li><p>If <var>stored url</var> is a relative reference resolve it using
+     the current value of the <code>baseURI</code> attribute of the
+     <code>Document</code> object currently associated with the
+     <span><code>Window</code> pointer</span>. If this fails raise a
      <code>SYNTAX_ERR</code> exception and abort these steps.</p></li>
 
      <li><p>If the <code>"user:password"</code> format in the
      <code>userinfo</code> production defined in section 3.2.1 of RFC 3986 is
      not supported for the relevant scheme and <var>stored url</var> contains
-     this format the user agent <em class="ct">must</em> throw a
-     <code>SYNTAX_ERR</code> and abort these steps.
+     this format raise a <code>SYNTAX_ERR</code> and abort these steps.
      [<cite><span>RFC3986</span></cite>]</p></li>
 
      <li><p>If <var>stored url</var> contains the <code>"user:password"</code>
@@ -579,9 +577,8 @@ client.send();</code></pre>
      or <code>false</code> if it was omitted.</p></li>
 
      <li><p>If the <var>user</var> argument was not omitted and its syntax
-     does not match that specified by the relevant authentication scheme the
-     user agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code>
-     exception and abort these steps.</p></li>
+     does not match that specified by the relevant authentication scheme raise
+     a <code>SYNTAX_ERR</code> exception and abort these steps.</p></li>
 
      <li>
       <p>If the <var>user</var> argument was not omitted and is not
@@ -597,9 +594,8 @@ client.send();</code></pre>
      <code>null</code> remove <var>stored user</var>.</p></li>
 
      <li><p>If the <var>password</var> argument was not omitted and its syntax
-     does not match that specified by the relevant authentication scheme the
-     user agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code>
-     exception and abort these steps.</p></li>
+     does not match that specified by the relevant authentication scheme raise
+     a <code>SYNTAX_ERR</code> exception and abort these steps.</p></li>
 
      <li><p>If the <var>password</var> argument was not omitted and is not
      <code>null</code> let <var>stored password</var> be <var>password</var>
@@ -617,9 +613,8 @@ client.send();</code></pre>
      <!-- we can hardly require it... -->
 
      <li><p>Switch the object to the <span title="OPEN state">OPEN</span>
-     state; the user agent <em class="ct">must</em> then synchronously
-     dispatch a <code>readystatechange</code> event on the object and abort
-     these steps (returning the method call).</p></li>
+     state and then synchronously dispatch a <code>readystatechange</code>
+     event on the object and return the method call.</p></li>
     </ol>
 
     <p class="note">A future version or extension of this specification will
@@ -635,33 +630,29 @@ client.send();</code></pre>
     headers.</p>
 
     <p>When invoked, the user agent <em class="ct">must</em> follow the
-    following steps:</p>
+    following steps (unless otherwise indicated):</p>
 
     <ol>
      <li><p>If the state of the object is not
-     <span title="OPEN state">OPEN</span> the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <span title="OPEN state">OPEN</span> raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
-     <li><p>If the <span><code>send()</code> flag</span> is "true" the user
-     agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <li><p>If the <span><code>send()</code> flag</span> is "true" raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
      <li><p>If the <var>header</var> argument doesn't match the
      <dfn><code>field-name</code> production</dfn> as defined by section 4.2
-     of RFC 2616 or is <code>null</code> the user agent
-     <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception and
-     abort these steps. [<cite><span>RFC2616</span></cite>]</p></li>
+     of RFC 2616 or is <code>null</code> raise a <code>SYNTAX_ERR</code>
+     exception and abort these steps.
+     [<cite><span>RFC2616</span></cite>]</p></li>
 
-     <li><p>If the <var>value</var> argument is <code>null</code> the user
-     agent <em class="ct">must</em> abort these steps. (Don't raise an
-     exception.)</li>
+     <li><p>If the <var>value</var> argument is <code>null</code> abort these
+     steps. (Don't raise an exception.)</li>
      <!-- undefined is to be treated as null here... -->
 
      <li><p>If the <var>value</var> argument doesn't match the
      <dfn><code>field-value</code> production</dfn> as defined by section 4.2
-     of RFC 2616 the user agent <em class="ct">must</em> raise a
-     <code>SYNTAX_ERR</code> and abort these steps.
+     of RFC 2616 raise a <code>SYNTAX_ERR</code> and abort these steps.
      [<cite><span>RFC2616</span></cite>]</p></li>
 
      <li>
@@ -690,14 +681,14 @@ client.send();</code></pre>
      </li>
 
      <li><p>If the <var>header</var> argument is not in the list of request
-     headers the user agent <em class="ct">must</em> append the
-     <var>header</var> with its associated <var>value</var> to the list and
-     abort these steps.</p></li>
+     headers append the <var>header</var> with its associated <var>value</var>
+     to the list and abort these steps.</p></li>
 
      <li><p>If the <var>header</var> argument is in the list of request
-     headers the user agent <em class="ct">must</em> either use multiple
-     headers, combine the values or use a combination of those (section 4.2,
-     RFC 2616). [<cite><span>RFC2616</span></cite>]</p></li>
+     headers either use multiple headers, combine the values or use a
+     combination of those (section 4.2, RFC 2616).
+     [<cite><span>RFC2616</span></cite>]</p></li>
+     <!-- XXX it seems UAs always combine the values -->
     </ol>
 
     <p class="note">See also the <code>send()</code> method regarding user
@@ -730,46 +721,40 @@ X-Test: one, two
     <code>Content-Type</code> header via <code>setRequestHeader()</code>.</p>
 
     <p>When invoked, the user agent <em class="ct">must</em> follow the
-    following steps:</p>
+    following steps (unless otherwise noted):</p>
 
     <ol>
      <li><p>If the state of the object is not
-     <span title="OPEN state">OPEN</span> the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <span title="OPEN state">OPEN</span> raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
-     <li><p>If the <span><code>send()</code> flag</span> is "true" the user
-     agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <li><p>If the <span><code>send()</code> flag</span> is "true" raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
      <li>
       <p>If the <var>data</var> argument has not been omitted and is not
-      <code>null</code> it <em class="ct">must</em> be used for the
-      <dfn id="dfn-entity-body">entity body</dfn> as defined by section 7.2 of
-      RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
-
-      <p>The following rules <em class="ct">must</em> be followed by the user
-      agent:</p>
+      <code>null</code> use it for the <dfn id="dfn-entity-body">entity
+      body</dfn> as defined by section 7.2 of RFC 2616 observing the following
+      rules: [<cite><span>RFC2616</span></cite>]</p>
 
       <dl>
        <dt><var>data</var> is a <code>DOMString</code></dt>
 
-       <dd><p><var>data</var> <em class="ct">must</em> be encoded as UTF-8 for
-       transmission.</p></dd>
+       <dd><p>Encode <var>data</var> using UTF-8 for transmission.</p></dd>
 
        <dt><var>data</var> is a <code>Document</code>
 
        <dd>
-        <p><var>data</var> <em class="ct">must</em> be serialized into a
-        namespace well-formed XML document and encoded using the encoding
-        given by <code><var>data</var>.xmlEncoding</code>, if specified, or
-        UTF-8 otherwise. If this fails because the <code>Document</code>
-        cannot be serialized the user agent <em class="ct">must</em> act as if
-        <var>data</var> was <code>null</code>.</p>
+        <p>Serialize <var>data</var> into a namespace well-formed XML document
+        and encoded using the encoding given by
+        <code><var>data</var>.xmlEncoding</code>, if specified, or UTF-8
+        otherwise. Or, if this fails because the <code>Document</code>
+        cannot be serialized act as if <var>data</var> is
+        <code>null</code>.</p>
 
-        <p>If no <code>Content-Type</code> header has been set by the script
-        the user agent <em class="ct">must</em> append it to the list of
-        request headers with a value of <code>application/xml</code>.</p>
+        <p>If no <code>Content-Type</code> header is in the list of request
+        headers append it to the list of request headers with a value of
+        <code>application/xml</code>.</p>
 
         <p class="note">Subsequent changes to the <code>Document</code> have
         no effect on what is submitted.</p>
@@ -778,16 +763,14 @@ X-Test: one, two
        <dt><var>data</var> is not a <code>DOMString</code> or
        <code>Document</code></dt>
 
-       <dd><p>The stringification mechanisms of the host language
-       <em class="ct">must</em> be used on <var>data</var> and the result
-       <em class="ct">must</em> be treated as if <var>data</var> is a
-       <code>DOMString</code>.</p></dd>
-       <!-- XXX What if the host language doesn't have stringification for
-       each type? Do we care? -->
+       <dd><p>Use the stringification mechanisms of the host language on
+       <var>data</var> and treat the result as if <var>data</var> is a
+       <code>DOMString</code>. Or, if this fails, act as if <var>data</var> is
+       <code>null</code>.</p></dd>
       </dl>
 
       <p>If the data argument has been omitted or is <code>null</code> no
-      entity body <em class="ct">must</em> be used in the request.</p>
+      entity body is used in the request.</p>
      </li>
 
      <li><p>Make a request to <var>stored url</var>, using HTTP method
@@ -797,34 +780,33 @@ X-Test: one, two
      after this set of steps.</p></li>
 
      <li>
-      <p>The user agent <em class="ct">must</em> then synchronously
-      dispatch a <code>readystatechange</code> event on the object.</p>
+      <p>Synchronously dispatch a <code>readystatechange</code> event on the
+      object.</p>
 
-      <p class="note">The state of the object doesn't actually change as the
-      event is dispatched for historical reasons.</p>
+      <p class="note">The state of the object does not change. The event is
+      dispatched for historical reasons.</p>
      </li>
 
-     <li><p>If <var>async</var> is <code>true</code> the user agent
-     <em class="ct">must</em> set the <dfn><code>send()</code> flag</dfn> to
-     "true" and return the <code>send()</code> method call. (Don't abort the
-     steps in the algorithm though.)</p></li>
+     <li><p>If <var>async</var> is <code>true</code> set the
+     <dfn><code>send()</code> flag</dfn> to "true" and return the
+     <code>send()</code> method call. (Don't abort the steps in the algorithm
+     though.)</p></li>
 
      <li><p>If the request has been successfully acknowledged synchronously
-     switch the state to <span title="SENT state">SENT</span>; the user agent
-     <em class="ct">must</em> then synchronously dispatch a
-     <code>readystatechange</code> event on the object.</p></li>
+     switch the state to <span title="SENT state">SENT</span> and then
+     synchronously dispatch a <code>readystatechange</code> event on the
+     object.</p></li>
 
      <li><p>If all HTTP headers have been receieved, immediately before
      receiving the message body (if any), synchronously switch the state to
-     <span title="LOADING state">LOADING</span>; the user agent
-     <em class="ct">must</em> then synchronously dispatch a
-     <code>readystatechange</code> event on the object.</p></li>
+     <span title="LOADING state">LOADING</span> and then synchronously
+     dispatch a <code>readystatechange</code> event on the object.</p></li>
 
      <li>
       <p>If the response is an HTTP redirect (status code <code>301</code>,
-      <code>302</code>, <code>303</code> or <code>307</code>), then it
-      <em class="ct">must</em> be transparently followed (unless it violates
-      security, infinite loop precautions or the scheme isn't supported).</p>
+      <code>302</code>, <code>303</code> or <code>307</code>), transparently
+      follow it (unless it violates security, infinite loop precautions or the
+      scheme is not supported).</p>
 
       <p class="note">HTTP places requirements on the user agent regarding the
       preservation of the request method and entity body during redirects, and
@@ -835,19 +817,18 @@ X-Test: one, two
      </li>
 
      <li>
-      <p>If something goes wrong (infinite loop, network errors) the user
-      agent <em class="ct">must</em> follow the following set of steps:</p>
+      <p>If something goes wrong (infinite loop, network errors) run the
+      following set of steps:</p>
 
       <ol>
-       <li><p>Set <span>reponse entity body</span> to "null" and reset the
+       <li><p>Set <span>response entity body</span> to "null" and reset the
        list of request headers.</p></li>
 
        <li><p>Synchronously switch the state to
        <span title="DONE state">DONE</span>.</p></li>
 
-       <li><p>If <var>async</var> is set to <code>false</code> the user agent
-       <em class="ct">must</em> raise a <code>NETWORK_ERR</code> exception.
-       (Don't abort these steps.)</p></li>
+       <li><p>If <var>async</var> is set to <code>false</code> raise a
+       <code>NETWORK_ERR</code> exception. (Don't abort these steps.)</p></li>
 
        <li><p>Synchronously dispatch a <code>readystatechange</code> event on
        the object.</p></li>
@@ -861,11 +842,10 @@ X-Test: one, two
      </li>
 
      <li><p>When the request has successfully completed loading, synchronously
-     switch the state to <span title="DONE state">DONE</span>; the user agent
-     <em class="ct">must</em> then synchronously dispatch a
-     <code>readystatechange</code> event on the object and abort these
-     steps (and return the method call in case of <var>async</var> being
-     <code>false</code>).</p></li>
+     switch the state to <span title="DONE state">DONE</span> and then
+     synchronously dispatch a <code>readystatechange</code> event on the
+     object and return the method call in case of <var>async</var> being
+     <code>false</code>.</p></li>
     </ol>
 
     <p>If the user agent allows the user to configure a proxy it
@@ -917,13 +897,11 @@ X-Test: one, two
 
    <dd>
     <p>When invoked, the user agent <em class="ct">must</em> run the following
-    steps:</p>
+    steps (unless otherwise noted):</p>
 
     <ol>
-     <li><p>Set the <code>responseText</code>, <code>responseXML</code>,
-     <code>status</code> and <code>responseText</code> attributes to their
-     initial value as well as removing any registered request
-     headers.</p></li>
+     <li><p>Set the <span>response entity body</span> to "null" well as
+     removing any registered request headers.</p></li>
 
      <li><p>Any network activity for which the object responsible
      <em class="ct">should</em> be cancelled.</p></li>
@@ -934,9 +912,9 @@ X-Test: one, two
       flag</span> is "false", or <span title="DONE state">DONE</span> go to
       the next step.</p>
 
-      <p>Otherwise, switch the state to <span title="DONE state">DONE</span>;
-      the user agent <em class="ct">must</em> then synchronously dispatch a
-      <code>readystatechange</code> event on the object.</p>
+      <p>Otherwise, switch the state to <span title="DONE state">DONE</span>
+      and synchronously dispatch a <code>readystatechange</code> event on the
+      object.</p>
      </li>
 
      <li>
@@ -959,13 +937,12 @@ X-Test: one, two
 
     <ol>
      <li><p>If the state is not <span title="LOADING state">LOADING</span> or
-     <span title="DONE state">DONE</span> the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <span title="DONE state">DONE</span> raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
-     <li><p>The user agent <em class="ct">must</em> return all the HTTP
-     headers, as a single string, with each header line separated by a U+000D
-     CR U+000A LF pair excluding the status line.</p></li>
+     <li><p>Return all the HTTP headers, as a single string, with each header
+     line separated by a U+000D CR U+000A LF pair excluding the status
+     line.</p></li>
     </ol>
 
     <div class="example">
@@ -998,30 +975,26 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
     <ol>
      <li><p>If the state is not <span title="LOADING state">LOADING</span> or
-     <span title="DONE state">DONE</span> the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <span title="DONE state">DONE</span> raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
      <li><p>If the <var>header</var> argument doesn't match the
-     <span><code>field-name</code> production</span> the user agent
-     <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception and
-     abort these steps.</p></li>
+     <span><code>field-name</code> production</span> raise a
+     <code>SYNTAX_ERR</code> exception and abort these steps.</p></li>
 
      <li><p>If the <var>header</var> argument
      <span title="case-insensitive match">case-insensitively matches</span>
-     multiple HTTP headers for the last request sent the user agent
-     <em class="ct">must</em> return the values of these headers as a single
-     concatenated string separated from each other by an U+002C COMMA followed
-     by an U+0020 SPACE and abort these steps.</p></li>
+     multiple HTTP headers for the last request sent return the values of
+     these headers as a single concatenated string separated from each other
+     by an U+002C COMMA followed by an U+0020 SPACE and abort these
+     steps.</p></li>
 
      <li><p>If the <var>header</var> argument
      <span title="case-insensitive match">case-insensitively matches</span> a
-     single HTTP header for the last request sent the user agent
-     <em class="ct">must</em> return the  value of that header and abort these
-     steps.</p></li>
+     single HTTP header for the last request sent return the  value of that
+     header and abort these steps.</p></li>
 
-     <li><p>The method <em class="ct">must</em> return
-     <code>null</code>.</p></li>
+     <li><p>Return <code>null</code>.</p></li>
     </ol>
 
     <div class="example">
@@ -1049,9 +1022,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
     <ol>
      <li><p>If the state is not <span title="LOADING state">LOADING</span> or
-     <span title="DONE state">DONE</span>, the user agent
-     <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <span title="DONE state">DONE</span> raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
     <li><p>Return the <span>text response entity body</span>.</p></li>
     </ol>
@@ -1065,9 +1037,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     steps:</p>
 
     <ol>
-     <li><p>If the state is not <span title="DONE state">DONE</span> the user
-     agent <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-     exception and abort these steps.</p></li>
+     <li><p>If the state is not <span title="DONE state">DONE</span> raise an
+     <code>INVALID_STATE_ERR</code> exception and abort these steps.</p></li>
 
      <li><p>Return the <span>XML response entity body</span>.</p></li>
     </ol>
