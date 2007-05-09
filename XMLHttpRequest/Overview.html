@@ -470,10 +470,8 @@ client.send();</code></pre>
    state"><code>OPEN</code></dfn> constant, whose value is <code>1</code>.
 
   <p>During the OPEN state there is a <dfn id=send-flag><code>send()</code>
-   flag</dfn> which influences several algorithms described below. Outside
-   the OPEN state its value <em class=ct>must</em> (always) be "false".
-   During the OPEN state it can be set to "true" as described in the <code><a
-   href="#dfn-send">send()</a></code> method algorithm.
+   flag</dfn> which can be either "true" or "false". The initial value of the
+   <code title="">send()</code> flag is "false".
 
   <p>The SENT state is the state of the object when the user agent
    successfully acknowledged the request. This state is represented by the
@@ -716,7 +714,8 @@ client.send();</code></pre>
 
      <li>
       <p>Switch the object to the <a href="#open" title="OPEN state">OPEN</a>
-       state and then synchronously dispatch a <code><a
+       state, set the <a href="#send-flag"><code>send() flag</code></a> to
+       "false" and then synchronously dispatch a <code><a
        href="#dfn-readystatechange">readystatechange</a></code> event on the
        object and return the method call.
     </ol>
@@ -929,7 +928,8 @@ X-Test: one, two
 
      <li>
       <p>If the request has been successfully acknowledged synchronously
-       switch the state to <a href="#sent" title="SENT state">SENT</a> and
+       switch the state to <a href="#sent" title="SENT state">SENT</a>, set
+       the <a href="#send-flag"><code>send()</code> flag</a> to "false" and
        then synchronously dispatch a <code><a
        href="#dfn-readystatechange">readystatechange</a></code> event on the
        object.
@@ -1049,7 +1049,8 @@ X-Test: one, two
     <ol>
      <li>
       <p>Set the <a href="#response-entity-body">response entity body</a> to
-       "null" well as removing any registered request headers.
+       "null", the <a href="#send-flag"><code>send()</code> flag</a> to
+       "false" and remove any registered request headers.
 
      <li>
       <p>Any network activity for which the object responsible <em

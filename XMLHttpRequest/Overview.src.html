@@ -401,10 +401,8 @@ client.send();</code></pre>
   value is <code>1</code>.</p>
 
   <p>During the OPEN state there is a <dfn id="send-flag"><code>send()</code>
-  flag</dfn> which influences several algorithms described below. Outside the
-  OPEN state its value <em class="ct">must</em> (always) be "false". During
-  the OPEN state it can be set to "true" as described in the
-  <code>send()</code> method algorithm.</p>
+  flag</dfn> which can be either "true" or "false". The initial value of the
+  <code title="">send()</code> flag is "false".</p>
 
   <p>The SENT state is the state of the object when the user agent
   successfully acknowledged the request. This state is represented by the
@@ -616,8 +614,9 @@ client.send();</code></pre>
      <!-- we can hardly require it... -->
 
      <li><p>Switch the object to the <span title="OPEN state">OPEN</span>
-     state and then synchronously dispatch a <code>readystatechange</code>
-     event on the object and return the method call.</p></li>
+     state, set the <span><code>send() flag</code></span> to "false" and then
+     synchronously dispatch a <code>readystatechange</code> event on the
+     object and return the method call.</p></li>
     </ol>
 
     <p class="note">A future version or extension of this specification will
@@ -802,9 +801,9 @@ X-Test: one, two
      algorithm though.)</p></li>
 
      <li><p>If the request has been successfully acknowledged synchronously
-     switch the state to <span title="SENT state">SENT</span> and then
-     synchronously dispatch a <code>readystatechange</code> event on the
-     object.</p></li>
+     switch the state to <span title="SENT state">SENT</span>, set the
+     <span><code>send()</code> flag</span> to "false" and then synchronously
+     dispatch a <code>readystatechange</code> event on the object.</p></li>
 
      <li><p>If all HTTP headers have been received, immediately before
      receiving the message body (if any), synchronously switch the state to
@@ -910,8 +909,9 @@ X-Test: one, two
     steps (unless otherwise noted):</p>
 
     <ol>
-     <li><p>Set the <span>response entity body</span> to "null" well as
-     removing any registered request headers.</p></li>
+     <li><p>Set the <span>response entity body</span> to "null", the
+     <span><code>send()</code> flag</span> to "false" and remove any
+     registered request headers.</p></li>
 
      <li><p>Any network activity for which the object responsible
      <em class="ct">should</em> be cancelled.</p></li>
