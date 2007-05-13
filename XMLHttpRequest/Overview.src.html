@@ -593,11 +593,12 @@ client.send();</code></pre>
      <li><p>If the <var>password</var> argument was not omitted and is
      <code>null</code> remove <var>stored password</var>.</p></li>
 
-     <li><p>Set <span>response entity body</span> to "null" and reset the list
-     of request headers.<p></li>
+     <li><p><span title="abort send()">Abort the <code>send()</code>
+     algorithm</span>, set <span>response entity body</span> to "null" and
+     reset the list of request headers.<p></li>
 
-     <li><p>Any network activity for which the object responsible
-     <em class="ct">should</em> be cancelled.</p></li>
+     <li><p>The user agent <em class="ct">should</em> cancel any network
+     activity for which the object is responsible.</p></li>
      <!-- we can hardly require it... -->
 
      <li><p>Switch the object to the <span title="OPEN state">OPEN</span>
@@ -713,7 +714,16 @@ X-Test: one, two
     <var>data</var> argument.</p>
 
     <p>When invoked, the user agent <em class="ct">must</em> follow the
-    following steps (unless otherwise noted):</p>
+    following steps (unless otherwise noted). Note that this algorithm might
+    get aborted if the <code>open()<code> or <code>abort()</code> is invoked.
+    When the <dfn title="abort send()" id="abort-send-algorithm">send()
+    algorithm is aborted</dfn> the user agent <em class="ct">must</em> stop
+    the algorithm after finishing the step it is on.</p>
+    
+    <p class="note">The following algorithm can not be aborted through script
+    when <var>async</var> is <code>false</code>. It can only be aborted when
+    <var>async</var> is <code>true</code> and only after the method call has
+    returned.</p>
 
     <ol>
      <li><p>If the state of the object is not
@@ -897,12 +907,13 @@ X-Test: one, two
     steps (unless otherwise noted):</p>
 
     <ol>
-     <li><p>Set the <span>response entity body</span> to "null", the
-     <span><code>send()</code> flag</span> to "false" and remove any
+     <li><p><span title="abort send()">Abort the <code>send()</code>
+     algorithm</span>, set the <span>response entity body</span> to "null",
+     set the <span><code>send()</code> flag</span> to "false" and remove any
      registered request headers.</p></li>
 
-     <li><p>Any network activity for which the object responsible
-     <em class="ct">should</em> be cancelled.</p></li>
+     <li><p>The user agent <em class="ct">should</em> cancel any network
+     activity for which the object is responsible.</p></li>
 
      <li>
       <p>If the state is <span title="UNSENT state">UNSENT</span>,

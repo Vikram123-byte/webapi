@@ -30,13 +30,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 11 May 2007</h2>
+    draft<!--W3C Working Draft--> 13 May 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070511/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070511/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070513/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070513/</a>
 
     <dt>Latest Version:
 
@@ -99,7 +99,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 11 May 2007 <strong>Editor's</strong> Working Draft of The
+  <p>This is the 13 May 2007 <strong>Editor's</strong> Working Draft of The
    <code title="">XMLHttpRequest</code> Object specification. Please send
    comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
    (<a
@@ -689,14 +689,16 @@ client.send();</code></pre>
        <code>null</code> remove <var>stored password</var>.
 
      <li>
-      <p>Set <a href="#response-entity-body">response entity body</a> to
-       "null" and reset the list of request headers.
+      <p><a href="#abort-send-algorithm" title="abort send()">Abort the
+       <code>send()</code> algorithm</a>, set <a
+       href="#response-entity-body">response entity body</a> to "null" and
+       reset the list of request headers.
 
       <p>
 
      <li>
-      <p>Any network activity for which the object responsible <em
-       class=ct>should</em> be cancelled.
+      <p>The user agent <em class=ct>should</em> cancel any network activity
+       for which the object is responsible.
      </li>
      <!-- we can hardly require it... -->
 
@@ -836,7 +838,17 @@ X-Test: one, two
      non-<code>null</code> <var>data</var> argument.</p>
 
     <p>When invoked, the user agent <em class=ct>must</em> follow the
-     following steps (unless otherwise noted):</p>
+     following steps (unless otherwise noted). Note that this algorithm might
+     get aborted if the <code>open()<code> or <code><a
+     href="#dfn-abort">abort()</a></code> is invoked. When the <dfn
+     id=abort-send-algorithm title="abort send()">send() algorithm is
+     aborted</dfn> the user agent <em class=ct>must</em> stop the algorithm
+     after finishing the step it is on.</code></code></p>
+
+    <p class=note>The following algorithm can not be aborted through script
+     when <var>async</var> is <code>false</code>. It can only be aborted when
+     <var>async</var> is <code>true</code> and only after the method call has
+     returned.</p>
 
     <ol>
      <li>
@@ -1036,13 +1048,15 @@ X-Test: one, two
 
     <ol>
      <li>
-      <p>Set the <a href="#response-entity-body">response entity body</a> to
-       "null", the <a href="#send-flag"><code>send()</code> flag</a> to
-       "false" and remove any registered request headers.
+      <p><a href="#abort-send-algorithm" title="abort send()">Abort the
+       <code>send()</code> algorithm</a>, set the <a
+       href="#response-entity-body">response entity body</a> to "null", set
+       the <a href="#send-flag"><code>send()</code> flag</a> to "false" and
+       remove any registered request headers.
 
      <li>
-      <p>Any network activity for which the object responsible <em
-       class=ct>should</em> be cancelled.
+      <p>The user agent <em class=ct>should</em> cancel any network activity
+       for which the object is responsible.
 
      <li>
       <p>If the state is <a href="#unsent" title="UNSENT state">UNSENT</a>,
