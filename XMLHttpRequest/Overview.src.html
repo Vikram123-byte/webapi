@@ -430,19 +430,62 @@ client.send();</code></pre>
    terminate these steps.</p>
 
    <li><p>Let <var>charset</var> be UTF-8.</p></li>
+   
+   <li><p>Let <var>charset-http</var> be "null".</p></li>
 
    <li><p>If there is no <code>Content-Type</code> header or there is a
    <code>Content-Type</code> header which contains a MIME type that is
    <code>text/xml</code>, <code>application/xml</code>, <code>text/xsl</code>
    or ends in <code title="">+xml</code> (ignoring any parameters) use the
    rules set forth in the XML specification to determine the character
-   encoding. Let <var>charset</var> be the determined character
+   encoding. Let <var>charset-http</var> be the determined character
    encoding.</p></li>
 
    <li><p>If the <code>Content-Type</code> MIME type contains a
-   <code>charset</code> parameter let <var>charset</var> be the value of that
-   parameter.</p></li>
+   <code>charset</code> parameter let <var>charset-http</var> be the value of
+   that parameter.</p></li>
+   
+   <li>
+    <!-- This stuff is copied from HTML5. Thanks Hixie! -->
+    <p>If <var>charset-http</var> is "null" get at least the first four bytes
+    of the response entity body (<var>bytes</var>). Then, for each of the rows
+    in the following table, starting with the first one and going down, if
+    <var>bytes</var> is equal to or greater than the number of bytes in the
+    first column, and the first bytes of <var>bytes</var> match the bytes
+    given in the first column, then let <var>charset</var> be the encoding
+    given in the cell in the second column of that row:</p>
 
+    <table>
+     <thead>
+      <tr>
+       <th>Bytes in Hexadecimal
+       <th>Description
+     <tbody>
+      <tr>
+       <td>00 00 FE FF
+       <td>UTF-32BE BOM
+      <tr>
+       <td>FF FE 00 00
+       <td>UTF-32LE BOM
+      <tr>
+       <td>FE FF
+       <td>UTF-16BE BOM
+      <tr>
+       <td>FF FE
+       <td>UTF-16LE BOM
+      <tr>
+       <td>EF BB BF
+       <td>UTF-8 BOM<!-- nobody uses this
+      <tr>
+       <td>DD 73 66 73
+       <td>UTF-EBCDIC
+-->
+    </table>
+   </li>
+
+   <li><p>If <var>charset-http</var> is not "null" let <var>charset</var> be
+   <var>charset-http</var>.</p></li>
+   
    <li><p>Return the result of decoding the response entity body using
    <var>charset</var>. Or, if that fails, return <code>null</code>.</p></li>
   </ol>

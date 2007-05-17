@@ -30,13 +30,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 14 May 2007</h2>
+    draft<!--W3C Working Draft--> 17 May 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070514/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070514/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070517/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070517/</a>
 
     <dt>Latest Version:
 
@@ -99,7 +99,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 14 May 2007 <strong>Editor's</strong> Working Draft of The
+  <p>This is the 17 May 2007 <strong>Editor's</strong> Working Draft of The
    <code title="">XMLHttpRequest</code> Object specification. Please send
    comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
    (<a
@@ -503,18 +503,73 @@ client.send();</code></pre>
     <p>Let <var>charset</var> be UTF-8.
 
    <li>
+    <p>Let <var>charset-http</var> be "null".
+
+   <li>
     <p>If there is no <code>Content-Type</code> header or there is a
      <code>Content-Type</code> header which contains a MIME type that is
      <code>text/xml</code>, <code>application/xml</code>,
      <code>text/xsl</code> or ends in <code title="">+xml</code> (ignoring
      any parameters) use the rules set forth in the XML specification to
-     determine the character encoding. Let <var>charset</var> be the
+     determine the character encoding. Let <var>charset-http</var> be the
      determined character encoding.
 
    <li>
     <p>If the <code>Content-Type</code> MIME type contains a
-     <code>charset</code> parameter let <var>charset</var> be the value of
-     that parameter.
+     <code>charset</code> parameter let <var>charset-http</var> be the value
+     of that parameter.
+
+   <li> <!-- This stuff is copied from HTML5. Thanks Hixie! -->
+    <p>If <var>charset-http</var> is "null" get at least the first four bytes
+     of the response entity body (<var>bytes</var>). Then, for each of the
+     rows in the following table, starting with the first one and going down,
+     if <var>bytes</var> is equal to or greater than the number of bytes in
+     the first column, and the first bytes of <var>bytes</var> match the
+     bytes given in the first column, then let <var>charset</var> be the
+     encoding given in the cell in the second column of that row:</p>
+
+    <table>
+     <thead>
+      <tr>
+       <th>Bytes in Hexadecimal
+
+       <th>Description
+
+     <tbody>
+      <tr>
+       <td>00 00 FE FF
+
+       <td>UTF-32BE BOM
+
+      <tr>
+       <td>FF FE 00 00
+
+       <td>UTF-32LE BOM
+
+      <tr>
+       <td>FE FF
+
+       <td>UTF-16BE BOM
+
+      <tr>
+       <td>FF FE
+
+       <td>UTF-16LE BOM
+
+      <tr>
+       <td>EF BB BF
+
+       <td>UTF-8 BOM<!-- nobody uses this
+      <tr>
+       <td>DD 73 66 73
+       <td>UTF-EBCDIC
+-->
+        
+    </table>
+
+   <li>
+    <p>If <var>charset-http</var> is not "null" let <var>charset</var> be
+     <var>charset-http</var>.
 
    <li>
     <p>Return the result of decoding the response entity body using
