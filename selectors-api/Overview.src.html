@@ -157,8 +157,52 @@
   <p><em>This section is non-normative.</em></p>
 
   <p>Some [<cite><a href="#ref-ecma262">ECMAScript</a></cite>] examples:</p>
-  <p class="issue">Perhaps this needs an example that compares the selectors API with the more
-  	verbose techniques utilising <code>getElementsByTagName()</code>, <code>getElementById()</code>, etc. </p>
+  <div class="example">
+   <pre>&lt;table id="score">
+  &lt;thead>
+    &lt;tr>
+      &lt;th>Test
+      &lt;th>Result
+  &lt;tfoot>
+    &lt;tr>
+      &lt;th>Average
+      &lt;td>82%
+  &lt;tbody>
+    &lt;tr>
+      &lt;td>A
+      &lt;td>87%
+    &lt;tr>
+      &lt;td>B
+      &lt;td>78%
+    &lt;tr>
+      &lt;td>C
+      &lt;td>81%
+&lt;/table></pre>
+
+  <p>In order to obtain the cells containing the results in the table, which
+  	might be done, for example, to plot the values on  a graph, there are at
+  	least two approaches that may be taken.  Using only the APIs from DOM Level
+  	2, it requires a script like the following that iterates through each <code>tr</code>  	within each <code>tbody</code> in the <code>table</code> to find the second cell of each row.</p>
+  <pre>var table = document.getElementById("score");
+var tbody = table.getElementsByTagName("tbody");
+var tr = null;
+var cells = new Array();
+
+for (var i = 0; i &lt; tbody.length; i++) {
+  tr = tbody[i].getElementsByTagName("tr");
+  for (var j = 0; j &lt; tr.length; j++) {
+    cells.push(tr[j].getElementsByTagName("td")[1]);
+  }
+}</pre>
+
+<p>Alternatively, using the <code>getAll()</code> method, that script becomes
+	much more consise.</p>
+
+<pre>var cells = document.getAll("#score tbody td:nth-of-type(2)");</pre>
+  </div>
+
+  <p class="issue">Need to consider revising the following example.</p>
+
   <div class="example">
    <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
   &lt;head> … &lt;/head>
@@ -314,7 +358,7 @@ function resolver(prefix) {
   <p>It is expected that implementing this specification introduces no new risks
   for users.</p>
 
-  <p>History theft is a potential security problem because the
+  <p>History theft is a potential privacy issue because the
   <code>:visited</code> pseudo-class in
   [<cite><a href="#ref-selectors">Selectors</a></cite>] allows authors to query
   which links have been visited.</p>
@@ -352,41 +396,55 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   interface. Likewise objects implementing the <code>Element</code> interface
   <em class="ct">must</em> also implement the <code>ElementSelector</code>
   interface. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]</p>
-
+  <p class="issue">Need to decide upon better names for these methods.</p>
   <pre class="idl">interface <dfn id="dom-document-selector">DocumentSelector</dfn> {
+  Node            <span title="document-get">get</span>(in DOMString <var>selectors</var>);
   Node            <span title="document-get">get</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
+  <span>StaticNodeList</span>  <span title="document-getall">getAll</span>(in DOMString <var>selectors</var>);
   <span>StaticNodeList</span>  <span title="document-getall">getAll</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
 };
 
 interface <dfn id="dom-element-selector">ElementSelector</dfn> {
+  Node            <span title="element-get">get</span>(in DOMString <var>selectors</var>);
   Node            <span title="element-get">get</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
+  <span>StaticNodeList</span>  <span title="element-getall">getAll</span>(in DOMString <var>selectors</var>);
   <span>StaticNodeList</span>  <span title="element-getall">getAll</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
 }
-
 </pre>
 
   <p>The
-  <dfn id="document-get" title="document-get"><code>get(<var>selectors</var>,
-  <var title="">nsresolver</var>)</code></dfn> method <em class="ct">must</em>,
-  when invoked, return the first <code>Element</code> node in
-  document order (using depth-first pre-order traversal) that matches the group
-  of selectors (<var>selectors</var>), if any. Otherwise it
+  <dfn id="document-get" title="document-get"><code>get()</code></dfn> methods
+  on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
+  when invoked, return the first <code>Element</code> node within the document,
+  in document order (using depth-first pre-order traversal), that matches the
+  group of selectors (<var>selectors</var>), if any. Otherwise it
   <em class="ct">must</em> return <code>null</code>.</p>
 
-  <p>The <dfn id="document-getall" title="document-getall"><code>getAll(<var>selectors</var>,
-  <var title="">nsresolver</var>)</code></dfn> method <em class="ct">must</em>,
+  <p>The <dfn id="document-getall" title="document-getall"><code>getAll()</code></dfn> methods
+  on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
   when invoked, return a <code>StaticNodeList</code> of all the
-  <code>Element</code>s that match the group of selectors
+  <code>Element</code> nodes within the document  that match the group of selectors
   (<var>selectors</var>) in document order, if any. Otherwise it
   <em class="ct">must</em> return an empty <code>StaticNodeList</code>.</p>
 
+  <p>The <dfn id="element-get" title="element-get"><code>get()</code></dfn> methods
+  	on the <code>ElementSelector</code> interface <em class="ct">must</em>, when
+  	invoked, return the first <code>Element</code> node in document order (using
+  	depth-first pre-order traversal) that is a descendant of the element on which
+  	the method was invoked and matches the group of selectors (<var>selectors</var>),
+  if any. Otherwise it <em class="ct">must</em> return <code>null</code>.</p>
+  <p>The <dfn id="element-getall" title="element-getall"><code>getAll()</code></dfn> methods
+  	on the <code>ElementSelector</code> interface <em class="ct">must</em>, when
+  	invoked, return a StaticNodeList of all the <code>Element</code> nodes that
+  	are descendants of the element on which the method was invoked and and matches
+  	the group of selectors (<var>selectors</var>), if any. Otherwise it <em class="ct">must</em> return
+  	an empty <code>StaticNodeList</code>.</p>
   <p>Both <code title="document-get">get()</code> and <code title="document-getall">getAll()</code> take
   	a group of selectors (<var>selectors</var>) as the first argument and an <code>NSResolver</code> (<var title="">nsresolver</var>)
   	as the second. User agents <em class="ct">must</em> use the <var title="">nsresolver</var> argument
   	to <span>resolve namespace prefixes</span> to namespaces or to <span>get the
   	default namespace</span>. When the <var title="">nsresolver</var> argument
   is <code>null</code> user agents <em class="ct">must</em> ignore it. [<cite><a href="#ref-selectors">Selectors</a></cite>]</p>
-
   <p>When authors use namespace prefixes within <var>selectors</var> or wish
   	to set a default namespace, they <em class="ct">must</em> create an object
   	implementing the <code>NSResolver</code> interface (or a <code>Function</code> in
@@ -411,25 +469,7 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
 
   <p class="note">Using pseudo-elements in one of the selectors could mean that
   	nothing is returned for that particular selector when it doesn't resolve in
-  	one or more <code>Element</code> nodes.</p>
-  <p>The <dfn id="element-get" title="element-get"><code>get()</code></dfn>
-  method on the <code>ElementSelector</code> interface
-  <em class="ct">must</em>, when invoked, return
-  the first <code>Element</code> node in
-  document order (using depth-first pre-order traversal) that  is a descendant
-  of the element on which the method
-  was invoked and matches the group
-  of selectors (<var>selectors</var>), if any. Otherwise it
-  <em class="ct">must</em> return <code>null</code>.</p>
-
-  <p>The
-  <dfn id="element-getall" title="element-getall"><code>getAll()</code></dfn>
-  method on the <code>ElementSelector</code> interface <em class="ct">must</em>
-  return the element nodes that <code>DocumentSelector</code>
-  <code title="document-getall">getAll()</code> would return, excluding any
-  elements that are not descendents of the object implementing
-  <code>ElementSelector</code> on which the method was invoked.</p>
-
+  	one or more <code>Element</code> nodes..</p>
   <h3 id="nsresolver-interface">The <code title="">NSResolver</code>
   Interface</h3>
 
