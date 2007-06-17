@@ -82,7 +82,7 @@
   	a group of selectors [<cite><a href="#ref-selectors">Selectors</a></cite>].
   	It is often desirable to perform DOM operations on a specific
   	set of elements in a document. These methods simplify the process of aquiring
-  	specific elements, especially compared with more the verbose techniques
+  	specific elements, especially compared with the more verbose techniques
   	defined and used in the past.</p>
   <h2 class="no-num no-toc" id="sotd">Status of this Document</h2>
 
@@ -199,7 +199,7 @@ for (var i = 0; i &lt; tbody.length; i++) {
 	much more consise.</p>
 
 <pre>var cells = document.getAll("#score tbody td:nth-of-type(2)");</pre>
-  </div>
+ </div>
 
   <p class="issue">Need to consider revising the following example.</p>
 
@@ -275,8 +275,8 @@ var <var>c</var> = a.get("svg, span");</pre>
 
   <h3 id="conformance">Conformance Requirements</h3>
 
-  <p>All diagrams, examples, and notes in this specification are non-normative,
-  	as are all sections explicitly marked non-normative. Everything else in this
+  <p>All diagrams, examples and notes in this specification are non-normative,
+  as are all sections explicitly marked non-normative. Everything else in this
   specification is normative.</p>
 
   <p>The key words <em class="ct">must</em>, <em class="ct">must not</em>,
@@ -302,7 +302,7 @@ var <var>c</var> = a.get("svg, span");</pre>
 
    <dd>A document that follows all <em class="ct">must</em>-,
    <em class="ct">required</em>- and <em class="ct">shall</em>-level of critera
-   in this specification that apply to document authors.</dd>
+   in this specification that apply to documents.</dd>
 
    <dt><dfn id="conforming-authoring-tool">conforming authoring tool</dfn></dt>
 
@@ -328,20 +328,20 @@ var <var>c</var> = a.get("svg, span");</pre>
   specification. This entails that some might use the object implementing the
   <code>NSResolver</code> interface more than others. If the object (or
   ECMAScript <code>Function</code>) causes side effects this might lead to interoperability
-  concerns. The same goes for not getting back identical results when the method
-  is invoked with the same prefix as argument. Authors are strongly discouraged
+  concerns. The same goes for retrieving different results each time the method
+  is invoked using the same prefix as the argument. Authors are strongly discouraged
   from creating content that does that.</p>
 
   <div class="example">
    <pre>var <var>x</var> = document.getAll("test|*:empty > test|p", resolver)
 function resolver(prefix) {
-  sideEffect()
+  sideEffect();
   if("test" == prefix)
     return "http://example.org/test"
 }</pre>
    <p>Some user agents may have decided not to <span>resolve namespace
    prefixes</span> in order to determine <var>x</var>. This causes
-   <code>sideEffect()</code> not to be invoked.</p>
+   <code>sideEffect()</code> to not be invoked.</p>
   </div>
 
   <h4 id="extensibility">Extensibility</h4>
@@ -355,9 +355,17 @@ function resolver(prefix) {
 
   <h3 id="security">Security Considerations</h3>
 
-  <p>It is expected that implementing this specification introduces no new risks
-  for users.</p>
-
+  <p>It is expected that implementing this specification introduces no new security
+  	risks for users.</p>
+  <p>User agents <em class="ct">should</em> ensure they remain stable when facing
+  	a hostile <code>NSResolver</code> object. Potential hostile things such an
+  object could do include:</p>
+  <ul>
+		<li>Returning inconsistent results;</li>
+  	<li>Hanging;</li>
+  	<li>Changing the DOM during the operation.</li>
+ </ul>
+  <h3 id="privacy">Privacy Considerations </h3>
   <p>History theft is a potential privacy issue because the
   <code>:visited</code> pseudo-class in
   [<cite><a href="#ref-selectors">Selectors</a></cite>] allows authors to query
@@ -377,17 +385,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   <p>As <a href="http://www.w3.org/TR/css3-selectors/#link">defined in <cite>Selectors</cite></a>,
   	user agents may treat all links as unvisited links, or implement other measures
   	to preserve the user's privacy.</p>
-  <p>Another problem is hostile content. User agents <em class="ct">should</em>
-  	ensure they remain stable when facing a hostile <code>NSResolver</code>
-  object. Potential hostile things such an object could do include:</p>
-  <ul>
-   <li>Returning inconsistent results;</li>
-
-   <li>Hanging;</li>
-
-   <li>Changing the DOM during the operation.</li>
-  </ul>
-
   <h2 id="documentselector">The <code title="">get()</code> and
   <code title="">getAll()</code> methods</h2>
 
@@ -420,27 +417,28 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   group of selectors (<var>selectors</var>), if any. Otherwise it
   <em class="ct">must</em> return <code>null</code>.</p>
 
-  <p>The <dfn id="document-getall" title="document-getall"><code>getAll()</code></dfn> methods
-  on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
-  when invoked, return a <code>StaticNodeList</code> of all the
-  <code>Element</code> nodes within the document  that match the group of selectors
-  (<var>selectors</var>) in document order, if any. Otherwise it
-  <em class="ct">must</em> return an empty <code>StaticNodeList</code>.</p>
-
   <p>The <dfn id="element-get" title="element-get"><code>get()</code></dfn> methods
   	on the <code>ElementSelector</code> interface <em class="ct">must</em>, when
   	invoked, return the first <code>Element</code> node in document order (using
   	depth-first pre-order traversal) that is a descendant of the element on which
   	the method was invoked and matches the group of selectors (<var>selectors</var>),
   if any. Otherwise it <em class="ct">must</em> return <code>null</code>.</p>
+
+  <p>The <dfn id="document-getall" title="document-getall"><code>getAll()</code></dfn> methods
+  	on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
+  	when invoked, return a <code>StaticNodeList</code> of all the <code>Element</code> nodes
+  	within the document that match the group of selectors (<var>selectors</var>)
+  	in document order, if any. Otherwise it <em class="ct">must</em> return an
+  	empty <code>StaticNodeList</code>.</p>
   <p>The <dfn id="element-getall" title="element-getall"><code>getAll()</code></dfn> methods
   	on the <code>ElementSelector</code> interface <em class="ct">must</em>, when
-  	invoked, return a StaticNodeList of all the <code>Element</code> nodes that
+  	invoked, return a <code>StaticNodeList</code> of all the <code>Element</code> nodes that
   	are descendants of the element on which the method was invoked and  matches
   	the group of selectors (<var>selectors</var>), if any. Otherwise it <em class="ct">must</em> return
-  	an empty <code>StaticNodeList</code>.</p>
+  an empty <code>StaticNodeList</code>.</p>
   <p>Both <code title="document-get">get()</code> and <code title="document-getall">getAll()</code> take
-  	a group of selectors (<var>selectors</var>) as the first argument and an <code>NSResolver</code> (<var title="">nsresolver</var>)
+  	a group of selectors (<var>selectors</var>) as the first argument and optionally
+  	an <code>NSResolver</code> (<var title="">nsresolver</var>)
   	as the second. User agents <em class="ct">must</em> use the <var title="">nsresolver</var> argument
   	to <span>resolve namespace prefixes</span> to namespaces or to <span>get the
   	default namespace</span>. When the <var title="">nsresolver</var> argument
@@ -452,12 +450,13 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   	Otherwise, authors <em class="ct">may</em> set the argument to <code>null</code> or
   	omit it if the language binding permits.</p>
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the user
-  agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception. If
-  the given group of selectors (<var>selectors</var>) uses namespace prefixes
-  and the prefix cannot be resolved (the <var title="">nsresolver</var>
-  argument doesn't provide the namespace or has been omitted entirely) a
-  <code>NAMESPACE_ERR</code> exception <em class="ct">must</em> be raised. </p>
-
+  agent <em class="ct">must</em> raise a <code>SYNTAX_ERR</code> exception.</p>
+  <p>An <dfn id="unresolvable-namespace">unresolvable namespace</dfn> is a namespace
+  	that cannot be resolved because there was no <code>NSResolver</code> provided
+  	or the given <code>NSResolver</code> does not return
+  	a namespace for the namespace prefix. When an unresolvable namespace
+  	is encountered, a <code>NAMESPACE_ERR</code> exception <em class="ct">must</em> be
+  	raised.</p>
   <p class="note">Not defining a default namespace is ok.</p>
 
   <p>In languages that support optional arguments for methods, like ECMAScript,
@@ -474,36 +473,51 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   Interface</h3>
 
   <p>The <code>NSResolver</code> interface allows prefixes to be bound to a
-  namespace URI. The interface is to be implemented by authors.</p>
+  namespace URI. The object implementing this interface is expected to be implemented
+  	by authors.</p>
 
   <p class="note">Other specifications may introduce methods that return an
   object implementing <code>NSResolver</code> in which case it would be
   implemented by the user agent.</p>
 
   <pre class="idl">interface <dfn id="nsresolver">NSResolver</dfn> {
-
   DOMString          <span>lookupNamespaceURI</span>(in DOMString <var>prefix</var>);
-
 };</pre>
 
   <p>The
-  <dfn id="lookupnamespaceuri" title="lookupnamespaceuri"><code>lookupNamespaceURI(<var>prefix</var>)</code></dfn> method <em class="ct">must</em> return the namespace belonging to
-  the prefix (<var>prefix</var>) or the default namespace if the
-  <var>prefix</var> argument is <code>null</code> or the empty string.</p>
+  <dfn id="lookupnamespaceuri" title="lookupnamespaceuri"><code>lookupNamespaceURI(<var>prefix</var>)</code></dfn> method <em class="ct">must</em> return
+  the namespace belonging to the prefix (<var>prefix</var>) or the default namespace
+  if the
+  <var>prefix</var> argument is either <code>null</code> or an empty string.</p>
 
   <p>To <dfn id="resolve-namespace-prefix">resolve namespace prefixes</dfn> user
-  agents <em class="ct">must</em> pass the prefix lowercased (A-Z maps to a-z)
-  to the <code>lookupNamespaceURI()</code> method. If the method does not return
-  a <code>DOMString</code>, the namespace prefix cannot be resolved. Otherwise,
-  the return value is the namespace for the given prefix. </p>
-  <p class="issue">Need to define case sensitivity rules more clearly.</p>
+  agents <em class="ct">must</em> pass the prefix, preserving case,
+  to the <code>lookupNamespaceURI()</code> method. User agents must handle prefixes
+  case sensitively. If the method does not return a <code>DOMString</code>,
+  the prefix represents an <a href="#unresolvable-namespace">unresolvable namespace</a>.
+  Otherwise, the return value is the namespace for the given prefix.</p>
+  <p class="note">The case sensitivity of namespace prefixes is effectively determined
+  	by the implementation of the <code>NSResolver</code>  	object that is used
+  	to resolve the namespaces.</p>
+  <p class="note">In Unicode, caseless matching requires both strings  that are
+  	being compared, to be case folded prior to performing a binary comparison
+  	[<cite><a href="#ref-casemap">CaseMap</a></cite>]. However, since case folding is not the same as simply uppercasing
+  	or lowercasing both strings and because the comparison is being performed
+  	by the <code>NSResolver</code> object
+  	implemented by the author, this specification cannot require case insensitive
+  namespace prefixes.</p>
+  <p class="issue">The possible alternative method that would provide pseudo-case-insenstive
+  	namespace prefixes would be to require that the user agent perform a <code>toLowerCase(prefix)</code> conversion
+  	before passing it to the <code>NSResolver</code>. While that would most likely
+  	handle the majority of cases, it would not reliably handle cases where there
+  	are context-sensitive mappings, and other cases that require special handling.</p>
   <p>To <dfn id="get-default-namespace">get the default
   	namespace</dfn> user agents <em class="ct">must</em> invoke the <code>lookupNamespaceURI()</code> method
   	with the empty string as the argument.  If the method returns an empty string, <code>null</code>,
   	or does not return a value (<code>void</code>), then there is no default namespace.
-  	If the method does not return a <code>DOMString</code>, the default
-  	namespace cannot be resolved. Otherwise, the return value is the default
-  	namespace. </p>
+  	Otherwise, if the method does not return a <code>DOMString</code>, the default
+  	namespace is an <a href="#unresolvable-namespace">unresolvable namespace</a>.
+  	Otherwise, the return value is the default namespace.</p>
   <p>The number of times that a user agent may invoke the <code>lookupNamespaceURI()</code> method
   	with each prefix and the order in which prefixes are resolved is not defined
   	by this specification.</p>
@@ -523,7 +537,9 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
  </ul>
   <p>Authors are strongly encouraged to ensure that the method returns consistent
   results each time it is invoked.</p>
-  <p>In ECMAScript (and languages that allow similar constructs) user agents
+  <p>In ECMAScript (and languages that allow similar constructs),
+  	this object <em class="ct">may</em> be implemented as a <code>Function</code>.
+  	In such languages, user agents
   	<em class="ct">must</em> support <code>NSResolver</code> being implemented
   	as a <code>Function</code>.</p>
 
@@ -584,7 +600,10 @@ var <var>y</var> = document.getAll("x|x > y|x", resolver);</pre>
    <dd>(Informative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading Style
    Sheets, level 2 revision 1</a></cite>, B. Bos, T. Çelik, I. Hickson, H. Wium
    Lie, editors. World Wide Web Consortium, June 2005.</dd>
-
+   <dt id="ref-casemap">[CaseMap]</dt>
+   <dd>(Informative) <a href="http://unicode.org/reports/tr21/tr21-5.html">Unicode
+   		Standard Annex #21 Case Mappings</a>, M. Davis, editor,
+   	Unicode Consortium, March 2001.</dd>
    <dt id="ref-dom3core">[DOM2Style]</dt>
    <dd>(Informative) <cite><a href="http://www.w3.org/TR/DOM-Level-2-Style/">Document Object
    			Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P. Le
@@ -638,6 +657,7 @@ var <var>y</var> = document.getAll("x|x > y|x", resolver);</pre>
    <li>Robin Berjon</li>
    <li>Simon Pieters</li>
    <li>Tarquin Wilton-Jones</li>
+   <li>Travis Leithead</li>
   </ul>
 
   <p>Thanks to all those who have helped to improve this specification by
