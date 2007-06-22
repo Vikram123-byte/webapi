@@ -205,7 +205,9 @@ for (var i = 0; i &lt; tbody.length; i++) {
 
   <div class="example">
    <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-  &lt;head> … &lt;/head>
+  &lt;head>
+    &lt;title&gt;Selectors API Example&lt;/title&gt;
+  &lt;/head>
   &lt;body>
     &lt;p>
       I like graphics:
@@ -219,18 +221,15 @@ for (var i = 0; i &lt; tbody.length; i++) {
   &lt;/body>
 &lt;/html></pre>
 
-   <p>If you apply the following script to the above XML document …
-
-   <pre>function resolver(str) {
-
-  var prefixes = {
-    h:  "http://www.w3.org/1999/xhtml",
-
-    g: "http://www.w3.org/2000/svg"}
-
-  return prefixes[str];
-
+   <p>If you apply the following script to the above XML document …<pre>function resolver(prefix) {
+  var defaultNS = "";
+  var ns = {
+    "h":"http://www.w3.org/1999/xhtml",
+    "g":"http://www.w3.org/2000/svg"
+  };
+  return (prefix == "") ? defaultNS : ns[prefix];
 }
+
 var <var>a</var> = document.get("#x");
 var <var>b</var> = document.getAll("h|p &gt; g|svg", resolver);
 var <var>c</var> = a.get("svg, span");</pre>
@@ -373,15 +372,14 @@ function resolver(prefix) {
   <p class="note">This is not a new problem, as it can already
   	be exploited using existing CSS and DOM APIs, such as <code>getComputedStyle()</code>
 	[<cite><a href="#ref-dom2style">DOM2Style</a></cite>].</p>
-  <div class="example">
+ <div class="example">
   <p>In this example, <var>vlinks</var> will aquire a list of links that
   	the user has visited. The author can then obtain the URIs and potentially
   	exploit this knowledge.</p>
   <pre>var vlinks = document.getAll(":visited");
 for (var i = 0; i &lt; vlinks.length; i++) {
   doSomethingEvil(vlinks[i].href);
-}</pre>
- </div>
+}</pre></div>
   <p>As <a href="http://www.w3.org/TR/css3-selectors/#link">defined in <cite>Selectors</cite></a>,
   	user agents may treat all links as unvisited links, or implement other measures
   	to preserve the user's privacy.</p>
@@ -506,11 +504,6 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   	by the <code>NSResolver</code> object
   	implemented by the author, this specification cannot require case insensitive
   namespace prefixes.</p>
-  <p class="issue">The possible alternative method that would provide pseudo-case-insenstive
-  	namespace prefixes would be to require that the user agent perform a <code>toLowerCase(prefix)</code> conversion
-  	before passing it to the <code>NSResolver</code>. While that would most likely
-  	handle the majority of cases, it would not reliably handle cases where there
-  	are context-sensitive mappings, and other cases that require special handling.</p>
   <p>To <dfn id="get-default-namespace">get the default
   	namespace</dfn> user agents <em class="ct">must</em> invoke the <code>lookupNamespaceURI()</code> method
   	with the empty string as the argument.  If the method returns an empty string, <code>null</code>,
@@ -542,43 +535,76 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   	In such languages, user agents
   	<em class="ct">must</em> support <code>NSResolver</code> being implemented
   	as a <code>Function</code>.</p>
-
-  <p class="issue">The following example is wrong and needs to be rewritten.
-  The number of times the <code>NSResolver</code> may be invoked is no longer defined,
-  and if it is invoked twice for the prefix "test", the result would differ for <var>x</var>.
-  Also, since the functions would be called back to back, <var>i</var> would equal 3 or 4
-  at the end (depending on how many times <code>resolver()</code> was invoked)
-  and the last method call will raise an exception.</p>
-
-  <div class="example">
-   <pre>var i = 0;
+ <div class="example">
+    <p>The <code>NSResolver</code> may be implemented as an object with a
+	<code>lookupNamespaceURI</code> method.</p>
+    <pre>var resolver = {
+  lookupNamespaceURI: function(prefix) {
+    var defaultNS = "";
+    var ns = {
+      "xh"  :"http://www.w3.org/1999/xhtml",
+      "svg" :"http://www.w3.org/2000/svg",
+      "xbl" :"http://www.w3.org/ns/xbl",
+      "math":"http://www.w3.org/1998/Math/MathML"
+    };
+    return (prefix == "") ? defaultNS : ns[prefix];
+  }
+}</pre>
+ 	<p>For convenience, in ECMAScript, the <code>NSResolver</code> may also be
+ 		implemented as a function. In the above example, namespace prefixes
+ 		are resolved case sensitively. If case insensitve namespace prefixes
+ 		are desired, it is possible to implement this in the resolver by altering
+ 		the case of the prefix before comparison.</p>
+    <pre>function resolver(prefix) {
+  var defaultNS = "";
+  var ns = {
+    "xh"  :"http://www.w3.org/1999/xhtml",
+    "svg" :"http://www.w3.org/2000/svg",
+    "xbl" :"http://www.w3.org/ns/xbl",
+    "math":"http://www.w3.org/1998/Math/MathML"
+  };
+  return (prefix == "") ? defaultNS : ns[prefix.toLowerCase()];
+}</pre>
+ 	<p>Using the case insensitive namespace resolver, the prefix <code>xh</code> will
+ 		be resolved as <code>http://www.w3.org/1999/xhtml</code> and <code>SVG</code> as <code>http://www.w3.org/2000/svg</code>.</p>
+ 	<pre>document.getAll(&quot;xh|p SVG|svg&quot;, resolver);</pre>
+ 	<p>In the following example, the <code>foo</code> namespace is undefined and will
+ 		result in an unresolvable namespace. The <code>NAMESPACE_ERR</code> exception can
+ 		be handled using a <code>try</code>/<code>catch</code> block.</p>
+ 	<pre>try {
+  document.getAll(&quot;foo|bar&quot;, resolver);
+} catch (e) {
+  switch (e.code) {
+  case DOMException.NAMESPACE_ERR:
+    // Namespace error
+    break;
+  case DOMException.SYNTAX_ERR:
+    // Syntax error
+    break;
+  default:
+    // Unknown error
+  }
+}</pre>
+ 	<p>Authors are adivsed that writing namespace resolvers that return inconsistent
+ 		results each time they are invoked may result in non-interoperable behaviour.</p>
+ 	<pre>var i = 0;
 function resolver(prefix) {
-  i++;
-  var prefixes = {
-    1:  "http://example.org/foo",
 
-    2:  "http://example.org/bar"}
-
-  return prefixes[i];
+  var ns = ["http://example.org/foo",
+            "http://example.org/bar",
+            "http://example.org/baz"]
+  return ns[i++];
 }
-var <var>x</var> = document.getAll("tESt|x > test|x", resolver);
-var <var>y</var> = document.getAll("x|x > y|x", resolver);</pre>
 
-   <p>Variable <var>x</var> represents a <code>NodeList</code> containing all
-   <code>x</code> elements in the <code>http://example.org/foo</code> namespace
-   that are children of an <code>x</code> element in the same namespace in
-   document order.</p>
-
-   <p>Variable <var>y</var> either represents all <code>x</code> elements in
-   	the
-   <code>http://example.org/foo</code> namespace that are children of an
-   <code>x</code> element in the <code>http://example.org/bar</code> namespace
-   in document order or represents all <code>x</code> elements in the
-   <code>http://example.org/bar</code> namespace that are child of an
-   <code>x</code> element in the <code>http://example.org/foo</code> namespace
-   in document order <a href="#interoperability">depending on the particular
-   implementation</a>.</p>
- </div>
+var <var>x</var> = document.getAll(&quot;foo|x, foo|y, bar|z", resolver);
+</pre>
+ 	<p>Depending on the order in which namespace prefixes are resolved and the
+ 		number of times the resolver is invoked to for the <code>foo</code> prefix,
+ 		this could	result in selecting <code>x</code>, <code>y</code> and <code>z</code> elements from
+ 		almost any combination of namespaces that may be returned. The
+ 		result is unpredictable and different results may occur in different
+ 		user agents.</p>
+  </div>
 
   <h3 id="staticnodelist">The <code title="">StaticNodeList</code>
   Interface</h3>
@@ -589,18 +615,37 @@ var <var>y</var> = document.getAll("x|x > y|x", resolver);</pre>
   identically to the <code>NodeList</code> interface as defined in
   [<cite><a href="#ref-dom3core">DOM3Core</a></cite>] with the exception that
   the interface, as the name suggests, is static and not live.</p>
+ <div class="example">
+    <p>This example demonstrates how to iterate through the items in a <code>StaticNodeList</code>.</p>
+    <pre>var lis = document.getAll(&quot;ul.nav&gt;li&quot;);
+for (var i = 0; i &lt; items.length; i++) {
+  process(lis.item(i));
+}</pre>
+    <p>In ECMAScript, the language binding also allows <code>NodeList</code>s
+    	and <code>StaticNodeList</code>s
+  	to be addressed using the array notation, so that loop could be rewritten
+  	like this:</p>
+    <pre>for (var i = 0; i &lt; items.length; i++) {
+  process(lis[i]);
+}</pre>
+  	<p>Since a <code>StaticNodeList</code> is not live, changes to the DOM do
+  		not affect the content of the list. Consider the <code>process()</code> function
+  		called in the previous examples is defined as follows:</p>
+  	<pre>funtction process(elmt) {
+  elmt.parentNode.removeChild(elmt);
+
+}</pre>
+ 	<p>This would cause each selected element to be removed from the DOM, but each
+ 		element will remain in the <code>StaticNodeList</code>. If the list were a live <code>NodeList</code>,
+ 		removing an item from the DOM would also remove the element from the
+ 		list and adjust the indexes of subsequent elements. That would have adverse
+ 		effects upon the loop because not all selected elements would be processed.</p>
+ </div>
+
 
   <h2 class="no-num" id="references">References</h2>
-
-  <p class="issue">The reference to CSS21 has currently been removed from the introduction.
-  Either need to find a way to fit it back in or remove this reference</p>
   <dl>
-
-   <dt id="ref-css21">[CSS21]</dt>
-   <dd>(Informative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading Style
-   Sheets, level 2 revision 1</a></cite>, B. Bos, T. Çelik, I. Hickson, H. Wium
-   Lie, editors. World Wide Web Consortium, June 2005.</dd>
-   <dt id="ref-casemap">[CaseMap]</dt>
+   <dt id="ref-css21">[CaseMap]</dt>
    <dd>(Informative) <a href="http://unicode.org/reports/tr21/tr21-5.html">Unicode
    		Standard Annex #21 Case Mappings</a>, M. Davis, editor,
    	Unicode Consortium, March 2001.</dd>
