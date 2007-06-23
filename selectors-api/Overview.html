@@ -33,13 +33,13 @@
    just silly so we got stuck with this weird name. -->
    
    <h2 class="no-num no-toc" id=W3C-doctype>Editor's Draft
-    <!--W3C Working Draft--> 23 June 2007</h2>
+    <!--W3C Working Draft--> 24 June 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-selectors-api-20070623">http://www.w3.org/TR/2007/WD-selectors-api-20070623/</a>
+     href="http://www.w3.org/TR/2007/WD-selectors-api-20070624">http://www.w3.org/TR/2007/WD-selectors-api-20070624/</a>
 
     <dt>Latest Version:
 
@@ -63,6 +63,7 @@
     <dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a> (<a
      href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a
      href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;
+
    </dl>
 
    <p class=copyright><a
@@ -77,6 +78,7 @@
     href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
     <a
     href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a>
+
     and <a
     href="http://www.w3.org/Consortium/Legal/copyright-documents">document
     use</a> rules apply.</p>
@@ -118,6 +120,7 @@
    in W3C CVS</a>. A detailed list of changes is also available <a
    href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/">from the CVS
    server</a>.</p>
+
   <!-- XXX: dino!!! -->
 
   <p>Implementors should be aware that this specification is not stable.
@@ -141,6 +144,7 @@
    6 of the W3C Patent Policy</a>.
 
   <h2 class="no-num no-toc" id=toc>Table of Contents</h2>
+
   <!--begin-toc-->
 
   <ul class=toc>
@@ -150,6 +154,7 @@
 
      <li><a href="#conformance"><span class=secno>1.2. </span>Conformance
       Requirements</a>
+
       <ul class=toc>
        <li><a href="#terminology"><span class=secno>1.2.1. </span>Terminology
         and Conventions</a>
@@ -171,12 +176,14 @@
    <li><a href="#documentselector"><span class=secno>2. </span>The <code
     title="">selectElement()</code> and <code
     title="">selectAllElements()</code> methods</a>
+
     <ul class=toc>
      <li><a href="#nsresolver-interface"><span class=secno>2.1. </span>The
       <code title="">NSResolver</code> Interface</a>
 
      <li><a href="#staticnodelist"><span class=secno>2.2. </span>The <code
       title="">StaticNodeList</code> Interface</a>
+
     </ul>
 
    <li class=no-num><a href="#references">References</a>
@@ -194,7 +201,7 @@
    matching elements [<cite><a href="#ref-selectors">Selectors</a></cite>].
    With these methods, it’s easier to match a set of <code>Element</code>
    nodes based on specific criteria. So instead of having to filter the
-   result of a <code>getElementsByTagName()</code> call authors can directly
+   result of a <code>getElementsByTagName()</code> call, authors can directly
    “filter” in the query.
 
   <h3 id=examples><span class=secno>1.1. </span>Examples</h3>
@@ -204,6 +211,8 @@
   <p>Some [<cite><a href="#ref-ecma262">ECMAScript</a></cite>] examples:
 
   <div class=example>
+   <p>This is an example HTML table.</p>
+
    <pre>&lt;table id="score">
   &lt;thead>
     &lt;tr>
@@ -223,6 +232,7 @@
     &lt;tr>
       &lt;td>C
       &lt;td>81%
+
 &lt;/table></pre>
 
    <p>In order to obtain the cells containing the results in the table, which
@@ -251,77 +261,6 @@ for (var i = 0; i &lt; tbody.length; i++) {
    <pre>var cells = document.selectAllElements("#score tbody td:nth-of-type(2)");</pre>
   </div>
 
-  <p class=issue>Need to consider revising the following example.
-
-  <div class=example>
-   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-  &lt;head>
-    &lt;title&gt;Selectors API Example&lt;/title&gt;
-  &lt;/head>
-  &lt;body>
-    &lt;p>I like graphics:
-       &lt;svg xmlns="http://www.w3.org/2000/svg" … > … &lt;/svg>&lt;/p>
-    &lt;p id="x" xmlns:svg="http://www.w3.org/2000/svg">
-      They are great:
-      &lt;svg:svg … > … &lt;/svg:svg>
-    &lt/p>
-  &lt;/body>
-&lt;/html></pre>
-
-   <p>If you apply the following script to the above XML document …
-
-   <pre>function resolver(prefix) {
-  var defaultNS = "";
-  var ns = {
-    "xh": "http://www.w3.org/1999/xhtml",
-    "svg":"http://www.w3.org/2000/svg"
-  };
-  return (prefix == "") ? defaultNS : ns[prefix];
-}
-
-var <var>a</var> = document.selectAllElements("xh|p &gt; svg|svg", resolver);
-var <var>b</var> = a.selectElement("svg, span");</pre>
-
-   <p><var>a</var> will be a <code><a
-    href="#dom-staticnodelist">StaticNodeList</a></code> containing all the
-    <code>svg</code> elements in the <code>http://www.w3.org/2000/svg</code>
-    namespace whose parent is the <code>p</code> element in the
-    <code>http://www.w3.org/1999/xhtml</code> namespace. <var>b</var> will be
-    the first <code>svg</code> or <code>span</code> element which is a
-    descendent of the first element in the document with an ID of
-    <code>x</code>. So in this case it will be the <code>svg</code> element.</p>
-
-   <pre>function test() {
-  var d = document.selectAllElements(":root"),
-      e = document.documentElement;
-  return d[0] === e;
-}</pre>
-
-   <p><code>test()</code> would return <code>true</code> when both <code
-    title=document-selectallelements><a
-    href="#document-selectallelements">selectAllElements()</a></code> and
-    <code>:root</code> are supported. Note that this example is just to
-    illustrate how it would work. In the real world you would use <code
-    title=document-selectelement><a
-    href="#document-selectelement">selectElement()</a></code> for things that
-    can only yield a single result and for selecting the root element you
-    would simply use <code>document.documentElement</code>.</p>
-
-   <pre>var <var>f</var> = document.selectAllElements("p.warning, p.alert");</pre>
-
-   <p>The above code snippet shows that besides using a single selector you
-    can also pass a group of selectors (basically comma-separated selectors)
-    as the argument. <var>f</var> would contain a <code><a
-    href="#dom-staticnodelist">StaticNodeList</a></code> with all
-    <code>p</code> elements in the document that have a <code>warning</code>
-    or <code>alert</code> class.</p>
-
-   <pre>var <var>g</var> = document.selectElement("#foo, #bar");</pre>
-
-   <p><var>g</var> would contain the first element in the document either
-    having an ID of <code>foo</code> or <code>bar</code> (or both).</p>
-  </div>
-
   <h3 id=conformance><span class=secno>1.2. </span>Conformance Requirements</h3>
 
   <p>All diagrams, examples and notes in this specification are
@@ -340,22 +279,31 @@ var <var>b</var> = a.selectElement("svg, span");</pre>
    specification:
 
   <dl>
-   <dt><dfn id=conforming-implementation>conforming implementation</dfn>
 
-   <dd>A user agent that implements all interfaces described in this
-    specification and follows all <em class=ct>must</em>-, <em
-    class=ct>required</em>- and <em class=ct>shall</em>-level of critera in
-    this specification that apply to implementations.
+   <dt><dfn id=conforming>conforming user agent</dfn>
 
-   <dt><dfn id="conforming document">conforming document</dfn>
+   <dd>A user agent that implements the <code><a
+    href="#dom-document-selector">DocumentSelector</a></code>, <code><a
+    href="#dom-element-selector">ElementSelector</a></code> and <code><a
+    href="#staticnodelist0">StaticNodeList</a></code> interfaces described in
+    this specification and conforms to all <em class=ct>must</em>-, <em
+    class=ct>required</em>- and <em class=ct>shall</em>-level critera in this
+    specification that apply to user agents.
 
-   <dd>A document that follows all <em class=ct>must</em>-, <em
-    class=ct>required</em>- and <em class=ct>shall</em>-level of critera in
-    this specification that apply to documents.
+   <dt><dfn id=conforming0>conforming namespace resolver</dfn>
 
-   <dt><dfn id=conforming-authoring-tool>conforming authoring tool</dfn>
+   <dd>An object implementing the <code><a
+    href="#nsresolver">NSResolver</a></code> interface which conforms to all
+    <em class=ct>must</em>-, <em class=ct>required</em>- and <em
+    class=ct>shall</em>-level critera in this specification that apply to the
+    <code><a href="#nsresolver">NSResolver</a></code> interface.
 
-   <dd>One that produces conforming documents.
+   <dt><dfn id=conforming1>conforming application</dfn>
+
+   <dd>An application that uses the interfaces defined in this specification
+    and conforms to all <em class=ct>must</em>-, <em class=ct>required</em>-
+    and <em class=ct>shall</em>-level critera in this specification that
+    apply to authors.
   </dl>
 
   <h4 id=terminology><span class=secno>1.2.1. </span>Terminology and
@@ -366,38 +314,67 @@ var <var>b</var> = a.selectElement("svg, span");</pre>
 
   <p>The algorithms described in this specification are there for clarity.
    User agents are not required to follow them as long as the result is the
-   same. In doing so, user agents <a href="#interoperability">may</a> assume
-   that the object implementing the <code><a
-   href="#nsresolver">NSResolver</a></code> interface (or ECMAScript
-   <code>Function</code>) only relies on scoped variables, doesn't invoke
-   processes outside the object and returns consistent results when its
-   <code><a href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method
-   is invoked.
+   same. In doing so, user agents <em class=ct>may</em> assume that the
+   object implementing the <code><a href="#nsresolver">NSResolver</a></code>
+
+   interface (or ECMAScript <code>Function</code>) only relies on scoped
+   variables, doesn't invoke processes outside the object and returns
+   consistent results when its <code><a
+   href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method is
+   invoked.
 
   <h4 id=interoperability><span class=secno>1.2.2. </span>Interoperability
    Considerations</h4>
 
-  <p>User agents are allowed to optimize the algorithms described within this
+  <p>User agents are allowed to optimise the algorithms described within this
    specification. This entails that some might use the object implementing
    the <code><a href="#nsresolver">NSResolver</a></code> interface more than
-   others. If the object (or ECMAScript <code>Function</code>) causes side
-   effects this might lead to interoperability concerns. The same goes for
-   retrieving different results each time the method is invoked using the
-   same prefix as the argument. Authors are strongly discouraged from
-   creating content that does that.
+   others. Interoperability concerns may arise if the object implementing the
+   <code><a href="#nsresolver">NSResolver</a></code> interface (or ECMAScript
+   <code>Function</code>) causes side effects or returns inconsistent results
+   each time it is invoked.
 
   <div class=example>
-   <pre>var <var>x</var> = document.selectAllElements("test|*:empty > test|p", resolver)
-function resolver(prefix) {
+
+   <p>In the following example, the <code><a
+    href="#nsresolver">NSResolver</a></code> causes a side effect when
+    executed.</p>
+
+   <pre>function resolver(prefix) {
   sideEffect();
   if("test" == prefix)
     return "http://example.org/test"
-}</pre>
+}
 
-   <p>Some user agents may have decided not to <a
-    href="#resolve-namespace-prefix">resolve namespace prefixes</a> in order
-    to determine <var>x</var>. This causes <code>sideEffect()</code> to not
-    be invoked.</p>
+var <var>x</var> = document.selectAllElements("test|*:empty > test|p", resolver)
+</pre>
+
+   <p>Some user agents may not need to <span>resolve the namespace
+    prefix</span> in order to determine that the selector cannot match any
+    elements, in which case <code>sideEffect()</code> will not be invoked.</p>
+
+   <p>The following example could return inconsistent results each time it is
+    invoked, depending on the order in which namespace prefixes are resolved
+    and the number of times the resolver is invoked to for the
+    <code>foo</code> prefix.</p>
+
+   <pre>var i = 0;
+function resolver(prefix) {
+
+  var ns = ["http://example.org/foo",
+            "http://example.org/bar",
+            "http://example.org/baz"]
+  return ns[i++];
+}
+
+var <var>x</var> = document.selectAllElements(&quot;foo|x, foo|y, bar|z", resolver);
+</pre>
+
+   <p>This could result in selecting <code>x</code>, <code>y</code> and
+    <code>z</code> elements from almost any combination of namespaces that
+    may be returned. The result is unpredictable and different results may
+    occur in different user agents.</p>
+
   </div>
 
   <h4 id=extensibility><span class=secno>1.2.3. </span>Extensibility</h4>
@@ -416,7 +393,7 @@ function resolver(prefix) {
 
   <p>User agents <em class=ct>should</em> ensure they remain stable when
    facing a hostile <code><a href="#nsresolver">NSResolver</a></code> object.
-   Potential hostile things such an object could do include:
+   Potentially hostile behaviour includes:
 
   <ul>
    <li>Returning inconsistent results;
@@ -438,6 +415,7 @@ function resolver(prefix) {
    [<cite><a href="#ref-dom2style">DOM2Style</a></cite>].
 
   <div class=example>
+
    <p>In this example, <var>vlinks</var> will aquire a list of links that the
     user has visited. The author can then obtain the URIs and potentially
     exploit this knowledge.</p>
@@ -449,8 +427,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   </div>
 
   <p>As <a href="http://www.w3.org/TR/css3-selectors/#link">defined in
-   <cite>Selectors</cite></a>, user agents may treat all links as unvisited
-   links, or implement other measures to preserve the user's privacy.
+   <cite>Selectors</cite></a>, user agents <em class=ct>may</em> treat all
+   links as unvisited links, or implement other measures to preserve the
+   user’s privacy.
 
   <h2 id=documentselector><span class=secno>2. </span>The <code
    title="">selectElement()</code> and <code
@@ -468,16 +447,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    class=idl>interface <dfn id=dom-document-selector>DocumentSelector</dfn> {
   Node            <a href="#document-selectelement" title=document-selectelement>selectElement</a>(in DOMString <var>selectors</var>);
   Node            <a href="#document-selectelement" title=document-selectelement>selectElement</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
-  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>);
-  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
 };
 
 interface <dfn id=dom-element-selector>ElementSelector</dfn> {
   Node            <a href="#element-selectelement" title=element-selectelement>selectElement</a>(in DOMString <var>selectors</var>);
   Node            <a href="#element-selectelement" title=element-selectelement>selectElement</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
-  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>);
-  <a href="#dom-staticnodelist">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
 }
+
 </pre>
 
   <p>The <dfn id=document-selectelement
@@ -492,6 +472,7 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
   <p>The <dfn id=element-selectelement
    title=element-selectelement><code>selectElement()</code></dfn> methods on
    the <code><a href="#dom-element-selector">ElementSelector</a></code>
+
    interface <em class=ct>must</em>, when invoked, return the first
    <code>Element</code> node in document order (using depth-first pre-order
    traversal) that is a descendant of the element on which the method was
@@ -500,25 +481,27 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
 
   <p>The <dfn id=document-selectallelements
    title=document-selectallelements><code>selectAllElements()</code></dfn>
+
    methods on the <code><a
    href="#dom-document-selector">DocumentSelector</a></code> interface <em
    class=ct>must</em>, when invoked, return a <code><a
-   href="#dom-staticnodelist">StaticNodeList</a></code> of all the
+   href="#staticnodelist0">StaticNodeList</a></code> of all the
    <code>Element</code> nodes within the document that match the group of
    selectors (<var>selectors</var>) in document order, if any. Otherwise it
    <em class=ct>must</em> return an empty <code><a
-   href="#dom-staticnodelist">StaticNodeList</a></code>.
+   href="#staticnodelist0">StaticNodeList</a></code>.
 
   <p>The <dfn id=element-selectallelements
    title=element-selectallelements><code>selectAllElements()</code></dfn>
+
    methods on the <code><a
    href="#dom-element-selector">ElementSelector</a></code> interface <em
    class=ct>must</em>, when invoked, return a <code><a
-   href="#dom-staticnodelist">StaticNodeList</a></code> of all the
+   href="#staticnodelist0">StaticNodeList</a></code> of all the
    <code>Element</code> nodes that are descendants of the element on which
    the method was invoked and matches the group of selectors
    (<var>selectors</var>), if any. Otherwise it <em class=ct>must</em> return
-   an empty <code><a href="#dom-staticnodelist">StaticNodeList</a></code>.
+   an empty <code><a href="#staticnodelist0">StaticNodeList</a></code>.
 
   <p>Both <code title=document-selectelement><a
    href="#document-selectelement">selectElement()</a></code> and <code
@@ -528,45 +511,73 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    optionally an <code><a href="#nsresolver">NSResolver</a></code> (<var
    title="">nsresolver</var>) as the second. User agents <em
    class=ct>must</em> use the <var title="">nsresolver</var> argument to <a
-   href="#resolve-namespace-prefix">resolve namespace prefixes</a> to
-   namespaces or to <a href="#get-default-namespace">get the default
-   namespace</a>. When the <var title="">nsresolver</var> argument is
-   <code>null</code> user agents <em class=ct>must</em> ignore it. [<cite><a
+   href="#resolve">resolve namespace prefixes</a> to namespaces or to <a
+   href="#get-default-namespace">get the default namespace</a>. When the <var
+   title="">nsresolver</var> argument is <code>null</code> user agents <em
+   class=ct>must</em> ignore it. [<cite><a
    href="#ref-selectors">Selectors</a></cite>]
 
-  <p>When authors use namespace prefixes within <var>selectors</var> or wish
-   to set a default namespace, they <em class=ct>must</em> create an object
-   implementing the <code><a href="#nsresolver">NSResolver</a></code>
-   interface (or a <code>Function</code> in the case of ECMAScript) and pass
-   that as the argument for <var title="">nsresolver</var>. Otherwise,
-   authors <em class=ct>may</em> set the argument to <code>null</code> or
-   omit it if the language binding permits.
+  <p>When using namespace prefixes within <var>selectors</var> or if there
+   needs to be a default namespace, authors <em class=ct>must</em> pass an
+   object implementing the <code><a href="#nsresolver">NSResolver</a></code>
+
+   interface, or a <code>Function</code> in the case of ECMAScript, as the
+   argument for <var title="">nsresolver</var>. Otherwise, authors <em
+   class=ct>may</em> set the argument to <code>null</code> or omit it if the
+   language binding permits.
 
   <p>If the given group of selectors (<var>selectors</var>) is invalid, the
    user agent <em class=ct>must</em> raise a <code>SYNTAX_ERR</code>
+
    exception.
 
-  <p>An <dfn id=unresolvable-namespace>unresolvable namespace</dfn> is a
-   namespace that cannot be resolved because there was no <code><a
+  <p>An <dfn id=unresolvable>unresolvable namespace</dfn> is a namespace that
+   cannot be resolved because there was no <code><a
    href="#nsresolver">NSResolver</a></code> provided or the given <code><a
    href="#nsresolver">NSResolver</a></code> does not return a namespace for
-   the namespace prefix. When an unresolvable namespace is encountered, a
-   <code>NAMESPACE_ERR</code> exception <em class=ct>must</em> be raised.
+   the namespace prefix. When an <a href="#unresolvable">unresolvable
+   namespace</a> is encountered, the user agent <em class=ct>must</em> raise
+   a <code>NAMESPACE_ERR</code> exception.
 
   <p class=note>Not defining a default namespace is ok.
 
   <p>In languages that support optional arguments for methods, like
-   ECMAScript, omitting the <var title="">nsresolver</var> argument in either
-   the <code title=document-selectelement><a
-   href="#document-selectelement">selectElement()</a></code> or <code
-   title=document-selectallelements><a
-   href="#document-selectallelements">selectAllElements()</a></code> method
-   <em class=ct>must</em> return the same result as if the method was invoked
-   with the <var title="">nsresolver</var> argument being <code>null</code>.
+   ECMAScript, if the <var title="">nsresolver</var> argument is omitted, the
+   user agent <em class=ct>must</em> act as if the <var
+   title="">nsresolver</var> argument was set to <code>null</code>.
 
   <p class=note>Using pseudo-elements in one of the selectors could mean that
    nothing is returned for that particular selector when it doesn't resolve
    in one or more <code>Element</code> nodes..
+
+  <div class=example>
+
+   <p>The methods accept a group of selectors (comma separated) as the
+    argument. The following example would select all <code>p</code> elements
+    in the document that have a <code>class</code> of either
+    &quot;<code>error</code>&quot; or &quot;<code>warning</code>&quot;.
+
+   <pre>var alerts = document.selectAllElements("p.warning, p.error");</pre>
+
+   <p>The <code title=document-selectelement><a
+    href="#document-selectelement">selectElement()</a></code> method also
+    accepts a group of selectors and it will return the first element that
+    matches either (if any).</p>
+
+   <pre>var<var> x </var>= document.selectElement("#foo, #bar");</pre>
+
+   <p><var>x</var> would contain the first element in the document with an ID
+    of either <code>foo</code> or <code>bar</code> (or both).</p>
+
+   <p>The methods can also be invoked on elements. In this example, the
+    method is invoked on an element that is the target of an event listener.</p>
+
+   <pre>function handle(evt) {
+  var elmt = evt.target.selectElement(&quot;span&quot;)
+  ...
+  // Do something with the elmt
+}</pre>
+  </div>
 
   <h3 id=nsresolver-interface><span class=secno>2.1. </span>The <code
    title="">NSResolver</code> Interface</h3>
@@ -583,19 +594,51 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
   DOMString          <a href="#lookupnamespaceuri">lookupNamespaceURI</a>(in DOMString <var>prefix</var>);
 };</pre>
 
-  <p>The <dfn id=lookupnamespaceuri
-   title=lookupnamespaceuri><code>lookupNamespaceURI(<var>prefix</var>)</code></dfn>
-   method <em class=ct>must</em> return the namespace belonging to the prefix
-   (<var>prefix</var>) or the default namespace if the <var>prefix</var>
-   argument is either <code>null</code> or an empty string.
+  <p>The <dfn id=lookupnamespaceuri><code>lookupNamespaceURI()</code></dfn>
+   method <em class=ct>must</em>, when invoked, return the namespace
+   represented by the prefix (<var>prefix</var>) or the default namespace if
+   the <var>prefix</var> argument is either <code>null</code> or an empty
+   string.
 
-  <p>To <dfn id=resolve-namespace-prefix>resolve namespace prefixes</dfn>
-   user agents <em class=ct>must</em> pass the prefix, preserving case, to
-   the <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code>
-   method. User agents must handle prefixes case sensitively. If the method
-   does not return a <code>DOMString</code>, the prefix represents an <a
-   href="#unresolvable-namespace">unresolvable namespace</a>. Otherwise, the
-   return value is the namespace for the given prefix.
+  <p>When the <code><a
+   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method is
+   invoked with a prefix as the argument, it <em class=ct>must</em> return
+   the namespace URI for the given prefix. When the <code><a
+   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method is
+   invoked with an empty string as the argument (representing the default
+   namespace), it <em class=ct>must</em> do either of the following:
+
+  <ul>
+
+   <li>If there is a default namespace, it <em class=ct>must</em> return the
+    default namespace URI.
+
+   <li>If there is no default namespace, it <em class=ct>must</em> return
+    either <code>null</code>, the empty string, or (if permitted by the
+    language binding) no return value (<code>void</code>).<br>
+  </ul>
+
+  <p>The <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code>
+   <em class=ct>must</em> return consistent results each time it is invoked.
+
+  <p class=note>Authors are <em>strongly discouraged</em> from writing an
+   <code><a href="#nsresolver">NSResolver</a></code> that returns
+   inconsistent results.
+
+  <p>In ECMAScript (and other languages that allow similar constructs), this
+   object <em class=ct>may</em> be implemented as a <code>Function</code>. In
+   such languages, user agents <em class=ct>must</em> support <code><a
+   href="#nsresolver">NSResolver</a></code> being implemented as a
+   <code>Function</code>.
+
+  <p>To <dfn id=resolve>resolve namespace prefixes</dfn> user agents <em
+   class=ct>must</em> pass the prefix, preserving case, to the <code><a
+   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method. User
+   agents <em class=ct>must</em> handle prefixes case sensitively. If the
+   method does not return a <code>DOMString</code>, the prefix represents an
+
+   <a href="#unresolvable">unresolvable namespace</a>. Otherwise, the return
+   value is the namespace for the given prefix.
 
   <p class=note>The case sensitivity of namespace prefixes is effectively
    determined by the implementation of the <code><a
@@ -620,38 +663,31 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    href="#unresolvable-namespace">unresolvable namespace</a>. Otherwise, the
    return value is the default namespace.
 
-  <p>The number of times that a user agent may invoke the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method with
-   each prefix and the order in which prefixes are resolved is not defined by
-   this specification.
-
-  <p>When the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method is
-   invoked with a prefix as the argument, authors <em class=ct>must</em>
-   ensure that it returns the namespace URI for the given prefix. When the
+  <p>The number of times that a user agent <em class=ct>may</em> invoke the
    <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method
-   is invoked with an empty string as the argument (representing the default
-   namespace), it <em class=ct>must</em> do either of the following:
-
-  <ul>
-   <li>If there is a default namespace, it <em class=ct>must</em> return the
-    default namespace URI.
-
-   <li>If there is no default namespace, it <em class=ct>must</em> return
-    either <code>null</code>, the empty string, or (if permitted by the
-    language binding) no return value (<code>void</code>).<br>
-  </ul>
-
-  <p>Authors are strongly encouraged to ensure that the method returns
-   consistent results each time it is invoked.
-
-  <p>In ECMAScript (and languages that allow similar constructs), this object
-   <em class=ct>may</em> be implemented as a <code>Function</code>. In such
-   languages, user agents <em class=ct>must</em> support <code><a
-   href="#nsresolver">NSResolver</a></code> being implemented as a
-   <code>Function</code>.
+   with each prefix and the order in which prefixes are resolved is not
+   defined by this specification.
 
   <div class=example>
+
+   <p>The follwoing examples make use of this document.</p>
+
+   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xml:lang="en">
+  &lt;head>
+    &lt;title&gt;Selectors API Example&lt;/title&gt;
+  &lt;/head>
+  &lt;body>
+    &lt;h1&gt;SVG Demo&lt;/h1&gt;
+
+    &lt;div>&lt;svg:svg … > … &lt;/svg:svg>&lt;/div&gt;
+    &lt;p>&lt;svg:svg … > … &lt;/svg:svg>&lt;/p&gt;
+    &lt;p>&lt;svg xmlns="http://www.w3.org/2000/svg" … > … &lt;/svg>&lt;/p>
+  &lt;/body>
+
+&lt;/html> </pre>
+
    <p>The <code><a href="#nsresolver">NSResolver</a></code> may be
     implemented as an object with a <code><a
     href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method.</p>
@@ -661,8 +697,8 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
     var defaultNS = "";
     var ns = {
       "xh"  :"http://www.w3.org/1999/xhtml",
-      "svg" :"http://www.w3.org/2000/svg",
       "xbl" :"http://www.w3.org/ns/xbl",
+      "svg" :"http://www.w3.org/2000/svg",
       "math":"http://www.w3.org/1998/Math/MathML"
     };
     return (prefix == "") ? defaultNS : ns[prefix];
@@ -680,19 +716,46 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
   var defaultNS = "";
   var ns = {
     "xh"  :"http://www.w3.org/1999/xhtml",
-    "svg" :"http://www.w3.org/2000/svg",
     "xbl" :"http://www.w3.org/ns/xbl",
+    "svg" :"http://www.w3.org/2000/svg",
     "math":"http://www.w3.org/1998/Math/MathML"
   };
   return (prefix == "") ? defaultNS : ns[prefix.toLowerCase()];
-}</pre>
+}
+
+var svgImages = document.selectAllElements(&quot;xh|p SVG|svg&quot;, resolver);</pre>
 
    <p>Using the case insensitive namespace resolver, the prefix
     <code>xh</code> will be resolved as
     <code>http://www.w3.org/1999/xhtml</code> and <code>SVG</code> as
-    <code>http://www.w3.org/2000/svg</code>.</p>
+    <code>http://www.w3.org/2000/svg</code>. The <var>svgImages</var>
 
-   <pre>document.selectAllElements(&quot;xh|p SVG|svg&quot;, resolver);</pre>
+    variable will contain a <code><a
+    href="#staticnodelist0">StaticNodeList</a></code> containing the two
+    <code>svg</code> elements that are descendents of the <code>p</code>
+    elements.</p>
+
+   <p>The default namespace can be specified so that prefixes do not need to
+    be used for selecting elements in a specific namespace. In the following
+    example, the default namespace has been set to the XHTML namespace.</p>
+
+   <pre>function resolver(prefix) {
+  var defaultNS = "http://www.w3.org/1999/xhtml";
+  var ns = {
+    "xh"  :"http://www.w3.org/1999/xhtml",
+    "xbl" :"http://www.w3.org/ns/xbl",
+    "svg" :"http://www.w3.org/2000/svg",
+    "math":"http://www.w3.org/1998/Math/MathML"
+  };
+  return (prefix == "") ? defaultNS : ns[prefix.toLowerCase()];
+}
+</pre>
+
+   <p>Using this resolver, the previous example can be rewritten without
+    explicitly declaring the XHTML namespace using the <code>xh</code>
+    prefix.</p>
+
+   <pre>var svgImages = document.selectAllElements(&quot;p svg|svg&quot;, resolver);</pre>
 
    <p>In the following example, the <code>foo</code> namespace is undefined
     and will result in an unresolvable namespace. The
@@ -714,37 +777,15 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
   }
 }</pre>
 
-   <p>Authors are adivsed that writing namespace resolvers that return
-    inconsistent results each time they are invoked may result in
-    non-interoperable behaviour.</p>
-
-   <pre>var i = 0;
-function resolver(prefix) {
-
-  var ns = ["http://example.org/foo",
-            "http://example.org/bar",
-            "http://example.org/baz"]
-  return ns[i++];
-}
-
-var <var>x</var> = document.selectAllElements(&quot;foo|x, foo|y, bar|z", resolver);
-</pre>
-
-   <p>Depending on the order in which namespace prefixes are resolved and the
-    number of times the resolver is invoked to for the <code>foo</code>
-    prefix, this could result in selecting <code>x</code>, <code>y</code> and
-    <code>z</code> elements from almost any combination of namespaces that
-    may be returned. The result is unpredictable and different results may
-    occur in different user agents.</p>
   </div>
 
   <h3 id=staticnodelist><span class=secno>2.2. </span>The <code
    title="">StaticNodeList</code> Interface</h3>
 
   <pre
-   class=idl>typedef <dfn id=dom-staticnodelist>StaticNodeList</dfn> NodeList;</pre>
+   class=idl>typedef <dfn id=staticnodelist0>StaticNodeList</dfn> NodeList;</pre>
 
-  <p>The <code><a href="#dom-staticnodelist">StaticNodeList</a></code> <em
+  <p>The <code><a href="#staticnodelist0">StaticNodeList</a></code> <em
    class=ct>must</em> be implemented identically to the <code>NodeList</code>
    interface as defined in [<cite><a
    href="#ref-dom3core">DOM3Core</a></cite>] with the exception that the
@@ -752,7 +793,7 @@ var <var>x</var> = document.selectAllElements(&quot;foo|x, foo|y, bar|z", resolv
 
   <div class=example>
    <p>This example demonstrates how to iterate through the items in a
-    <code><a href="#dom-staticnodelist">StaticNodeList</a></code>.</p>
+    <code><a href="#staticnodelist0">StaticNodeList</a></code>.</p>
 
    <pre>var lis = document.selectAllElements(&quot;ul.nav&gt;li&quot;);
 for (var i = 0; i &lt; items.length; i++) {
@@ -760,7 +801,7 @@ for (var i = 0; i &lt; items.length; i++) {
 }</pre>
 
    <p>In ECMAScript, the language binding also allows <code>NodeList</code>s
-    and <code><a href="#dom-staticnodelist">StaticNodeList</a></code>s to be
+    and <code><a href="#staticnodelist0">StaticNodeList</a></code>s to be
     addressed using the array notation, so that loop could be rewritten like
     this:</p>
 
@@ -768,8 +809,8 @@ for (var i = 0; i &lt; items.length; i++) {
   process(lis[i]);
 }</pre>
 
-   <p>Since a <code><a href="#dom-staticnodelist">StaticNodeList</a></code>
-    is not live, changes to the DOM do not affect the content of the list.
+   <p>Since a <code><a href="#staticnodelist0">StaticNodeList</a></code> is
+    not live, changes to the DOM do not affect the content of the list.
     Consider the <code>process()</code> function called in the previous
     examples is defined as follows:</p>
 
@@ -780,7 +821,7 @@ for (var i = 0; i &lt; items.length; i++) {
 
    <p>This would cause each selected element to be removed from the DOM, but
     each element will remain in the <code><a
-    href="#dom-staticnodelist">StaticNodeList</a></code>. If the list were a
+    href="#staticnodelist0">StaticNodeList</a></code>. If the list were a
     live <code>NodeList</code>, removing an item from the DOM would also
     remove the element from the list and adjust the indexes of subsequent
     elements. That would have adverse effects upon the loop because not all
@@ -796,7 +837,7 @@ for (var i = 0; i &lt; items.length; i++) {
     href="http://unicode.org/reports/tr21/tr21-5.html">Unicode Standard Annex
     #21 Case Mappings</a>, M. Davis, editor, Unicode Consortium, March 2001.
 
-   <dt id=ref-dom3core>[DOM2Style]
+   <dt id=ref-dom2style>[DOM2Style]
 
    <dd>(Informative) <cite><a
     href="http://www.w3.org/TR/DOM-Level-2-Style/">Document Object Model
