@@ -211,12 +211,8 @@ for (var i = 0; i &lt; tbody.length; i++) {
   as are all sections explicitly marked non-normative. Everything else in this
   specification is normative.</p>
 
-  <p>The key words <em class="ct">must</em>, <em class="ct">must not</em>,
-  <em class="ct">required</em>, <em class="ct">shall</em>, <em class="ct">shall
-  not</em>, <em class="ct">should</em>, <em class="ct">should not</em>,
-  <em class="ct">recommended</em>, <em class="ct">may</em>, and
-  <em class="ct">optional</em> in the normative parts of this document are to be
-  interpreted as described in
+  <p>The key words <em class="ct">must</em>, <em class="ct">should</em>, and <em class="ct">may</em> in the normative parts of this document
+  		are to be interpreted as described in
   [<cite><a href="#ref-rfc2119">RFC2119</a></cite>].</p>
 
   <p>The following conformance classes are defined (and considered) by this
@@ -226,19 +222,17 @@ for (var i = 0; i &lt; tbody.length; i++) {
    <dt><dfn>conforming user agent</dfn></dt>
 
    <dd>A user agent that implements the <code>DocumentSelector</code>, <code>ElementSelector</code> and
-   	<code>StaticNodeList</code> interfaces described in this specification and conforms to
-   	all <em class="ct">must</em>-,
-   <em class="ct">required</em>- and <em class="ct">shall</em>-level critera
+   	<code>StaticNodeList</code> interfaces described in this specification and
+   	conforms to all <em class="ct">must</em>-level critera
     that apply to user agents.</dd>
 
    <dt><dfn>conforming namespace resolver</dfn></dt>
    <dd>An object implementing the <code>NSResolver</code> interface which conforms
-   	to all <em class="ct">must</em>-, <em class="ct">required</em>- and <em class="ct">shall</em>-level
+   	to all <em class="ct">must</em>-level
    	critera that apply to the  <code>NSResolver</code> interface.</dd>
    <dt><dfn>conforming application</dfn></dt>
    <dd>An application that uses the interfaces defined in this specification
-   	and conforms to all <em class="ct">must</em>-, <em class="ct">required</em>-
-   	and <em class="ct">shall</em>-level critera that apply
+   	and conforms to all <em class="ct">must</em>-level critera that apply
    	to authors.</dd>
   </dl>
 
@@ -349,15 +343,15 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   interface. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]</p>
 
   <pre class="idl">interface <dfn id="dom-document-selector">DocumentSelector</dfn> {
-  Node            <span title="document-selectelement">selectElement</span>(in DOMString <var>selectors</var>);
-  Node            <span title="document-selectelement">selectElement</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
+  Element         <span title="document-selectelement">selectElement</span>(in DOMString <var>selectors</var>);
+  Element         <span title="document-selectelement">selectElement</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
   <span>StaticNodeList</span>  <span title="document-selectallelements">selectAllElements</span>(in DOMString <var>selectors</var>);
   <span>StaticNodeList</span>  <span title="document-selectallelements">selectAllElements</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
 };
 
 interface <dfn id="dom-element-selector">ElementSelector</dfn> {
-  Node            <span title="element-selectelement">selectElement</span>(in DOMString <var>selectors</var>);
-  Node            <span title="element-selectelement">selectElement</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
+  Element         <span title="element-selectelement">selectElement</span>(in DOMString <var>selectors</var>);
+  Element         <span title="element-selectelement">selectElement</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
   <span>StaticNodeList</span>  <span title="element-selectallelements">selectAllElements</span>(in DOMString <var>selectors</var>);
   <span>StaticNodeList</span>  <span title="element-selectallelements">selectAllElements</span>(in DOMString <var>selectors</var>, in <span>NSResolver</span> <var title="">nsresolver</var>);
 }
@@ -492,11 +486,11 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   	object <em class="ct">may</em> be
   	implemented as a <code>Function</code>. In such languages, user agents <em class="ct">must</em> support <code>NSResolver</code> being
   	implemented as a <code>Function</code>.</p>
-  <p>To <dfn>resolve namespace prefixes</dfn> user
-  	agents <em class="ct">must</em> pass the prefix, preserving case,
-  	to the <code>lookupNamespaceURI()</code> method. User agents <em class="ct">must</em> handle
-  	prefixes case sensitively. If the method returns an empty string or does
-  	not return a <code>DOMString</code>,
+  <p>To <dfn>resolve namespace prefixes</dfn>, if there was an <code>NSResolver</code> object
+  	provided, user agents <em class="ct">must</em> pass the prefix, preserving
+  	case, to the <code>lookupNamespaceURI()</code> method. User agents <em class="ct">must</em> handle
+  	prefixes case sensitively. If there was no <code>NSResolver</code> object provided, or
+  	if the method returns an empty string or does not return a <code>DOMString</code>,
   	the prefix represents an <span>unresolvable namespace</span>.
   	Otherwise, the return value is the namespace for the given prefix.</p>
   <p class="note">The case sensitivity of namespace prefixes is effectively determined
@@ -510,8 +504,10 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
   	implemented by the author, this specification cannot require case insensitive
   namespace prefixes.</p>
   <p>To <dfn id="get-default-namespace">get the default
-  	namespace</dfn> user agents <em class="ct">must</em> invoke the <code>lookupNamespaceURI()</code> method
-  	with the empty string as the argument.  If the method returns an empty string, <code>null</code>,
+  	namespace</dfn>, if there was an <code>NSResolver</code> object provided, user agents <em class="ct">must</em> invoke
+  	the <code>lookupNamespaceURI()</code> method
+  	with the empty string as the argument.  If there is no <code>NSResolver</code> object
+  	provided, or if the method returns an empty string, <code>null</code>,
   	 <code>undefined</code>, or equivalent, then there is no default
   	namespace. Otherwise, if the method does not return a <code>DOMString</code>,
   	the default namespace is an <a href="#unresolvable-namespace">unresolvable
@@ -628,7 +624,6 @@ for (var i = 0; i &lt; items.length; i++) {
   		called in the previous examples is defined as follows:</p>
   	<pre>funtction process(elmt) {
   elmt.parentNode.removeChild(elmt);
-
 }</pre>
  	<p>This would cause each selected element to be removed from the DOM, but each
  		element will remain in the <code>StaticNodeList</code>. If the list were a live <code>NodeList</code>,
@@ -641,19 +636,20 @@ for (var i = 0; i &lt; items.length; i++) {
   <h2 class="no-num" id="references">References</h2>
   <dl>
    <dt id="ref-casemap">[CaseMap]</dt>
-   <dd>(Informative) <a href="http://unicode.org/reports/tr21/tr21-5.html">Unicode
+   <dd>(Non-normative) <a href="http://unicode.org/reports/tr21/tr21-5.html">Unicode
    		Standard Annex #21 Case Mappings</a>, M. Davis, editor,
    	Unicode Consortium, March 2001.</dd>
 
    <dt id="ref-css21">[CSS21]
-   </dt><dd>(Informative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading
+   </dt>
+   <dd>(Non-normative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading
     Style Sheets, level 2 revision 1</a></cite>, B. Bos, T. Ã‡elik, I.
     Hickson, H. Wium Lie, editors. World Wide Web Consortium, June 2005.
 
    <dt id="ref-dom2style">[DOM2Style]</dt>
-   <dd>(Informative) <cite><a href="http://www.w3.org/TR/DOM-Level-2-Style/">Document Object
-   			Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P. Le
-   			Hégaret, V. Apparao, editors.
+   <dd>(Non-normative) <cite><a href="http://www.w3.org/TR/DOM-Level-2-Style/">Document
+   			Object Model (DOM) Level 2 Style Specification</a></cite>, C. Wilson, P.
+   			Le Hégaret, V. Apparao, editors.
    			World Wide Web Consortium, November 2000.</dd>
 
    <dt id="ref-dom3core">[DOM3Core]</dt>
