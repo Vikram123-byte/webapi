@@ -32,14 +32,14 @@
    conforming to the DOM specification template (if there is such a thing) is
    just silly so we got stuck with this weird name. -->
    
-   <h2 class="no-num no-toc" id=W3C-doctype>Editor's Draft
-    <!--W3C Working Draft--> 24 June 2007</h2>
+   <h2 class="no-num no-toc" id=W3C-doctype>Editor’s Draft
+    <!--W3C Working Draft--> 25 June 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-selectors-api-20070624">http://www.w3.org/TR/2007/WD-selectors-api-20070624/</a>
+     href="http://www.w3.org/TR/2007/WD-selectors-api-20070625">http://www.w3.org/TR/2007/WD-selectors-api-20070625/</a>
 
     <dt>Latest Version:
 
@@ -88,9 +88,9 @@
 
   <p>Selectors, which are widely used in CSS, are patterns that match against
    elements in a tree structure [<cite><a
-   href="#ref-selectors">Selectors</a></cite>] [<a
-   href="#ref-css21">CSS21</a>]. The Selectors API specification defines
-   methods for retrieving <code>Element</code> nodes from the <abbr
+   href="#ref-selectors">Selectors</a></cite>] [<cite><a
+   href="#ref-css21">CSS21</a></cite>]. The Selectors API specification
+   defines methods for retrieving <code>Element</code> nodes from the <abbr
    title="Document Object Model">DOM</abbr> by matching against a group of
    selectors. It is often desirable to perform DOM operations on a specific
    set of elements in a document. These methods simplify the process of
@@ -116,7 +116,7 @@
    href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> with
    <kbd>[selectors-api]</kbd> at the start of the subject line. <a
    href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of
-   this list are available. The editor's copy of this specification is <a
+   this list are available. The editor’s copy of this specification is <a
    href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/selectors-api/Overview.html?content-type=text/html;%20charset=utf-8">available
    in W3C CVS</a>. A detailed list of changes is also available <a
    href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/">from the CVS
@@ -193,9 +193,9 @@
   <p><em>This section is non-normative.</em>
 
   <p>This specification introduces two methods that take a group of selectors
-   (often simply referred to as selector) as an argument and return the
+   (often simply referred to as a selector) as an argument and return the
    matching elements [<cite><a href="#ref-selectors">Selectors</a></cite>].
-   With these methods, it’s easier to match a set of <code>Element</code>
+   With these methods, it is easier to match a set of <code>Element</code>
    nodes based on specific criteria. So instead of having to filter the
    result of a <code>getElementsByTagName()</code> call, authors can directly
    “filter” in the query.
@@ -204,7 +204,8 @@
 
   <p><em>This section is non-normative.</em>
 
-  <p>Some [<cite><a href="#ref-ecma262">ECMAScript</a></cite>] examples:
+  <p>Some ECMAScript [<cite><a href="#ref-ecma262">ECMAScript</a></cite>]
+   examples:
 
   <div class=example>
    <p>This is an example HTML table.</p>
@@ -240,7 +241,7 @@
    <pre>var table = document.getElementById("score");
 var groups = table.tBodies;
 var rows = null;
-var cells = new Array();
+var cells = [];
 
 for (var i = 0; i &lt; groups.length; i++) {
   rows = groups[i].rows;
@@ -265,7 +266,7 @@ for (var i = 0; i &lt; groups.length; i++) {
 
   <p>The key words <em class=ct>must</em>, <em class=ct>should</em>, and <em
    class=ct>may</em> in the normative parts of this document are to be
-   interpreted as described in [<cite><a
+   interpreted as described in RFC 2119 [<cite><a
    href="#ref-rfc2119">RFC2119</a></cite>].
 
   <p>The following conformance classes are defined (and considered) by this
@@ -312,7 +313,7 @@ for (var i = 0; i &lt; groups.length; i++) {
 
   <p>The construction "<code>Foo</code> object", where <code>Foo</code> is
    actually an interface, is sometimes used instead of the more accurate
-   "object implementing the <code>Foo</code> interface ".
+   "object implementing the <code>Foo</code> interface".
 
   <h4 id=interoperability><span class=secno>1.2.2. </span>Interoperability
    Considerations</h4>
@@ -334,11 +335,12 @@ for (var i = 0; i &lt; groups.length; i++) {
 
    <pre>function resolver(prefix) {
   sideEffect();
-  if("test" == prefix)
-    return "http://example.org/test"
+  if (prefix == "test") {
+    return "http://example.org/test";
+  }
 }
 
-var <var>x</var> = document.selectAllElements("test|*:empty > test|p", resolver)
+var x = document.selectAllElements("test|*:empty > test|p", resolver)
 </pre>
 
    <p>Some user agents may not need to <span>resolve the namespace
@@ -355,11 +357,11 @@ function resolver(prefix) {
 
   var ns = ["http://example.org/foo",
             "http://example.org/bar",
-            "http://example.org/baz"]
+            "http://example.org/baz"];
   return ns[i++];
 }
 
-var <var>x</var> = document.selectAllElements(&quot;foo|x, foo|y, bar|z", resolver);
+var x = document.selectAllElements(&quot;foo|x, foo|y, bar|z", resolver);
 </pre>
 
    <p>This could result in selecting <code>x</code>, <code>y</code> and
@@ -397,7 +399,7 @@ var <var>x</var> = document.selectAllElements(&quot;foo|x, foo|y, bar|z", resolv
   <h3 id=privacy><span class=secno>1.4. </span>Privacy Considerations</h3>
 
   <p>History theft is a potential privacy issue because the
-   <code>:visited</code> pseudo-class in [<cite><a
+   <code>:visited</code> pseudo-class in Selectors [<cite><a
    href="#ref-selectors">Selectors</a></cite>] allows authors to query which
    links have been visited.
 
@@ -417,9 +419,10 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   </div>
 
   <p>As <a href="http://www.w3.org/TR/css3-selectors/#link">defined in
-   <cite>Selectors</cite></a>, user agents <em class=ct>may</em> treat all
-   links as unvisited links, or implement other measures to preserve the
-   user’s privacy.
+   <cite>Selectors</cite></a> ([<cite><a
+   href="#ref-selectors">Selectors</a></cite>], section 6.6.1), user agents
+   <em class=ct>may</em> treat all links as unvisited links, or implement
+   other measures to preserve the user’s privacy.
 
   <h2 id=documentselector><span class=secno>2. </span>The <code
    title="">selectElement()</code> and <code
@@ -435,17 +438,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <pre
    class=idl>interface <dfn id=dom-document-selector>DocumentSelector</dfn> {
-  Element         <a href="#document-selectelement" title=document-selectelement>selectElement</a>(in DOMString <var>selectors</var>);
-  Element         <a href="#document-selectelement" title=document-selectelement>selectElement</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  Element         <a href="#document-selectelement" title=document-selectelement>selectElement</a>(in DOMString selectors);
+  Element         <a href="#document-selectelement" title=document-selectelement>selectElement</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString selectors);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>selectAllElements</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
 };
 
 interface <dfn id=dom-element-selector>ElementSelector</dfn> {
-  Element         <a href="#element-selectelement" title=element-selectelement>selectElement</a>(in DOMString <var>selectors</var>);
-  Element         <a href="#element-selectelement" title=element-selectelement>selectElement</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString <var>selectors</var>, in <a href="#nsresolver">NSResolver</a> <var title="">nsresolver</var>);
+  Element         <a href="#element-selectelement" title=element-selectelement>selectElement</a>(in DOMString selectors);
+  Element         <a href="#element-selectelement" title=element-selectelement>selectElement</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString selectors);
+  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>selectAllElements</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
 }
 </pre>
 
@@ -531,7 +534,7 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    title="">nsresolver</var> argument was set to <code>null</code>.
 
   <p class=note>Using pseudo-elements in one of the selectors could mean that
-   nothing is returned for that particular selector when it doesn't resolve
+   nothing is returned for that particular selector when it doesn’t resolve
    in one or more <code>Element</code> nodes.
 
   <div class=example>
@@ -547,7 +550,7 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
     accepts a group of selectors and it will return the first element that
     matches either selector in the group (if any).</p>
 
-   <pre>var<var> x </var>= document.selectElement("#foo, #bar");</pre>
+   <pre>var x = document.selectElement("#foo, #bar");</pre>
 
    <p><var>x</var> would contain the first element in the document with an ID
     of either <code>foo</code> or <code>bar</code> (or both).</p>
@@ -556,7 +559,7 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
     method is invoked on an element that is the target of an event listener.</p>
 
    <pre>function handle(evt) {
-  var x = evt.target.selectElement(&quot;span&quot;)
+  var x = evt.target.selectElement(&quot;span&quot;);
   ...
   // Do something with x
 }</pre>
@@ -574,7 +577,7 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    which case it would be implemented by the user agent.
 
   <pre class=idl>interface <dfn id=nsresolver>NSResolver</dfn> {
-  DOMString          <a href="#lookupnamespaceuri">lookupNamespaceURI</a>(in DOMString <var>prefix</var>);
+  DOMString       <a href="#lookupnamespaceuri">lookupNamespaceURI</a>(in DOMString prefix);
 };</pre>
 
   <p>The <dfn id=lookupnamespaceuri><code>lookupNamespaceURI()</code></dfn>
@@ -591,12 +594,11 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    namespace), it <em class=ct>must</em> do either of the following:
 
   <ul>
-   <li>If there is a default namespace, it <em class=ct>must</em> return the
-    default namespace URI.
+   <li>If there is a default namespace, return the default namespace URI.
 
-   <li>If there is no default namespace, it <em class=ct>must</em> return
-    either the empty string, <code>null</code>, or (if permitted by the
-    language binding) no return value (<code>undefined</code>).<br>
+   <li>If there is no default namespace, return either the empty string,
+    <code>null</code>, or (if permitted by the language binding) no return
+    value (<code>undefined</code>).<br>
   </ul>
 
   <p>The <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code>
@@ -772,7 +774,7 @@ var svgImages = document.selectAllElements(&quot;xh|p SVG|svg&quot;, resolver);<
     <code><a href="#staticnodelist0">StaticNodeList</a></code>.</p>
 
    <pre>var lis = document.selectAllElements(&quot;ul.nav&gt;li&quot;);
-for (var i = 0; i &lt; items.length; i++) {
+for (var i = 0; i &lt; lis.length; i++) {
   process(lis.item(i));
 }</pre>
 
@@ -781,7 +783,7 @@ for (var i = 0; i &lt; items.length; i++) {
     addressed using the array notation, so that loop could be rewritten like
     this:</p>
 
-   <pre>for (var i = 0; i &lt; items.length; i++) {
+   <pre>for (var i = 0; i &lt; lis.length; i++) {
   process(lis[i]);
 }</pre>
 
@@ -808,14 +810,15 @@ for (var i = 0; i &lt; items.length; i++) {
   <dl>
    <dt id=ref-casemap>[CaseMap]
 
-   <dd>(Non-normative) <a
+   <dd>(Non-normative) <cite><a
     href="http://unicode.org/reports/tr21/tr21-5.html">Unicode Standard Annex
-    #21 Case Mappings</a>, M. Davis, editor, Unicode Consortium, March 2001.
+    #21 Case Mappings</a></cite>, M. Davis, editor. Unicode Consortium, March
+    2001.
 
    <dt id=ref-css21>[CSS21]
 
    <dd>(Non-normative) <cite><a href="http://www.w3.org/TR/CSS21">Cascading
-    Style Sheets, level 2 revision 1</a></cite>, B. Bos, T. Ã‡elik, I.
+    Style Sheets, level 2 revision 1</a></cite>, B. Bos, T. Çelik, I.
     Hickson, H. Wium Lie, editors. World Wide Web Consortium, June 2005.
 
    <dt id=ref-dom2style>[DOM2Style]
@@ -887,6 +890,8 @@ for (var i = 0; i &lt; items.length; i++) {
    <li>Maciej Stachowiak
 
    <li>Mohamed Zergaoui
+
+   <li>Philip Taylor
 
    <li>Robert Sayre
 
