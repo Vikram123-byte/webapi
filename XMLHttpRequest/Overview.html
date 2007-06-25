@@ -34,13 +34,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle><!--Editor's draft-->W3C Working
-    Draft 18 June 2007</h2>
+    Draft 25 June 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070618/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070618/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070625/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070625/</a>
 
     <dt>Latest Version:
 
@@ -103,7 +103,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 18 June 2007 <!--<strong>Editor's</strong>--> Working Draft
+  <p>This is the 25 June 2007 <!--<strong>Editor's</strong>--> Working Draft
    of The <code title="">XMLHttpRequest</code> Object specification. Given
    that the previous Last Call Working Draft got feedback that required
    extensive changes this is a normal Working Draft again. It is expected
@@ -421,7 +421,7 @@ client.send();</code></pre>
   // state
   const unsigned short <a href="#unsent" title="UNSENT state">UNSENT</a> = 0;
   const unsigned short <a href="#open" title="OPEN state">OPEN</a> = 1;
-  const unsigned short <a href="#sent" title="SENT state">SENT</a> = 2;
+  const unsigned short <a href="#headers-received" title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a> = 2;
   const unsigned short <a href="#loading" title="LOADING state">LOADING</a> = 3;
   const unsigned short <a href="#done" title="DONE state">DONE</a> = 4;
   readonly attribute unsigned short <a href="#dfn-readystate">readyState</a>;
@@ -449,9 +449,10 @@ client.send();</code></pre>
   <p>The <code><a href="#xmlhttprequest-object">XMLHttpRequest</a></code>
    object can be in five states: <a href="#unsent" title="UNSENT
    state">UNSENT</a>, <a href="#open" title="OPEN state">OPEN</a>, <a
-   href="#sent" title="SENT state">SENT</a>, <a href="#loading"
-   title="LOADING state">LOADING</a> and <a href="#done" title="DONE
-   state">DONE</a>. The current state is exposed through the <code><a
+   href="#headers-received" title="HEADERS_RECEIVED
+   state">HEADERS_RECEIVED</a>, <a href="#loading" title="LOADING
+   state">LOADING</a> and <a href="#done" title="DONE state">DONE</a>. The
+   current state is exposed through the <code><a
    href="#dfn-readystate">readyState</a></code> attribute. The method
    definitions below define when a state transition takes place.
 
@@ -473,16 +474,16 @@ client.send();</code></pre>
    flag</dfn> which can be either "true" or "false". The initial value of the
    <code title="">send()</code> flag is "false".
 
-  <p>The SENT state is the state of the object when the user agent
-   successfully acknowledged the request. This state is represented by the
-   <dfn id=sent title="SENT state"><code>SENT</code></dfn> constant, whose
-   value is <code>2</code>.
+  <p>The HEADERS_RECEIVED state is the state of the object when all response
+   headers have been received. This state is represented by the <dfn
+   id=headers-received title="HEADERS_RECEIVED
+   state"><code>HEADERS_RECEIVED</code></dfn> constant, whose value is
+   <code>2</code>.
 
-  <p>The LOADING state is the state of the object when all HTTP headers have
-   been received. The object typically remains in this state until the
-   complete message body (if any) has been received. This state is
-   represented by the <dfn id=loading title="LOADING
-   state"><code>LOADING</code></dfn> constant, whose value is <code>3</code>.
+  <p>The LOADING state is the state of the object when the response entity
+   body is being received. This state is represented by the <dfn id=loading
+   title="LOADING state"><code>LOADING</code></dfn> constant, whose value is
+   <code>3</code>.
 
   <p>The DONE state is the state of the object when either the data transfer
    has been completed or something went wrong during the transfer (infinite
@@ -995,7 +996,8 @@ X-Test: one, two
        steps in the algorithm though.)
 
      <li>
-      <p>While downloading the resource the following is to be observed.</p>
+      <p>While downloading the resource the following rules are to be
+       observed.</p>
 
       <dl class=switch>
        <dt>If the response is an HTTP redirect
@@ -1112,18 +1114,30 @@ X-Test: one, two
 
        <dd>
         <p>If all HTTP headers have been received, before receiving the
-         message body (if any), follow the following steps:</p>
+         message body (if any), run the following steps:</p>
 
         <ol>
          <li>
-          <p>Synchronously switch the state to <a href="#sent" title="SENT
-           state">SENT</a>.
+          <p>Synchronously switch the state to <a href="#headers-received"
+           title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a>.
 
          <li>
           <p>Synchronously dispatch a <code><a
            href="#dfn-readystatechange">readystatechange</a></code> event on
            the object.
+        </ol>
 
+       <dt>Once the first byte (or more) of the response entity body has been
+        received
+
+       <dt>If there is no response entity body
+
+       <dd>
+        <p>Once the first byte of the response entity body has been received
+         or in case there is no response entity body, run the following
+         steps:</p>
+
+        <ol>
          <li>
           <p>Synchronously switch the state to <a href="#loading"
            title="LOADING state">LOADING</a>.
