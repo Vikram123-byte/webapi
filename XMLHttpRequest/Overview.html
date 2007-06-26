@@ -34,13 +34,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle><!--Editor's draft-->W3C Working
-    Draft 25 June 2007</h2>
+    Draft 26 June 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070625/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070625/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070626/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070626/</a>
 
     <dt>Latest Version:
 
@@ -103,7 +103,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 25 June 2007 <!--<strong>Editor's</strong>--> Working Draft
+  <p>This is the 26 June 2007 <!--<strong>Editor's</strong>--> Working Draft
    of The <code title="">XMLHttpRequest</code> Object specification. Given
    that the previous Last Call Working Draft got feedback that required
    extensive changes this is a normal Working Draft again. It is expected
@@ -470,7 +470,7 @@ client.send();</code></pre>
    is represented by the <dfn id=open title="OPEN
    state"><code>OPEN</code></dfn> constant, whose value is <code>1</code>.
 
-  <p>During the OPEN state there is a <dfn id=send-flag><code>send()</code>
+  <p>The OPEN state has an associated <dfn id=send-flag><code>send()</code>
    flag</dfn> which can be either "true" or "false". The initial value of the
    <code title="">send()</code> flag is "false".
 
@@ -490,6 +490,10 @@ client.send();</code></pre>
    redirects for instance). This state is represented by the <dfn id=done
    title="DONE state"><code>DONE</code></dfn> constant, whose value is
    <code>4</code>.
+
+  <p>The DONE state has an associated <dfn id=error-flag>error flag</dfn>
+   which can be either "true" or "false". The initial value of the error flag
+   is "false".
 
   <p>The <dfn id=response-entity-body>response entity body</dfn> is the
    fragment of the <a href="#dfn-entity-body">entity body</a> received so far
@@ -1018,8 +1022,9 @@ X-Test: one, two
 
         <ol>
          <li>
-          <p>Set <a href="#response-entity-body">response entity body</a> to
-           "null" and reset the list of request headers.
+          <p>Set the <a href="#response-entity-body">response entity body</a>
+           to "null", the <a href="#error-flag">error flag</a> to "true" and
+           reset the list of request headers.
 
          <li>
           <p>Synchronously switch the state to <a href="#done" title="DONE
@@ -1050,8 +1055,9 @@ X-Test: one, two
 
         <ol>
          <li>
-          <p>Set <a href="#response-entity-body">response entity body</a> to
-           "null" and reset the list of request headers.
+          <p>Set the <a href="#response-entity-body">response entity body</a>
+           to "null", the <a href="#error-flag">error flag</a> to "true" and
+           reset the list of request headers.
 
          <li>
           <p>Synchronously switch the state to <a href="#done" title="DONE
@@ -1085,8 +1091,9 @@ X-Test: one, two
 
         <ol>
          <li>
-          <p>Set <a href="#response-entity-body">response entity body</a> to
-           "null" and reset the list of request headers.
+          <p>Set the <a href="#response-entity-body">response entity body</a>
+           to "null", the <a href="#error-flag">error flag</a> to "true" and
+           reset the list of request headers.
 
          <li>
           <p>Synchronously switch the state to <a href="#done" title="DONE
@@ -1149,8 +1156,8 @@ X-Test: one, two
         </ol>
       </dl>
 
-      <p>Finally, if the complete resource has been downloaded go to the next
-       step.</p>
+      <p>Finally, once the complete resource has been downloaded go to the
+       next step.</p>
 
      <li>
       <p>When the request has successfully completed loading, synchronously
@@ -1215,9 +1222,10 @@ X-Test: one, two
      <li>
       <p><a href="#abort-send-algorithm" title="abort send()">Abort the
        <code>send()</code> algorithm</a>, set the <a
-       href="#response-entity-body">response entity body</a> to "null", set
-       the <a href="#send-flag"><code>send()</code> flag</a> to "false" and
-       remove any registered request headers.
+       href="#response-entity-body">response entity body</a> to "null", the
+       <a href="#send-flag"><code>send()</code> flag</a> to "false", the <a
+       href="#error-flag">error flag</a> to "true" and remove any registered
+       request headers.
 
      <li>
       <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -1254,10 +1262,13 @@ X-Test: one, two
 
     <ol>
      <li>
-      <p>If the state is not <a href="#loading" title="LOADING
-       state">LOADING</a> or <a href="#done" title="DONE state">DONE</a>
-       raise an <code>INVALID_STATE_ERR</code> exception and terminate these
-       steps.
+      <p>If the state is <a href="#unsent" title="UNSENT state">UNSENT</a> or
+       <a href="#open" title="OPEN state">OPEN</a> raise an
+       <code>INVALID_STATE_ERR</code> exception and terminate these steps.
+
+     <li>
+      <p>If the <a href="#error-flag">error flag</a> is "true" return
+       <code>null</code> and terminate these steps.
 
      <li>
       <p>Return all the HTTP headers, as a single string, with each header
@@ -1295,10 +1306,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
     <ol>
      <li>
-      <p>If the state is not <a href="#loading" title="LOADING
-       state">LOADING</a> or <a href="#done" title="DONE state">DONE</a>
-       raise an <code>INVALID_STATE_ERR</code> exception and terminate these
-       steps.
+      <p>If the state is <a href="#unsent" title="UNSENT state">UNSENT</a> or
+       <a href="#open" title="OPEN state">OPEN</a> raise an
+       <code>INVALID_STATE_ERR</code> exception and terminate these steps.
+
+     <li>
+      <p>If the <a href="#error-flag">error flag</a> is "true" return
+       <code>null</code> and terminate these steps.
 
      <li>
       <p>If the <var>header</var> argument does not match the <a
