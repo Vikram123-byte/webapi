@@ -1,9 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-
-<html lang=en-US>
- <head>
+<html lang="en-US">
+<head>
   <title>Network Communication API</title>
-
   <style type="text/css">
    pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
    pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
@@ -17,665 +15,475 @@
    code { color:orangered }
    code :link, code :visited { color:inherit }
  </style>
-  <link href="http://www.w3.org/StyleSheets/TR/base" rel=stylesheet>
+  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base">
+</head>
 
- <body>
-  <div class=head>
-   <p><a href="http://www.w3.org/"><img alt=W3C height=48
-    src="http://www.w3.org/Icons/w3c_home" width=72></a></p>
+<body>
 
-   <h1 class=head id=network>Network Communication API</h1>
+<div class="head">
+<p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C"
+src="http://www.w3.org/Icons/w3c_home"></a></p>
 
-   <h2 class="no-num no-toc" id=pagesubtitle>Editors' Draft 7 March 2007</h2>
+<h1 class="head">Network Communication API</h1>
 
-   <dl>
-    <dt>This Version:
-
+<h2 class="no-num no-toc" id="pagesubtitle">Editors' Draft 7 March 2007</h2>
+<dl>
+  <dt>This Version:</dt>
     <dd><a
-     href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/network-api/network-api.html</a>
-
-    <dt>Editors:
-
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.9">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/network-api/network-api.html</a></dd>
+  <dt>Editors:</dt>
     <dd><a href="http://my.opera.com/gormer/">Gorm Haug Eriksen</a> (<a
-     href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a
-     href="mailto:gormer@opera.com">gormer@opera.com</a>&gt;
-
+      href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a
+      href="mailto:gormer@opera.com">gormer@opera.com</a>&gt;</dd>
     <dd><a href="http://my.opera.com/chaals/">Charles McCathieNevile</a> (<a
-     href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a
-     href="mailto:chaals@opera.com">chaals@opera.com</a>&gt;
-   </dl>
+      href="http://www.opera.com/">Opera Software ASA</a>) &lt;<a
+      href="mailto:chaals@opera.com">chaals@opera.com</a>&gt;</dd>
+</dl>
 
-   <p class=copyright><a
-    href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
-    &copy;2007 <a href="http://www.w3.org/"><abbr title="World Wide Web
-    Consortium">W3C</abbr></a><sup>&reg;</sup> (<a
-    href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of
-    Technology">MIT</abbr></a>, <a href="http://www.ercim.org/"><abbr
-    title="European Research Consortium for Informatics and
-    Mathematics">ERCIM</abbr></a>, <a
-    href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a
-    href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
-    <a
-    href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a>
-    and <a
-    href="http://www.w3.org/Consortium/Legal/copyright-documents">document
-    use</a> rules apply.</p>
-  </div>
+<p class="copyright"><a
+href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
+&copy;2007 <a href="http://www.w3.org/"><abbr
+title="World Wide Web Consortium">W3C</abbr></a><sup>&reg;</sup> (<a
+href="http://www.csail.mit.edu/"><abbr
+title="Massachusetts Institute of Technology">MIT</abbr></a>, <a
+href="http://www.ercim.org/"><abbr
+title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>,
+<a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a
+href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+<a
+href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a>
+and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document
+use</a> rules apply. </p>
+</div>
+<hr>
 
-  <hr>
+<h2 class="no-num no-toc" id="specabstract">Abstract</h2>
 
-  <h2 class="no-num no-toc" id=specabstract>Abstract</h2>
+<p>To enable Web applications to communicate using TCP this specification introduces the <code><a
+href="#connection0">TCPSocket</a></code> interface and a coresponding optional
+security model. </p>
 
-  <p>To enable Web applications to communicate using TCP with it's
-   originating server this specification introduces the <code><a
-   href="#connection0">TCPConnection</a></code> interface.
+<h2 class="no-num no-toc">Status of this Document</h2>
 
-  <h2 class="no-num no-toc" id=status>Status of this Document</h2>
+<p><em>This section describes the status of this document at the time of its
+publication. Other documents may supersede this document. A list of current
+W3C publications and the latest revision of this technical report can be
+found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
+at http://www.w3.org/TR/.</em></p>
 
-  <p><em>This section describes the status of this document at the time of
-   its publication. Other documents may supersede this document. A list of
-   current W3C publications and the latest revision of this technical report
-   can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
-   index</a> at http://www.w3.org/TR/.</em>
+<p>This document is a first editors' draft specification of the network API
+from the <a href="http://www.w3.org/2006/webapi/">Web API group</a>, part of
+the Rich Web Client Activity. This editor's draft does not imply any
+consensus of or endorsement by any member of the working group, and may
+contain minor or major errors. (Currently it probably contains some of
+both).</p>
 
-  <p>This document is a first editors' draft specification of the network API
-   from the <a href="http://www.w3.org/2006/webapi/">Web API group</a>, part
-   of the Rich Web Client Activity. This editor's draft does not imply any
-   consensus of or endorsement by any member of the working group, and may
-   contain minor or major errors. (Currently it probably contains some of
-   both).
+<p>This document is published to solicit comments from interested parties.
+All comments are welcome and may be sent to <a
+href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>. All messages
+received at this address are viewable in a <a
+href="http://lists.w3.org/Archives/Public/public-webapi/">public archive</a>.
+This document will hopefully be published as a first W3C Working Draft in
+March 2007.</p>
 
-  <p>This document is published to solicit comments from interested parties.
-   All comments are welcome and may be sent to <a
-   href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>. All messages
-   received at this address are viewable in a <a
-   href="http://lists.w3.org/Archives/Public/public-webapi/">public
-   archive</a>. This document will hopefully be published as a first W3C
-   Working Draft in March 2007.
+<p>This document was produced by a group operating under the <a
+href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004
+W3C Patent Policy</a>. W3C maintains a <a rel="disclosure"
+href="http://www.w3.org/2004/01/pp-impl/35495/status">public list of any
+patent disclosures</a> made in connection with the deliverables of the group;
+that page also includes instructions for disclosing a patent. An individual
+who has actual knowledge of a patent which the individual believes contains
+<a
+href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential
+Claim(s)</a> must disclose the information in accordance with <a
+href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
+6 of the W3C Patent Policy</a>.</p>
 
-  <p>This document was produced by a group operating under the <a
-   href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February
-   2004 W3C Patent Policy</a>. W3C maintains a <a
-   href="http://www.w3.org/2004/01/pp-impl/35495/status"
-   rel=disclosure>public list of any patent disclosures</a> made in
-   connection with the deliverables of the group; that page also includes
-   instructions for disclosing a patent. An individual who has actual
-   knowledge of a patent which the individual believes contains <a
-   href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential
-   Claim(s)</a> must disclose the information in accordance with <a
-   href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
-   6 of the W3C Patent Policy</a>.
+<p>Publication as a Working Draft does not imply endorsement by the W3C
+Membership. This is a draft document and may be updated, replaced or
+obsoleted by other documents at any time. It is inappropriate to cite this
+document as other than work in progress.</p>
 
-  <p>Publication as a Working Draft does not imply endorsement by the W3C
-   Membership. This is a draft document and may be updated, replaced or
-   obsoleted by other documents at any time. It is inappropriate to cite this
-   document as other than work in progress.
+<h2 class="no-num no-toc" id="toc">Table of Contents</h2>
+<!--toc-->
 
-  <h2 class="no-num no-toc" id=toc>Table of Contents</h2>
-  <!--begin-toc-->
+<h2 id="introduction">Introduction</h2>
 
-  <ul class=toc>
-   <li><a href="#introduction"><span class=secno>1. </span>Introduction</a>
+<p>The <code title="dfn-TCPSocket">TCPSocket</code> interface enables
+a TCP connection from the client to the server from which the script was
+downloaded and executed from. Instances of this object can be made using a
+constructor on the <code>Window</code> object. </p>
 
-   <li><a href="#the-connection"><span class=secno>2. </span>The
-    <code>TCPConnection</code> object</a>
-    <ul class=toc>
-     <li><a href="#the-tcpconnection"><span class=secno>2.1. </span>The
-      <code>TCPConnection</code> constructor</a>
+<p class="note">  This interface does not allow for raw access to the
+underlying network. For example, this interface could not be used to
+implement an IRC client without proxying messages through a custom server.
+</p>
 
-     <li><a href="#members"><span class=secno>2.2. </span>Members of the
-      <code>TCPConnection</code> object</a>
-    </ul>
+<p class="issue">Add an introduction to the client-side and server-side of
+using the direct connection APIs. The example below could be better. </p>
 
-   <li><a href="#connectionEvents"><span class=secno>3. </span>TCPConnection
-    Events</a>
-
-   <li><a href="#initializing"><span class=secno>4. </span>Initializing the
-    <code>TCPConnection</code> object</a>
-
-   <li><a href="#communication"><span class=secno>5. </span>Communication on
-    the network</a>
-    <ul class=toc>
-     <li><a href="#clients"><span class=secno>5.1. </span><dfn
-      id=clients0>Clients connecting over TCP</dfn></a>
-
-     <li><a href="#servers"><span class=secno>5.2. </span><dfn
-      id=servers0>Servers accepting connections over TCP</dfn></a>
-
-     <li><a href="#sending"><span class=secno>5.3. </span><dfn
-      id=sending0>Sending and receiving data over TCP</dfn></a>
-    </ul>
-
-   <li><a href="#network-security"><span class=secno>6. </span>Security</a>
-
-   <li><a href="#network-other-specs"><span class=secno>7.
-    </span>Relationship to other standards</a>
-
-   <li class=no-num><a href="#bibref">References</a>
-
-   <li><a href="#ack"><span class=secno>8. </span>Acknowledgements</a>
-  </ul>
-  <!--end-toc-->
-
-  <h2 id=introduction><span class=secno>1. </span>Introduction</h2>
-
-  <p>The <code title=dfn-TCPConnection>TCPConnection</code> interface enables
-   a TCP connection from the client to the server from which the script was
-   downloaded and executed from. Instances of this object can be made using a
-   constructor on the <code><a href="#ref-window">Window</a></code> object.
-
-  <p class=note>This interface does not allow for raw access to the
-   underlying network. For example, this interface could not be used to
-   implement an IRC client without proxying messages through a custom server.
-   
-
-  <p class=issue>Add an introduction to the client-side and server-side of
-   using the direct connection APIs. The example below could be better.
-
-  <div class=example>
-   <p>Provide an example here</p>
-
-   <pre>  var con = null;
+<div class="example">
+<p>Provide an example here</p>
+<pre>  var con = null;
   try { 
-    con = new TCPConnection("", "12345"); 
+    con = new TCPSocket("www.example.com, "12345");
   }
   catch (ex) { 
     if ("SECURITY_ERR" == ex.message) { 
       alert("unable to connect") 
     } 
   }
-  con.onread = function(o) { 
-    if ("pong" == o.data) { alert("'success"); } 
-    else { alert("unknown data"); }
+  
+  con.addEventListener("socketdata", function(ev) {
+    if ("pong" == ev.data) { alert("Success"); }
+    else { alert("Failure"); }
   }
-  con.send("ping"); 
+  
+  con.write("ping");
+  con.flush();
  </pre>
-  </div>
+</div>
 
-  <h2 id=the-connection><span class=secno>2. </span>The <code><a
-   href="#connection0">TCPConnection</a></code> object</h2>
+<h2 id="the-connection">The <code>TCPSocket</code> object</h2>
 
-  <p><code><a href="#connection0">TCPConnection</a></code> objects must also
-   implement the <code>EventTarget</code> interface. [<cite><a
-   href="#DOM3EV">DOM3Events</a></cite>].
+<p><code><a href="#connection0">TCPSocket</a></code> objects must also
+implement the <code>EventTarget</code> interface.
+[<cite><span>DOM3Events</span></cite>].</p>
 
-  <p>In [<cite><a href="#ref-ecmascript">ECMAScript</a></cite>], an instance
-   of <code><a href="#connection0">TCPConnection</a></code> can be created
-   using the <code><a href="#connection0">TCPConnection</a></code>
-   constructor. This is done by calling the <code><a
-   href="#connection0">TCPConnection</a></code> function as part of a new
-   expression like:
+<p>In [<cite><span>ECMAScript</span></cite>], an instance of
+<code>TCPSocket</code> can be created using the
+<code>TCPSocket</code> constructor. This is done by calling the
+<code>TCPSocket</code> function as part of a new expression like: </p>
 
-  <div class=example> var ircConnection = new TCPConnection("example.com",
-   "6667", true);</div>
+<div class="example">
+var ircConnection = new TCPSocket("example.com", "6667"); </div>
 
-  <h3 id=the-tcpconnection><span class=secno>2.1. </span>The <code><a
-   href="#connection0">TCPConnection</a></code> constructor</h3>
+<h3>The <code>TCPSocket</code> constructor</h3>
 
-  <p>When the <code><a href="#connection0">TCPConnection</a></code> is called
-   as part of a new expression in ECMAScript, it returns the newly created
-   TCPConnection object which must be initialized according to the rules
-   below.
+<p>When the <code>TCPSocket</code> is called as part of a new expression
+in ECMAScript, it returns the newly created TCPSocket object which must
+be initialized according to the rules below.</p>
+<pre class="idl">out TCPSocket TCPSocket(in DOMString <var>subdomain</var>, in DOMString <var>port</var>); </pre>
 
-  <pre
-   class=idl>out TCPConnection TCPConnection(in DOMString <var><a href="#dfn-subdomain">subdomain</a></var>, 
-                                in DOMString <var><a href="#dfn-port">port</a></var>, 
-                                in Boolean <var><a href="#dfn-secure">secure</a></var>); </pre>
+<p>The <dfn id="dfn-subdomain"><code>subdomain</code></dfn> argument is
+prepended to the script's domain with a dot separating the two strings, and
+that is the target host. If <code>null</code> or an empty string the target
+host is the scripts domain. </p>
 
-  <p>The <dfn id=dfn-subdomain><code>subdomain</code></dfn> argument is
-   prepended to the script's domain with a dot separating the two strings,
-   and that is the target host. If <code>null</code> or an empty string the
-   target host is the scripts doamin.
+<p class="issue">Should the syntax example.com:12345 be allowed as subdomain argument? </p>
 
-  <p>The <dfn id=dfn-port><code>port</code></dfn> argument is the target
-   port. The port argument must not be equal to 80, nor equal to 443, nor
-   greater than or equal to 1024 and less than or equal to 65535. In such
-   case an <code>SECURITY_ERR</code> exception must be thrown.
+<!-- <p>The <dfn id="dfn-port"><code>port</code></dfn> argument is the target
+port. The port argument must not be equal to 80, nor equal to 443, nor
+greater than or equal to 1024 and less than or equal to 65535. In such case
+an <code>SECURITY_ERR</code> exception must be thrown.</p>
+-->
 
-  <p>If the boolean <dfn id=dfn-secure><code>secure</code></dfn> argument is
-   set to <code>true</code>, then the user agent must establish a secure
-   connection with the target host and specified port using TLS or another
-   protocol, negotiated with the server. [RFC2246] If this fails the user
-   agent must act as if it had closed the connection.
-
-  <h3 id=members><span class=secno>2.2. </span>Members of the <code><a
-   href="#connection0">TCPConnection</a></code> object</h3>
-
-  <pre class=idl>interface <dfn id=connection0>TCPConnection</dfn> {
-  readonly attribute DOMString     <a href="#peer" title=dfn-peer>peer</a>;
-  readonly attribute int           <a href="#readystate" title=dfn-readyState>readyState</a>;
-           attribute EventListener <a href="#onopen" title=dfn-onopen>onopen</a>;
-           attribute EventListener <span title=dfn-onready>onread</span>;
-           attribute EventListener <a href="#onclose" title=dfn-onclose>onclose</a>;
-                     void          <a href="#send" title=dfn-send>send</a>(in DOMString <var><a href="#data">data</a></var>);
-                     void          <span title=dfn-disconnect>disconnect</span>();
+<h3>Members of the <code>TCPSocket</code> object</h3>
+<pre class="idl">interface <dfn id="connection0">TCPSocket</dfn> {
+  readonly attribute DOMString     <span title="dfn-peer">peer</span>;
+           attribute EventListener <span title="dfn-onsocketdata">socketdata</span>;
+           attribute EventListener <span title="dfn-onconnect">onconnect</span>;
+           attribute EventListener <span title="dfn-onclose">onclose</span>;
+                     DOMString     <span title="dfn-read">read</span>();
+                     void          <span title="dfn-send">write</span>(in DOMString <var>data</var>);
+                     void          <span title="dfn-send">flush</span>();
+                     void          <span title="dfn-close">close</span>();
 };</pre>
 
-  <p>The <dfn id=peer title=dfn-peer><code>peer</code></dfn> attribute
-   identifies the remote host for direct (non-broadcast) connections. The
-   <code>peer</code> attribute must initially be set to the empty string and
-   must be updated once, when the connection is established, after which
-   point it must keep the same value for the lifetime of the object.
+<p>The <dfn id="peer" title="dfn-peer"><code>peer</code></dfn> attribute
+identifies the remote host for direct (non-broadcast) connections. The
+<code>peer</code> attribute must initially be set to the empty string and
+must be updated once, when the connection is established, after which point
+it must keep the same value for the lifetime of the object. </p>
 
-  <p>The <dfn id=readystate
-   title=dfn-readyState><code>readyState</code></dfn> attribute represents
-   the state of the connection. When the object is created it must be set to
-   0. It can have the following values:
+<p id="openConnection">Once a connection is established the <code
+title="dfn-event-connect">connect</code> event must be fired on the
+<code>TCPSocket</code> object. </p>
 
-  <dl>
-   <dt>0 Connecting
+<p>When data is received, the <code
+title="dfn-event-socketdata">socketdata</code> event
+will be fired on the <code>TCPSocket</code>.
+</p>
 
-   <dd>The connection has not yet been established.
+<p class="issue">Should define further when the socketdata event should fire</p>
 
-   <dt>1 Connected
+<p id="closeConnection">When the connection is closed, the <code
+title="dfn-event-close">close</code> event must be fired on the
+<code>TCPSocket</code> object. </p>
 
-   <dd>The connection is established and communication is possible.
+<p>The <dfn id="onopen" title="dfn-onopen"><code>onopen</code></dfn>, <dfn
+id="onsocketdata" title="dfn-onsocketdata"><code>onsocketdata</code></dfn>, and <dfn
+id="onclose" title="dfn-onclose"><code>onclose</code></dfn> attributes must,
+when set, register their new value as an event listener for their respective
+events (namely <code title="dfn-event-open">open</code>, <code
+title="dfn-event-socketdata">socketdata</code>, <code
+title="dfn-event-close">close</code>), and unregister their previous value if
+any. </p>
 
-   <dt>2 Closed
+<p>The <dfn id="read" title="dfn-read"><code>read()</code></dfn> method reads a
+<code>DOMString</code> from the <code>TCPSocket</code>. It's assumed that the
+<code>DOMString</code> is prefixed with an unsigned short integer that indicates
+the length in bytes. If the connection is not yet established, it
+must raise an <code>INVALID_STATE_ERR</code> exception.</p>
 
-   <dd>The connection has been closed.
-  </dl>
+<p>The <dfn id="write" title="dfn-write"><code>write(<a
+href="#send"><var>data</var></a>)</code></dfn> method queues data on the socket
+for writing. If the connection is not yet established, it must raise an
+<code>INVALID_STATE_ERR</code> exception. Note that the <code>flush</code>
+method must be called before any data is transmitted on the socket.</p>
 
-  <p id=openConnection>Once a connection is established, the
-   <code>readyState</code> attribute's value must be changed to 1, and the
-   <code title=dfn-event-open><a href="#open">open</a></code> event must be
-   fired on the <code><a href="#connection0">TCPConnection</a></code> object.
-   
+<p>The <dfn id="flush" title="dfn-flush"><code>flush()</code></dfn> method
+transmits data using the connection. If the connection is not yet established,
+it must raise an <code>INVALID_STATE_ERR</code> exception. If the connection <em>is</em>
+established, then the behavior depends on the connection type, as described
+below. </p>
 
-  <p>When data is received, the <code title=dfn-event-read><a
-   href="#read">read</a></code> event will be fired on the <code><a
-   href="#connection0">TCPConnection</a></code>. <span class=note>Should
-   provide an example of binary protocol. E.g. read from NTP</span>
+<p>The <dfn id="close"><code>close()</code></dfn> method must close the
+connection, if it is open. If the connection is already closed, it must
+do nothing. Closing the connection causes a <code>close</code> event to be
+fired.
 
-  <p id=closeConnection>When the connection is closed, the
-   <code>readyState</code> attribute's value must be changed to 2, and the
-   <code title=dfn-event-close><a href="#close">close</a></code> event must
-   be fired on the <code><a href="#connection0">TCPConnection</a></code>
-   object.
+<h2 id="connectionEvents">TCPSocket Events</h2>
 
-  <p>The <dfn id=onopen title=dfn-onopen><code>onopen</code></dfn>, <dfn
-   id=onread title=dfn-onread><code>onread</code></dfn>, and <dfn id=onclose
-   title=dfn-onclose><code>onclose</code></dfn> attributes must, when set,
-   register their new value as an event listener for their respective events
-   (namely <code title=dfn-event-open><a href="#open">open</a></code>, <code
-   title=dfn-event-read><a href="#read">read</a></code>, <code
-   title=dfn-event-close><a href="#close">close</a></code>), and unregister
-   their previous value if any.
+<p>All the events described in this section are events in the <code>null</code>
+namespace, which do not bubble, are not cancelable, and have no default action.
+</p>
 
-  <p>The <dfn id=send title=dfn-send><code>send(<a
-   href="#send"><var>data</var></a>)</code></dfn> method transmits data using
-   the connection. If the connection is not yet established, it must raise an
-   <code>INVALID_STATE_ERR</code> exception. If the connection <em>is</em>
-   established, then the behavior depends on the connection type, as
-   described below.
+<p>The <dfn id="event-open" title="dfn-event-open"><code>open</code></dfn> event is
+fired when the connection is established. UAs must use the normal
+<code>Event</code> interface when firing this event. </p>
 
-  <p>The <dfn id=disconnect><code>disconnect()</code></dfn> method must close
-   the connection, if it is open. If the connection is already closed, it
-   must do nothing. Closing the connection causes a <code>close</code> event
-   to be fired and the <code>readyState</code> attribute's value to change,
-   as <a href="#closeConnection">described above</a>.
+<p>The <dfn id="event-close" title="dfn-event-close"><code>close</code></dfn> event
+is fired when the connection is closed (whether by the author, calling the
+<code>disconnect()</code> method, or by the server, or by a network error).
+UAs must use the normal <code>Event</code> interface when firing this event
+as well. </p>
 
-  <h2 id=connectionEvents><span class=secno>3. </span>TCPConnection Events</h2>
+<p>The <dfn id="event-socketdata" title="dfn-event-socketdata"><code>socketdata</code></dfn> event is
+fired when when data is received for a connection. UAs must follow the "Progress events 1.0" 
+specification [ProgressEvent1.0] for this event. </p>
 
-  <p>All the events described in this section are events in no namespace,
-   which do not bubble, are not cancelable, and have no default action.
-
-  <p>The <dfn id=open title=dfn-event-open><code>open</code></dfn> event is
-   fired when the connection is established. UAs must use the normal
-   <code>Event</code> interface when firing this event.
-
-  <p>The <dfn id=close title=dfn-event-close><code>close</code></dfn> event
-   is fired when the connection is closed (whether by the author, calling the
-   <code><a href="#disconnect">disconnect()</a></code> method, or by the
-   server, or by a network error). UAs must use the normal <code>Event</code>
-   interface when firing this event as well.
-
-  <p class=note>No information regarding why the connection was closed is
-   passed to the application in this version of this specification.
-
-  <p>The <dfn id=read title=dfn-event-read><code>read</code></dfn> event is
-   fired when when data is received for a connection. UAs must use the
-   <code><a href="#connectionreadevent">ConnectionReadEvent</a></code>
-   interface for this event.
-
-  <pre
-   class=idl>interface <dfn id=connectionreadevent>ConnectionReadEvent</dfn> : Event {
-readonly attribute DOMString <a href="#data">data</a>;
-  void initConnectionReadEvent(in DOMString <var>typeArg</var>, 
-                                 in boolean <var>canBubbleArg</var>, 
-                                 in boolean <var>cancelableArg</var>, 
-                                 in DOMString <var>dataArg</var>);
-  void initConnectionReadEventNS(in DOMString namespaceURI, 
-                                   in DOMString typeArg, 
-                                   in boolean canBubbleArg, 
-                                   in boolean cancelableArg, 
-                                   in DOMString dataArg);
+<pre class="idl">interface <dfn id="progressevent">ProgressEvent</dfn> : events::Event {
+     readonly attribute boolean         <span>lengthComputable</span>;
+     readonly attribute unsigned long   <span>loaded</span>;
+     readonly attribute unsigned long   <span>total</span>;
+     void               initProgressEvent(in DOMString <var>typeArg</var>,
+                                          in boolean       <var>canBubbleArg</var>,
+                                          in boolean       <var>cancelableArg</var>,
+                                          in boolean       <var>lengthComputableArg</var>,
+                                          in unsigned long <var>loadedArg</var>,
+                                          in unsigned long <var>totalArg</var>);
+     void               initProgressEventNS(in DOMString <var>namespaceURI</var>,
+                                            in DOMString <var>typeArg</var>,
+                                            in boolean       <var>canBubbleArg</var>,
+                                            in boolean       <var>cancelableArg</var>,
+                                            in boolean       <var>lengthComputableArg</var>,
+                                            in unsigned long <var>loadedArg</var>,
+                                            in unsigned long <var>totalArg</var>);
 };</pre>
 
-  <p>The <dfn id=data><code>data</code></dfn> attribute must contain the data
-   that was transmitted from the peer.
+<p>The variables for the <code>initProgressEvent</code> and
+<code>initProgressEventNS</code> functions should by default be set accordingly
+to the "Progress events 1.0" specification [ProgressEvent1.0] with the following exceptions:</p>
 
-  <p>The <dfn id=initconnectionreadevent>initConnectionReadEvent()</dfn> and
-   <dfn id=initconnectionreadeventns>initConnectionReadEventNS()</dfn>
-   methods must initialize the event in a manner analogous to the
-   similarly-named methods in the DOM3 Events interfaces. <a
-   href="#DOM3Events">[DOM3EVENTS]</a>
+<ul>
+  <li><code>lengthComputableArg</code> must be false</li>
+  <li><code>totalArg</code> must be 0</li>
+</ul>
 
-  <p>Events that would be fired during script execution (e.g. between the
-   connection object being created &mdash; and thus the connection being
-   established &mdash; and the current script completing; or, during the
-   execution of a <code><a href="#read">read</a></code> event handler) must
-   be buffered, and those events queued up and each one individually fired
-   after the script has completed.</p>
-  <!-- XXX make this more generic -->
+<p><code>loadedArg</code> must be set to the number of readable bytes loaded
+when the event was dispatched. This number must not change while the
+EventListeners are processing the event.</p> 
 
-  <h2 id=initializing><span class=secno>4. </span>Initializing the <code><a
-   href="#connection0">TCPConnection</a></code> object</h2>
+<p>Events that would be fired during script execution (e.g. between the
+connection object being created &mdash; and thus the connection being
+established &mdash; and the current script completing; or, during the
+execution of a <code><a href="#read">read</a></code> event handler) must be
+buffered, and those events queued up and each one individually fired after
+the script has completed.</p>
+<!-- XXX make this more generic -->
 
-  <p>When a <code><a href="#connection0">TCPConnection</a></code> object is
-   created using this constructor, the following steps must be followed.
+<h2>Initializing the <code>TCPSocket</code> object</h2>
 
-  <p>First, a pointer must be stored on the newly created object, called the
-   <dfn id=window-pointer title="Window pointer"><code>Window</code>
-   pointer</dfn>. This <a href="#window-pointer" title="Window
-   pointer">pointer</a> <em class=ct>must</em> persist even if the browsing
-   context in which the <code title="">Window</code> is located is destroyed
-   (by removing it from a parent browsing context, for instance). The term
-   browsing context is defined by the <cite>Window Object 1.0</cite>
-   specification. [<cite><a href="#ref-window">Window</a></cite>]
+<p>When a <code>TCPSocket</code> object is created using this
+constructor, the following steps must be performed.</p>
 
-  <p>Secondly, if the <span>script's domain</span> is not a host name (e.g.
-   it is an IP address) then a <code>SECURITY_ERR</code> <em
-   class=ct>should</em> be raised by the user agent. <span class=issue>We
-   currently don't allow connections to be set up back to an originating IP
-   address, but we could, if the subdomain is the empty string.</span>
+<p>First, a pointer must be stored on the newly created object, called the
+<dfn title="Window pointer" id="window-pointer"><code>Window</code>
+pointer</dfn>. This <span title="Window pointer">pointer</span> <em
+class="ct">must</em> persist even if the browsing context in which the <code
+title="">Window</code> is located is destroyed (by removing it from a parent
+browsing context, for instance). The term browsing context is defined by the
+<cite>Window Object 1.0</cite> specification.
+[<cite><span>Window</span></cite>]</p>
 
-  <p>Then, if the <var title="">subdomain</var> argument is null or the empty
-   string, the target host is the <span>script's domain</span>. Otherwise,
-   the <var title="">subdomain</var> argument is prepended to the
-   <span>script's domain</span> with a dot separating the two strings, and
-   that is the target host.
+<p>Secondly, the user agent must verify that the string
+representing the script's hostname is a valid hostname in the IDNA format or an
+IP address. If this is not valid a 
 
-  <p>If either:
+<!-- <p>Secondly, if the <span>script's domain</span> is not a host name (e.g. it
+is an IP address) then a <code>SECURITY_ERR</code> <em class="ct">should</em>
+be raised by the user agent. <span class="issue">We currently don't allow
+connections to be set up back to an originating IP address, but we could, if
+the subdomain is the empty string.</span></p> -->
 
-  <ul>
-   <li>the target host is not a valid host name, or
+<!-- <p>Then, if the <var title="">subdomain</var> argument is null or the empty
+string, the target host is the <span>script's domain</span>.</p>
+-->
 
-   <li>the <var title="">port</var> argument is neither equal to 80, nor
-    equal to 443, nor greater than or equal to 1024 and less than or equal to
-    65535,
-  </ul>
+<!-- Otherwise, the
+<var title="">subdomain</var> argument is prepended to the <span>script's
+domain</span> with a dot separating the two strings, and that is the target
+host.</p> -->
 
-  <p>...then the UA must raise a <code>SECURITY_ERR</code> exception.</p>
-  <!-- XXX we should have our own port for this too, e.g. 980 -->
+<!-- <p>If either:</p>
+<ul>
+  <li>the target host is not a valid host name, or</li>
+  <li>the <var title="">port</var> argument is neither equal to 80, nor equal
+    to 443, nor greater than or equal to 1024 and less than or equal to
+  65535,</li>
+</ul>
 
-  <p>Otherwise, the user agent must verify that the <span>the string
-   representing the script's domain in IDNA format</span> can be obtained
-   without errors. If it cannot, then the user agent must raise a
-   <code>SECURITY_ERR</code> exception.
 
-  <p>The user agent may also raise a <code>SECURITY_ERR</code> exception at
-   this time if, for some reason, permission to create a direct TCP
-   connection to the relevant host is denied. Reasons could include the UA
-   being instructed by the user to not allow direct connections, or the UA
-   establishing (for instance using UPnP) that the network topology will
-   cause connections on the specified port to be directed at the wrong host.
+<p>...then the UA must raise a <code>SECURITY_ERR</code> exception.</p> -->
+<!-- XXX we should have our own port for this too, e.g. 980 -->
 
-  <p>If no exceptions are raised by the previous steps, then a new <code><a
-   href="#connection0">TCPConnection</a></code> object must be created, its
-   <code title=dfn-peer><a href="#peer">peer</a></code> attribute must be set
-   to a string consisting of the name of the target host, a colon (U+003A
-   COLON), and the port number as decimal digits.
+<p>Otherwise, the user agent must verify that the <span>the string
+representing the script's domain in IDNA format</span> can be obtained
+without errors. If it cannot, then the user agent must raise a
+<code>NETWORK_ERR</code> exception.</p>
 
-  <p>This object must then be returned.
+<p>The user agent may also raise a <code>SECURITY_ERR</code> exception at
+this time if, for some reason, permission to create a direct TCP connection
+to the relevant host is denied. Reasons could include the UA being instructed
+by the user to not allow direct connections, or the UA establishing (for
+instance using UPnP) that the network topology will cause connections on the
+specified port to be directed at the wrong host.</p>
 
-  <p>The user agent must then begin trying to establish a connection with the
-   target host and specified port. (This typically would begin in the
-   background, while the script continues to execute.)
+<p>If no exceptions are raised by the previous steps, then a new
+<code>TCPSocket</code> object must be created, its <code
+title="dfn-peer">peer</code> attribute must be set to a string consisting of
+the name of the target host, a colon (U+003A COLON), and the port number as
+decimal digits.</p>
 
-  <p>If the <var title="">secure</var> boolean argument is set to true, then
-   the user agent must establish a secure connection with the target host and
-   specified port using TLS or another protocol, negotiated with the server.
-   [<cite><span>RFC2246</span></cite>] If this fails the user agent must act
-   as if it had <a href="#closeConnection">closed the connection</a>.
+<p>This object must then be returned.</p>
 
-  <p>Once a secure connection is established, or if the <var
-   title="">secure</var> boolean argument is not set to true, then the user
-   agent must continue to connect to the server using the protocol described
-   in the section entitled <a href="#clients1">clients connecting over
-   TCP</a>. All data on connections made using TLS must be sent as
-   "application data".
+<p>The user agent must then begin trying to establish a connection with the
+target host and specified port. (This typically would begin in the
+background, while the script continues to execute.)</p>
 
-  <p>Once the connection is established, the UA must act as described in the
-   section entitled <a href="#sending1">sending and receiving data over
-   TCP</a>.
+<p>Once the connection is established, the UA must act as described in the
+section entitled <span>sending and receiving data over TCP</span>.</p>
 
-  <p>User agents should allow multiple TCP connections to be established per
-   host. In particular, user agents should not apply per-host HTTP connection
-   limits to connections established with the <code
-   title=dom-TCPConnection>TCPConnection</code> constructor.
+<p>User agents should allow multiple TCP connections to be established per
+host.</p>
+<!-- 
+<h2>Communication on the network</h2>
 
-  <h2 id=communication><span class=secno>5. </span>Communication on the
-   network</h2>
+<p>This section describes how connections are established from the client and
+server sides, and then describes how data is sent and received over such
+connections (which is the same for both clients and servers). </p>
 
-  <p>This section describes how connections are established from the client
-   and server sides, and then describes how data is sent and received over
-   such connections (which is the same for both clients and servers).
+<p class="issue">Should explain procedure if connection is dropped</p>
+<p class="issue">Should the specification say anything about virtual domains?</p>
 
-  <h3 id=clients><span class=secno>5.1. </span><dfn id=clients1>Clients
-   connecting over TCP</dfn></h3>
+<h3><dfn id="sending1">Sending and receiving data over TCP</dfn></h3>
 
-  <p>This section defines the client-side requirements of the protocol used
-   by the <code title=dom-TCPConnection><a
-   href="#tcpconnection">TCPConnection</a></code>.
+<p class="issue">Is there anything interesting in this section?</p>
 
-  <p>If a TCP connection to the specified target host and port cannot be
-   established, for example because the target host is a domain name that
-   cannot be resolved to an IP address, or because packets cannot be routed
-   to the host, the user agent should retry creating the connection. If the
-   user agent gives up trying to connect, the user agent must act as if it
-   had <a href="#closeConnection">closed the connection</a>.
+<p>When the <code title="dom-Connection-send"><a href="#send">write(<var
+title="">data</var>)</a></code> method is invoked on the connection's
+corresponding <code><a href="#connection0">TCPSocket</a></code> object,
+the user agent must take the <var title="">data</var> argument, replace any
+U+0000 NULL and U+0017 END OF TRANSMISSION BLOCK characters in it with U+FFFD
+REPLACEMENT CHARACTER characters, then transmit a U+0002 START OF TEXT
+character, this new <var title="">data</var> string and a single U+0017 END
+OF TRANSMISSION BLOCK character (in that order) to the remote host, all
+encoded as UTF-8. </p>
 
-  <p class=note>No information regarding the state of the connection is
-   passed to the application while the connection is being established in
-   this version of this specification.
+<p>When the user agent receives bytes on the connection, the user agent must
+buffer received bytes until it receives a 0x17 byte (a U+0017 END OF
+TRANSMISSION BLOCK character). If the first buffered byte is not a 0x02 byte
+(a U+0002 START OF TEXT character encoded as UTF-8) then all the data up to
+the 0x17 byte, inclusive, must be dropped. (This allows for future extension
+of this protocol.) Otherwise, all the data from (but not including) the 0x02
+byte and up to (but not including) the 0x17 byte must be taken, interpreted
+as a UTF-8 string, and a <code title="event-connection-read"><a
+href="#read">read</a></code> event must be fired on the <code><a
+href="#connection0">TCPSocket</a></code> object with that string as the
+<code title="dom-ConnectionReadEvent-data"><a href="#data4">data</a></code>.
+If that string cannot be decoded as UTF-8 without errors, the packet should
+be ignored. </p>
 
-  <p>Once a TCP/IP connection to the remote host is established, the user
-   agent must transmit the following sequence of bytes, represented here in
-   hexadecimal form:
+<p class="note">This protocol does not yet allow binary data (e.g. an image
+or video data) to be efficiently transmitted. A future version of this
+protocol might allow this by using the prefix character U+001F INFORMATION
+SEPARATOR ONE, followed by binary data which uses a particular byte (e.g.
+0xFF) to encode byte 0x17 somehow (since otherwise 0x17 would be treated as
+transmission end by down-level UAs).</p>
 
-  <pre>0x48 0x65 0x6C 0x6C 0x6F 0x0A</pre>
-
-  <p class=note>This represents the string "Hello" followed by a newline,
-   encoded in UTF-8.
-
-  <p>The user agent must then read all the bytes sent from the remote host,
-   up to the first 0x0A byte (inclusive). That string of bytes is then
-   compared byte-for-byte to the following string of bytes:
-
-  <pre>0x57 0x65 0x6C 0x63 0x6F 0x6E 0x65 0x0A</pre>
-
-  <p class=note>This says "Welcome".
-
-  <p>If the server sent back a string in any way different to this, then the
-   user agent must <a href="#closeConnection">close the connection</a> and
-   give up trying to connect.
-
-  <p>Otherwise, the user agent must then take <a href="#the-string">the
-   string representing the script's domain in IDNA format</a>, encode it as
-   UTF-8, and send that to the remote host, followed by a 0x0A byte (a U+000A
-   LINE FEED in UTF-8).
-
-  <p>The user agent must then read all the bytes sent from the remote host,
-   up to the first 0x0A byte (inclusive). That string of bytes must then be
-   compared byte-for-byte to the string that was just sent to the server (the
-   one with the IDNA domain name and ending with a newline character). If the
-   server sent back a string in any way different to this, then the user
-   agent must <a href="#closeConnection">close the connection</a> and give up
-   trying to connect.
-
-  <p>Otherwise, the connection <a href="#openConnection">has been
-   established</a> (and events and so forth get fired, as described above).
-
-  <p>If at any point during this process the connection is closed
-   prematurely, then the user agent must <a href="#closeConnection">close the
-   connection</a> and give up trying to connect.</p>
-  <!-- XXX we should support automatic reconnect -->
-
-  <h3 id=servers><span class=secno>5.2. </span><dfn id=servers1>Servers
-   accepting connections over TCP</dfn></h3>
-
-  <p>This section defines the server side of the protocol described in the
-   previous section. For authors, it should be used as a guide for how to
-   implement servers that can communicate with Web pages over TCP.
-
-  <p>Once a TCP/IP connection from a remote host is established, the user
-   agent must transmit the following sequence of bytes, represented here in
-   hexadecimal form:
-
-  <pre>0x57 0x65 0x6C 0x63 0x6F 0x6E 0x65 0x0A</pre>
-
-  <p class=note>This says "Welcome" and a newline in UTF-8.
-
-  <p>The user agent must then read all the bytes sent from the remote host,
-   up to the first 0x0A byte (inclusive). That string of bytes is then
-   compared byte-for-byte to the following string of bytes:
-
-  <pre>0x48 0x65 0x6C 0x6C 0x6F 0x0A</pre>
-
-  <p class=note>"Hello" and a newline.
-
-  <p>If the remote host sent back a string in any way different to this, then
-   the user agent must <a href="#closeConnection">close the connection</a>
-   and give up trying to connect.
-
-  <p>Otherwise, the user agent must then take <a href="#the-string">the
-   string representing the script's domain in IDNA format</a>, encode it as
-   UTF-8, and send that to the remote host, followed by a 0x0A byte (a U+000A
-   LINE FEED in UTF-8).
-
-  <p>The user agent must then read all the bytes sent from the remote host,
-   up to the first 0x0A byte (inclusive). That string of bytes must then be
-   compared byte-for-byte to the string that was just sent to that host (the
-   one with the IDNA domain name and ending with a newline character). If the
-   remote host sent back a string in any way different to this, then the user
-   agent must <a href="#closeConnection">close the connection</a> and give up
-   trying to connect.
-
-  <p>Otherwise, the connection <a href="#openConnection">has been
-   established</a> (and events and so forth get fired, as described above).
-
-  <p class=note>For author-written servers (as opposed to the server side of
-   a peer-to-peer connection), the script's domain would be replaced by the
-   hostname of the server. Alternatively, such servers might instead wait for
-   the client to send its domain string, and then simply echo it back. This
-   would allow connections from pages on any domain, instead of just pages
-   originating from the same host. The client compares the two strings to
-   ensure they are the same before allowing the connection to be used by
-   author script.
-
-  <p>If at any point during this process the connection is closed
-   prematurely, then the user agent must <a href="#closeConnection">close the
-   connection</a> and give up trying to connect.</p>
-  <!-- XXX we should support automatic reconnect -->
-
-  <h3 id=sending><span class=secno>5.3. </span><dfn id=sending1>Sending and
-   receiving data over TCP</dfn></h3>
-
-  <p>When the <code title=dom-Connection-send><a href="#send">send(<var
-   title="">data</var>)</a></code> method is invoked on the connection's
-   corresponding <code><a href="#connection0">TCPConnection</a></code>
-   object, the user agent must take the <var title="">data</var> argument,
-   replace any U+0000 NULL and U+0017 END OF TRANSMISSION BLOCK characters in
-   it with U+FFFD REPLACEMENT CHARACTER characters, then transmit a U+0002
-   START OF TEXT character, this new <var title="">data</var> string and a
-   single U+0017 END OF TRANSMISSION BLOCK character (in that order) to the
-   remote host, all encoded as UTF-8.
-
-  <p>When the user agent receives bytes on the connection, the user agent
-   must buffer received bytes until it receives a 0x17 byte (a U+0017 END OF
-   TRANSMISSION BLOCK character). If the first buffered byte is not a 0x02
-   byte (a U+0002 START OF TEXT character encoded as UTF-8) then all the data
-   up to the 0x17 byte, inclusive, must be dropped. (This allows for future
-   extension of this protocol.) Otherwise, all the data from (but not
-   including) the 0x02 byte and up to (but not including) the 0x17 byte must
-   be taken, interpreted as a UTF-8 string, and a <code
-   title=event-connection-read><a href="#read">read</a></code> event must be
-   fired on the <code><a href="#connection0">TCPConnection</a></code> object
-   with that string as the <code title=dom-ConnectionReadEvent-data><a
-   href="#data4">data</a></code>. If that string cannot be decoded as UTF-8
-   without errors, the packet should be ignored.
-
-  <p class=note>This protocol does not yet allow binary data (e.g. an image
-   or video data) to be efficiently transmitted. A future version of this
-   protocol might allow this by using the prefix character U+001F INFORMATION
-   SEPARATOR ONE, followed by binary data which uses a particular byte (e.g.
-   0xFF) to encode byte 0x17 somehow (since otherwise 0x17 would be treated
-   as transmission end by down-level UAs).</p>
-  <!--
 Specifically, replace all occurrences of 0xFF with 0xFF 0xFF and
 all occurrences of 0x17 with 0xFF 0x00, or similar.
 -->
 
-  <h2 id=network-security><span class=secno>6. </span>Security</h2>
+<h2 id="network-security">Security</h2>
 
-  <p class=issue>Need to write this section.
+<p class="issue">Need to write this section. </p>
 
-  <p class=issue>If you have an unencrypted page that is (through a
-   man-in-the-middle attack) changed, it can access a secure service that is
-   using IP authentication and then send that data back to the attacker. Ergo
-   we should probably stop unencrypted pages from accessing encrypted
-   services, on the principle that the actual level of security is zero. Then
-   again, if we do that, we prevent insecure sites from using SSL as a
-   tunneling mechanism.
+<p class="issue">If you have an unencrypted page that is (through a
+man-in-the-middle attack) changed, it can access a secure service that is
+using IP authentication and then send that data back to the attacker. Ergo we
+should probably stop unencrypted pages from accessing encrypted services, on
+the principle that the actual level of security is zero. Then again, if we do
+that, we prevent insecure sites from using SSL as a tunneling mechanism. </p>
 
-  <p class=issue>Should consider dropping the subdomain-only restriction. It
-   doesn't seem to add anything, and prevents cross-domain chatter.
+<p class="issue">Should consider dropping the subdomain-only restriction. It
+doesn't seem to add anything, and prevents cross-domain chatter. </p>
 
-  <h2 id=network-other-specs><span class=secno>7. </span>Relationship to
-   other standards</h2>
+<h2 id="network-other-specs">Relationship to other standards</h2>
 
-  <p class=issue>Should have a section talking about the fact that we
-   blithely ignoring IANA's port assignments here.
+<p class="issue">Should have a section talking about the fact that we
+blithely ignoring IANA's port assignments here.</p>
 
-  <p class=issue>Should explain why we are not reusing HTTP for this. (HTTP
-   is too heavy-weight for such a simple need; requiring authors to implement
-   an HTTP server just to have a party line is too much of a barrier to
-   entry; cannot rely on prebuilt components; having a simple protocol makes
-   it much easier to do RAD; HTTP doesn't fit the needs and doesn't have the
-   security model needed; etc)
+<p class="issue">Should explain why we are not reusing HTTP for this. (HTTP
+is too heavy-weight for such a simple need; requiring authors to implement an
+HTTP server just to have a party line is too much of a barrier to entry;
+cannot rely on prebuilt components; having a simple protocol makes it much
+easier to do RAD; HTTP doesn't fit the needs and doesn't have the security
+model needed; etc)</p>
 
-  <h2 class=no-num id=bibref>References</h2>
+<h2 class="no-num" id="bibref">References</h2>
 
-  <div>
-   <dl>
-    <dt>[<dfn id=ref-ecmascript>ECMAScript</dfn>]
-
+<div>
+<dl>
+  <dt>[<dfn id="ref-ecmascript">ECMAScript</dfn>]</dt>
     <dd><cite><a
-     href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
-     Language Specification</a></cite>, Third Edition. ECMA, December 1999.
-
-    <dt>[<dfn id=DOM3EV>DOM3Events</dfn>]
-
+      href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
+      Language Specification</a></cite>, Third Edition. ECMA, December
+    1999.</dd>
+  <dt>[<dfn id="DOM3EV">DOM3Events</dfn>]</dt>
     <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document
-     Object Model (DOM) Level 3 Events Specification</a></cite>, Bj&ouml;rn
-     H&ouml;hrmann, editor. World Wide Web Consortium, April 2006.
-
-    <dt>[<dfn id=ref-window>Window</dfn>]
-
+      Object Model (DOM) Level 3 Events Specification</a></cite>, Bj&ouml;rn
+      H&ouml;hrmann, editor. World Wide Web Consortium, April 2006.</dd>
+  <dt>[<dfn id="ref-window">Window</dfn>]</dt>
     <dd><cite><a href="http://www.w3.org/TR/Window/">Window Object
-     1.0</a></cite>, I. Davis, M. Stachowiak, editors. W3C, April 2006.
-
-    <dt>[<dfn id=ref-rfc2246>RFC2046</dfn>]
-
+      1.0</a></cite>, I. Davis, M. Stachowiak, editors. W3C, April 2006.</dd>
+  <dt>[<dfn id="ref-rfc2246">RFC2046</dfn>]</dt>
     <dd><cite><a href="http://ietf.org/rfc/rfc2046">The TLS Protocol, Version
-     1.0</a></cite>, T. Dierks. Certicom, C. Allen. Certicom, January 1999.
-   </dl>
-  </div>
+      1.0</a></cite>, T. Dierks. Certicom, C. Allen. Certicom, January
+    1999.</dd>
+  <dt>[<dfn id="ref-progressevent">ProgressEvent1.0</dfn>]</dt>
+    <dd><cite><a
+      href="http://www.w3.org/TR/progress-events/">Progress events
+      1.0</a></cite>, Editors' Draft 7 March 2007.</dd>
+</dl>
+</div>
 
-  <h2 id=ack><span class=secno>8. </span>Acknowledgements</h2>
+<h2 id="ack">Acknowledgements</h2>
 
-  <p><em>This section is non normative.</em>
+<p><em>This section is non normative.</em></p>
 
-  <p>The editor would like to thank Ian Hickson and everyone in the WHATWG
-   community who has written the initial proposal for this specification.
+<p>The editor would like to thank Ian Hickson and everyone in the WHATWG
+community who has written the initial proposal for this specification.</p>
+</body>
+</html>
