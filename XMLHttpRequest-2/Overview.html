@@ -915,6 +915,10 @@ X-Test: one, two
    and is updated as described in the <code><a href="#send">send()</a></code>
    algorithm.
 
+  <p>The <dfn id=upload0>upload complete flag</dfn> indicates is used in
+   several algorithms to determine whether or not to dispatch an event. The
+   initial value of the flag is "false".
+
   <p>When the steps below use the phrase <dfn id=make-a title="make a
    request">make a <var>m</var> request</dfn> the user agent <em
    class=ct>must</em> make a request to the <a href="#current">current
@@ -955,6 +959,13 @@ X-Test: one, two
     <p>Synchronously <a href="#dispatch-progress-event">dispatch a progress
      event</a> called <code><a href="#error-event">error</a></code> on the
      object.
+
+   <li>
+    <p>If the <a href="#upload0">upload complete flag</a> is "false" set the
+     flag to "true" and synchronously <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#error-event">error</a></code> on the object returned by
+     the <code><a href="#upload">upload</a></code> attribute.
 
    <li>
     <p>Terminate the overall algorithm.
@@ -1005,16 +1016,6 @@ X-Test: one, two
      dispatched for historical reasons.</p>
 
    <li>
-    <p>If <var>async</var> is <code>true</code> synchronously <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#loadstart-event">loadstart</a></code> on the object.
-
-   <li>
-    <p>If <var>async</var> is <code>true</code> return the <code><a
-     href="#send">send()</a></code> method call. (Do not terminate the steps
-     in the algorithm though.)
-
-   <li>
     <p>If the <var>data</var> argument has not been omitted and is not
      <code>null</code> use it for the <a href="#entity-body">entity body</a>
      observing the following rules:</p>
@@ -1059,6 +1060,23 @@ X-Test: one, two
      <code>null</code>, no entity body is used in the request.</p>
 
    <li>
+    <p>If <var>async</var> is <code>true</code> synchronously <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#loadstart-event">loadstart</a></code> on the object.
+
+   <li>
+    <p>If <var>async</var> is <code>true</code> and the request entity body
+     is not empty <a href="#dispatch-progress-event">dispatch a progress
+     event</a> called <code><a href="#loadstart-event">loadstart</a></code>
+     on the object returned by the <code><a href="#upload">upload</a></code>
+     attribute.
+
+   <li>
+    <p>If <var>async</var> is <code>true</code> return the <code><a
+     href="#send">send()</a></code> method call. (Do not terminate the steps
+     in the algorithm though.)
+
+   <li>
     <p>If the <a href="#current">current request URI</a> is same-origin set
      the <a href="#same-origin">same-origin flag</a> to "true" and then <a
      href="#make-a" title="make a request">make a <var>stored method</var>
@@ -1079,6 +1097,8 @@ X-Test: one, two
        it to "false", then <a href="#make-a" title="make a request">make a
        <var>stored method</var> request</a> and then switch to the next step
        in the overall set of steps.
+     </li>
+     <!-- XXX you never reach the next step -->
 
      <li>
       <p>Set the <a href="#access">access check request flag</a> to "true",
@@ -1088,13 +1108,34 @@ X-Test: one, two
        switch to the next step in the overall set of steps.
     </ol>
 
-   <li id=downloading>
-    <p>While the download is progressing, if <var>async</var> is
+   <li>
+    <p>If the request entity body is not empty and <var>async</var> is
+     <code>true</code> the following rules are to be observed:</p>
+
+    <ul>
+     <li>
+      <p>While the request entity body is being uploaded synchronously <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#progress-event">progress</a></code> at the object
+       returned by the <code><a href="#upload">upload</a></code> attribute.</p>
+
+     <li>
+      <p>If the request entity body has been successfully uploaded and the <a
+       href="#upload0">upload complete flag</a> is "false" set the flag to
+       "true" and synchronously <a href="#dispatch-progress-event">dispatch a
+       progress event</a> called <code><a href="#load-event">load</a></code>
+       at the object returned by the <code><a
+       href="#upload">upload</a></code> attribute.
+    </ul>
+
+   <li id=request-process>
+    <p>While the download is progressing and <var>async</var> is
      <code>true</code>, synchronously <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
      <code><a href="#progress-event">progress</a></code> at the object every
      350ms (±200ms) or for every byte received, whichever is <em>least</em>
-     frequent. In any case, the rules listed below are to be observed.</p>
+     frequent. In any case, regardless of the value of <var>async</var>, the
+     rules listed below are to be observed.</p>
 
     <dl class=switch>
      <dt>If the response is an HTTP redirect
@@ -1112,14 +1153,13 @@ X-Test: one, two
        <li>
         <p>If the <a href="#current">current request URI</a> is same-origin
          follow the redirect and then go to the start of <a
-         href="#downloading">step 9</a> in the overall algorithm. <span
-         class=note>Do not update the same-origin flag in any case.</span>
+         href="#request-process">step 11</a> in the overall algorithm.
 
        <li>
         <p>If the <a href="#same-origin">same-origin flag</a> is "true" and
          <a href="#request0">request method</a> is <code>GET</code> follow
-         the redirect and then go to the start of <a href="#downloading">step
-         9</a> in the overall algorithm.</p>
+         the redirect and then go to the start of <a
+         href="#request-process">step 11</a> in the overall algorithm.</p>
 
         <p class=issue>Also need to update the list of request headers in the
          above case.</p>
@@ -1135,14 +1175,14 @@ X-Test: one, two
          flag</a> to "true", append an <code>If-Method-Allowed</code> header
          with value <var>stored method</var> to the list of request headers,
          then <a href="#make-a" title="make a request">make a
-         <code>GET</code> request</a> and then go to <a
-         href="#downloading">step 9</a> in the overall algorithm.
+         <code>GET</code> request</a> and then go to the start of <a
+         href="#request-process">step 11</a> in the overall algorithm.
 
        <li>
         <p>If the <a href="#same-origin">same-origin flag</a> is "false" and
          <a href="#request0">request method</a> is <code>GET</code> follow
-         the redirect and then go to <a href="#downloading">step 9</a> in the
-         overall algorithm.
+         the redirect and then go to the start of <a
+         href="#request-process">step 11</a> in the overall algorithm.
 
        <li>
         <p>If the <a href="#same-origin">same-origin flag</a> is "false" and
@@ -1189,6 +1229,14 @@ X-Test: one, two
         <p>Synchronously <a href="#dispatch-progress-event">dispatch a
          progress event</a> called <code title=abort-event><a
          href="#abort-event">abort</a></code> on the object.
+
+       <li>
+        <p>If the <a href="#upload0">upload complete flag</a> is "false" set
+         the flag to "true" and synchronously <a
+         href="#dispatch-progress-event">dispatch a progress event</a> called
+         <code title=abort-event><a href="#abort-event">abort</a></code> on
+         the object returned by the <code><a href="#upload">upload</a></code>
+         attribute.
 
        <li>
         <p>Terminate the overall algorithm.
@@ -1387,6 +1435,14 @@ X-Test: one, two
     <p>Synchronously <a href="#dispatch-progress-event">dispatch a progress
      event</a> called <code title=abort-event><a
      href="#abort-event">abort</a></code> on the object.
+
+   <li>
+    <p>If the <a href="#upload0">upload complete flag</a> is "false" set the
+     flag to "true" and synchronously <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code title=abort-event><a href="#abort-event">abort</a></code> on the
+     object returned by the <code><a href="#upload">upload</a></code>
+     attribute.
   </ol>
 
   <h3 id=response-metadata><span class=secno>2.6. </span>Response Metadata</h3>

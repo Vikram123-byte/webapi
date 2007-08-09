@@ -733,11 +733,15 @@ X-Test: one, two
   "false". The <dfn>same-origin flag</dfn> can have two values: "true"
   (initial value) and "false". When "true", it indicates that the current
   request is a same-origin request. It can be modified during redirects.</p>
-  
+
   <p>The <dfn>current request URI</dfn> is initially <var>stored url</var>
   (as set by the <code>open()</code> method) and is updated as described in
   the <code>send()</code> algorithm.</p>
   
+  <p>The <dfn>upload complete flag</dfn> indicates is used in several
+  algorithms to determine whether or not to dispatch an event. The initial
+  value of the flag is "false".</p>
+
   <p>When the steps below use the phrase <dfn title="make a request">make a
   <var>m</var> request</dfn> the user agent <em class="ct">must</em> make a
   request to the <span>current request URI</span>, using HTTP method
@@ -772,6 +776,11 @@ X-Test: one, two
 
    <li><p>Synchronously <span>dispatch a progress event</span> called
    <code>error</code> on the object.</p></li>
+   
+   <li><p>If the <span>upload complete flag</span> is "false" set the flag
+   to "true" and synchronously <span>dispatch a progress event</span> called
+   <code>error</code> on the object returned by the <code>upload</code>
+   attribute.</p></li>
 
    <li><p>Terminate the overall algorithm.</p></li>
   </ol>
@@ -818,14 +827,6 @@ X-Test: one, two
     <p class="note">The state of the object does not change. The event is
     dispatched for historical reasons.</p>
    </li>
-   
-   <li><p>If <var>async</var> is <code>true</code> synchronously
-   <span>dispatch a progress event</span> called <code>loadstart</code> on
-   the object.</p></li>
-
-   <li><p>If <var>async</var> is <code>true</code> return the
-   <code>send()</code> method call. (Do not terminate the steps in the
-   algorithm though.)</p></li>
 
    <li>
     <p>If the <var>data</var> argument has not been omitted and is not
@@ -868,6 +869,19 @@ X-Test: one, two
     <code>null</code>, no entity body is used in the request.</p>
    </li>
 
+   <li><p>If <var>async</var> is <code>true</code> synchronously
+   <span>dispatch a progress event</span> called <code>loadstart</code> on
+   the object.</p></li>
+   
+   <li><p>If <var>async</var> is <code>true</code> and the request entity
+   body is not empty <span>dispatch a progress event</span> called
+   <code>loadstart</code> on the object returned by the <code>upload</code>
+   attribute.</p></li>
+
+   <li><p>If <var>async</var> is <code>true</code> return the
+   <code>send()</code> method call. (Do not terminate the steps in the
+   algorithm though.)</p></li>
+
    <li>
     <p>If the <span>current request URI</span> is same-origin set the
     <span>same-origin flag</span> to "true" and then
@@ -888,6 +902,7 @@ X-Test: one, two
      method</var> request</span> and then switch to the next step in the
      overall set of steps.</p></li>
 
+     <!-- XXX you never reach the next step -->
      <li><p>Set the <span>access check request flag</span> to "true", append
      an <code>If-Method-Allowed</code> header with value <var>stored
      method</var> to the list of request headers, then
@@ -895,13 +910,31 @@ X-Test: one, two
      then switch to the next step in the overall set of steps.</p></li>
     </ol>
    </li>
+   
+   <li>
+    <p>If the request entity body is not empty and <var>async</var> is
+    <code>true</code> the following rules are to be observed:</p>
+    
+    <ul>
+     <li><p>While the request entity body is being uploaded synchronously
+     <span>dispatch a progress event</span> called <code>progress</code> at
+     the object returned by the <code>upload</code> attribute.</p>
+     
+     <li><p>If the request entity body has been successfully uploaded and
+     the <span>upload complete flag</span> is "false" set the flag to "true"
+     and synchronously <span>dispatch a progress event</span> called
+     <code>load</code> at the object returned by the <code>upload</code>
+     attribute.</p></li>
+    </ul>
+   </li>
 
-   <li id="downloading">
-    <p>While the download is progressing, if <var>async</var> is
+   <li id="request-process">
+    <p>While the download is progressing and <var>async</var> is
     <code>true</code>, synchronously <span>dispatch a progress event</span>
     called <code>progress</code> at the object every 350ms (±200ms) or for
     every byte received, whichever is <em>least</em> frequent. In any case,
-    the rules listed below are to be observed.</p>
+    regardless of the value of <var>async</var>, the rules listed below are
+    to be observed.</p>
 
     <dl class="switch">
      <dt>If the response is an HTTP redirect</dt>
@@ -915,14 +948,13 @@ X-Test: one, two
        location.</p></li>
        
        <li><p>If the <span>current request URI</span> is same-origin follow
-       the redirect and then go to the start of <a href="#downloading">step
-       9</a> in the overall algorithm. <span class="note">Do not update the
-       same-origin flag in any case.</p></li>
-       
+       the redirect and then go to the start of
+       <a href="#request-process">step 11</a> in the overall algorithm.</p></li>
+
        <li>
         <p>If the <span>same-origin flag</span> is "true" and <span>request
         method</span> is <code>GET</code> follow the redirect and then go to
-        the start of <a href="#downloading">step 9</a> in the overall
+        the start of <a href="#request-process">step 11</a> in the overall
         algorithm.</p>
         
         <p class="issue">Also need to update the list of request headers in
@@ -939,12 +971,12 @@ X-Test: one, two
        flag</span> to "true", append an <code>If-Method-Allowed</code>
        header with value <var>stored method</var> to the list of request
        headers, then <span title="make a request">make a <code>GET</code>
-       request</span> and then go to <a href="#downloading">step 9</a> in
+       request</span> and then go to the start of <a href="#request-process">step 11</a> in
        the overall algorithm.</p></li>
        
        <li><p>If the <span>same-origin flag</span> is "false" and
        <span>request method</span> is <code>GET</code> follow the redirect
-       and then go to <a href="#downloading">step 9</a> in the overall
+       and then go to the start of <a href="#request-process">step 11</a> in the overall
        algorithm.</p></li>
        
        <li><p>If the <span>same-origin flag</span> is "false" and
@@ -985,6 +1017,11 @@ X-Test: one, two
 
        <li><p>Synchronously <span>dispatch a progress event</span> called
        <code title="abort-event">abort</code> on the object.</p></li>
+       
+       <li><p>If the <span>upload complete flag</span> is "false" set the
+       flag to "true" and synchronously <span>dispatch a progress
+       event</span> called <code title="abort-event">abort</code> on the
+       object returned by the <code>upload</code> attribute.</p></li>
 
        <li><p>Terminate the overall algorithm.</p></li>
       </ol>
@@ -1168,6 +1205,11 @@ X-Test: one, two
    
    <li><p>Synchronously <span>dispatch a progress event</span> called
    <code title="abort-event">abort</code> on the object.</p></li>
+   
+   <li><p>If the <span>upload complete flag</span> is "false" set the flag
+   to "true" and synchronously <span>dispatch a progress event</span> called
+   <code title="abort-event">abort</code> on the object returned by the
+   <code>upload</code> attribute.</p></li>
   </ol>
 
 
