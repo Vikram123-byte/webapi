@@ -34,13 +34,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 3 August 2007</h2>
+    draft<!--W3C Working Draft--> 25 September 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070803/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070803/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070925/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20070925/</a>
 
     <dt>Latest Version:
 
@@ -106,9 +106,9 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 3 August 2007 <strong>Editor's</strong> <!--Working--> Draft
-   of The <code title="">XMLHttpRequest</code> Object specification. Please
-   send comments to <a
+  <p>This is the 25 September 2007 <strong>Editor's</strong> <!--Working-->
+   Draft of The <code title="">XMLHttpRequest</code> Object specification.
+   Please send comments to <a
    href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
    with either <samp>[XHR]</samp> or <samp title="">[XMLHttpRequest]</samp>
@@ -665,8 +665,9 @@ client.send();</code></pre>
 
      <li>
       <p>If the given <var>method</var> is not supported for security reasons
-       the user agent <em class=ct>should</em> raise a
-       <code>SECURITY_ERR</code> exception and terminate these steps.
+       the user agent <em class=ct>should</em> raise a <code><a
+       href="#security-err">SECURITY_ERR</a></code> exception and terminate
+       these steps.
 
      <li>
       <p>Let <var>stored method</var> be <var>method</var>.
@@ -717,8 +718,9 @@ client.send();</code></pre>
 
      <li>
       <p>If <var>stored url</var> is non same-origin the user agent <em
-       class=ct>should</em> raise a <code>SECURITY_ERR</code> exception and
-       terminate these steps.</p>
+       class=ct>should</em> raise a <code><a
+       href="#security-err">SECURITY_ERR</a></code> exception and terminate
+       these steps.</p>
 
       <p class=note>This specification does not define what constitutes as
        non same-origin. It is expected that what constitutes as non
@@ -1443,21 +1445,35 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <h3 id=exceptions><span class=secno>2.2. </span>Exceptions for the <code
    title="">XMLHttpRequest</code> Object</h3>
 
+  <p>Several algorithms in this specification may result in an exception
+   being thrown. These exceptions are all part of the group
+   <code>ExceptionCode</code> and use the <code>DOMException</code> object
+   which is defined in DOM Level 3 Core. In addition this specification
+   extends the <code>ExceptionCode</code> group with several new constants as
+   indicated below. [<cite><a href="#DOM3">DOM3Core</a></cite>]
+
   <pre
-   class=idl>exception <dfn id=xmlhttprequestexception>XMLHttpRequestException</dfn> {
-  unsigned short     code;
-};
+   class=idl>const unsigned short <a href="#security-err">SECURITY_ERR</a> = 18;
 const unsigned short <a href="#network-err">NETWORK_ERR</a> = 101;
 const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
 
+  <p>The <dfn id=security-err><code>SECURITY_ERR</code></dfn> exception is
+   raised if an attempt is made to perform an operation or access some data
+   in a way that would be a security risk or a violation of the user agent's
+   security policy.</p>
+  <!-- http://lists.w3.org/Archives/Public/public-webapi/2006May/0027.html -->
+
+  <p class=note>The <code title="">SECURITY_ERR</code> exception is expected
+   to be eventually folded into an update of the the DOM Level 3 Core
+   specification with an equivalent definition and identical constant value.
+   Until that happens it is defined here to guide implementors. (This is also
+   the reason it has a different constant value from the other exceptions.)
+
   <p>The <dfn id=network-err><code>NETWORK_ERR</code></dfn> exception is
-   thrown when a network error occurs in synchronous requests.
+   raised when a network error occurs in synchronous requests.
 
-  <p>The <dfn id=abort-err><code>ABORT_ERR</code></dfn> exception is thrown
+  <p>The <dfn id=abort-err><code>ABORT_ERR</code></dfn> exception is raised
    when the user aborts a request in synchronous requests.
-
-  <p>See the section on <code><a href="#send">send()</a></code> for more
-   details.
 
   <h2 class=no-num id=notcovered>Not in this Specification</h2>
 
