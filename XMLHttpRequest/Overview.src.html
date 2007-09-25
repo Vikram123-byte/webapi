@@ -280,6 +280,14 @@ client.send();</code></pre>
   <p>There is a <dfn id="case-insensitive-match">case-insensitive match</dfn>
   of strings <var>s1</var> and <var>s2</var> if after uppercasing both strings
   (by mapping a-z to A-Z) they are identical.</p>
+  
+  <p>Two URIs are <dfn id="same-origin">same-origin</dfn> if after
+  performing scheme-based normalization on both URIs as described in section
+  5.3.3 of RFC 3987 the scheme, domain and port components are
+  identical. [<cite><span>RFC3987</span></cite>]</p>
+  
+  <p class="issue">The above definition does not deal with data:,
+  javascript:, etc. What to do about those?</p>
 
   <h4 id="extensibility">Extensibility</h4>
 
@@ -588,10 +596,10 @@ client.send();</code></pre>
      <code>NOT_SUPPORTED_ERR</code> and terminate these steps.</p></li>
 
      <li><p>If the <code>"user:password"</code> format in the
-     <code>userinfo</code> production defined in section 3.2.1 of RFC 3986 is
-     not supported for the relevant scheme and <var>stored url</var> contains
-     this format raise a <code>SYNTAX_ERR</code> and terminate these steps.
-     [<cite><span>RFC3986</span></cite>]</p></li>
+     <code>userinfo</code> production defined in section 3.2.1 of RFC 3986
+     is not supported for the relevant scheme and <var>stored url</var>
+     contains this format raise a <code>SYNTAX_ERR</code> and terminate
+     these steps. [<cite><span>RFC3986</span></cite>]</p></li>
 
      <li><p>If <var>stored url</var> contains the <code>"user:password"</code>
      format let <var>stored user</var> be the user part and <var>stored
@@ -601,14 +609,11 @@ client.send();</code></pre>
      format let <var>stored user</var> be the user part.</p></li>
 
      <li>
-      <p>If <var>stored url</var> is non same-origin the user agent
-      <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
-      and terminate these steps.</p>
-      <p class="note">This specification does not define what constitutes as
-      non same-origin. It is expected that what constitutes as non same-origin
-      will be defined before this specification eventually reaches the W3C
-      Recommendation status by way of referencing a specification that defines
-      it.<!-- XXX reference HTML5? --></p>
+      <p>If <var>stored url</var> is not of the <span>same-origin</span> as
+      the URI specified by the <code>baseURI</code> attribute of the
+      <code>document</code> attribute of the <span><code>Window</code>
+      pointer</span> the user agent <em class="ct">should</em> raise a
+      <code>SECURITY_ERR</code> exception and terminate these steps.</p>
      </li>
 
      <li><p>Let <var>async</var> be the value of the <var>async</var> argument
@@ -1369,6 +1374,12 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource Identifier
    (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding, L. Masinter,
    editors. IETF, January 2005.</dd>
+   
+   <dt>[<dfn id="ref-rfc3987">RFC3987</dfn>]</dt>
+   
+   <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized
+   Resource Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard, editors.
+   IETF, January 2005.</dd>
 
    <dt>[<dfn id="ref-window">Window</dfn>]</dt>
 
