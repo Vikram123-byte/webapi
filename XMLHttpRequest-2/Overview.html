@@ -257,23 +257,11 @@
    <dd>
     <p>A <a href="#conforming-user-agent" title="conforming user
      agent">conforming user agent</a> <em class=ct>must</em> support some
-     version of the HTTP protocol. It <em class=ct>should</em> support any
-     HTTP method that matches the <span><code>Method</code> production</span>
-     and <em class=ct>must</em> at least support the following methods:</p>
+     version of the HTTP protocol.</p>
 
-    <ul>
-     <li><code>GET</code>
-
-     <li><code>POST</code>
-
-     <li><code>HEAD</code>
-
-     <li><code>PUT</code>
-
-     <li><code>DELETE</code>
-
-     <li><code>OPTIONS</code>
-    </ul>
+    <p class=issue>For this "level" we need to sort out how to deal with
+     arbitrary HTTP methods properly. Please don't bring this up on the
+     mailing list unless you've got news from implementors.</p>
 
     <p>Other requirements regarding HTTP are made throughout the
      specification. [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
@@ -331,9 +319,6 @@
   interface. [<cite><span>DOM3Events</span></cite>]</p>
   -->
 
-  <p class=issue>The IDL interfaces below should probably conform to the new
-   ECMAScript binding specification at some point (and vice versa).
-
   <pre
    class=idl>interface <dfn id=xmlhttprequesteventtarget-interface>XMLHttpRequestEventTarget</dfn> : EventTarget {
   // <a href="#event-handler-attributes">event handler attributes</a>
@@ -345,7 +330,7 @@
 };
 
 interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a> {
-  // empty
+  // for future use
 };
 
 interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a> {
@@ -833,8 +818,9 @@ X-Test: one, two
    algorithm. The method <var>m</var> with which the request is made is the
    <dfn id=request0>request method</dfn>.
 
-  <p class=issue>Need to trim the list of request headers headers here when
-   the current request URI is not same-origin.
+  <p class=issue>For non same-origin requests some extra precautions, such as
+   restricting the list of request headers, need to be taken that this
+   algorithm currently not covers in enough detail.
 
   <p>When the steps below say something is a <dfn id=network>network
    error</dfn> the user agent <em class=ct>must</em> act as if the following
@@ -1056,8 +1042,6 @@ X-Test: one, two
         <p>At this point, the current request URI is non same-origin. Set the
          <a href="#access0">access check required flag</a> to "true".</p>
 
-        <p class=issue>Limit the list of request headers if not already done.</p>
-
        <li>
         <p>If the <a href="#request0">request method</a> is <code>GET</code>
          follow the redirect and then go to the start of <a
@@ -1175,8 +1159,8 @@ X-Test: one, two
 
       <p>If the <a href="#access">access check request flag</a> is "true",
        the <a href="#access1">access check</a> on the <a
-       href="#current">current request URI</a> does not generate any errors
-       and there is a response <code>Allow</code> header that lists
+       href="#current">current request URI</a> does not generate any errors,
+       and there is a response <code>Allow</code> header that contains
        <var>stored method</var> then set the <a href="#access">access check
        request flag</a> to "false", then <a href="#make-a" title="make a
        request">make a <var>stored method</var> request</a> and then go to

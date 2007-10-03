@@ -172,20 +172,12 @@
 
    <dd>
     <p>A <span title="conforming user agent">conforming user agent</span>
-    <em class="ct">must</em> support some version of the HTTP protocol. It
-    <em class="ct">should</em> support any HTTP method that matches the
-    <span><code>Method</code> production</span> and <em class="ct">must</em> at
-    least support the following methods:</p>
+    <em class="ct">must</em> support some version of the HTTP protocol.</p>
 
-    <ul>
-     <li><code>GET</code></li>
-     <li><code>POST</code></li>
-     <li><code>HEAD</code></li>
-     <li><code>PUT</code></li>
-     <li><code>DELETE</code></li>
-     <li><code>OPTIONS</code></li>
-    </ul>
-    
+    <p class="issue">For this "level" we need to sort out how to deal with
+    arbitrary HTTP methods properly. Please don't bring this up on the
+    mailing list unless you've got news from implementors.</p>
+
     <p>Other requirements regarding HTTP are made throughout the
     specification. [<cite><span>RFC2616</span></cite>]</p>
    </dd>
@@ -240,9 +232,6 @@
   <em class="ct">must</em> also implement the <code>EventTarget</code>
   interface. [<cite><span>DOM3Events</span></cite>]</p>
   -->
-  
-  <p class="issue">The IDL interfaces below should probably conform to the
-  new ECMAScript binding specification at some point (and vice versa).</p>
 
   <pre class="idl">interface <dfn id="xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</dfn> : EventTarget {
   // <a href="#event-handler-attributes">event handler attributes</a>
@@ -254,7 +243,7 @@
 };
 
 interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : <span>XMLHttpRequestEventTarget</span> {
-  // empty
+  // for future use
 };
 
 interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHttpRequestEventTarget</span> {
@@ -590,7 +579,7 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Via</code></li>
     </ul>
    </li>
-     
+
    <li><p>Also for security reasons, these steps <em class="ct">should</em> be
    terminated if the first six characters of the <var>header</var> argument
    <span title="case-insensitive match">case-insensitively match</span>
@@ -666,9 +655,9 @@ X-Test: one, two
   <code>send()</code> algorithm. The method <var>m</var> with which the
   request is made is the <dfn>request method</dfn>.</p>
 
-  <p class="issue">Need to trim the list of request headers headers here
-  when the current request URI is not same-origin.</p>
-
+  <p class="issue">For non same-origin requests some extra precautions, such
+  as restricting the list of request headers, need to be taken that this
+  algorithm currently not covers in enough detail.</p>
 
   <p>When the steps below say something is a <dfn>network error</dfn> the
   user agent <em class="ct">must</em> act as if the following steps had been
@@ -865,9 +854,6 @@ X-Test: one, two
        <li>
         <p>At this point, the current request URI is non same-origin. Set
         the <span>access check required flag</span> to "true".</p>
-        
-        <p class="issue">Limit the list of request headers if not already
-        done.</p>
        </li>
        
        <li><p>If the <span>request method</span> is <code>GET</code> follow
@@ -972,8 +958,8 @@ X-Test: one, two
 
       <p>If the <span>access check request flag</span> is "true", the
       <span>access check</span> on the <span>current request URI</span> does
-      not generate any errors and there is a response <code>Allow</code>
-      header that lists <var>stored method</var> then set the
+      not generate any errors, and there is a response <code>Allow</code>
+      header that contains <var>stored method</var> then set the
       <span>access check request flag</span> to "false", then
       <span title="make a request">make a <var>stored method</var>
       request</span> and then go to the start of
