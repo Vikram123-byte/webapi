@@ -62,8 +62,9 @@
   <h2 class="no-num no-toc" id="specabstract">Abstract</h2>
 
   <p><code title="">XMLHttpRequest</code> level 2 enhances
-  <code>XMLHttpRequest</code> with new features, such as cross-site requests
-  and progress events.<p>
+  <code title="">XMLHttpRequest</code> with new features, such as cross-site
+  requests, progress events, and the handling of byte streams for both
+  sending and receiving.<p>
 
   <h2 class="no-num no-toc" id="sotd">Status of this Document</h2>
 
@@ -85,7 +86,6 @@
   accurate. Please raise such differences on the
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> mailing
   list taking into account that this draft defines a superset.</p>
-
 
   <p>This document is produced by the
   <a href="http://www.w3.org/2006/webapi/">Web API Working Group</a>, part of
@@ -117,79 +117,10 @@
 
   <!--toc-->
 
+
   <h2 id="introduction">Introduction</h2>
 
-  <p><em>This section is non-normative.</em></p>
-
-  <p>The <code>XMLHttpRequest</code> object implements an interface exposed by
-  a scripting engine that allows scripts to perform HTTP client functionality,
-  such as submitting form data or loading data from a server.</p>
-
-  <p>The name of the object is <code>XMLHttpRequest</code> for compatibility
-  with the Web, though each component of this name is potentially misleading.
-  First, the object supports any text based format, including XML. Second, it
-  can be used to make requests over both HTTP and HTTPS (some implementations
-  support protocols in addition to HTTP and HTTPS, but that functionality is
-  not covered by this specification). Finally, it supports "requests" in a
-  broad sense of the term as it pertains to HTTP; namely all activity involved
-  with HTTP requests or responses for the defined HTTP methods.</p>
-
-  <h3 id="examples">Examples of Usage</h3>
-
-  <p><em>This section is non-normative.</em></p>
-
-  <p>Some [<cite><span>ECMAScript</span></cite>] examples
-  are listed in the specification. In addition, you can find some below.</p>
-
-  <div class="example">
-   <p>Some simple code to do something with data from an XML document fetched
-   over the network:</p>
-
-   <pre><code>function test(data) {
- // taking care of data
-}
-
-function handler() {
- if(this.readyState == 4 &amp;&amp; this.status == 200) {
-  // so far so good
-  if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').firstChild.data)
-     // success!
-   test(this.responseXML.getElementById('test').firstChild.data);
-  else
-   test(null);
- } else if (this.readyState == 4 &amp;&amp; this.status != 200) {
-  // fetched the wrong page or network error...
-  test(null);
- }
-}
-
-var client = new XMLHttpRequest();
-client.onreadystatechange = handler;
-client.open("GET", "test.xml");
-client.send();</code></pre>
-
-   <p>If you just want to log a message to the server:</p>
-
-   <pre><code>function log(message) {
- var client = new XMLHttpRequest();
- client.open("POST", "/log");
- client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
- client.send(message);
-}</code></pre>
-
-   <p>Or if you want to check the status of a document on the server:</p>
-
-   <pre><code>function fetchStatus(address) {
- var client = new XMLHttpRequest();
- client.onreadystatechange = function() {
-  // in case of network errors this might not give reliable results
-  if(this.readyState == 4)
-   returnStatus(this.status);
- }
- client.open("HEAD", address);
- client.send();
-}</code></pre>
-  </div>
+  <p class="issue">To be written.</p>
 
   <h3 id="conformance">Conformance</h3>
 
@@ -201,7 +132,7 @@ client.send();</code></pre>
   to be interpreted as described in RFC 2119.
   [<cite><span>RFC2119</span></cite>]</p>
 
-  <p>This specification defines the following classes of products:</p>
+  <p>This specification defines a single conformance class:</p>
 
   <dl>
    <dt><dfn id="conforming-user-agent">Conforming user agent</dfn></dt>
@@ -210,24 +141,13 @@ client.send();</code></pre>
     <p>A user agent <em class="ct">must</em> behave as described in this
     specification in order to be considered conformant.</p>
 
-    <p>If the user agent does not support XML (including support for
-    namespaces) the <span>XML response entity body</span>
-    <em class="ct">must</em> (always) be <code>null</code>.</p>
-
     <p>User agents <em class="ct">may</em> optimize any algorithm given in
     this specification, so long as the end result is indistinguishable from
-    the result that would be obtained by the specification's algorithms. (The
-    algorithms in this specification are generally written with more concern
-    for clarity than efficiency.)</p>
+    the result that would be obtained by the specification's algorithms.</p>
 
     <p class="note">This specification uses both the terms "conforming user
     agent(s)" and "user agent(s)" to refer to this product class.</p>
    </dd>
-
-   <dt><dfn id="conforming-xml-user-agent">Conforming XML user agent</dfn></dt>
-
-   <dd><p>A user agent that is a <span>conforming user agent</span> and also
-   supports XML (including support for namespaces).</p></dd>
   </dl>
 
   <h4 id="dependencies">Dependencies</h4>
@@ -272,11 +192,12 @@ client.send();</code></pre>
 
    <dt>XML</dt>
 
-   <dd><p><span title="Conforming XML user agent">Conforming XML user
-   agents</span> <em class="ct">must</em> support XML (including support for
-   namespaces). [<cite><span>XML</span></cite>]
+   <dd><p>A <span title="conforming user agent">conforming user agent</span>
+   <em class="ct">must</em> be a conforming XML processor that reports
+   violations of namespace well-formedness. [<cite><span>XML</span></cite>]
    [<cite><span>XMLNS</span></cite>]</p></dd>
   </dl>
+
 
   <h4 id="terminology">Terminology</h4>
 
@@ -300,12 +221,14 @@ client.send();</code></pre>
   <dfn id="dispatch-progress-event" title="dispatch a progress event">dispatch
   a progress event called <var>e</var></dfn> means&hellip;</p>
 
+
   <h4 id="extensibility">Extensibility</h4>
 
   <p>Extensions of the API defined by this specification are <em>strongly
   discouraged</em>. User agents, Working Groups and other interested parties
   should discuss extensions on a relevant public forum, preferably
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
+
 
   <h2 id="xmlhttprequest">The <code title="">XMLHttpRequest</code> Object</h2>
 

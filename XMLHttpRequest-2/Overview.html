@@ -34,13 +34,13 @@
     level 2</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 27 September 2007</h2>
+    draft<!--W3C Working Draft--> 3 October 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-2-20070927/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-2-20070927/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-2-20071003/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-2-20071003/</a>
 
     <dt>Latest Version:
 
@@ -75,9 +75,10 @@
 
   <h2 class="no-num no-toc" id=specabstract>Abstract</h2>
 
-  <p><code title="">XMLHttpRequest</code> level 2 enhances <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> with new
-   features, such as cross-site requests and progress events.
+  <p><code title="">XMLHttpRequest</code> level 2 enhances <code
+   title="">XMLHttpRequest</code> with new features, such as cross-site
+   requests, progress events, and the handling of byte streams for both
+   sending and receiving.
 
   <p>
 
@@ -89,7 +90,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 27 September 2007 <strong>Editor's</strong> <!--Working-->
+  <p>This is the 3 October 2007 <strong>Editor's</strong> <!--Working-->
    Draft of <code title="">XMLHttpRequest</code> level 2. Please send
    comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
    (<a
@@ -136,19 +137,16 @@
   <ul class=toc>
    <li><a href="#introduction"><span class=secno>1. </span>Introduction</a>
     <ul class=toc>
-     <li><a href="#examples"><span class=secno>1.1. </span>Examples of
-      Usage</a>
-
-     <li><a href="#conformance"><span class=secno>1.2. </span>Conformance</a>
+     <li><a href="#conformance"><span class=secno>1.1. </span>Conformance</a>
       
       <ul class=toc>
-       <li><a href="#dependencies"><span class=secno>1.2.1.
+       <li><a href="#dependencies"><span class=secno>1.1.1.
         </span>Dependencies</a>
 
-       <li><a href="#terminology"><span class=secno>1.2.2.
+       <li><a href="#terminology"><span class=secno>1.1.2.
         </span>Terminology</a>
 
-       <li><a href="#extensibility"><span class=secno>1.2.3.
+       <li><a href="#extensibility"><span class=secno>1.1.3.
         </span>Extensibility</a>
       </ul>
     </ul>
@@ -206,82 +204,9 @@
 
   <h2 id=introduction><span class=secno>1. </span>Introduction</h2>
 
-  <p><em>This section is non-normative.</em>
+  <p class=issue>To be written.
 
-  <p>The <code><a href="#xmlhttprequest-interface">XMLHttpRequest</a></code>
-   object implements an interface exposed by a scripting engine that allows
-   scripts to perform HTTP client functionality, such as submitting form data
-   or loading data from a server.
-
-  <p>The name of the object is <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> for
-   compatibility with the Web, though each component of this name is
-   potentially misleading. First, the object supports any text based format,
-   including XML. Second, it can be used to make requests over both HTTP and
-   HTTPS (some implementations support protocols in addition to HTTP and
-   HTTPS, but that functionality is not covered by this specification).
-   Finally, it supports "requests" in a broad sense of the term as it
-   pertains to HTTP; namely all activity involved with HTTP requests or
-   responses for the defined HTTP methods.
-
-  <h3 id=examples><span class=secno>1.1. </span>Examples of Usage</h3>
-
-  <p><em>This section is non-normative.</em>
-
-  <p>Some [<cite><a href="#ref-ecmascript">ECMAScript</a></cite>] examples
-   are listed in the specification. In addition, you can find some below.
-
-  <div class=example>
-   <p>Some simple code to do something with data from an XML document fetched
-    over the network:</p>
-
-   <pre><code>function test(data) {
- // taking care of data
-}
-
-function handler() {
- if(this.readyState == 4 &amp;&amp; this.status == 200) {
-  // so far so good
-  if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').firstChild.data)
-     // success!
-   test(this.responseXML.getElementById('test').firstChild.data);
-  else
-   test(null);
- } else if (this.readyState == 4 &amp;&amp; this.status != 200) {
-  // fetched the wrong page or network error...
-  test(null);
- }
-}
-
-var client = new XMLHttpRequest();
-client.onreadystatechange = handler;
-client.open("GET", "test.xml");
-client.send();</code></pre>
-
-   <p>If you just want to log a message to the server:</p>
-
-   <pre><code>function log(message) {
- var client = new XMLHttpRequest();
- client.open("POST", "/log");
- client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
- client.send(message);
-}</code></pre>
-
-   <p>Or if you want to check the status of a document on the server:</p>
-
-   <pre><code>function fetchStatus(address) {
- var client = new XMLHttpRequest();
- client.onreadystatechange = function() {
-  // in case of network errors this might not give reliable results
-  if(this.readyState == 4)
-   returnStatus(this.status);
- }
- client.open("HEAD", address);
- client.send();
-}</code></pre>
-  </div>
-
-  <h3 id=conformance><span class=secno>1.2. </span>Conformance</h3>
+  <h3 id=conformance><span class=secno>1.1. </span>Conformance</h3>
 
   <p>Everything in this specification is normative except for diagrams,
    examples, notes and sections marked non-normative.
@@ -291,7 +216,7 @@ client.send();</code></pre>
    interpreted as described in RFC 2119. [<cite><a
    href="#RFC2119">RFC2119</a></cite>]
 
-  <p>This specification defines the following classes of products:
+  <p>This specification defines a single conformance class:
 
   <dl>
    <dt><dfn id=conforming-user-agent>Conforming user agent</dfn>
@@ -300,27 +225,15 @@ client.send();</code></pre>
     <p>A user agent <em class=ct>must</em> behave as described in this
      specification in order to be considered conformant.</p>
 
-    <p>If the user agent does not support XML (including support for
-     namespaces) the <span>XML response entity body</span> <em
-     class=ct>must</em> (always) be <code>null</code>.</p>
-
     <p>User agents <em class=ct>may</em> optimize any algorithm given in this
      specification, so long as the end result is indistinguishable from the
-     result that would be obtained by the specification's algorithms. (The
-     algorithms in this specification are generally written with more concern
-     for clarity than efficiency.)</p>
+     result that would be obtained by the specification's algorithms.</p>
 
     <p class=note>This specification uses both the terms "conforming user
      agent(s)" and "user agent(s)" to refer to this product class.</p>
-
-   <dt><dfn id=conforming-xml-user-agent>Conforming XML user agent</dfn>
-
-   <dd>
-    <p>A user agent that is a <a href="#conforming-user-agent">conforming
-     user agent</a> and also supports XML (including support for namespaces).
   </dl>
 
-  <h4 id=dependencies><span class=secno>1.2.1. </span>Dependencies</h4>
+  <h4 id=dependencies><span class=secno>1.1.1. </span>Dependencies</h4>
 
   <p>This specification relies on several underlying specifications.
 
@@ -368,14 +281,14 @@ client.send();</code></pre>
    <dt>XML
 
    <dd>
-    <p><a href="#conforming-xml-user-agent" title="Conforming XML user
-     agent">Conforming XML user agents</a> <em class=ct>must</em> support XML
-     (including support for namespaces). [<cite><a
-     href="#ref-xml">XML</a></cite>] [<cite><a
+    <p>A <a href="#conforming-user-agent" title="conforming user
+     agent">conforming user agent</a> <em class=ct>must</em> be a conforming
+     XML processor that reports violations of namespace well-formedness.
+     [<cite><a href="#ref-xml">XML</a></cite>] [<cite><a
      href="#ref-xmlns">XMLNS</a></cite>]
   </dl>
 
-  <h4 id=terminology><span class=secno>1.2.2. </span>Terminology</h4>
+  <h4 id=terminology><span class=secno>1.1.2. </span>Terminology</h4>
 
   <p>There is a <dfn id=case-insensitive-match>case-insensitive match</dfn>
    of strings <var>s1</var> and <var>s2</var> if after uppercasing both
@@ -399,7 +312,7 @@ client.send();</code></pre>
    progress event">dispatch a progress event called <var>e</var></dfn>
    means&hellip;
 
-  <h4 id=extensibility><span class=secno>1.2.3. </span>Extensibility</h4>
+  <h4 id=extensibility><span class=secno>1.1.3. </span>Extensibility</h4>
 
   <p>Extensions of the API defined by this specification are <em>strongly
    discouraged</em>. User agents, Working Groups and other interested parties
