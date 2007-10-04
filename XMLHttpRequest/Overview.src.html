@@ -284,10 +284,8 @@ client.send();</code></pre>
   <p>Two URIs are <dfn id="same-origin">same-origin</dfn> if after
   performing scheme-based normalization on both URIs as described in section
   5.3.3 of RFC 3987 the scheme, ihost and port components are
-  identical. [<cite><span>RFC3987</span></cite>]</p>
-
-  <p class="issue">The above definition does not deal with data:,
-  javascript:, etc. What to do about URIs without an ihost component?</p>
+  identical. If either URI does not not have an ihost component they are not
+  same-origin. [<cite><span>RFC3987</span></cite>]</p>
 
   <h4 id="extensibility">Extensibility</h4>
 
@@ -440,25 +438,19 @@ client.send();</code></pre>
    in the XML specifications to determine the character encoding. Let
    <var>charset</var> be the determined character encoding.</p></li>
 
-   <li>
-    <p>If there is a <code>Content-Type</code> header which contains a
-    <code>text/html</code> MIME type follow the rules set forth in the HTML
-    specification to determine the character encoding. Let
-    <var>charset</var> be the determined character encoding.
-    [<cite><span>HTML5</span></cite>]</p>
-
-    <p class="note">If we get two interoperable implementations of all
-    features in this specification and HTML5 has not yet reached
-    recommendation status this feature will be made informative.</p>
-   </li>
+   <li><p>If there is a <code>Content-Type</code> header which contains a
+   <code>text/html</code> MIME type follow the rules set forth in the
+   HTML&nbsp;5 specification to determine the character encoding. Let
+   <var>charset</var> be the determined character encoding.
+   [<cite><span>HTML5</span></cite>]</p></li>
 
    <li>
     <p>If the MIME type specified by the <code>Content-Type</code> header
     contains a <code>charset</code> parameter and <var>charset</var> is
     "null" let <var>charset</var> be the value of that parameter.</p>
 
-    <p class="note">The algorithms described by the XML and HTML specifications
-    already take <code>Content-Type</code> into account.</p>
+    <p class="note">The algorithms described by the XML and HTML
+    specifications already take <code>Content-Type</code> into account.</p>
    </li>
 
    <li>
@@ -614,25 +606,33 @@ client.send();</code></pre>
      <li><p>If <var>stored url</var> just contains the <code>"user"</code>
      format let <var>stored user</var> be the user part.</p></li>
 
-     <li><p>If <var>stored url</var> is not of the <span>same-origin</span>
-     as the origin of the <code>Document</code> object associated with the
-     <span><code>Window</code> pointer</span> the user agent
-     <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
-     and terminate these steps. The term origin is defined by the
-     HTML&nbsp;5 specification. [<cite><span>HTML5</span></cite>]</p></li>
+     <li>
+      <p>If <var>stored url</var> is not of the <span>same-origin</span>
+      as the origin of the <code>Document</code> object associated with the
+      <span><code>Window</code> pointer</span> and is not a
+      <code>data:</code> URI the user agent <em class="ct">should</em> raise
+      a <code>SECURITY_ERR</code> exception and terminate these steps. The
+      term origin is defined by the HTML&nbsp;5 specification.
+      [<cite><span>HTML5</span></cite>]
+      [<cite><span>RFC2397</span></cite>]</p>
+    
+      <p class="note">The above implies that <code>data:</code> URIs are
+      always loaded.</p>
+     </li>
 
-     <li><p>Let <var>async</var> be the value of the <var>async</var> argument
-     or <code>true</code> if it was omitted.</p></li>
+     <li><p>Let <var>async</var> be the value of the <var>async</var>
+     argument or <code>true</code> if it was omitted.</p></li>
 
      <li><p>If the <var>user</var> argument was not omitted, and its syntax
-     does not match that specified by the relevant authentication scheme, raise
-     a <code>SYNTAX_ERR</code> exception and terminate these steps.</p></li>
+     does not match that specified by the relevant authentication scheme,
+     raise a <code>SYNTAX_ERR</code> exception and terminate these
+     steps.</p></li>
 
      <li>
       <p>If the <var>user</var> argument was not omitted and is not
-      <code>null</code> let <var>stored user</var> be <var>user</var> encoded
-      using the encoding specified in the relevant authentication scheme or
-      UTF-8 if the scheme fails to specify an encoding.</p>
+      <code>null</code> let <var>stored user</var> be <var>user</var>
+      encoded using the encoding specified in the relevant authentication
+      scheme or UTF-8 if the scheme fails to specify an encoding.</p>
 
       <p class="note">This step overrides any user that may have been set by
       the <var>url</var> argument.</p>
@@ -641,9 +641,10 @@ client.send();</code></pre>
      <li><p>If the <var>user</var> argument was not omitted and is
      <code>null</code> remove <var>stored user</var>.</p></li>
 
-     <li><p>If the <var>password</var> argument was not omitted and its syntax
-     does not match that specified by the relevant authentication scheme raise
-     a <code>SYNTAX_ERR</code> exception and terminate these steps.</p></li>
+     <li><p>If the <var>password</var> argument was not omitted and its
+     syntax does not match that specified by the relevant authentication
+     scheme raise a <code>SYNTAX_ERR</code> exception and terminate these
+     steps.</p></li>
 
      <li><p>If the <var>password</var> argument was not omitted and is not
      <code>null</code> let <var>stored password</var> be <var>password</var>
@@ -661,10 +662,11 @@ client.send();</code></pre>
      activity for which the object is responsible.</p></li>
      <!-- we can hardly require it... -->
 
-     <li><p>Switch the object to the <span title="OPENED state">OPENED</span>
-     state, set the <span><code>send()</code> flag</span> to "false" and then
-     synchronously dispatch a <code>readystatechange</code> event on the
-     object and return the method call.</p></li>
+     <li><p>Switch the object to the
+     <span title="OPENED state">OPENED</span> state, set the
+     <span><code>send()</code> flag</span> to "false" and then synchronously
+     dispatch a <code>readystatechange</code> event on the object and return
+     the method call.</p></li>
     </ol>
 
     <p class="note">A future version or extension of this specification will
@@ -806,9 +808,9 @@ X-Test: one, two
 
      <li>
       <p>If the <var>data</var> argument has not been omitted and is not
-      <code>null</code> use it for the <dfn id="entity-body">entity body</dfn>
-      as defined by section 7.2 of RFC 2616 observing the following rules:
-      [<cite><span>RFC2616</span></cite>]</p>
+      <code>null</code> use it for the <dfn id="entity-body">entity
+      body</dfn> as defined by section 7.2 of RFC 2616 observing the
+      following rules: [<cite><span>RFC2616</span></cite>]</p>
 
       <dl class="switch">
        <dt><var>data</var> is a <code>DOMString</code></dt>
@@ -872,19 +874,20 @@ X-Test: one, two
        <dt>If the response is an HTTP redirect</dt>
        
        <dd>
-        <p>If the redirect does not violate security or infinite loop
-        precautions and the scheme is supported transparently follow it and go
+        <p>If the redirect does not violate security (it is
+        <span>same-origin</span> for instance) or infinite loop precautions
+        and the scheme is supported transparently follow the redirect and go
         to the start of this step.</p>
-        
-        <p class="note">HTTP places requirements on the user agent regarding the
-        preservation of the request method and entity body during redirects, and
-        also requires users to be notified of certain kinds of automatic
-        redirections.</p>
+
+        <p class="note">HTTP places requirements on the user agent regarding
+        the preservation of the request method and entity body during
+        redirects, and also requires users to be notified of certain kinds
+        of automatic redirections.</p>
         <!-- Arguably HTTP should be fixed for the latter case. No browser
         follows that as far as I know. -->
 
         <p>Otherwise, follow the following set of steps:</p>
-        
+
         <ol>
          <li><p>Set the <span>response entity body</span> to "null", the
          <span>error flag</span> to "true" and reset the list of request
@@ -1326,14 +1329,14 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
   <h2 class="no-num" id="bibref">References</h2>
 
   <dl>
-   <dt>[<dfn id="DOM3">DOM3Core</dfn>]</dt>
+   <dt>[<dfn id="ref-dom3core">DOM3Core</dfn>]</dt>
 
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
    Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
    H&eacute;garet, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne,
    editors. W3C, April 2004.</dd>
 
-   <dt>[<dfn id="DOM3EV">DOM3Events</dfn>]</dt>
+   <dt>[<dfn id="ref-dom3events">DOM3Events</dfn>]</dt>
 
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document
    Object Model (DOM) Level 3 Events Specification</a></cite> (work in
@@ -1344,7 +1347,7 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
    Language Specification</a></cite>, Third Edition. ECMA, December 1999.</dd>
    
-   <dt>[<dfn id="html5">HTML5</dfn>]</dt>
+   <dt>[<dfn id="ref-html5">HTML5</dfn>]</dt>
    
    <dd><cite><a href="http://www.whatwg.org/specs/web-apps/current-work/">HTML&nbsp;5</a></cite>
    (work in progress), Ian Hickson, editor. WHATWG, 2007</dd>
@@ -1355,12 +1358,17 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
    Extensions (MIME) Part Two: Media Types</a></cite>, N. Freed, N.
    Borenstein, editors. IETF, November 1996.</dd>
 
-   <dt>[<dfn id="RFC2119">RFC2119</dfn>]</dt>
+   <dt>[<dfn id="ref-rfc2119">RFC2119</dfn>]</dt>
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2119">Key words for use in RFCs to
    Indicate Requirement Levels</a></cite>, S. Bradner. IETF, March 1997.</dd>
+   
+   <dt>[<dfn id="ref-rfc2397">RFC2397</dfn>]</dt>
+   
+   <dd><cite><a href="http://www.ietf.org/rfc/rfc2397">The "data" URL
+   scheme</a></cite>, L. Masinter. IETF, April, 1998.</dd>
 
-   <dt>[<dfn id="RFC2616">RFC2616</dfn>]</dt>
+   <dt>[<dfn id="ref-rfc2616">RFC2616</dfn>]</dt>
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2616">Hypertext Transfer Protocol
    -- HTTP/1.1</a></cite>, R. Fielding, J. Gettys, J. Mogul, H. Frystyk, L.

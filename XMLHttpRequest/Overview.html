@@ -34,13 +34,13 @@
     title="">XMLHttpRequest</code> Object</h1>
 
    <h2 class="no-num no-toc" id=pagesubtitle>Editor's
-    draft<!--W3C Working Draft--> 2 October 2007</h2>
+    draft<!--W3C Working Draft--> 4 October 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071002/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071002/</a>
+     href="http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071004/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071004/</a>
 
     <dt>Latest Version:
 
@@ -106,7 +106,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 2 October 2007 <strong>Editor's</strong> <!--Working-->
+  <p>This is the 4 October 2007 <strong>Editor's</strong> <!--Working-->
    Draft of The <code title="">XMLHttpRequest</code> Object specification.
    Please send comments to <a
    href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
@@ -267,7 +267,7 @@ client.send();</code></pre>
   <p>The key words <em class=ct>must</em>, <em class=ct>must not</em>, <em
    class=ct>should</em> and <em class=ct>may</em> in this document are to be
    interpreted as described in RFC 2119. [<cite><a
-   href="#RFC2119">RFC2119</a></cite>]
+   href="#ref-rfc2119">RFC2119</a></cite>]
 
   <p>This specification defines the following classes of products:
 
@@ -312,8 +312,8 @@ client.send();</code></pre>
      agent">conforming user agent</a> <em class=ct>must</em> support some
      version of DOM Events and DOM Core, because this specification uses some
      of the features defined in those specifications. [<cite><a
-     href="#DOM3EV">DOM3Events</a></cite>] [<cite><a
-     href="#DOM3">DOM3Core</a></cite>]</p>
+     href="#ref-dom3events">DOM3Events</a></cite>] [<cite><a
+     href="#ref-dom3core">DOM3Core</a></cite>]</p>
 
     <p>It <em class=ct>must</em> also support some version of the Window
      Object because some of the functionality in this specification relies on
@@ -344,7 +344,7 @@ client.send();</code></pre>
     </ul>
 
     <p>Other requirements regarding HTTP are made throughout the
-     specification. [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
+     specification. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
   </dl>
 
   <h4 id=terminology><span class=secno>1.2.2. </span>Terminology</h4>
@@ -355,11 +355,9 @@ client.send();</code></pre>
 
   <p>Two URIs are <dfn id=same-origin>same-origin</dfn> if after performing
    scheme-based normalization on both URIs as described in section 5.3.3 of
-   RFC 3987 the scheme, ihost and port components are identical. [<cite><a
-   href="#ref-rfc3987">RFC3987</a></cite>]
-
-  <p class=issue>The above definition does not deal with data:, javascript:,
-   etc. What to do about URIs without an ihost component?
+   RFC 3987 the scheme, ihost and port components are identical. If either
+   URI does not not have an ihost component they are not same-origin.
+   [<cite><a href="#ref-rfc3987">RFC3987</a></cite>]
 
   <h4 id=extensibility><span class=secno>1.2.3. </span>Extensibility</h4>
 
@@ -378,7 +376,7 @@ client.send();</code></pre>
   <p>Objects implementing the <code><a
    href="#xmlhttprequest-object">XMLHttpRequest</a></code> interface <em
    class=ct>must</em> also implement the <code>EventTarget</code> interface.
-   [<cite><a href="#DOM3EV">DOM3Events</a></cite>]
+   [<cite><a href="#ref-dom3events">DOM3Events</a></cite>]
 
   <p>Objects implementing the <code title="">Window</code> interface <em
    class=ct>must</em> provide an <code title="">XMLHttpRequest()</code>
@@ -526,14 +524,10 @@ client.send();</code></pre>
 
    <li>
     <p>If there is a <code>Content-Type</code> header which contains a
-     <code>text/html</code> MIME type follow the rules set forth in the HTML
-     specification to determine the character encoding. Let
+     <code>text/html</code> MIME type follow the rules set forth in the
+     HTML&nbsp;5 specification to determine the character encoding. Let
      <var>charset</var> be the determined character encoding. [<cite><a
-     href="#html5">HTML5</a></cite>]</p>
-
-    <p class=note>If we get two interoperable implementations of all features
-     in this specification and HTML5 has not yet reached recommendation
-     status this feature will be made informative.</p>
+     href="#ref-html5">HTML5</a></cite>]
 
    <li>
     <p>If the MIME type specified by the <code>Content-Type</code> header
@@ -665,7 +659,8 @@ client.send();</code></pre>
       <p>If the <var>method</var> argument does not match the <dfn
        id=method><code>Method</code> production</dfn> defined in section
        5.1.1 of RFC 2616 raise a <code>SYNTAX_ERR</code> exception and
-       terminate these steps. [<cite><a href="#RFC2616">RFC2616</a></cite>]
+       terminate these steps. [<cite><a
+       href="#ref-rfc2616">RFC2616</a></cite>]
 
      <li>
       <p>If the given <var>method</var> is not supported for security reasons
@@ -724,11 +719,15 @@ client.send();</code></pre>
       <p>If <var>stored url</var> is not of the <a
        href="#same-origin">same-origin</a> as the origin of the
        <code>Document</code> object associated with the <a
-       href="#window-pointer"><code>Window</code> pointer</a> the user agent
-       <em class=ct>should</em> raise a <code><a
-       href="#security-err">SECURITY_ERR</a></code> exception and terminate
-       these steps. The term origin is defined by the HTML&nbsp;5
-       specification. [<cite><a href="#html5">HTML5</a></cite>]
+       href="#window-pointer"><code>Window</code> pointer</a> and is not a
+       <code>data:</code> URI the user agent <em class=ct>should</em> raise a
+       <code><a href="#security-err">SECURITY_ERR</a></code> exception and
+       terminate these steps. The term origin is defined by the HTML&nbsp;5
+       specification. [<cite><a href="#ref-html5">HTML5</a></cite>] [<cite><a
+       href="#ref-rfc2397">RFC2397</a></cite>]</p>
+
+      <p class=note>The above implies that <code>data:</code> URIs are always
+       loaded.</p>
 
      <li>
       <p>Let <var>async</var> be the value of the <var>async</var> argument
@@ -822,7 +821,7 @@ client.send();</code></pre>
        id=field-name><code>field-name</code> production</dfn> as defined by
        section 4.2 of RFC 2616 or is <code>null</code> raise a
        <code>SYNTAX_ERR</code> exception and terminate these steps. [<cite><a
-       href="#RFC2616">RFC2616</a></cite>]
+       href="#ref-rfc2616">RFC2616</a></cite>]
 
      <li>
       <p>If the <var>value</var> argument is <code>null</code> terminate
@@ -834,7 +833,7 @@ client.send();</code></pre>
       <p>If the <var>value</var> argument does not match the <dfn
        id=field-value><code>field-value</code> production</dfn> as defined by
        section 4.2 of RFC 2616 raise a <code>SYNTAX_ERR</code> and terminate
-       these steps. [<cite><a href="#RFC2616">RFC2616</a></cite>]
+       these steps. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]
 
      <li>
       <p>For security reasons, these steps <em class=ct>should</em> be
@@ -889,7 +888,7 @@ client.send();</code></pre>
       <p>If the <var>header</var> argument is in the list of request headers
        either use multiple headers, combine the values or use a combination
        of those (section 4.2, RFC 2616). [<cite><a
-       href="#RFC2616">RFC2616</a></cite>]
+       href="#ref-rfc2616">RFC2616</a></cite>]
      </li>
      <!-- XXX it seems UAs always combine the values -->
     </ol>
@@ -956,7 +955,7 @@ X-Test: one, two
       <p>If the <var>data</var> argument has not been omitted and is not
        <code>null</code> use it for the <dfn id=entity-body>entity body</dfn>
        as defined by section 7.2 of RFC 2616 observing the following rules:
-       [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
+       [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
 
       <dl class=switch>
        <dt><var>data</var> is a <code>DOMString</code>
@@ -1021,9 +1020,10 @@ X-Test: one, two
        <dt>If the response is an HTTP redirect
 
        <dd>
-        <p>If the redirect does not violate security or infinite loop
-         precautions and the scheme is supported transparently follow it and
-         go to the start of this step.</p>
+        <p>If the redirect does not violate security (it is <a
+         href="#same-origin">same-origin</a> for instance) or infinite loop
+         precautions and the scheme is supported transparently follow the
+         redirect and go to the start of this step.</p>
 
         <p class=note>HTTP places requirements on the user agent regarding
          the preservation of the request method and entity body during
@@ -1217,7 +1217,7 @@ X-Test: one, two
      by setting request headers (e.g., <code>If-None-Match</code>,
      <code>If-Modified-Since</code>), in which case <code>304 Not
      Modified</code> responses <em class=ct>must</em> be passed through.
-     [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
+     [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
 
     <p>If the user agent implements server-driven content-negotiation it <em
      class=ct>should</em> set <code>Accept-Language</code>,
@@ -1225,7 +1225,7 @@ X-Test: one, two
      appropriate; it <em class=ct>must not</em> automatically set the
      <code>Accept</code> header. Responses to such requests <em
      class=ct>must</em> have the content-encodings automatically decoded.
-     [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
+     [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
 
    <dt><dfn id=abort><code>abort()</code></dfn>, method
 
@@ -1441,7 +1441,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     class=ct>must not</em> bubble, <em class=ct>must not</em> be cancelable
     and <em class=ct>must</em> implement the <code>Event</code> interface.
     Its <code>namespaceURI</code> attribute <em class=ct>must</em> be
-    <code>null</code>. [<cite><a href="#DOM3EV">DOM3Events</a></cite>]
+    <code>null</code>. [<cite><a
+    href="#ref-dom3events">DOM3Events</a></cite>]
   </dl>
 
   <h3 id=exceptions><span class=secno>2.2. </span>Exceptions for the <code
@@ -1452,7 +1453,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code>ExceptionCode</code> and use the <code>DOMException</code> object
    which is defined in DOM Level 3 Core. In addition this specification
    extends the <code>ExceptionCode</code> group with several new constants as
-   indicated below. [<cite><a href="#DOM3">DOM3Core</a></cite>]
+   indicated below. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
 
   <pre
    class=idl>const unsigned short <a href="#security-err">SECURITY_ERR</a> = 18;
@@ -1514,14 +1515,14 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
   <h2 class=no-num id=bibref>References</h2>
 
   <dl>
-   <dt>[<dfn id=DOM3>DOM3Core</dfn>]
+   <dt>[<dfn id=ref-dom3core>DOM3Core</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
     Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
     H&eacute;garet, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne,
     editors. W3C, April 2004.
 
-   <dt>[<dfn id=DOM3EV>DOM3Events</dfn>]
+   <dt>[<dfn id=ref-dom3events>DOM3Events</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document
     Object Model (DOM) Level 3 Events Specification</a></cite> (work in
@@ -1533,7 +1534,7 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
     href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
     Language Specification</a></cite>, Third Edition. ECMA, December 1999.
 
-   <dt>[<dfn id=html5>HTML5</dfn>]
+   <dt>[<dfn id=ref-html5>HTML5</dfn>]
 
    <dd><cite><a
     href="http://www.whatwg.org/specs/web-apps/current-work/">HTML&nbsp;5</a></cite>
@@ -1545,12 +1546,17 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
     Extensions (MIME) Part Two: Media Types</a></cite>, N. Freed, N.
     Borenstein, editors. IETF, November 1996.
 
-   <dt>[<dfn id=RFC2119>RFC2119</dfn>]
+   <dt>[<dfn id=ref-rfc2119>RFC2119</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2119">Key words for use in RFCs
     to Indicate Requirement Levels</a></cite>, S. Bradner. IETF, March 1997.
 
-   <dt>[<dfn id=RFC2616>RFC2616</dfn>]
+   <dt>[<dfn id=ref-rfc2397>RFC2397</dfn>]
+
+   <dd><cite><a href="http://www.ietf.org/rfc/rfc2397">The "data" URL
+    scheme</a></cite>, L. Masinter. IETF, April, 1998.
+
+   <dt>[<dfn id=ref-rfc2616>RFC2616</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2616">Hypertext Transfer
     Protocol -- HTTP/1.1</a></cite>, R. Fielding, J. Gettys, J. Mogul, H.
@@ -1709,7 +1715,7 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
 
   <p>Special thanks also to the WHATWG for drafting an initial version of
    this specification in their Web Applications 1.0 document (now renamed to
-   HTML&nbsp;5). [<cite><a href="#html5">HTML5</a></cite>]
+   HTML&nbsp;5). [<cite><a href="#ref-html5">HTML5</a></cite>]
 
   <p>Thanks also to all those who have helped to improve this specification
    by sending suggestions and corrections. (Please, keep bugging us with your
