@@ -36,14 +36,13 @@
       <h2 id="pagesubtitle">W3C Working Draft 27 July 2007</h2>
       <dl>
       <dt>This version:</dt>
-         <dd><a href="http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.8">http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.8/</a></dd>
+         <dd><a href="http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.9">http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.9</a></dd>
         <dt>Latest version:</dt>
         <dd>
            <a href="http://www.w3.org/TR/ElementTraversal/">http://www.w3.org/TR/ElementTraversal/</a>
         </dd>
          <dt>Previous version:</dt>
-        <dd><a href="http://www.w3.org/TR/2007/WD-ElementTraversal-20070727/">http://www.w3.org/TR/2007/WD-ElementTraversal-20070727/</a></dd>
-
+         <dd><a href="http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.8">http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.8</a></dd>
       </dl>
        <dl>
             <dt>Editor:</dt>
@@ -61,7 +60,7 @@
       <h2 id="specabstract">Abstract</h2>
 
       <p> 
-         This specification defines the ElementTraversal interface, which allows script navigation of the elements of a DOM tree, excluding all other nodes in the DOM, such as text nodes. It also provides a property to expose the number of child elements of an element.  It is intended to provide a more convenient alternative to existing DOM navigation interfaces, with a low implementation footprint. 
+         This specification defines the ElementTraversal interface, which allows script navigation of the elements of a DOM tree, excluding all other nodes in the DOM, such as text nodes. It also provides a attribute to expose the number of child elements of an element.  It is intended to provide a more convenient alternative to existing DOM navigation interfaces, with a low implementation footprint. 
       </p>
     </div>
 
@@ -184,7 +183,7 @@
       </p>
 
       <p>
-         The DOM 1 <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1950641247"><code>Node</code> interface</a> also defines the <code>childNodes</code> attribute, which is a live list of all child nodes of the node, and which has a <code>length</code> property to exposes the total number of child nodes.  The <code>length</code> property is useful for preprocessing operations and calculations before, or instead of, looping through the child nodes.  ElementTraversal's <code>childElementCount</code> provides similar functionality, but only reports the number of element nodes, which is often what is desired for such operations.
+         The DOM 1 <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1950641247"><code>Node</code> interface</a> also defines the <code>childNodes</code> attribute, which is a live list of all child nodes of the node, and which has a <code>length</code> attribute to exposes the total number of child nodes.  The <code>length</code> attribute is useful for preprocessing operations and calculations before, or instead of, looping through the child nodes.  ElementTraversal's <code>childElementCount</code> provides similar functionality, but only reports the number of element nodes, which is often what is desired for such operations.
       </p>
 
 
@@ -196,7 +195,7 @@
          </p>
 
          <p> 
-            This specification does not include the complete list of properties, methods, and other interfaces available on the <code>Element</code> object.  Additional interfaces are found in other specifications, notably the DOM Core specifications.
+            This specification does not include the complete list of attributes, methods, and other interfaces available on the <code>Element</code> object.  Additional interfaces are found in other specifications, notably the DOM Core specifications.
          </p>
       </div>
 
@@ -231,41 +230,41 @@
       </p>
 
       <p>
-         The ElementTraversal interface is a set of properties on the <code>Element</code> object, which allow an author to easily navigate between elements.  Four of the properties, <code>firstElementChild</code>, <code>lastElementChild</code>, <code>previousElementSibling</code>, and <code>nextElementSibling</code>, each provide a live reference to another element with the defined relationship to the current element, if the related element exists.  The fifth property, <code>childElementCount</code>, exposes the number of child elements of an element, for preprocessing before navigation.  A conforming User Agent must implement all five methods.  A  User Agent may implement similar interfaces in other specifications, but such implementation is not required for conformance to this specification, if the User Agent is designed for a minimal code footprint.  
+         The ElementTraversal interface is a set of attributes which allow an author to easily navigate between elements in a document.  In conforming implementations of ElementTraversal, all objects that implement <code>Element</code> must also implement ElementTraversal.  Four of the attributes, <code>firstElementChild</code>, <code>lastElementChild</code>, <code>previousElementSibling</code>, and <code>nextElementSibling</code>, each provide a live reference to another element with the defined relationship to the current element, if the related element exists.  The fifth attribute, <code>childElementCount</code>, exposes the number of child elements of an element, for preprocessing before navigation.  A conforming User Agent must implement all five methods.  A  User Agent may implement similar interfaces in other specifications, but such implementation is not required for conformance to this specification, if the User Agent is designed for a minimal code footprint.  
       </p>
 
       <p> 
-         This interface must be implemented on all elements, regardless of their namespace. For the purpose of ElementTraversal, an entity reference node which represents an element must be treated as an element node.  Navigation must be irrespective of namespace, e.g. if an element in the HTML namespace is followed by element in the SVG namespace, <code>nextElementSibling</code> will allow you to navigate from the HTML element to the SVG element. 
+         This interface must be implemented on all elements, regardless of their namespace. For the purpose of ElementTraversal, an entity reference node which represents an element must be treated as an element node.  Navigation must be irrespective of namespace, e.g. if an element in the HTML namespace is followed by element in the SVG namespace, the <code>nextElementSibling</code> attribute on the HTML element will return the SVG element. 
       </p>
 
       <h3 id="elementTraversal-firstElementChild">2.1. <code>firstElementChild</code></h3>
       
       <p>
-         Accessing this property of an element must return a reference to the first child node of that element which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this property is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this property must return null. 
+         Accessing this attribute of an element must return a reference to the first child node of that element which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this attribute is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this attribute must return null. 
       </p>
 
       <h3 id="elementTraversal-lastElementChild">2.2. <code>lastElementChild</code></h3>
       
       <p>
-         Accessing this property of an element must return a reference to the last child node of that element which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this property is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this property must return null. 
+         Accessing this attribute of an element must return a reference to the last child node of that element which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this attribute is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this attribute must return null. 
       </p>
 
       <h3 id="elementTraversal-previousElementSibling">2.3. <code>previousElementSibling</code></h3>
       
       <p>
-         Accessing this property of an element must return a reference to the sibling node of that element which most immediately precedes that element in document order, and which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this property is accessed does not have any preceding sibling nodes, or if none of those preceding sibling nodes are element nodes, then this property must return null. 
+         Accessing this attribute of an element must return a reference to the sibling node of that element which most immediately precedes that element in document order, and which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this attribute is accessed does not have any preceding sibling nodes, or if none of those preceding sibling nodes are element nodes, then this attribute must return null. 
       </p>
 
       <h3 id="elementTraversal-nextElementSibling">2.4. <code>nextElementSibling</code></h3>
       
       <p>
-         Accessing this property of an element must return a reference to the sibling node of that element which most immediately follows that element in document order, and which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this property is accessed does not have any following sibling nodes, or if none of those following sibling nodes are element nodes, then this property must return null. 
+         Accessing this attribute of an element must return a reference to the sibling node of that element which most immediately follows that element in document order, and which is of <code>nodeType</code> 1, as an <code>Element</code> object.  If the element on which this attribute is accessed does not have any following sibling nodes, or if none of those following sibling nodes are element nodes, then this attribute must return null. 
       </p>
 
       <h3 id="elementTraversal-childElementCount">2.5. <code>childElementCount</code></h3>
 
       <p>
-         Accessing this property of an element must return the current number of child nodes of that element which are of <code>nodeType</code> 1.  An implementation may store this number, or it may calculate it upon evocation of this property, but the number must always represent the number of child element nodes at the time the property is accessed.  Only immediate child nodes must counted, e.g. elements which are child nodes of one of the child nodes of the element on which the property is accessed are not included in this count.  If the element on which this property is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this property must return 0. 
+         Accessing this attribute of an element must return the current number of child nodes of that element which are of <code>nodeType</code> 1.  An implementation may store this number, or it may calculate it upon evocation of this attribute, but the number must always represent the number of child element nodes at the time the attribute is accessed.  Only immediate child nodes must counted, e.g. elements which are child nodes of one of the child nodes of the element on which the attribute is accessed are not included in this count.  If the element on which this attribute is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this attribute must return 0. 
       </p>
 
    </div>
@@ -514,25 +513,25 @@ interface ElementTraversal
             <dt>Object <code>Element</code></dt>
             <dd>
                <dl>
-                  <dt><code>Element</code> has the all the properties and methods of <code>Node</code> and <code>Element</code> as defined in other DOM specifications, and in addition has the properties defined below.</dt>
+                  <dt><code>Element</code> has the all the attributes and methods of <code>Node</code> and <code>Element</code> as defined in other DOM specifications, and in addition has the attributes defined below.</dt>
 
-                  <dt>The <code>Element</code> object has the following properties:</dt>
+                  <dt>The <code>Element</code> object has the following attributes:</dt>
                   <dd>
                      <dl>
                         <dt><code>firstElementChild</code></dt>
-                        <dd>This read-only property is of type <code>Element</code>.</dd>
+                        <dd>This read-only attribute is of type <code>Element</code>.</dd>
 
                         <dt><code>lastElementChild</code></dt>
-                        <dd>This read-only property is of type <code>Element</code>.</dd>
+                        <dd>This read-only attribute is of type <code>Element</code>.</dd>
 
                         <dt><code>previousElementSibling</code></dt>
-                        <dd>This read-only property is of type <code>Element</code>.</dd>
+                        <dd>This read-only attribute is of type <code>Element</code>.</dd>
 
                         <dt><code>nextElementSibling</code></dt>
-                        <dd>This read-only property is of type <code>Element</code>.</dd>
+                        <dd>This read-only attribute is of type <code>Element</code>.</dd>
 
                         <dt><code>childElementCount</code></dt>
-                        <dd>This read-only property is of type <code>Number</code>.</dd>
+                        <dd>This read-only attribute is of type <code>Number</code>.</dd>
                      </dl>
                   </dd>
                </dl>
@@ -637,7 +636,7 @@ public interface ElementTraversal
       <h2 id="acknow">F. Acknowledgments</h2>
 
       <p> 
-         The editor would like to thank the following people for contributing to this specification: Robin Berjon, Chris Lilley, Nandini Ramani, Andrew Sledd, Charles McCathieNevile, Jean-Yves Bitterlich, Bjoern Hoehrmann, and Chaals Macca.  The editor would additionally like to thank the SVG <acronym title="Working Group">WG</acronym> for producing the draft [<a href="#SVGD">SVGD</a>] on which this was initially based.
+         The editor would like to thank the following people for contributing to this specification: Robin Berjon, Chris Lilley, Nandini Ramani, Andrew Sledd, Charles McCathieNevile, Jean-Yves Bitterlich, Bjoern Hoehrmann, Simon Pieters, and Cameron McCormack.  The editor would additionally like to thank the SVG <acronym title="Working Group">WG</acronym> for producing the draft [<a href="#SVGD">SVGD</a>] on which this was initially based.
       </p>
 
    </div>
