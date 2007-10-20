@@ -4,8 +4,6 @@
 
     <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
     <title>ElementTraversal Specification</title>
-
-    <link rel="stylesheet" type="text/css" media="screen" href="http://www.w3.org/Stylesheets/TR/Base.css"/>
     
     <style type="text/css"><![CDATA[
       .issue 
@@ -16,7 +14,7 @@
       
       .note 
       { 
-         color:green 
+         color:green; 
       }
       
       .example 
@@ -25,41 +23,35 @@
          padding-left: 2em; 
       }
    ]]></style>
-
+   <link rel="stylesheet" type="text/css" href="http://www.w3.org/StyleSheets/TR/W3C-WD"/>
   </head>
   <body>
 
 
     <div class="head">
       <p>
-        <a href="http://www.w3.org/">
-          <img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"
-          />
-        </a>
+         <a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"/></a>
       </p>
-      <h1 class="head">The ElementTraversal Specification</h1>
-      <h2 id="pagesubtitle">W3C Editor's Draft <em>24 April 2007</em></h2>
+      <h1 class="head">ElementTraversal Specification</h1>
+      <h2 id="pagesubtitle">W3C Working Draft 27 July 2007</h2>
       <dl>
       <dt>This version:</dt>
-          <dd><a href="http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.7">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.7</a>
-        </dd>
-        <dt>Latest Editor's draft:</dt>
+         <dd><a href="http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.8">http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.8/</a></dd>
+        <dt>Latest version:</dt>
         <dd>
-          <a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/ElementTraversal/publish/ElementTraversal.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/ElementTraversal/publish/ElementTraversal.html</a>
+           <a href="http://www.w3.org/TR/ElementTraversal/">http://www.w3.org/TR/ElementTraversal/</a>
         </dd>
-        <dt>Previous Editor's draft:</dt>
+         <dt>Previous version:</dt>
+        <dd><a href="http://www.w3.org/TR/2007/WD-ElementTraversal-20070727/">http://www.w3.org/TR/2007/WD-ElementTraversal-20070727/</a></dd>
+
+      </dl>
+       <dl>
+            <dt>Editor:</dt>
         <dd>
-          <a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.5">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/ElementTraversal/publish/ElementTraversal.html?rev=1.5</a>
-        </dd>
-        <dt>Editor:</dt>
-        <dd>
-          <span class="person"><a href="http://schepers.cc/">Doug Schepers</a> (<a href="http://vectoreal.com/">Vectoreal</a>) &lt;<a href="mailto:doug.schepers@vectoreal.com">doug.schepers@vectoreal.com</a>&gt;</span>
+           <span class="person"><a href="http://schepers.cc/">Doug Schepers</a> (<a href="http://www.w3.org/">W3C</a>, formerly <a href="http://vectoreal.com/">Vectoreal</a>) &lt;<a href="mailto:schepers@w3.org">schepers@w3.org</a>&gt;</span>
         </dd>
       </dl>
-      <p class="copyright">
-         <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>&copy;2006-2007 <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>&reg;</sup> (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>, 
-         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply. 
-      </p>
+       <p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2007 <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>&reg;</sup> (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>, <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.</p>
    </div>
    <hr/>
 
@@ -69,32 +61,34 @@
       <h2 id="specabstract">Abstract</h2>
 
       <p> 
-         This specification defines the ElementTraversal interface, which allow script navigation of the elements of a DOM tree, excluding all other nodes in the DOM, such as text nodes. It also provides a property to expose the number of child elements of an element.  It is intended to provide a more convenient alternative to existing DOM navigation interfaces, with a low implementation footprint. 
+         This specification defines the ElementTraversal interface, which allows script navigation of the elements of a DOM tree, excluding all other nodes in the DOM, such as text nodes. It also provides a property to expose the number of child elements of an element.  It is intended to provide a more convenient alternative to existing DOM navigation interfaces, with a low implementation footprint. 
       </p>
     </div>
 
     <div class="section">
       <h2 id="sotd">Status of this Document</h2>
+       
+       
 
       <p>
          <em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><acronym title="World Wide Web Consortium">W3C</acronym> technical reports index</a> at http://www.w3.org/TR/.</em>
       </p>
 
-      <p>
-         This document is produced by the <a href="http://www.w3.org/2006/webapi">Web API <acronym title="Working Group">WG</acronym></a> (part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>). This document has no formal standing within the <acronym title="World Wide Web Consortium">W3C</acronym>. Please send comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the public email list for issues related to Web APIs. 
-      </p>
-
-      <p> 
-         The patent policy for this document is the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>. Patent disclosures relevant to this specification may be found on the <a href="http://www.w3.org/2004/01/pp-impl/38482/status" rel="disclosure">Web API Working Group's patent disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes contains Essential Claim(s) with respect to this specification should disclose the information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6 of the <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>. 
-      </p>
-
-      <p> 
-         Publication as an Editor's Draft does not imply endorsement by the <acronym title="World Wide Web Consortium">W3C</acronym> Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress. 
-      </p>
-   </div>
+       <p>This is a First Public Working Draft of ElementTraversal 1.0.</p>
+       
+       <p> This document was originally published as part of the <a href="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__ElementTraversal">SVG Tiny 1.2 specification</a> in the SVG namespace.  At the request of the SVG, CDF, JCP, and other groups, it was transferred to the WebAPI WG, and migrated to DOM and DOM namespace as a generic facility.</p>
+       
+       <p>This document was developed by the <a href="http://www.w3.org/2006/webapi">Web API <acronym title="Working Group">WG</acronym></a> (part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>).  The Working Group expects to advance this Working Draft to Recommendation Status.</p>
+       
+       <p>Please send comments about this document to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (with <a href="http://lists.w3.org/Archives/Public/public-webapi/">public archive</a>).</p>
+       
+       <p>Publication as a Working Draft does not imply endorsement by the W3C Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress.</p>
+       
+       <p> This document was produced by a group operating under the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 W3C Patent Policy</a>. W3C maintains a <a rel="disclosure" href="http://www.w3.org/2004/01/pp-impl/38482/status">public list of any patent disclosures</a> made in connection with the deliverables of the group; that page also includes instructions for disclosing a patent. An individual who has actual knowledge of a patent which the individual believes contains <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential Claim(s)</a> must disclose the information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6 of the W3C Patent Policy</a>.</p>
+    </div>
 
    <div class="section">
-      <h2 id="contents">Table of contents</h2>
+      <h2 id="contents">Table of Contents</h2>
 
       <ul class="toc">
         <li>
@@ -182,11 +176,11 @@
       <h2 id="introduction">1. Introduction</h2>
 
       <p>
-         The <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1950641247"><code>Node</code> interface</a> defines 11 node types, but most commonly authors wish to operate solely on <code>nodeType</code> 1, the <code>element</code> node. Other node types include the <code>document</code> element and <code>text</code> nodes, which include whitespace and linebreaks. DOM 1 node traversal includes all of these node types, which is often a source of confusion for authors and which requires an extra step for authors to confirm that the expected <code>element</code> node interfaces are available. This introduces an additional performance constraint.
+         The <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1950641247"><code>Node</code> interface</a> defines 11 node types, but most commonly authors wish to operate solely on <code>nodeType</code> 1, the <code>element</code> node. Other node types include the <code>document</code> element and <code>text</code> nodes, which include whitespace and line breaks. DOM 1 node traversal includes all of these node types, which is often a source of confusion for authors and which requires an extra step for authors to confirm that the expected <code>element</code> node interfaces are available. This introduces an additional performance constraint.
       </p>
 
       <p>
-         ElementTraversal is an interface that allows the author to restrict navigation to <code>element</code> nodes.  It permits navigation from an element to its first element child, its last element child, and to its next or previous element siblings. Because the implementation exposes only the element nodes, the memory and computational footprint of the DOM representation can be optimized for contrained devices. 
+         ElementTraversal is an interface that allows the author to restrict navigation to <code>element</code> nodes.  It permits navigation from an element to its first element child, its last element child, and to its next or previous element siblings. Because the implementation exposes only the element nodes, the memory and computational footprint of the DOM representation can be optimized for constrained devices. 
       </p>
 
       <p>
@@ -237,7 +231,7 @@
       </p>
 
       <p>
-         The ElementTraversal interface is a set of properties on the <code>Element</code> object, which allow an author to easily navigate between elements.  Four of the properties, <code>firstElementChild</code>, <code>lastElementChild</code>, <code>previousElementSibling</code>, and <code>nextElementSibling</code>, each provide a live reference to another element with the defined relationship to the current element, if the related element exists.  The fifth property, <code>childElementCount</code>, exposes the number of child elements of an element, for preprocessing before navigation.  A conforming User Agent must implement all five methods.  A  User Agent may implement similar interfaces in other specifications, but such implementation is not required for conformnce to this specification, if the User Agent is designed for a minimal code footprint.  
+         The ElementTraversal interface is a set of properties on the <code>Element</code> object, which allow an author to easily navigate between elements.  Four of the properties, <code>firstElementChild</code>, <code>lastElementChild</code>, <code>previousElementSibling</code>, and <code>nextElementSibling</code>, each provide a live reference to another element with the defined relationship to the current element, if the related element exists.  The fifth property, <code>childElementCount</code>, exposes the number of child elements of an element, for preprocessing before navigation.  A conforming User Agent must implement all five methods.  A  User Agent may implement similar interfaces in other specifications, but such implementation is not required for conformance to this specification, if the User Agent is designed for a minimal code footprint.  
       </p>
 
       <p> 
@@ -576,6 +570,7 @@ public interface ElementTraversal
 
    <div class="section">
       <h2 id="change">D. Change History</h2>
+      <!--
       <dl>
          <dt><a href="http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__ElementTraversal">http://www.w3.org/TR/SVGMobile12/svgudom.html#svg__ElementTraversal</a></dt>
             <dd>
@@ -604,8 +599,9 @@ public interface ElementTraversal
                   Reordered some sections for clarity of reading.
                </p>
             </dd>
-      </dl>
 
+      </dl>
+       -->
       <p>
          Various editorial changes and corrections and modifications to the examples are made from draft to draft.
       </p>
