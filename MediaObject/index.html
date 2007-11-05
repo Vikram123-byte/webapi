@@ -1,0 +1,916 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+
+    <meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+    <title>MediaObject Specification</title>
+
+    <link rel="stylesheet" type="text/css" media="screen" href="http://www.w3.org/Stylesheets/TR/Base.css"/>
+    
+    <style type="text/css"><![CDATA[
+      .issue 
+      { 
+         background-color: #ffffbf; 
+         border: 2px dashed red;
+      }
+      
+      .note 
+      { 
+         color:green 
+      }
+      
+      .example 
+      { 
+         border:2px double gray; 
+         padding-left: 2em; 
+      }
+   ]]></style>
+
+  </head>
+  <body>
+
+
+    <div class="head">
+      <p>
+        <a href="http://www.w3.org/">
+          <img class="head" src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"
+          />
+        </a>
+      </p>
+      <h1 class="head">The Media Object Specification</h1>
+      <h2 id="pagesubtitle">W3C Editor's Draft <em>10 May 2007</em></h2>
+      <dl>
+      <dt>This version:</dt>
+          <dd><a href="http://dev.w3.org/cvsweb/%7Echeckout%7E/2006/webapi/MediaObject/publish/MediaObject.html?rev=1.5">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html?rev=1.5</a>
+        </dd>
+        <dt>Latest Editor's draft:</dt>
+        <dd>
+          <a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html</a>
+        </dd>
+        <!--
+        <dt>Previous Editor's draft:</dt>
+        <dd>
+          <a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html?rev=1.0">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html?rev=1.0</a>
+        </dd>
+        -->
+        <dt>Editor:</dt>
+        <dd>
+          <span class="person"><a href="http://schepers.cc/">Doug Schepers</a> (<a href="http://vectoreal.com/">Vectoreal</a>) &lt;<a href="mailto:doug.schepers@vectoreal.com">doug.schepers@vectoreal.com</a>&gt;</span>
+        </dd>
+      </dl>
+      <p class="copyright">
+         <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>&copy;2006-2007 <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>&reg;</sup> (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>, 
+         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply. 
+      </p>
+   </div>
+   <hr/>
+
+
+
+   <div class="section">
+      <h2 id="specabstract">Abstract</h2>
+
+      <p> 
+         This specification defines the Media Object interface, which provides information about various types of media.  The Media Object interface does not provide any information about the DOM properties associated with a file, but rather exposes information encoded in the native file format and provides information about the source and state of the file.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2 id="sotd">Status of this Document</h2>
+
+      <p>
+         <em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the latest revision of this technical report can be found in the <a href="http://www.w3.org/TR/"><acronym title="World Wide Web Consortium">W3C</acronym> technical reports index</a> at http://www.w3.org/TR/.</em>
+      </p>
+
+      <p>
+         This document is produced by the <a href="http://www.w3.org/2006/webapi">Web API <acronym title="Working Group">WG</acronym></a> (part of the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>). This document has no formal standing within the <acronym title="World Wide Web Consortium">W3C</acronym>. Please send comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>, the public email list for issues related to Web APIs. 
+      </p>
+
+      <p> 
+         The patent policy for this document is the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>. Patent disclosures relevant to this specification may be found on the <a href="http://www.w3.org/2004/01/pp-impl/38482/status" rel="disclosure">Web API Working Group's patent disclosure page</a>. An individual who has actual knowledge of a patent which the individual believes contains Essential Claim(s) with respect to this specification should disclose the information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 6 of the <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>. 
+      </p>
+
+      <p> 
+         Publication as an Editor's Draft does not imply endorsement by the <acronym title="World Wide Web Consortium">W3C</acronym> Membership. This is a draft document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate to cite this document as other than work in progress. 
+      </p>
+   </div>
+
+   <div class="section">
+      <h2 id="contents">Table of contents</h2>
+
+      <ul class="toc">
+         <li>
+            <a href="#introduction">1. Introduction</a>
+         </li>
+         <li>
+            <ul class="toc">
+               <li>
+                  <a href="#defs">1.1. Definitions</a>
+               </li>
+               <li>
+                  <a href="#notcovered">1.2. Not in This Specification</a>
+               </li>
+               <li>
+                  <a href="#conformance">1.3. Conformance</a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#MediaObject">2. MediaObject Interface</a>
+         </li>
+         <li>
+            <ul class="toc">
+               <li>
+                  <a href="#MediaObject-type">2.1. <code class="prop-name">type</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-mimeType">2.2. <code class="prop-name">mimeType</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-width">2.3. <code class="prop-name">width</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-height">2.4. <code class="prop-name">height</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-duration">2.5. <code class="prop-name">duration</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-fileSize">2.6. <code class="prop-name">fileSize</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-sourceUri ">2.7. <code class="prop-name">sourceUri </code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-metadata">2.8. <code class="prop-name">metadata</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-name">2.9. <code class="prop-name">name</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-title">2.10. <code class="prop-name">title</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-author">2.11. <code class="prop-name">author</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-createDate">2.12. <code class="prop-name">createDate</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-modifyDate">2.13. <code class="prop-name">modifyDate</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-vRes">2.14. <code class="prop-name">vRes</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-hRes">2.15. <code class="prop-name">hRes</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-bitDepth">2.16. <code class="prop-name">bitDepth</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-channels">2.17. <code class="prop-name">channels</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-frameCount">2.18. <code class="prop-name">frameCount</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-audioBitRate">2.19. <code class="prop-name">audioBitRate</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-audioSampleRate">2.20. <code class="prop-name">audioSampleRate</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-audioSampleSize">2.21. <code class="prop-name">audioSampleSize</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-videoFrameRate">2.22. <code class="prop-name">videoFrameRate</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-videoDataRate">2.23. <code class="prop-name">videoDataRate</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-videoSampleSize">2.24. <code class="prop-name">videoSampleSize</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-completed">2.25. <code class="prop-name">completed</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-compression">2.26. <code class="prop-name">compression</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-protected">2.27. <code class="prop-name">protected</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-rights">2.28. <code class="prop-name">rights</code></a>
+               </li>
+               <li>
+                  <a href="#MediaObject-license">2.29. <code class="prop-name">license</code></a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#usage">3. Examples of usage</a>
+         </li>
+         <li>
+            <a href="#relationships">4. Relationship to other specifications</a>
+         </li>
+         <li>
+            <ul class="toc">
+               <li>
+                  <a href="#rel-dom3core">4.1. <acronym title="Document Object Model">DOM</acronym> Level 3 Core</a>
+               </li>
+            </ul>
+         </li>
+         <li>
+         <a href="#security">5. Security Considerations</a>
+         </li>
+      </ul>
+      <ul class="toc">
+         <li>
+            <a href="#idl">A. IDL Definitions</a>
+         </li>
+         <li>
+            <a href="#ecmascript-bindings">B. ECMAScript Language Binding</a>
+         </li>
+         <li>
+            <a href="#java-bindings">C. Java Language Binding</a>
+         </li>
+         <li>
+            <a href="#change">D. Change History</a>
+         </li>
+         <li>
+            <a href="#bibref">E. References</a>
+         </li>
+         <li>
+            <a href="#acknow">F. Acknowledgements</a>
+         </li>
+      </ul>
+
+   </div>
+
+   <div class="section">
+      <h2 id="introduction">1. Introduction</h2>
+
+      <p>
+         An increasing amount of content on the Web is based on raster images, video, and audio.  Concurrently, there is a strong common interest in supplying metadata for media content.  Each piece of media has some kind of metadata, such as the height and width of a picture, the length of a video, or the artist and title of an audio file, but there is no standardized manner to access this information.
+      </p>
+
+      <p>
+         MediaObject is an interface that provides access to this information via script.  Certain generalized information is exposed discretely, and other data can be accessed as a undifferentiate string that the author can parse. 
+      </p>
+
+      <p>
+         The MediaObject interface is intended for use with non-textual media, but it may be suitable for use with certain mixed-media document formats such as PDF. 
+      </p>
+
+      <p>
+      </p>
+
+
+      <div class="section">
+         <h3 id="defs">1.1. Definitions</h3>
+
+         <p>
+            <strong>This section is normative.</strong>
+         </p>
+
+         <dl>
+            <dl>
+               <dt><span id="MediaObject_def_extrinsic-metadata" class="dom-attr-name">extrinsic metadata</span></dt>
+               <dd>Metadata that do not affect the rendering of the media (e.g. author, data created, etc.)</dd>
+            </dl>
+            <dl>
+               <dt><span id="MediaObject_def_intrinsic-metadata" class="dom-attr-name">intrinsic metadata</span></dt>
+               <dd>Metadata that do affect the rendering of the media (e.g. width, height, duration, etc.)</dd>
+            </dl>
+            <dl>
+               <dt>
+                  <span id="MediaObject_def_format" class="dom-attr-name">format</span>
+               </dt>
+               <dd> </dd>
+            </dl>
+            <dl>
+               <dt>
+                  <span id="MediaObject_def_metadata" class="dom-attr-name">metadata</span>
+               </dt>
+               <dd> </dd>
+            </dl>
+         </dl>
+      </div>
+
+
+      <div class="section">
+         <h3 id="notcovered">1.2. Not in This Specification</h3>
+
+         <p>
+            <strong>This section is informative.</strong>
+         </p>
+
+         <p> 
+            This specification does not mandate or proscribe the type of metadata that may be used in a file or format.  The interfaces described in this specification do not provide information about the elements associated with a media file, which is available in interfaces described in other specification, such as DOM.  This specification does not dictate which elements implement these interfaces for any given specification or technology, nor does it place any limitations on which media types are available for any given element. 
+         </p>
+      </div>
+
+      <div class="section">
+         <h3 id="conformance">1.3. Conformance</h3>
+
+         <p> 
+            The key words "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>",
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em>", 
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em>",
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em>", 
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL NOT</em>", 
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em>", 
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em>", 
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em>", 
+            "<em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em>", 
+            and "<em class="rfc2119" title="Keyword in RFC 2119 context">OPTIONAL</em>" in this document are to be interpreted as described in RFC 2119 [<cite><a href="#RFC2119" class="bibref">RFC2119</a></cite>].  For purposes of readability, these terms are not necessarily used in a case-sensitive manner in this document.
+         </p>
+
+         <p> 
+            Sometimes, for readability, conformance requirements are phrased as requirements on elements, attributes, methods, interfaces, properties or functions. In all cases these are conformance requirements on implementations.  A conforming implementation of this specification meets all requirements identified by the use of these terms, within the scope of its language bindings. 
+         </p>
+      </div>
+   </div>
+
+
+   <div class="section">
+      <h2 id="MediaObject">2. MediaObject Interface</h2>
+      
+      <p>
+         <strong>This section is normative.</strong>
+      </p>
+
+      <p class='issue'>
+         @@ISSUE: should we allow some metadata to be read-write, or only read?  write permission would be useful for tagging, which is getting very popular
+      </p>
+
+      <p class='issue'>
+         @@ISSUE: are there any considerations for &lt;canvas&gt; that should be taken into account?  can this help inform that spec?
+      </p>
+
+      <p class='issue'>
+         @@ISSUE: SVG should specify some way of extracting height and width on the root element for this interface... for percentages, absolute values could be derived by the referencing element's dimensions and/or the innerWidth/Height 
+      </p>
+
+      <p class='issue'>
+         @@ISSUE: should we allow someone to create a new instance of a MediaObject (similar to "var myImage = new Image()")?  could this be useful for preloading?  or should we force them to create an element and access it from there?  should this be up to the host language? 
+      </p>
+
+      <p>
+         The MediaObject interface is a set of properties and methods available on <code>Element</code> nodes which contain reference to external or encoded media.  This includes, but is is not limited to raster images, and video and audio files or streams.
+      </p>
+
+      <p> 
+         This interface should be implemented on all elements which provide referenced or embedded non-textual media.  It may be implemented on elements which provide text-based media where appropriate (for example, PDF or SVG).  The manner in which data and metadata is associated with a particular file can vary, from a wrapper that encloses the format, to native format information, to externally-defined data embedded in the file.  How this information is extracted from the media file must be decided by each implementation for each MIME Type, and should be informed by mandated methods for that format.
+      </p>
+
+      <p>
+         Not all properties of this interface are applicable to all media types (e.g. audio media does not have a width or height).  Additionally, not all properties that are applicable to a given media type may be available on a particular file of that type (e.g. while the <span class="attr-name">'author'</span> property is available on most media types, the device or application that created the file may not have assigned a value to this property).  If a media file does not provide information about a property, whether it is applicable to that media type or not, the User Agent must return <code class="attr-value">null</code> when that property is accessed via this interface, and must not throw any exceptions.  Finally, a media file that may not be expected to have a particular property may nonetheless have a value for it (for example, while GIF files are generally considered to be a static raster format, they can have a duration, and less intuitively, an audio file could possess a width and height for unknown reasons); since the availability for a given datum on a media file may not match User Agent expectations, a User Agent must present all data available for a given media file.  
+      </p>
+
+      <p>
+         Depending on the file format, the metadata may be available even if the file is not fully loaded (for instance, the metadata information may be in the header of the file).  A User Agent must expose metadata as soon as it is available, regardless of the file's state of completeness.
+      </p>
+
+      <p>
+         Certain metadata have intrinsic values related to the format of the media, such as height or duration; these data must be read only.  A User Agent must not allow an author to modify intrinsic values for the media file.  Other metadata reflect extrinsic properties for the media file, such as the title, the author, or any keywords. A User Agent may allow an author to modify extrinsic (mutable) values for the media file.    
+      </p>
+
+
+      
+      <p class='issue'>
+         @@ISSUE: how discrete/specific should we get with exposing properties? 
+      </p>
+
+
+      <h3 id="MediaObject-type">2.1. <code class="prop-name">type</code></h3>
+      <p>
+          ('audio' | 'video' | 'raster' | 'vector')
+      </p>
+
+
+      <h3 id="MediaObject-mimeType">2.2. <code class="prop-name">mimeType</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-width">2.3. <code class="prop-name">width</code></h3>
+      <p>
+         natural width in pixels
+      </p>
+
+
+      <h3 id="MediaObject-height">2.4. <code class="prop-name">height</code></h3>
+      <p>
+         natural height in pixels
+      </p>
+
+
+      <h3 id="MediaObject-duration">2.5. <code class="prop-name">duration</code></h3>
+      <p>
+          (for video/audio)
+      </p>
+
+
+      <h3 id="MediaObject-fileSize">2.6. <code class="prop-name">fileSize</code></h3>
+      <p>
+         Size of the media in bytes
+      </p>
+
+
+      <h3 id="MediaObject-sourceUri ">2.7. <code class="prop-name">sourceUri </code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-metadata">2.8. <code class="prop-name">metadata</code></h3>
+      <p>
+         The <code class="prop-name">metadata</code> property must provide access to any metadata available for a media file, regardless of format.  Accessing this property must return a string which contains the available metadata.  Depending on this format, this metadata string may be a flat text file, XML, RDF, or even a binary encoding; how this metadata string is parsed and used is left to the author.  
+      </p>
+
+      <p>
+         Metadata may be natively supported, or a separate format attached to the file.  With mixed metadata available, not all metadata may agree <span class="issue">[how to resolve?]</span>.  A User Agent may let the author of a document modify the contents of a <code class="prop-name">metadata</code> via script, unless the <code class="prop-name">protected</code> property of a file is file has a value of <code class="prop-value">true</code>, in which case any attempt to change the <code class="prop-name">metadata</code> content should throw an <code class="error">NO_MODIFICATION_ALLOWED_ERR</code> exception.  
+      </p>
+
+      <h4 id="MediaObject-metadata-authoring">2.1.1. Authoring guidelines</h4>
+      
+      <p>
+         The responsibility for verifying the metadata format and content rests with the author of the script, as does confirming the consistency of the content.  As a best practice, the author must not modify metadata in a way that violates the rights of the original creator of the file; supplemental metadata is preferred to removal or alteration of original metadata.  Note that not all User Agents will permit modification of extrinsic metadata, so the author should not rely on this facility.
+      </p>
+
+      <h4 id="MediaObject-future">2.1.2. Intrinsic Metadata</h4>
+      
+      <p>
+         The following list is being considered for individual property names.  We need to find the proper tradeoff between simplicity and ease of implementation, and ease and convenience of authoring. 
+      </p>
+
+      <h3 id="MediaObject-name">2.9. <code class="prop-name">name</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-title">2.10. <code class="prop-name">title</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-author">2.11. <code class="prop-name">author</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-createDate">2.12. <code class="prop-name">createDate</code></h3>
+      <p>
+         date media was created in ISO-8601 format
+      </p>
+
+
+      <h3 id="MediaObject-modifyDate">2.13. <code class="prop-name">modifyDate</code></h3>
+      <p>
+         date media was last modified in ISO-8601 format
+      </p>
+
+
+      <h3 id="MediaObject-vRes">2.14. <code class="prop-name">vRes</code></h3>
+      <p>
+         vertical resolution in dpi (dots per inch)
+      </p>
+
+
+      <h3 id="MediaObject-hRes">2.15. <code class="prop-name">hRes</code></h3>
+      <p>
+         horizontal resolution in dpi (dots per inch)
+      </p>
+
+
+      <h3 id="MediaObject-bitDepth">2.16. <code class="prop-name">bitDepth</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-channels">2.17. <code class="prop-name">channels</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-frameCount">2.18. <code class="prop-name">frameCount</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-audioBitRate">2.19. <code class="prop-name">audioBitRate</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-audioSampleRate">2.20. <code class="prop-name">audioSampleRate</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-audioSampleSize">2.21. <code class="prop-name">audioSampleSize</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-videoFrameRate">2.22. <code class="prop-name">videoFrameRate</code></h3>
+      <p>
+         (frames/second) [avi]
+      </p>
+
+
+      <h3 id="MediaObject-videoDataRate">2.23. <code class="prop-name">videoDataRate</code></h3>
+      <p>
+         videoDataRate? [wmf]
+      </p>
+
+
+      <h3 id="MediaObject-videoSampleSize">2.24. <code class="prop-name">videoSampleSize</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-completed">2.25. <code class="prop-name">completed</code></h3>
+      <p>
+      </p>
+      <p class='issue'>
+         @@ISSUE: supply streaming info?
+      </p>
+
+
+      <h3 id="MediaObject-compression">2.26. <code class="prop-name">compression</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-protected">2.27. <code class="prop-name">protected</code></h3>
+      <p>
+         boolean value indicating whether or not media has rights or license restrictions
+      </p>
+
+
+      <h3 id="MediaObject-rights">2.28. <code class="prop-name">rights</code></h3>
+      <p>
+      </p>
+
+
+      <h3 id="MediaObject-license ">2.29. <code class="prop-name">license</code></h3>
+      <p>
+      </p>
+
+   </div>
+
+
+
+   <div class="section">
+      <h2 id="usage">3. Examples of usage</h2>
+
+      <p>
+         <strong>This section is informative.</strong>
+      </p>
+
+      <p>
+         This section illustrates several ECMAScript [<cite><a href="#ref-ecma262">ECMA262</a></cite>] examples using MediaObject.
+      </p>
+
+
+      <h3 id="example-3.1">3.1. Example of Acessing Metadata</h3>
+      <p>
+         The following code takes an element as a parameter, and returns the metadata associated with that element:
+      </p>
+
+<pre>
+function getMetadata( el ) {
+
+}
+</pre>
+
+   </div>
+   
+   <div class="section">
+      <h2 id="relationships">4. Relationship to other specifications</h2>
+      
+      <p>
+         <strong>This section is informative.</strong>
+      </p>
+
+
+      <div class="section">
+         <h3 id="rel-dom1core">4.1. <acronym title="Document Object Model">DOM</acronym> Level 3 Core</h3>
+         <p>
+            This is a supplementary specification to DOM3-Core.  It may be implemented natively in other languages, such as HTML or SVG.
+         </p>
+
+
+      <div class="section">
+         <h3 id="rel-dco">4.1. <acronym title="Delivery Context Ontology">DCO</acronym></h3>
+         <p>
+            This is meant to coordinate with Delivery Context Ontology.
+         </p>
+      </div>
+
+   </div>
+
+   <div class="section">
+      <h2 id="security">5. Security Considerations</h2>
+
+      <p>
+         <strong>This section is informative.</strong>
+      </p>
+
+      <p>
+         There are no known security considerations involved in the implementation or use of the MediaObject interface.  This section shall be revised if future security considerations are discovered.
+      </p>
+   </div>
+
+   <div class="section">
+      <h2 id="idl">A. IDL Definitions</h2>
+
+      <div class="idl-definition">
+         <dl>
+            <dt class="idlDef"> IDL Definition </dt>
+            <dd>
+             <div class="idl-code">
+<pre>
+interface MediaObject
+{
+   readonly attribute DOMString      type;
+   readonly attribute DOMString      mimeType;
+   readonly attribute unsigned long  width;
+   readonly attribute unsigned long  height;
+   readonly attribute unsigned long  duration;
+   readonly attribute unsigned long  fileSize;
+   readonly attribute DOMString      sourceUri;
+
+            attribute DOMString      metadata;
+
+   readonly attribute DOMString      name;
+   readonly attribute DOMString      title;
+   readonly attribute DOMString      author;
+   readonly attribute DOMString      createDate;
+   readonly attribute DOMString      modifyDate;
+
+   readonly attribute unsigned long  vRes;
+   readonly attribute unsigned long  hRes;
+   readonly attribute unsigned long  bitDepth;
+   readonly attribute unsigned short channels;
+   readonly attribute unsigned long  frameCount;
+   readonly attribute unsigned long  audioBitRate;
+   readonly attribute unsigned long  audioSampleRate;
+   readonly attribute unsigned long  audioSampleSize;
+   readonly attribute unsigned long  videoFrameRate;
+   readonly attribute unsigned long  videoDataRate;
+   readonly attribute unsigned long  videoSampleSize;
+
+   readonly attribute boolean        completed;
+
+   readonly attribute boolean        compression;
+   readonly attribute DOMString      protected;
+   readonly attribute DOMString      rights;
+   readonly attribute DOMString      license; 
+};
+</pre>
+               </div>
+            </dd>
+         </dl>
+
+      <dl>
+        <dt>
+          <strong>No defined constants</strong>
+
+        </dt>
+      </dl>
+      <dl>
+        <dt>
+          <strong>Attributes</strong>
+        </dt>
+        <dd>
+          <dl>
+             <dl>
+               <dt><span id="MediaObject_idl_type" class="dom-attr-name">type</span></dt>
+               <dd>Returns the type property of the object as a string.  <code>null</code> if this element has no type properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_mimeType" class="dom-attr-name">mimeType</span></dt>
+               <dd>Returns the mimeType property of the object as a string.  <code>null</code> if this element has no mimeType properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_width" class="dom-attr-name">width</span></dt>
+               <dd>Returns the width property of the object as a string.  <code>null</code> if this element has no width properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_height" class="dom-attr-name">height</span></dt>
+               <dd>Returns the height property of the object as a string.  <code>null</code> if this element has no height properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_duration" class="dom-attr-name">duration</span></dt>
+               <dd>Returns the duration property of the object as a string.  <code>null</code> if this element has no duration properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_fileSize" class="dom-attr-name">fileSize</span></dt>
+               <dd>Returns the fileSize property of the object as a string.  <code>null</code> if this element has no fileSize properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_sourceUri " class="dom-attr-name">sourceUri </span></dt>
+               <dd>Returns the sourceUri  property of the object as a string.  <code>null</code> if this element has no sourceUri  properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_metadata" class="dom-attr-name">metadata</span></dt>
+               <dd>Returns the metadata property of the object as a string.  <code>null</code> if this element has no metadata properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_name" class="dom-attr-name">name</span></dt>
+               <dd>Returns the name property of the object as a string.  <code>null</code> if this element has no name properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_title" class="dom-attr-name">title</span></dt>
+               <dd>Returns the title property of the object as a string.  <code>null</code> if this element has no title properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_author" class="dom-attr-name">author</span></dt>
+               <dd>Returns the author property of the object as a string.  <code>null</code> if this element has no author properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_createDate" class="dom-attr-name">createDate</span></dt>
+               <dd>Returns the createDate property of the object as a string.  <code>null</code> if this element has no createDate properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_modifyDate" class="dom-attr-name">modifyDate</span></dt>
+               <dd>Returns the modifyDate property of the object as a string.  <code>null</code> if this element has no modifyDate properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_vRes" class="dom-attr-name">vRes</span></dt>
+               <dd>Returns the vRes property of the object as a string.  <code>null</code> if this element has no vRes properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_hRes" class="dom-attr-name">hRes</span></dt>
+               <dd>Returns the hRes property of the object as a string.  <code>null</code> if this element has no hRes properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_bitDepth" class="dom-attr-name">bitDepth</span></dt>
+               <dd>Returns the bitDepth property of the object as a string.  <code>null</code> if this element has no bitDepth properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_channels" class="dom-attr-name">channels</span></dt>
+               <dd>Returns the channels property of the object as a string.  <code>null</code> if this element has no channels properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_frameCount" class="dom-attr-name">frameCount</span></dt>
+               <dd>Returns the frameCount property of the object as a string.  <code>null</code> if this element has no frameCount properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_audioBitRate" class="dom-attr-name">audioBitRate</span></dt>
+               <dd>Returns the audioBitRate property of the object as a string.  <code>null</code> if this element has no audioBitRate properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_audioSampleRate" class="dom-attr-name">audioSampleRate</span></dt>
+               <dd>Returns the audioSampleRate property of the object as a string.  <code>null</code> if this element has no audioSampleRate properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_audioSampleSize" class="dom-attr-name">audioSampleSize</span></dt>
+               <dd>Returns the audioSampleSize property of the object as a string.  <code>null</code> if this element has no audioSampleSize properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_videoFrameRate" class="dom-attr-name">videoFrameRate</span></dt>
+               <dd>Returns the videoFrameRate property of the object as a string.  <code>null</code> if this element has no videoFrameRate properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_videoDataRate" class="dom-attr-name">videoDataRate</span></dt>
+               <dd>Returns the videoDataRate property of the object as a string.  <code>null</code> if this element has no videoDataRate properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_videoSampleSize" class="dom-attr-name">videoSampleSize</span></dt>
+               <dd>Returns the videoSampleSize property of the object as a string.  <code>null</code> if this element has no videoSampleSize properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_completed" class="dom-attr-name">completed</span></dt>
+               <dd>Returns the completed property of the object as a string.  <code>null</code> if this element has no completed properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_compression" class="dom-attr-name">compression</span></dt>
+               <dd>Returns the compression property of the object as a string.  <code>null</code> if this element has no compression properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_protected" class="dom-attr-name">protected</span></dt>
+               <dd>Returns the protected property of the object as a string.  <code>null</code> if this element has no protected properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_rights" class="dom-attr-name">rights</span></dt>
+               <dd>Returns the rights property of the object as a string.  <code>null</code> if this element has no rights properties.</dd>
+             </dl>
+             <dl>
+               <dt><span id="MediaObject_idl_license" class="dom-attr-name">license</span></dt>
+               <dd>Returns the license property of the object as a string.  <code>null</code> if this element has no license properties.</dd>
+            </dl>
+          </dl>
+        </dd>
+      </dl>
+      <dl>
+        <dt>
+          <strong>No defined methods</strong>
+        </dt>
+      </dl>
+    </div>
+
+
+   </div>
+
+
+   <div class="section">
+      <h2 id="ecmascript-bindings">B. ECMAScript Language Binding</h2>
+
+      <div class="code">
+      </div>
+   </div>
+
+
+   <div class="section">
+      <h2 id="java-bindings">C. Java Language Binding</h2>
+      <strong id="org.w3c.dom.MediaObject.java">org/w3c/dom/MediaObject.java:</strong>
+
+      <div class="java-code">
+<pre>
+</pre>
+      </div>
+
+
+   </div>
+
+   <div class="section">
+      <h2 id="change">D. Change History</h2>
+      <dl>
+         <dt><a href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html?rev=1.0">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/MediaObject/publish/MediaObject.html?rev=1.0</a></dt>
+         <dd>
+            <p>
+               First draft.
+            </p>
+         </dd>
+      </dl>
+
+      <p>
+         Various editorial changes and corrections and modifications to the examples are made from draft to draft.
+      </p>
+   </div>
+
+
+   <div class="section">
+      <h2 id="bibref">E. References</h2>
+
+
+      <h3 id="Normative">Normative references</h3>
+      <dl class="bibliography">
+         <dt id="ref-rfc2119">[<a name="RFC2119" id="RFC2119">RFC2119</a>] Key words for use in RFCs to indicate Requirement Levels</dt>
+         <dd>S Bradner, 1997. The specification for how to use english to specify normativity, as if it were a technical language. Available at <a href="http://rfc.net/rfc2119.html">http://rfc.net/rfc2119.html</a></dd>
+      </dl>
+
+      <h3 id="Informativ">Informative references</h3>
+      <dl class="bibliography">
+         <dt>[<a name="DIG35" id="DIG35">DIG35</a>] Digital Imaging Group Metadata Specification</dt> 
+         <dd>Metadata for digital images in XML format.  Available at <a href="http://www.i3a.org/i_dig35.html">http://www.i3a.org/i_dig35.html</a></dd>
+         
+         <dt>[<a name="Exif" id="Exif">Exif</a>] Exchangeable image file format</dt>
+         <dd>Metadata for digital images.  Available at <a href="http://it.jeita.or.jp/document/publica/standard/exif/english/jeida49e.htm">http://it.jeita.or.jp/document/publica/standard/exif/english/jeida49e.htm</a> and <a href="http://www.digicamsoft.com/exif22/exif22/html/exif22_1.htm">http://www.digicamsoft.com/exif22/exif22/html/exif22_1.htm (unofficial)</a></dd>
+         
+         <dt>[<a name="ID3" id="ID3">ID3</a>] "IDentify an MP3" Audio Metadata</dt>
+         <dd>Metadata for MP3 audio files.  Available at <a href="http://www.id3.org/">http://www.id3.org/</a></dd>
+         audio (MP3)
+         
+         <dt>[<a name="IPTC" id="IPTC">IPTC</a>] International Press Telecommunications Council metadata format</dt>
+         <dd>Metadata for digital images.  Available at <a href="http://www.iptc.org/IPTC4XMP/">http://www.iptc.org/IPTC4XMP/</a></dd>
+         
+         <dt>[<a name="MPEG-7" id="MPEG-7">MPEG-7</a>] Multimedia Content Description Interface</dt>
+         <dd>Metadata for video and multimedia.  Available at <a href="http://www.iso.ch/iso/en/CatalogueDetailPage.CatalogueDetail?CSNUMBER=34232&ICS1=35&ICS2=40&ICS3=">http://www.iso.ch/iso/en/CatalogueDetailPage.CatalogueDetail?CSNUMBER=34232&ICS1=35&ICS2=40&ICS3=</a></dd>
+       
+         <dt>[<a name="SMIL-M" id="SMIL-M">SMIL-M</a>] SMIL Metadata Module</dt>
+         <dd>Generic media metadata in RDF format.  Available at <a href="http://www.w3.org/TR/2000/WD-smil-boston-20000622/metadata.html">http://www.w3.org/TR/2000/WD-smil-boston-20000622/metadata.html</a></dd>
+            
+         <dt>[<a name="Xiph" id="Xiph">Xiph</a>] Xiph Comments</dt>
+         <dd>Metadata for Ogg Vorbis compressed audio format.  Available at <a href="http://xiph.org/vorbis/doc/Vorbis_I_spec.html#vorbis-spec-comment">http://xiph.org/vorbis/doc/Vorbis_I_spec.html#vorbis-spec-comment</a></dd>
+         
+         <dt>[<a name="XMP" id="XMP">XMP</a>] Extensible Metadata Platform</dt>
+         <dd>Metadata for digital images and PDF, in XML format.  Available at <a href="http://partners.adobe.com/public/developer/en/xmp/sdk/XMPspecification.pdf">http://partners.adobe.com/public/developer/en/xmp/sdk/XMPspecification.pdf</a></dd>
+
+
+         
+         <dt>[<a name="DCO" id="DCO">DCO</a>] Delivery Context Ontology</dt>
+         <dd>Device metadata.  Available at <a href="http://www.w3.org/2007/uwa/editors-drafts/DeliveryContextOntology/2007-05-31/DCOntology.html">http://www.w3.org/2007/uwa/editors-drafts/DeliveryContextOntology/2007-05-31/DCOntology.html</a></dd>
+      </dl>
+
+
+
+   </div>
+
+
+   <div class="section">
+      <h2 id="acknow">F. Acknowledgments</h2>
+
+      <p> 
+         The editor would like to thank the SVG <acronym title="Working Group">WG</acronym> for vital feedback on this specification.
+      </p>
+
+   </div>
+
+</body>
+</html>
