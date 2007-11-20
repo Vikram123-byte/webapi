@@ -20,23 +20,22 @@
    code :link, code :visited { color:inherit }
    h1 code, h2 code, h3 code { color:inherit; background:inherit; font:inherit }
   </style>
-  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base">
-  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-ED">
+  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-[STATUS]">
  </head>
  <body>
   <div class="head">
    <p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
 
-   <h1 class="head"><code title="">XMLHttpRequest</code> level 2</h1>
+   <h1 class="head" id="xmlhttprequest-level-2"><code title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id="pagesubtitle">Editor's draft<!--W3C Working Draft--> [DATE: 3 August 2002]</h2>
+   <h2 class="no-num no-toc" id="w3c-doctype">[LONGSTATUS] [DATE: 3 August 2002]</h2>
 
    <dl>
     <dt>This Version:</dt>
-    <dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/WD-XMLHttpRequest-2-[CDATE]/</a></dd>
+    <dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/[STATUS]-XMLHttpRequest-2-[CDATE]/</a></dd>
 
     <dt>Latest Version:</dt>
-    <dd><a href="http://www.w3.org/TR/XMLHttpRequest-2/">http://www.w3.org/TR/XMLHttpRequest-2/</a></dd>
+    <dd><a href="http://www.w3.org/TR/XMLHttpRequest-2/">http://www.w3.org/TR/XMLHttpRequest2/</a></dd>
 
     <dt>Editor:</dt>
     <dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a>
@@ -202,6 +201,11 @@
   described in section 5.1.1 of RFC 2616. <dfn><code>field-name</code></dfn>
   and <dfn><code>field-value</code></dfn> are used as described in section
   4.2 of RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
+  
+  <p>The terms <dfn>status return flag</dfn>, <dfn>uri return flag</dfn>,
+  and <dfn>cross-site access request</dfn> are defined by the Access Control
+  for Cross-site Requests specification.
+  [<cite><span>AC</span></cite>]
   
   <p>To <dfn id="dispatch-readystatechange-event">dispatch a
   <code>readystatechange</code> event</dfn> means that an event with the
@@ -393,8 +397,12 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
    
    <dt><dfn id="headers-received-state" title="HEADERS_RECEIVED state"><code>HEADERS_RECEIVED</code></dfn>
    (numeric value 2)</dt>
-   <dd><p>All HTTP headers have been received. Several response members of
-   the object are now available.</p></dd>
+   <dd>
+    <p>All HTTP headers have been received. Several response members of the
+    object are now available.</p>
+    <p class="note">For non same-origin requests the object will never be in
+    this state.</p>
+   </dd>
    
    <dt><dfn id="loading-state" title="LOADING state"><code>LOADING</code></dfn>
    (numeric value 3)</dt>
@@ -571,7 +579,10 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Expect</code></li>
      <li><code>Host</code></li>
      <li><code>Keep-Alive</code></li>
+     <li><code>Method-Check</code></li>
+     <!--<li><code>Method-Check-Expires</code></li>-->
      <li><code>Referer</code></li>
+     <li><code>Referer-Root</code></li>
      <li><code>TE</code></li>
      <li><code>Trailer</code></li>
      <li><code>Transfer-Encoding</code></li>
@@ -630,13 +641,9 @@ X-Test: one, two
 
   <h4>Initiating a Request</h4>
 
-  <p>The <dfn>access check request flag</dfn>, when "true", indicates that
-  the current request is to be followed by a second request given that the
-  access check does not result in error. The initial value of this flag is
-  "false". The <dfn>access check required flag</dfn> indicates whether an
-  access request is required. The initial value of this flag is "false".
-  The <dfn>initially same-origin flag</dfn> indicates whether the initial
-  request was same-origin. The initial value of this flag is "true".</p>
+  <p>The <dfn>same-origin flag</dfn> indicates whether the current being
+  performed is <span>same-origin</span> or not. A value of "true" indicates
+  it is and "false" indicates it is not.</p>
 
   <p>The <dfn>current request URI</dfn> is initially <var>stored url</var>
   (as set by the <code>open()</code> method) and is updated as described in
@@ -659,9 +666,9 @@ X-Test: one, two
   as restricting the list of request headers, need to be taken that this
   algorithm currently not covers in enough detail.</p>
 
-  <p>When the steps below say something is a <dfn>network error</dfn> the
-  user agent <em class="ct">must</em> act as if the following steps had been
-  run:</p>
+  <p>When the steps for the <code>send()</code> method say something is a
+  <dfn>network error</dfn> the user agent <em class="ct">must</em> act as if
+  the following steps had been run:</p>
 
   <ol>
    <li><p>Set the <span>response entity body</span> to "null", the
@@ -688,6 +695,73 @@ X-Test: one, two
 
    <li><p>Terminate the overall algorithm.</p></li>
   </ol>
+  
+  <p>When the steps for the <code>send()</code> method say something is an
+  <dfn>abort error</dfn> the user agent <em class="ct">must</em> act as if
+  the following steps had been run:</p>
+  
+  <ol>
+   <li><p>Set the <span>response entity body</span> to "null", the
+   <span>error flag</span> to "true" and reset the list of request
+   headers.</p></li>
+
+   <li><p>Synchronously switch the state to
+   <span title="DONE state">DONE</span>.</p></li>
+
+   <li><p>If <var>async</var> is set to <code>false</code> raise an
+   <code>ABORT_ERR</code> exception and terminate the overall
+   algorithm.</p></li>
+
+   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
+   event</span> on the object.</p></li>
+
+   <li><p>Synchronously <span>dispatch a progress event</span> called
+   <code title="abort-event">abort</code> on the object.</p></li>
+       
+   <li><p>If the <span>upload complete flag</span> is "false" set the flag
+   to "true" and synchronously <span>dispatch a progress event</span> called
+   <code title="abort-event">abort</code> on the object returned by the
+   <code>upload</code> attribute.</p></li>
+
+   <li><p>Terminate the overall algorithm.</p></li>
+  </ol>
+  
+  <p>When the steps for the <code>send()</code> method say to <dfn>switch
+  to the LOADING state</dfn> the user agent <em class="ct">must</em> act as
+  if the following steps had been run:</p>
+  
+  <ol>
+   <li><p>Synchronously switch the state to
+   <span title="LOADING state">LOADING</span>.</p></li>
+
+   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
+   event</span> on the object.</p></li>
+  </ol>
+  
+  <p>When the steps for the <code>send()</code> method say to <dfn>make
+  progress notifications</dfn> user agents <em class="ct">must</em>, while
+  the download is progressing and <var>async</var> is <code>true</code>,
+  synchronously <span>dispatch a progress event</span> called
+  <code>progress</code> at the object every 350ms (±200ms) or for every byte
+  received, whichever is <em>least</em> frequent.</p>
+  
+  <p>When the s teps for the <code>send()</code> method say to <dfn>make
+  upload progress notifications</dfn> user agents <em class="ct">must</em>,
+  if the request entity body is not empty and <var>async</var> is
+  <code>true</code> follow the following rules:</p>
+
+  <ul>
+   <li><p>While the request entity body is being uploaded synchronously
+   <span>dispatch a progress event</span> called <code>progress</code> at
+   the object returned by the <code>upload</code> attribute.</p>
+
+   <li><p>If the request entity body has been successfully uploaded and the
+   <span>upload complete flag</span> is "false" set the flag to "true" and
+   synchronously <span>dispatch a progress event</span> called
+   <code>load</code> at the object returned by the <code>upload</code>
+   attribute.</p></li>
+  </ul>
+
 
 
   <p>The
@@ -788,92 +862,36 @@ X-Test: one, two
    algorithm though.)</p></li>
 
    <li>
-    <p>If the <span>current request URI</span> is same-origin
-    <span title="make a request">make a <var>stored method</var>
-    request</span>.</p>
-    
-    <p>If the <span>current request URI</span> is non same-origin set the
-    <span>access check required flag</span> to "true" and the
-    <span>initially same-origin flag</span> to "false" and observe the
-    following set of steps:</p>
-    
-    <ol>
-     <li><p>If <var>stored method</var> is <code>GET</code>
-     <span title="make a request">make a <code>GET</code> request</span> and
-     then switch to the next step in the overall set of steps.</p></li>
-
-     <li><p>Otherwise, set the <span>access check request flag</span> to
-     "true", append an <code>If-Method-Allowed</code> header with value
-     <var>stored method</var> to the list of request headers, then
-     <span title="make a request">make a <code>GET</code> request</span> and
-     then switch to the next step in the overall set of steps.</p></li>
-    </ol>
-   </li>
-   
-   <li>
-    <p>If the request entity body is not empty and <var>async</var> is
-    <code>true</code> the following rules are to be observed:</p>
-    
-    <ul>
-     <li><p>While the request entity body is being uploaded synchronously
-     <span>dispatch a progress event</span> called <code>progress</code> at
-     the object returned by the <code>upload</code> attribute.</p>
-     
-     <li><p>If the request entity body has been successfully uploaded and
-     the <span>upload complete flag</span> is "false" set the flag to "true"
-     and synchronously <span>dispatch a progress event</span> called
-     <code>load</code> at the object returned by the <code>upload</code>
-     attribute.</p></li>
-    </ul>
-   </li>
-
-   <li id="request-process">
-    <p>While the download is progressing and <var>async</var> is
-    <code>true</code>, synchronously <span>dispatch a progress event</span>
-    called <code>progress</code> at the object every 350ms (±200ms) or for
-    every byte received, whichever is <em>least</em> frequent. In any case,
-    regardless of the value of <var>async</var>, the rules listed below are
-    to be observed.</p>
+    <p>If the <span>current request URI</span> is <span>same-origin</span>
+    this is a <dfn>same-origin request</dfn>. Make a request to the
+    <span>current request URI</span>, <span>make progress notifications</span>,
+    <span>make upload progress notifications</span>, and follow the list of
+    request rules:</p>
+    <!--
+    taking into
+    account the <span>entity body</span>, list of request headers etc.
+    user/password
+    -->
 
     <dl class="switch">
      <dt>If the response is an HTTP redirect</dt>
      <dd>
-      <p>If the redirect does not violate security or infinite loop
-      precautions and the scheme is supported run the following set of
-      steps:</p>
-      
+      <p>If the redirect violates security or infinite loop precautions or
+      the scheme is not supported this is a <span>network error</span>.</p>
+
+      <p>Otherwise, run the following set of steps:</p>
+
       <ol>
        <li><p>Set the <span>current request URI</span> to the new
        location.</p></li>
-       
-       <li><p>If the <span>current request URI</span> is same-origin follow
-       the redirect and then go to the start of
-       <a href="#request-process">step 11</a> in the overall
-       algorithm.</p></li>
 
-       <li>
-        <p>At this point, the current request URI is non same-origin. Set
-        the <span>access check required flag</span> to "true".</p>
-       </li>
-       
-       <li><p>If the <span>request method</span> is <code>GET</code> follow
-       the redirect and then go to  the start of
-       <a href="#request-process">step 11</a> in the overall
-       algorithm.</p></li>
+       <li><p>If the <span>current request URI</span> is
+       <span>same-origin</span> follow the redirect while observing the
+       request rules for <span title="same-origin request">same-origin
+       requests</span>.</p></li>
 
-       <li><p>If the <span>initially same-origin flag</span> is "true" user
-       agents <em class="ct">should</em> abort the current request,
-       <em class="ct">must</em> set the <span>access check request
-       flag</span> to "true", set the <span>initially same-origin
-       flag</span> to "false", append an <code>If-Method-Allowed</code>
-       header with value <var>stored method</var> to the list of request
-       headers, then <span title="make a request">make a <code>GET</code>
-       request</span> and then go to the start of
-       <a href="#request-process">step 11</a> in the overall
-       algorithm.</p></li>
-
-       <li><p>If you reach this point this is a <span>network
-       error</span>.</p></li>
+       <li><p>Otherwise, follow the steps for a
+       <span>non same-origin request</span> terminating this one.</p></li>
       </ol>
 
       <p class="note">HTTP places requirements on the user agent regarding the
@@ -882,58 +900,24 @@ X-Test: one, two
       redirections.</p>
       <!-- Arguably HTTP should be fixed for the latter case. No browser
       follows that as far as I know. -->
-
-      <p>Otherwise, if the redirect does violate security or infinite loop
-      precautions or the scheme is not supported this is a
-      <span>network error</span>.</p>
      </dd>
 
      <dt>If the user cancels the download</dt>
-     <dd>
-      <p>Run the following set of steps:</p>
 
-      <ol>
-       <li><p>Set the <span>response entity body</span> to "null", the
-       <span>error flag</span> to "true" and reset the list of request
-       headers.</p></li>
+     <dd><p>This is an <span>abort error</span>.</p></dd>
 
-       <li><p>Synchronously switch the state to
-       <span title="DONE state">DONE</span>.</p></li>
-
-       <li><p>If <var>async</var> is set to <code>false</code> raise an
-       <code>ABORT_ERR</code> exception and terminate the overall
-       algorithm.</p></li>
-
-       <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-       event</span> on the object.</p></li>
-
-       <li><p>Synchronously <span>dispatch a progress event</span> called
-       <code title="abort-event">abort</code> on the object.</p></li>
-       
-       <li><p>If the <span>upload complete flag</span> is "false" set the
-       flag to "true" and synchronously <span>dispatch a progress
-       event</span> called <code title="abort-event">abort</code> on the
-       object returned by the <code>upload</code> attribute.</p></li>
-
-       <li><p>Terminate the overall algorithm.</p></li>
-      </ol>
-     </dd>
 
      <dt>If there is a network error</dt>
-     <dd>
-      <p>In case of DNS errors, or other type of network errors, this is a
-      <span>network error</span>. <span class="note">This does not include
-      HTTP responses that indicate some type of error, such as HTTP status
-      code 410.</span></p>
-      <!-- XXX this sounds kind of stupid, but it's true! -->
-     </dd>
-       
+
+     <dd><p>In case of DNS errors, or other type of network errors, this is
+     a <span>network error</span>. <span class="note">This does not include
+     HTTP responses that indicate some type of error, such as HTTP status
+     code 410.</span></p></dd>
+
      <dt>Once all HTTP headers have been received</dt>
      <dd>
       <p>If all HTTP headers have been received, before receiving the
-      message body (if any) and when both the <span>access check request
-      flag</span> and the <span>access check required flag</span> are
-      "false" run the following steps:</p>
+      message body (if any) run the following steps:</p>
 
       <ol>
        <li><p>Synchronously switch the state to
@@ -942,56 +926,43 @@ X-Test: one, two
        <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
        event</span> on the object.</p></li>
       </ol>
-
-      <p class="note">For non same-origin requests the object will never be
-      in this state.</p>
      </dd>
 
      <dt>Once the first byte (or more) of the response entity body has been
      received</dt>
      <dt>If there is no response entity body</dt>
-       
-     <dd>
-      <p>The term <dfn>access check</dfn> is used as defined by the
-      <cite>Enabling Read Access for Web Resources</cite> specification.
-      [<cite><span>AC</span></cite>]</p>
 
-      <p>If the <span>access check request flag</span> is "true", the
-      <span>access check</span> on the <span>current request URI</span> does
-      not generate any errors, and there is a response <code>Allow</code>
-      header that contains <var>stored method</var> then set the
-      <span>access check request flag</span> to "false", then
-      <span title="make a request">make a <var>stored method</var>
-      request</span> and then go to the start of
-      <a href="#request-process">step 11</a> in the overall algorithm. If it
-      does generate errors or <var>stored method</var> is not listed in the
-      response <code>Allow</code> header or there is no such header this is
-      a <span>network error</span>.</p>
-
-      <p>If the <span>access check required flag</span> is "true" and the
-      <span>access check</span> generates errors this is a <span>network
-      error</span>.</p>
-
-      <p>At this point the <span>access check request flag</span> is
-      "false", this algorithm has not yet been terminated and the
-      <span>access check</span> (if any) did not generate any errors. It is
-      therefore safe to run the following set of steps once the first byte
-      of the response entity body has been received or in case there is no
-      response entity body:</p>
-
-      <ol>
-       <li><p>Synchronously switch the state to
-       <span title="LOADING state">LOADING</span>.</p></li>
-
-       <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-       event</span> on the object.</p></li>
-      </ol>
-     </dd>
+     <dd><p><span>Switch to the LOADING state</span> and once the complete
+     resource has been downloaded go to the next step.</p></dd>
     </dl>
 
-    <p>Finally, once the complete resource has been downloaded and all
-    access checks (if any) have been made go to the next step.</p>
-   </li>
+    <p>Otherwise, if it is non same-origin this is a <dfn>non-same-origin
+    request</dfn>. Set the <span>same-origin flag</span> to "false", then
+    make a <span>cross-site access request</span> and handle the return
+    values as follows:</p>
+    
+    <dl>
+     <dt><span>status return flag</span> is "same-origin"</dt>
+     
+     <dd><p>Set the <span>current request URI</span> to the value of the
+     <span>uri return flag</span>, set the <span>same-origin flag</span> to
+     "true", and then make a <span>same-origin
+     request</span>.</p></dd>
+
+     <dt><span>status return flag</span> is "network"</dt>
+
+     <dd><p>This is a <span>network error</span>.</p></dd>
+
+     <dt><span>status return flag</span> is "abort"</dt>
+
+     <dd><p>This is an <span>abort error</span>.</p></dd>
+
+     <dt><span>status return flag</span> is "success"</dt>
+     
+     <dd><p><span>Make progress notifications</span>, <span>switch to the
+     LOADING state</span> and once the complete resource has been downloaded
+     completely go to the next step.</p></dd>
+    </dl>
 
    <li>
     <p>When the request has successfully completed loading, run the
@@ -1501,9 +1472,9 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
   <h2 class="no-num" id="references">References</h2>
 
   <dl>
-   <dt>[<dfn id="ref-AC">AC</dfn>]</dt> <!-- XXX -->
-   <dd><cite><a href="http://www.w3.org/TR/access-control/">Enabling Read
-   Access for Web Resources</a>, A. van Kesteren, editor. W3C, June
+   <dt>[<dfn id="ref-AC">AC</dfn>]</dt>
+   <dd><cite><a href="http://www.w3.org/TR/access-control/">Access Control
+   for Cross-site Requests</a>, A. van Kesteren, editor. W3C, November
    2007.</dd>
    
    <dt>[<dfn id="DOM3">DOM3Core</dfn>]</dt>
