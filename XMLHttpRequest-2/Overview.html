@@ -1,4 +1,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- XXXX
+ * response member values in case of non same-origin
+ * merging better XMLHttpRequest Level 1 definitions
+ * fixing request stuff
+-->
 
 <html lang=en-US>
  <head>
@@ -30,15 +35,15 @@
     src="http://www.w3.org/Icons/w3c_home" width=72></a></p>
 
    <h1 class=head id=xmlhttprequest-level-2><code
-    title="">XMLHttpRequest</code> level 2</h1>
+    title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 20 November 2007</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 23 November 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2007/ED-XMLHttpRequest2-20071120/">http://www.w3.org/TR/2007/ED-XMLHttpRequest-2-20071120/</a>
+     href="http://www.w3.org/TR/2007/ED-XMLHttpRequest2-20071123/">http://www.w3.org/TR/2007/ED-XMLHttpRequest2-20071123/</a>
 
     <dt>Latest Version:
 
@@ -73,12 +78,10 @@
 
   <h2 class="no-num no-toc" id=specabstract>Abstract</h2>
 
-  <p><code title="">XMLHttpRequest</code> level 2 enhances <code
+  <p><code title="">XMLHttpRequest</code> Level 2 enhances <code
    title="">XMLHttpRequest</code> with new features, such as cross-site
    requests, progress events, and the handling of byte streams for both
    sending and receiving.
-
-  <p>
 
   <h2 class="no-num no-toc" id=sotd>Status of this Document</h2>
 
@@ -88,10 +91,9 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 20 November 2007 <strong>Editor's</strong> <!--Working-->
-   Draft of <code title="">XMLHttpRequest</code> level 2. Please send
-   comments to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
-   (<a
+  <p>This is the 23 November 2007 Working Draft of <code
+   title="">XMLHttpRequest</code> Level 2. Please send comments to <a
+   href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
    with <samp>[XHR2]</samp> at the start of the subject line.
 
@@ -212,7 +214,7 @@
   <p>The key words <em class=ct>must</em>, <em class=ct>must not</em>, <em
    class=ct>should</em> and <em class=ct>may</em> in this document are to be
    interpreted as described in RFC 2119. [<cite><a
-   href="#RFC2119">RFC2119</a></cite>]
+   href="#ref-rfc2119">RFC2119</a></cite>]
 
   <p>This specification defines a single conformance class:
 
@@ -243,26 +245,17 @@
      agent">conforming user agent</a> <em class=ct>must</em> support some
      version of DOM Events and DOM Core, because this specification uses some
      of the features defined in those specifications. [<cite><a
-     href="#DOM3EV">DOM3Events</a></cite>] [<cite><a
-     href="#DOM3">DOM3Core</a></cite>]</p>
-
-    <p>It <em class=ct>must</em> also support some version of the Window
-     Object because some of the functionality in this specification relies on
-     it. [<cite><a href="#ref-window">Window</a></cite>]</p>
+     href="#ref-dom2events">DOM2Events</a></cite>] [<cite><a
+     href="#ref-dom3core">DOM3Core</a></cite>]
 
    <dt>HTTP
 
    <dd>
     <p>A <a href="#conforming-user-agent" title="conforming user
      agent">conforming user agent</a> <em class=ct>must</em> support some
-     version of the HTTP protocol.</p>
-
-    <p class=issue>For this "level" we need to sort out how to deal with
-     arbitrary HTTP methods properly. Please don't bring this up on the
-     mailing list unless you've got news from implementors.</p>
-
-    <p>Other requirements regarding HTTP are made throughout the
-     specification. [<cite><a href="#RFC2616">RFC2616</a></cite>]</p>
+     version of the HTTP protocol. Requirements regarding HTTP are made
+     throughout the specification. [<cite><a
+     href="#rfc-rfc2616">RFC2616</a></cite>]
 
    <dt>XML
 
@@ -277,20 +270,31 @@
   <h4 id=terminology><span class=secno>1.1.2. </span>Terminology</h4>
 
   <p>There is a <dfn id=case-insensitive-match>case-insensitive match</dfn>
-   of strings <var>s1</var> and <var>s2</var> if after uppercasing both
-   strings (by mapping a-z to A-Z) they are identical.
+   of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
+   character range A-Z to the range a-z both strings are identical.
+
+  <p>Two URIs are <dfn id=same-origin>same-origin</dfn> if after performing
+   scheme-based normalization on both URIs as described in section 5.3.3 of
+   RFC 3987 the scheme, ihost and port components are identical. If either
+   URI does not have an ihost component the URIs <em class=ct>must not</em>
+   be considered same-origin. [<cite><span>RFC3987</span></cite>]
+
+  <p>The terms <dfn id=origin>origin</dfn> and <dfn
+   id=event-handler-attribute>event handler DOM attribute</dfn> are defined
+   by the HTML&nbsp;5 specification. [<cite><a
+   href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
    RFC 2616. <dfn id=method-token>Method token</dfn> is used as described in
    section 5.1.1 of RFC 2616. <dfn
    id=field-name><code>field-name</code></dfn> and <dfn
    id=field-value><code>field-value</code></dfn> are used as described in
-   section 4.2 of RFC 2616. [<cite><a href="#RFC2616">RFC2616</a></cite>]
+   section 4.2 of RFC 2616. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p>The terms <dfn id=status0>status return flag</dfn>, <dfn
    id=uri-return>uri return flag</dfn>, and <dfn id=cross-site>cross-site
    access request</dfn> are defined by the Access Control for Cross-site
-   Requests specification. [<cite><a href="#ref-AC">AC</a></cite>]
+   Requests specification. [<cite><a href="#ref-ac">AC</a></cite>]
 
   <p>To <dfn id=dispatch-readystatechange-event>dispatch a
    <code>readystatechange</code> event</dfn> means that an event with the
@@ -315,12 +319,7 @@
 
   <p>The <code><a href="#xmlhttprequest-interface">XMLHttpRequest</a></code>
    object can be used by scripts to programmatically connect to their
-   originating server via HTTP.</p>
-  <!--
-  <p>Objects implementing the <code>XMLHttpRequest</code> interface
-  <em class="ct">must</em> also implement the <code>EventTarget</code>
-  interface. [<cite><span>DOM3Events</span></cite>]</p>
-  -->
+   originating server via HTTP.
 
   <pre
    class=idl>interface <dfn id=xmlhttprequesteventtarget-interface>XMLHttpRequestEventTarget</dfn> : EventTarget {
@@ -377,6 +376,10 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
   readonly attribute Document <a href="#responsexml">responseXML</a>;
 };</pre>
 
+  <p>The <code>EventTarget</code> interface is defined by the DOM Level 2
+   Events specification. [<cite><a
+   href="#ref-dom2events">DOM2Events</a></cite>]
+
   <h3 id=constructor><span class=secno>2.1. </span>Constructor</h3>
 
   <p class=issue><code>new XMLHttpRequest(method, url, body, listener)</code>
@@ -392,28 +395,26 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    <pre><code>var client = new XMLHttpRequest();</code></pre>
   </div>
 
-  <p>When the constructor is invoked a persistent pointer to the associated
-   <code title="">Window</code> object <em class=ct>must</em> be stored on
-   the newly created object. This is the <dfn id=window-pointer title="Window
-   pointer"><code>Window</code> pointer</dfn>. The associated <code
-   title="">Window</code> object is the one of which the <code
-   title="">XMLHttpRequest</code> constructor was invoked. This <a
-   href="#window-pointer" title="Window pointer">pointer</a> <em
-   class=ct>must</em> persist even if the browsing context in which the <code
-   title="">Window</code> is located is destroyed (by removing it from a
-   parent browsing context, for instance).
+  <p>When the <code title="">XMLHttpRequest()</code> constructor is invoked a
+   persistent pointer to the associated <code title="">Document</code> object
+   is stored on the newly created object. This is the <dfn
+   id=document-pointer title="Document pointer"><code>Document</code>
+   pointer</dfn>. The associated <code>Document</code> object is the one
+   returned by the <code>document</code> attribute from the object on which
+   the <code title="">XMLHttpRequest()</code> constructor was invoked (a
+   <code>Window</code> object). The pointer can become "null" if the object
+   is destroyed.
 
-  <p>The term browsing context is defined by the <cite>Window Object
-   1.0</cite> specification. [<cite><a href="#ref-window">Window</a></cite>]</p>
-  <!-- XXX if the document object changes in the browsing context you get an
-  exception in some implementations. -->
+  <p class=note>As per the conformance criteria implementations are free to
+   implement this in any way they desire as long as the end results are
+   identical to those given by the English prose.
 
   <div class=example>
-   <p>If <var><code>win</code></var> is a <code title="">Window</code> object
-    <var><code>client</code></var> will have a pointer to
-    <var><code>win</code></var> in the following example:</p>
+   <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
+    object <var><code>client</code></var> will have a pointer to
+    <var><code>iframe.document</code></var> in the following example:</p>
 
-   <pre><code>var client = new win.XMLHttpRequest()</code></pre>
+   <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
   </div>
 
   <h3 id=event-handler-attributes><span class=secno>2.2. </span>Event Handler
@@ -422,9 +423,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
   <p>The event handler attributes listed below <em class=ct>must</em> be
    supported on objects implementing an interface that inherits from <code><a
    href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a></code>.
-   Event handler attributes <em class=ct>must</em> be implemented analogously
-   to event handler DOM attributes as defined by HTML&nbsp;5. [<cite><a
-   href="#ref-html5">HTML5</a></cite>]
+   Event handler attributes are <a href="#event-handler-attribute"
+   title="event handler DOM attribute">event handler DOM attributes</a>.
 
   <dl>
    <dt><dfn id=onabort><code>onabort</code></dfn>
@@ -461,7 +461,7 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      object.
   </dl>
 
-  <p>The following event handler DOM attribute <em class=ct>must</em> be
+  <p>The following event handler attribute <em class=ct>must</em> be
    supported on objects implementing the <code><a
    href="#xmlhttprequest-interface">XMLHttpRequest</a></code> interface:
 
@@ -577,10 +577,10 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
    <li>
     <p>If <var>stored url</var> is a relative reference resolve it using the
-     current value of the <code>baseURI</code> attribute of the
-     <code>Document</code> object currently associated with the <a
-     href="#window-pointer"><code>Window</code> pointer</a>. If this fails
-     raise a <code>SYNTAX_ERR</code> exception and terminate these steps.
+     current value of the <code>baseURI</code> attribute of the <a
+     href="#document-pointer"><code>Document</code> pointer</a>. If this
+     fails raise a <code>SYNTAX_ERR</code> exception and terminate these
+     steps.
 
    <li>
     <p>If <var>stored url</var> contains an unsupported scheme raise a
@@ -763,7 +763,7 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
     <p>If the <var>header</var> argument is in the list of request headers
      either use multiple headers, combine the values or use a combination of
      those (section 4.2, RFC 2616). [<cite><a
-     href="#RFC2616">RFC2616</a></cite>]
+     href="#rfc-rfc2616">RFC2616</a></cite>]
    </li>
    <!-- XXX it seems UAs always combine the values -->
   </ol>
@@ -801,9 +801,9 @@ X-Test: one, two
 
   <h4 id=initiating><span class=secno>2.5.2. </span>Initiating a Request</h4>
 
-  <p>The <dfn id=same-origin>same-origin flag</dfn> indicates whether the
-   current being performed is <span>same-origin</span> or not. A value of
-   "true" indicates it is and "false" indicates it is not.
+  <p>The <dfn id=same-origin0>same-origin flag</dfn> indicates whether the
+   current being performed is <a href="#same-origin">same-origin</a> or not.
+   A value of "true" indicates it is and "false" indicates it is not.
 
   <p>The <dfn id=current>current request URI</dfn> is initially <var>stored
    url</var> (as set by the <code><a href="#open">open()</a></code> method)
@@ -1057,12 +1057,12 @@ X-Test: one, two
      in the algorithm though.)
 
    <li>
-    <p>If the <a href="#current">current request URI</a> is
-     <span>same-origin</span> this is a <dfn id=same-origin0>same-origin
-     request</dfn>. Make a request to the <a href="#current">current request
-     URI</a>, <a href="#make-">make progress notifications</a>, <a
-     href="#make-0">make upload progress notifications</a>, and follow the
-     list of request rules:</p>
+    <p>If the <a href="#current">current request URI</a> is <a
+     href="#same-origin">same-origin</a> this is a <dfn
+     id=same-origin1>same-origin request</dfn>. Make a request to the <a
+     href="#current">current request URI</a>, <a href="#make-">make progress
+     notifications</a>, <a href="#make-0">make upload progress
+     notifications</a>, and follow the list of request rules:</p>
     <!--
     taking into
     account the <span>entity body</span>, list of request headers etc.
@@ -1085,10 +1085,10 @@ X-Test: one, two
          location.
 
        <li>
-        <p>If the <a href="#current">current request URI</a> is
-         <span>same-origin</span> follow the redirect while observing the
-         request rules for <a href="#same-origin0" title="same-origin
-         request">same-origin requests</a>.
+        <p>If the <a href="#current">current request URI</a> is <a
+         href="#same-origin">same-origin</a> follow the redirect while
+         observing the request rules for <a href="#same-origin1"
+         title="same-origin request">same-origin requests</a>.
 
        <li>
         <p>Otherwise, follow the steps for a <span>non same-origin
@@ -1145,7 +1145,7 @@ X-Test: one, two
 
     <p>Otherwise, if it is non same-origin this is a <dfn
      id=non-same-origin>non-same-origin request</dfn>. Set the <a
-     href="#same-origin">same-origin flag</a> to "false", then make a <a
+     href="#same-origin0">same-origin flag</a> to "false", then make a <a
      href="#cross-site">cross-site access request</a> and handle the return
      values as follows:</p>
 
@@ -1155,8 +1155,8 @@ X-Test: one, two
      <dd>
       <p>Set the <a href="#current">current request URI</a> to the value of
        the <a href="#uri-return">uri return flag</a>, set the <a
-       href="#same-origin">same-origin flag</a> to "true", and then make a <a
-       href="#same-origin0">same-origin request</a>.
+       href="#same-origin0">same-origin flag</a> to "true", and then make a
+       <a href="#same-origin1">same-origin request</a>.
 
      <dt><a href="#status0">status return flag</a> is "network"
 
@@ -1172,8 +1172,8 @@ X-Test: one, two
 
      <dd>
       <p><a href="#make-">Make progress notifications</a>, <a
-       href="#switch">switch to the LOADING state</a> and once the complete
-       resource has been downloaded completely go to the next step.
+       href="#switch">switch to the LOADING state</a> and once the resource
+       has been downloaded completely go to the next step.
     </dl>
 
    <li>
@@ -1233,7 +1233,7 @@ X-Test: one, two
    setting request headers (e.g., <code>If-None-Match</code>,
    <code>If-Modified-Since</code>), in which case <code>304 Not
    Modified</code> responses <em class=ct>must</em> be passed through.
-   [<cite><a href="#RFC2616">RFC2616</a></cite>]
+   [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p>If the user agent implements server-driven content-negotiation it <em
    class=ct>should</em> set <code>Accept-Language</code>,
@@ -1241,7 +1241,7 @@ X-Test: one, two
    appropriate; it <em class=ct>must not</em> automatically set the
    <code>Accept</code> header. Responses to such requests <em
    class=ct>must</em> have the content-encodings automatically decoded.
-   [<cite><a href="#RFC2616">RFC2616</a></cite>]
+   [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <h4 id=aborting><span class=secno>2.5.3. </span>Aborting a Request</h4>
 
@@ -1526,7 +1526,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Return the result of decoding the response entity body using
      <var>charset</var>. Or, if that fails, return <code>null</code>.
    </li>
-   <!-- or replace bytes with U+FFFD ? -->
+   <!-- or replace bytes with U+FFFD ? as in, can this ever fail? -->
   </ol>
 
   <p>The <dfn id=document-response-entity-body>document response entity
@@ -1715,7 +1715,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code>ExceptionCode</code> and use the <code>DOMException</code> object
    which is defined in DOM Level 3 Core. In addition this specification
    extends the <code>ExceptionCode</code> group with several new constants as
-   indicated below. [<cite><a href="#DOM3">DOM3Core</a></cite>]
+   indicated below. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
 
   <pre
    class=idl>const unsigned short <a href="#security-err">SECURITY_ERR</a> = 18;
@@ -1743,24 +1743,24 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
   <h2 class=no-num id=references>References</h2>
 
   <dl>
-   <dt>[<dfn id=ref-AC>AC</dfn>]
+   <dt>[<dfn id=ref-ac>AC</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/access-control/">Access Control
-    for Cross-site Requests</a>, A. van Kesteren, editor. W3C, November
-    2007.</cite>
+    for Cross-site Requests</a></cite> (work in progress), A. van Kesteren,
+    editor. W3C, November 2007.
 
-   <dt>[<dfn id=DOM3>DOM3Core</dfn>]
+   <dt>[<dfn id=ref-dom2events>DOM2Events</dfn>]
+
+   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-2-Events/">Document
+    Object Model (DOM) Level 2 Events Specification</a></cite>, T. Pixley,
+    editor. W3C, November 2000.
+
+   <dt>[<dfn id=ref-dom3core>DOM3Core</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object
     Model (DOM) Level 3 Core Specification</a></cite>, A. Le Hors, P. Le
     H&eacute;garet, L. Wood, G. Nicol, J. Robie, M. Champion, S. Byrne,
     editors. W3C, April 2004.
-
-   <dt>[<dfn id=DOM3EV>DOM3Events</dfn>]
-
-   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events/">Document
-    Object Model (DOM) Level 3 Events Specification</a></cite> (work in
-    progress), Bj&ouml;rn H&ouml;hrmann, editor. W3C, April 2006.
 
    <dt>[<dfn id=ref-ecmascript>ECMAScript</dfn>]
 
@@ -1781,12 +1781,12 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
     Extensions (MIME) Part Two: Media Types</a></cite>, N. Freed, N.
     Borenstein, editors. IETF, November 1996.
 
-   <dt>[<dfn id=RFC2119>RFC2119</dfn>]
+   <dt>[<dfn id=ref-rfc2119>RFC2119</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2119">Key words for use in RFCs
     to Indicate Requirement Levels</a></cite>, S. Bradner. IETF, March 1997.
 
-   <dt>[<dfn id=RFC2616>RFC2616</dfn>]
+   <dt>[<dfn id=rfc-rfc2616>RFC2616</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2616">Hypertext Transfer
     Protocol -- HTTP/1.1</a></cite>, R. Fielding, J. Gettys, J. Mogul, H.
@@ -1811,12 +1811,6 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
     Identifier (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding,
     L. Masinter, editors. IETF, January 2005.
 
-   <dt>[<dfn id=ref-window>Window</dfn>]
-
-   <dd><cite><a href="http://www.w3.org/TR/Window/">Window Object
-    1.0</a></cite> (work in progress), I. Davis, M. Stachowiak, editors. W3C,
-    April 2006.
-
    <dt>[<dfn id=ref-xml>XML</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/xml/">Extensible Markup Language
@@ -1832,24 +1826,12 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
 
   <h2 class=no-num id=acknowledgments>Acknowledgments</h2>
 
-  <p><em>This section is non-normative</em>
-
   <p>The editor would like to thank to the following people who have
    contributed to this specification (ordered by first name):
 
-  <ul>
-   <li>Alexey Proskuryakov
-
-   <li>David Andersson
-
-   <li>Jonas Sicking
-
-   <li>Maciej Stachowiak
-
-   <li>Mohamed Zergaoui
-
-   <li>Rune Halvorsen
-  </ul>
+  <p>The editor would like to thank Alexey Proskuryakov, David Andersson, Ian
+   Hickson, Jonas Sicking, Maciej Stachowiak, Mohamed Zergaoui and Rune
+   Halvorsen for their contributions to this specification.
 
   <p>Special thanks also to all who have contributed to The <code><a
    href="#xmlhttprequest-interface">XMLHttpRequest</a></code> Object
