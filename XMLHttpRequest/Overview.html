@@ -29,17 +29,17 @@
    <p><a href="http://www.w3.org/"><img alt=W3C height=48
     src="http://www.w3.org/Icons/w3c_home" width=72></a></p>
 
-   <h1 class=head id=the-xmlhttprequest>The <code
+   <h1 class=head id=the-xmlhttprequest-object>The <code
     title="">XMLHttpRequest</code> Object</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 22 November 2007</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 23 November 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
      href="http://dev.w3.org/2006/webapi/XMLHttpRequest/">http://dev.w3.org/2006/webapi/XMLHttpRequest/</a></dd>
-    <!--<dd><a href="http://www.w3.org/TR/2007/ED-XMLHttpRequest-20071122/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071122/</a></dd>-->
+    <!--<dd><a href="http://www.w3.org/TR/2007/ED-XMLHttpRequest-20071123/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071123/</a></dd>-->
 
     <dt>Latest Version:
 
@@ -108,7 +108,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 22 November 2007 Working Draft of The <code
+  <p>This is the 23 November 2007 Working Draft of The <code
    title="">XMLHttpRequest</code> Object specification. Please send comments
    to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
@@ -346,9 +346,9 @@ client.send();</code></pre>
     <p class=note>The <a
      href="http://www.w3.org/TR/2006/WD-Window-20060407/">Window Object
      1.0</a> draft is not referenced normatively as it appears to be no
-     longer maintained and HTML&nbsp;5 defines it in more detail. Also
-     because this specification depends on HTML&nbsp;5 for other reasons
-     already.</p>
+     longer maintained and HTML&nbsp;5 defines the <code>Window</code> object
+     in more detail. This specification already depends on HTML&nbsp;5 for
+     other reasons so there is not much additional overhead because of this.</p>
   </dl>
 
   <h3 id=terminology><span class=secno>2.2. </span>Terminology</h3>
@@ -668,33 +668,33 @@ client.send();</code></pre>
 
     <ol>
      <li>
-      <p>If the <var>method</var> argument does not match the <dfn
-       id=method><code>Method</code> production</dfn> defined in section
-       5.1.1 of RFC 2616 raise a <code>SYNTAX_ERR</code> exception and
+      <p>Let <var>stored method</var> be the <var>method</var> argument.
+
+     <li>
+      <p>If <var>stored method</var> does not match the <dfn
+       id=method><code>Method</code> production</dfn>, defined in section
+       5.1.1 of RFC 2616, raise a <code>SYNTAX_ERR</code> exception and
        terminate these steps. [<cite><a
        href="#ref-rfc2616">RFC2616</a></cite>]
 
      <li>
-      <p>If the given <var>method</var> is not supported for security reasons
-       the user agent <em class=ct>should</em> raise a <code><a
+      <p>If <var>stored method</var> <a href="#case-insensitive-match"
+       title="case-insensitive match">case-insensitively matches</a>
+       <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
+       <code>HEAD</code>, <code>OPTIONS</code> <code>POST</code>,
+       <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
+       <var>stored method</var> be the canonical uppercase form of the
+       matched method name.
+     </li>
+     <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
+     M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
+
+     <li>
+      <p>If <var>stored method</var> is one of <code>CONNECT</code>,
+       <code>TRACE</code>, or <code>TRACK</code> the user agent <em
+       class=ct>should</em> raise a <code><a
        href="#security-err">SECURITY_ERR</a></code> exception and terminate
        these steps.
-
-     <li>
-      <p>Let <var>stored method</var> be <var>method</var>.
-
-     <li>
-      <p>If <var>method</var> <a href="#case-insensitive-match"
-       title="case-insensitive match">case-insensitively matches</a>
-       <code>GET</code>, <code>POST</code>, <code>HEAD</code>,
-       <code>PUT</code>, <code>DELETE</code> or <code>OPTIONS</code> convert
-       it to its uppercase equivalent (by mapping a-z to A-Z) and let
-       <var>stored method</var> be the result.
-     </li>
-     <!-- WebKit (and supposedly Firefox) also uppercase: CONNECT, COPY,
-     INDEX, LOCK, M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, TRACE and UNLOCK.
-     Not sure if TRACE and CONNECT are worth it though. They raise a
-     SECURITY_ERR exception anyway... -->
 
      <li>
       <p>Drop the fragment identifier (if any) from <var>url</var> and let
