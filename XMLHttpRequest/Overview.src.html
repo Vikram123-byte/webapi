@@ -280,6 +280,7 @@ client.send();</code></pre>
     this.</p>
   </dl>
 
+
   <h3 id="terminology">Terminology</h3>
 
   <p>There is a <dfn id="case-insensitive-match">case-insensitive match</dfn>
@@ -293,8 +294,10 @@ client.send();</code></pre>
   <em class="ct">must not</em> be considered same-origin.
   [<cite><span>RFC3987</span></cite>]</p>
   
-  <p>The term <dfn>browsing context</dfn> is defined by the HTML&nbsp;5
-  specification. [<cite><span>HTML5</span></cite>]</p>
+  <p>The terms <dfn id="origin">origin</dfn> and
+  <dfn id="event-handler-attribute">event handler DOM attribute</dfn> are
+  defined by the HTML&nbsp;5 specification.
+  [<cite><span>HTML5</span></cite>]</p>
 
 
   <h3 id="extensibility">Extensibility</h3>
@@ -305,11 +308,13 @@ client.send();</code></pre>
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
 
 
+
   <h2 id="security">Security Considerations</h2>
   
   <p>Apart from requirements affecting security made throughout this
   specification implementations <em class="ct">may</em>, at their
   discretion, not expose certain headers, such as HTTP-only cookies.</p>
+
 
 
   <h2 id="xmlhttprequest">The <code title="">XMLHttpRequest</code>
@@ -333,25 +338,25 @@ client.send();</code></pre>
   </div>
 
   <p>When the <code title="">XMLHttpRequest()</code> constructor is invoked
-  a persistent pointer to the associated <code title="">Window</code> object
-  <em class="ct">must</em> be stored on the newly created object. This is
-  the <dfn title="Window pointer" id="window-pointer"><code>Window</code>
-  pointer</dfn>. The associated <code title="">Window</code> object is the
-  one of which the <code title="">XMLHttpRequest()</code> constructor was
-  invoked. This <span title="Window pointer">pointer</span>
-  <em class="ct">must</em> persist even if the <span>browsing context</span>
-  in which the <code title="">Window</code> is located is destroyed (by
-  removing it from a parent browsing context, for instance).</p>
-
-  <!-- XXX if the document object changes in the browsing context you get an
-  exception in some implementations. -->
+  a persistent pointer to the associated <code title="">Document</code>
+  object is stored on the newly created object. This is the
+  <dfn title="Document pointer" id="document-pointer"><code>Document</code>
+  pointer</dfn>. The associated <code>Document</code> object is the one
+  returned by the <code>document</code> attribute from the object on which
+  the <code title="">XMLHttpRequest()</code> constructor was invoked (a
+  <code>Window</code> object). The pointer can become "null" if the
+  object is destroyed.</p>
+  
+  <p class="note">As per the conformance criteria implementations are free
+  to implement this in any way they desire as long as the end results are
+  identical to those given by the English prose.</p>
 
   <div class="example">
-   <p>If <var><code>win</code></var> is a <code title="">Window</code> object
-   <var><code>client</code></var> will have a pointer to
-   <var><code>win</code></var> in the following example:</p>
+   <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
+   object <var><code>client</code></var> will have a pointer to
+   <var><code>iframe.document</code></var> in the following example:</p>
 
-   <pre><code>var client = new win.XMLHttpRequest()</code></pre>
+   <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
   </div>
 
   <pre class="idl">interface <dfn id="xmlhttprequest-object">XMLHttpRequest</dfn> {
@@ -548,17 +553,10 @@ client.send();</code></pre>
   <dl>
    <dt><dfn id="onreadystatechange"><code>onreadystatechange</code></dfn>
    of type <code>EventListener</code></dt>
-   
-   <!-- XXX define it in terms of HTML5 event handler attributes? -->
 
-   <dd>
-    <p>An attribute that takes an <code>EventListener</code> as value that
-    <em class="ct">must</em> be invoked along with any other appropriate
-    event listeners that are registered on this object when a
-    <code>readystatechange</code> event is dispatched on it during the
-    bubbling phase. Its initial value <em class="ct">must</em> be
-    <code>null</code>.</p>
-   </dd>
+   <dd><p>This attribute is an <span>event handler DOM attribute</span> and
+   <em class="ct">must</em> be invoked whenever a
+   <code>readystatechange</code> event is targated at the object.</p></dd>
 
    <dt><dfn id="readystate"><code>readyState</code></dfn> of type
    <code>unsigned short</code>, readonly</dt>
@@ -603,8 +601,7 @@ client.send();</code></pre>
 
      <li><p>If <var>stored url</var> is a relative reference resolve it using
      the current value of the <code>baseURI</code> attribute of the
-     <code>Document</code> object currently associated with the
-     <span><code>Window</code> pointer</span>. If this fails raise a
+     <span><code>Document</code> pointer</span>. If this fails raise a
      <code>SYNTAX_ERR</code> exception and terminate these steps.</p></li>
 
      <li><p>If <var>stored url</var> contains an unsupported scheme raise a
@@ -624,11 +621,9 @@ client.send();</code></pre>
      format let <var>stored user</var> be the user part.</p></li>
 
      <li><p>If <var>stored url</var> is not of the <span>same-origin</span>
-     as the origin of the <code>Document</code> object associated with the
-     <span><code>Window</code> pointer</span> the user agent
-     <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
-     and terminate these steps. The term origin is defined by the
-     HTML&nbsp;5 specification. [<cite><span>HTML5</span></cite>]</p></li>
+     as the <span>origin</span> of the <span><code>Document</code>
+     pointer</span> the user agent <em class="ct">should</em> raise a
+     <code>SECURITY_ERR</code> exception and terminate these steps.</p></li>
 
      <li><p>Let <var>async</var> be the value of the <var>async</var>
      argument or <code>true</code> if it was omitted.</p></li>

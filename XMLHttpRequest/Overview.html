@@ -364,8 +364,10 @@ client.send();</code></pre>
    be considered same-origin. [<cite><a
    href="#ref-rfc3987">RFC3987</a></cite>]
 
-  <p>The term <dfn id=browsing>browsing context</dfn> is defined by the
-   HTML&nbsp;5 specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
+  <p>The terms <dfn id=origin>origin</dfn> and <dfn
+   id=event-handler-attribute>event handler DOM attribute</dfn> are defined
+   by the HTML&nbsp;5 specification. [<cite><a
+   href="#ref-html5">HTML5</a></cite>]
 
   <h3 id=extensibility><span class=secno>2.3. </span>Extensibility</h3>
 
@@ -403,24 +405,25 @@ client.send();</code></pre>
   </div>
 
   <p>When the <code title="">XMLHttpRequest()</code> constructor is invoked a
-   persistent pointer to the associated <code title="">Window</code> object
-   <em class=ct>must</em> be stored on the newly created object. This is the
-   <dfn id=window-pointer title="Window pointer"><code>Window</code>
-   pointer</dfn>. The associated <code title="">Window</code> object is the
-   one of which the <code title="">XMLHttpRequest()</code> constructor was
-   invoked. This <a href="#window-pointer" title="Window pointer">pointer</a>
-   <em class=ct>must</em> persist even if the <a href="#browsing">browsing
-   context</a> in which the <code title="">Window</code> is located is
-   destroyed (by removing it from a parent browsing context, for instance).</p>
-  <!-- XXX if the document object changes in the browsing context you get an
-  exception in some implementations. -->
+   persistent pointer to the associated <code title="">Document</code> object
+   is stored on the newly created object. This is the <dfn
+   id=document-pointer title="Document pointer"><code>Document</code>
+   pointer</dfn>. The associated <code>Document</code> object is the one
+   returned by the <code>document</code> attribute from the object on which
+   the <code title="">XMLHttpRequest()</code> constructor was invoked (a
+   <code>Window</code> object). The pointer can become "null" if the object
+   is destroyed.
+
+  <p class=note>As per the conformance criteria implementations are free to
+   implement this in any way they desire as long as the end results are
+   identical to those given by the English prose.
 
   <div class=example>
-   <p>If <var><code>win</code></var> is a <code title="">Window</code> object
-    <var><code>client</code></var> will have a pointer to
-    <var><code>win</code></var> in the following example:</p>
+   <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
+    object <var><code>client</code></var> will have a pointer to
+    <var><code>iframe.document</code></var> in the following example:</p>
 
-   <pre><code>var client = new win.XMLHttpRequest()</code></pre>
+   <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
   </div>
 
   <pre
@@ -640,16 +643,13 @@ client.send();</code></pre>
 
   <dl>
    <dt><dfn id=onreadystatechange><code>onreadystatechange</code></dfn> of
-    type <code>EventListener</code></dt>
-   <!-- XXX define it in terms of HTML5 event handler attributes? -->
+    type <code>EventListener</code>
 
    <dd>
-    <p>An attribute that takes an <code>EventListener</code> as value that
-     <em class=ct>must</em> be invoked along with any other appropriate event
-     listeners that are registered on this object when a <code><a
-     href="#readystatechange">readystatechange</a></code> event is dispatched
-     on it during the bubbling phase. Its initial value <em
-     class=ct>must</em> be <code>null</code>.</p>
+    <p>This attribute is an <a href="#event-handler-attribute">event handler
+     DOM attribute</a> and <em class=ct>must</em> be invoked whenever a
+     <code><a href="#readystatechange">readystatechange</a></code> event is
+     targated at the object.
 
    <dt><dfn id=readystate><code>readyState</code></dfn> of type
     <code>unsigned short</code>, readonly
@@ -702,10 +702,10 @@ client.send();</code></pre>
 
      <li>
       <p>If <var>stored url</var> is a relative reference resolve it using
-       the current value of the <code>baseURI</code> attribute of the
-       <code>Document</code> object currently associated with the <a
-       href="#window-pointer"><code>Window</code> pointer</a>. If this fails
-       raise a <code>SYNTAX_ERR</code> exception and terminate these steps.
+       the current value of the <code>baseURI</code> attribute of the <a
+       href="#document-pointer"><code>Document</code> pointer</a>. If this
+       fails raise a <code>SYNTAX_ERR</code> exception and terminate these
+       steps.
 
      <li>
       <p>If <var>stored url</var> contains an unsupported scheme raise a
@@ -729,13 +729,12 @@ client.send();</code></pre>
 
      <li>
       <p>If <var>stored url</var> is not of the <a
-       href="#same-origin">same-origin</a> as the origin of the
-       <code>Document</code> object associated with the <a
-       href="#window-pointer"><code>Window</code> pointer</a> the user agent
-       <em class=ct>should</em> raise a <code><a
+       href="#same-origin">same-origin</a> as the <a
+       href="#origin">origin</a> of the <a
+       href="#document-pointer"><code>Document</code> pointer</a> the user
+       agent <em class=ct>should</em> raise a <code><a
        href="#security-err">SECURITY_ERR</a></code> exception and terminate
-       these steps. The term origin is defined by the HTML&nbsp;5
-       specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
+       these steps.
 
      <li>
       <p>Let <var>async</var> be the value of the <var>async</var> argument
