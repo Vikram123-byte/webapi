@@ -126,11 +126,14 @@
   <!--toc-->
 
 
+
   <h2 id="introduction">Introduction</h2>
 
   <p class="issue">To be written.</p>
 
-  <h3 id="conformance">Conformance</h3>
+
+
+  <h2 id="conformance">Conformance Criteria</h2>
 
   <p>Everything in this specification is normative except for diagrams,
   examples, notes and sections marked non-normative.</p>
@@ -158,11 +161,18 @@
    </dd>
   </dl>
 
-  <h4 id="dependencies">Dependencies</h4>
+  <h3 id="dependencies">Dependencies</h3>
 
   <p>This specification relies on several underlying specifications.</p>
 
   <dl>
+   <dt>Access Control for Cross-site Requests</dt>
+   
+   <dd><p>A <span title="conforming user agent">conforming user agent</span>
+   <em class="ct">must</em> support the algorithms of the Access Control for
+   Cross-site Requests specification.
+   [<cite><span>AC</span></cite>]</p></dd>
+
    <dt>DOM</dt>
 
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
@@ -171,6 +181,21 @@
    specifications. [<cite><span>DOM2Events</span></cite>]
    [<cite><span>DOM3Core</span></cite>]</p></dd>
 
+   <dt>HTML&nbsp;5</dt>
+   
+   <dd>
+    <p>This specification depends on HTML&nbsp; for defining the
+    <code>Window</code> object and how to parse a <code>text/html</code>
+    resource. A <span>conforming user agent</span> <em class="ct">must</em>
+    support these features. [<cite><span>HTML5</span></cite>]</p>
+
+    <p class="note">The
+    <a href="http://www.w3.org/TR/2006/WD-Window-20060407/">Window Object
+    1.0</a> draft is not referenced normatively as it appears to be no
+    longer maintained and HTML&nbsp;5 defines the <code>Window</code> object
+    in more detail. This specification already depends on HTML&nbsp;5 for
+    other reasons so there is not much additional overhead because of
+    this.</p>
    <dt>HTTP</dt>
 
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
@@ -187,7 +212,7 @@
   </dl>
 
 
-  <h4 id="terminology">Terminology</h4>
+  <h3 id="terminology">Terminology</h3>
 
   <p>There is a <dfn id="case-insensitive-match">case-insensitive match</dfn>
   of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
@@ -210,12 +235,12 @@
   described in section 5.1.1 of RFC 2616. <dfn><code>field-name</code></dfn>
   and <dfn><code>field-value</code></dfn> are used as described in section
   4.2 of RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
-  
+
   <p>The terms <dfn>status return flag</dfn>, <dfn>uri return flag</dfn>,
   and <dfn>cross-site access request</dfn> are defined by the Access Control
   for Cross-site Requests specification.
   [<cite><span>AC</span></cite>]
-  
+
   <p>To <dfn id="dispatch-readystatechange-event">dispatch a
   <code>readystatechange</code> event</dfn> means that an event with the
   name <code>readystatechange</code>, with no namespace, which does not
@@ -227,7 +252,7 @@
   a progress event called <var>e</var></dfn> means&hellip;</p>
 
 
-  <h4 id="extensibility">Extensibility</h4>
+  <h3 id="extensibility">Extensibility</h3>
 
   <p>Extensions of the API defined by this specification are <em>strongly
   discouraged</em>. User agents, Working Groups and other interested parties
@@ -299,9 +324,8 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
 
 
   <h3 id="constructor">Constructor</h3>
-  
-  <p class="issue"><code>new XMLHttpRequest(method, url, body, listener)</code>
-  has been proposed as convenience constructor.</p>
+
+  <!-- new XMLHttpRequest(method, url, body, listener) -->
 
   <p>Objects implementing the <code title="">Window</code> interface
   <em class="ct">must</em> provide the following constructor:
@@ -402,27 +426,29 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
    <dd>
     <p>All HTTP headers have been received. Several response members of the
     object are now available.</p>
+
     <p class="note">For non same-origin requests the object will never be in
     this state.</p>
    </dd>
-   
+
    <dt><dfn id="loading-state" title="LOADING state"><code>LOADING</code></dfn>
    (numeric value 3)</dt>
    <dd><p>The response entity body is being received.</p></dd>
-   
+
    <dt><dfn id="done-state" title="DONE state"><code>DONE</code></dfn>
    (numeric value 4)</dt>
    <dd><p>The data transfer has been completed or something went wrong
    during the transfer (such as infinite redirects).</p></dd>
   </dl>
 
-  <p>The OPEN state has an associated <dfn id="send-flag"><code>send()</code>
-  flag</dfn> which can be either "true" or "false". The initial value of the
-  <code title="">send()</code> flag is "false".</p>
+  <p>The OPEN state has an associated
+  <dfn id="send-flag"><code>send()</code> flag</dfn> which can be either
+  "true" or "false". The initial value of the <code title="">send()</code>
+  flag is "false".</p>
 
   <p>The DONE state has an associated <dfn id="error-flag">error flag</dfn>
-  which can be either "true" or "false". The initial value of the error flag is
-  "false".</p>
+  which can be either "true" or "false". The initial value of the error flag
+  is "false".</p>
 
 
 
@@ -439,26 +465,27 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
   otherwise indicated):</p>
 
   <ol>
-   <li><p>If the <var>method</var> argument does not match the <span>Method
+   <li><p>Let <var>stored method</var> be the <var>method</var>
+   argument.</p></li>
+
+   <li><p>If <var>stored method</var> does not match the <span>Method
    token</span> raise a <code>SYNTAX_ERR</code> exception and terminate
    these steps.</p></li>
 
-   <li><p>If the given <var>method</var> is not supported for security
-   reasons the user agent <em class="ct">should</em> raise a
-   <code>SECURITY_ERR</code> exception and terminate these steps.</p></li>
-
-   <li><p>Let <var>stored method</var> be <var>method</var>.</p></li>
-
-   <li><p>If <var>method</var>
+   <li><p>If <var>stored method</var>
    <span title="case-insensitive match">case-insensitively matches</span>
-   <code>GET</code>, <code>POST</code>, <code>HEAD</code>, <code>PUT</code>,
-   <code>DELETE</code> or <code>OPTIONS</code> convert it to its uppercase
-   equivalent (by mapping a-z to A-Z) and let <var>stored method</var> be
-   the result.</p></li>
-   <!-- WebKit (and supposedly Firefox) also uppercase: CONNECT, COPY,
-   INDEX, LOCK, M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, TRACE and UNLOCK.
-   Not sure if TRACE and CONNECT are worth it though. They raise a
-   SECURITY_ERR exception anyway... -->
+   <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
+   <code>HEAD</code>, <code>OPTIONS</code> <code>POST</code>,
+   <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
+   <var>stored method</var> be the canonical uppercase form of the matched
+   method name.</p></li>
+   <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
+   M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
+
+   <li><p>If <var>stored method</var> is one of <code>CONNECT</code>,
+   <code>TRACE</code>, or <code>TRACK</code> the user agent
+   <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
+   and terminate these steps.</p></li>
 
    <li><p>Drop the fragment identifier (if any) from <var>url</var> and let
    <var>stored url</var> be the result of that operation.</p></li>
