@@ -218,9 +218,10 @@
   of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
   character range A-Z to the range a-z both strings are identical.</p>
   
-  <p>Two URIs are <dfn id="same-origin">same-origin</dfn> if after
-  performing scheme-based normalization on both URIs as described in section
-  5.3.3 of RFC 3987 the scheme, ihost and port components are
+  <p>A URI is <dfn id="same-origin">same-origin</dfn> with the
+  <span>origin</span> of the <span><code>Document</code> pointer</span> if
+  after performing scheme-based normalization on both URIs as described in
+  section 5.3.3 of RFC 3987 the scheme, ihost and port components are
   identical. If either URI does not have an ihost component the URIs
   <em class="ct">must not</em> be considered same-origin.
   [<cite><span>RFC3987</span></cite>]</p>
@@ -566,8 +567,13 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
   <dfn id="setrequestheader" title="setrequestheader"><code>setRequestHeader(<var>header</var>,
   <var>value</var>)</code></dfn> method can be used to manipulate those
   values and set new request headers. When invoked, the user agent
-  <em class="ct">must</em> act as if it had run the following steps (unless
-  otherwise indicated):</p>
+  <em class="ct">must</em> act as if it had run the steps below (unless
+  otherwise indicated).</p>
+  
+  <p class="note">For a <span>non same-origin request</span> HTTP headers
+  added to the list of request headers, other than <code>Accept</code> and
+  <code>Accept-Language</code>, are ignored and will not be part of the
+  request.</p>
 
   <ol>
    <li><p>If the state of the object is not
@@ -608,7 +614,6 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Host</code></li>
      <li><code>Keep-Alive</code></li>
      <li><code>Method-Check</code></li>
-     <!--<li><code>Method-Check-Expires</code></li>-->
      <li><code>Referer</code></li>
      <li><code>Referer-Root</code></li>
      <li><code>TE</code></li>
@@ -618,6 +623,9 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Via</code></li>
     </ul>
    </li>
+   
+   <!-- Access-Control and Method-Check-Expires are response headers and
+   therefore "safe". -->
 
    <li><p>Also for security reasons, these steps <em class="ct">should</em> be
    terminated if the first six characters of the <var>header</var> argument
@@ -667,7 +675,7 @@ X-Test: one, two
   the upload process.</p>
 
 
-  <h4>Initiating a Request</h4>
+  <h4>Request Variables and Algorithms</h4>
 
   <p>The <dfn>same-origin flag</dfn> indicates whether the current being
   performed is <span>same-origin</span> or not. A value of "true" indicates
@@ -680,19 +688,6 @@ X-Test: one, two
   <p>The <dfn>upload complete flag</dfn> indicates is used in several
   algorithms to determine whether or not to dispatch an event. The initial
   value of the flag is "false".</p>
-
-  <p>When the steps below use the phrase <dfn title="make a request">make a
-  <var>m</var> request</dfn> the user agent <em class="ct">must</em> make a
-  request to the <span>current request URI</span>, using HTTP method
-  <var>m</var>, user <var>stored user</var> (if provided) and password
-  <var>stored password</var> (if provided), taking into account the entity
-  body, list of request headers and the rules listed after the
-  <code>send()</code> algorithm. The method <var>m</var> with which the
-  request is made is the <dfn>request method</dfn>.</p>
-
-  <p class="issue">For non same-origin requests some extra precautions, such
-  as restricting the list of request headers, need to be taken that this
-  algorithm currently not covers in enough detail.</p>
 
   <p>When the steps for the <code>send()</code> method say something is a
   <dfn>network error</dfn> the user agent <em class="ct">must</em> act as if
@@ -791,6 +786,7 @@ X-Test: one, two
   </ul>
 
 
+  <h4>Initiating a Request</h4>
 
   <p>The
   <dfn id="send" title="send"><code>send(<var>data</var>)</code></dfn>
@@ -892,14 +888,13 @@ X-Test: one, two
    <li>
     <p>If the <span>current request URI</span> is <span>same-origin</span>
     this is a <dfn>same-origin request</dfn>. Make a request to the
-    <span>current request URI</span>, <span>make progress notifications</span>,
+    <span>current request URI</span> using HTTP method <var>stored
+    method</var>, user <var>stored user</var> (if provided), password
+    <var>stored password</var> (if provided), taking into account the entity
+    body, list of request headers and the rules listed directly after this
+    set of steps. <span>Make progress notifications</span>,
     <span>make upload progress notifications</span>, and follow the list of
     request rules:</p>
-    <!--
-    taking into
-    account the <span>entity body</span>, list of request headers etc.
-    user/password
-    -->
 
     <dl class="switch">
      <dt>If the response is an HTTP redirect</dt>
@@ -964,48 +959,55 @@ X-Test: one, two
      resource has been downloaded go to the next step.</p></dd>
     </dl>
 
-    <p>Otherwise, if it is non same-origin this is a <dfn>non-same-origin
+    <p>Otherwise, if it is non same-origin this is a <dfn>non same-origin
     request</dfn>. Set the <span>same-origin flag</span> to "false", then
-    make a <span>cross-site access request</span> and handle the return
-    values as follows:</p>
-    
+    make a <span>cross-site access request</span>, using HTTP method
+    <var>stored method</var>, taking into account the entity body if
+    <var>stored method</var> is not <code>GET</code>, and ignoring any
+    header set by <code>setRequestHeader()</code> other than those that
+    <span title="case-insensitive match">case-insensitively match</span>
+    <code>Accept</code> or <code>Accept-Language</code>, and handle the
+    return values as indicated below.</p>
+
+    <p class="note">The <var>stored user</var> and <var>stored
+    password</var> variables are always ignored as part of a non same-origin
+    request as including them would allow a site to perform a distributed
+    password search.</p>
+
     <dl>
      <dt><span>status return flag</span> is "same-origin"</dt>
-     
      <dd><p>Set the <span>current request URI</span> to the value of the
      <span>uri return flag</span>, set the <span>same-origin flag</span> to
      "true", and then make a <span>same-origin
      request</span>.</p></dd>
 
      <dt><span>status return flag</span> is "network"</dt>
-
      <dd><p>This is a <span>network error</span>.</p></dd>
 
      <dt><span>status return flag</span> is "abort"</dt>
-
      <dd><p>This is an <span>abort error</span>.</p></dd>
 
      <dt><span>status return flag</span> is "success"</dt>
-     
      <dd><p><span>Make progress notifications</span>, <span>switch to the
      LOADING state</span> and once the resource has been downloaded
      completely go to the next step.</p></dd>
     </dl>
+   </li>
 
    <li>
     <p>When the request has successfully completed loading, run the
     following steps:</p>
-      
+
     <ol>
      <li><p>Synchronously switch the state to
      <span title="DONE state">DONE</span>.</p></li>
-       
+
      <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
      event</span> on the object.</p></li>
-       
+
      <li><p>Synchronously <span>dispatch a progress event</span> called
      <code>load</code> on the object.</p></li>
-       
+
      <li><p>If <var>async</var> is <code>false</code> return the method
      call.</p></li>
     </ol>

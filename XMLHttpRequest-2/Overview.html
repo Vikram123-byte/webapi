@@ -170,10 +170,13 @@
        <li><a href="#tracking"><span class=secno>3.5.1. </span>Tracking
         Upload Progress</a>
 
-       <li><a href="#initiating"><span class=secno>3.5.2. </span>Initiating a
+       <li><a href="#request0"><span class=secno>3.5.2. </span>Request
+        Variables and Algorithms</a>
+
+       <li><a href="#initiating"><span class=secno>3.5.3. </span>Initiating a
         Request</a>
 
-       <li><a href="#aborting"><span class=secno>3.5.3. </span>Aborting a
+       <li><a href="#aborting"><span class=secno>3.5.4. </span>Aborting a
         Request</a>
       </ul>
 
@@ -296,11 +299,13 @@
    of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
    character range A-Z to the range a-z both strings are identical.
 
-  <p>Two URIs are <dfn id=same-origin>same-origin</dfn> if after performing
-   scheme-based normalization on both URIs as described in section 5.3.3 of
-   RFC 3987 the scheme, ihost and port components are identical. If either
-   URI does not have an ihost component the URIs <em class=ct>must not</em>
-   be considered same-origin. [<cite><span>RFC3987</span></cite>]
+  <p>A URI is <dfn id=same-origin>same-origin</dfn> with the <a
+   href="#origin">origin</a> of the <a
+   href="#document-pointer"><code>Document</code> pointer</a> if after
+   performing scheme-based normalization on both URIs as described in section
+   5.3.3 of RFC 3987 the scheme, ihost and port components are identical. If
+   either URI does not have an ihost component the URIs <em class=ct>must
+   not</em> be considered same-origin. [<cite><span>RFC3987</span></cite>]
 
   <p>The terms <dfn id=origin>origin</dfn> and <dfn
    id=event-handler-attribute>event handler DOM attribute</dfn> are defined
@@ -695,8 +700,13 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    title=setrequestheader><code>setRequestHeader(<var>header</var>,
    <var>value</var>)</code></dfn> method can be used to manipulate those
    values and set new request headers. When invoked, the user agent <em
-   class=ct>must</em> act as if it had run the following steps (unless
-   otherwise indicated):
+   class=ct>must</em> act as if it had run the steps below (unless otherwise
+   indicated).
+
+  <p class=note>For a <a href="#non-same-origin">non same-origin request</a>
+   HTTP headers added to the list of request headers, other than
+   <code>Accept</code> and <code>Accept-Language</code>, are ignored and will
+   not be part of the request.
 
   <ol>
    <li>
@@ -751,8 +761,7 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
      <li><code>Keep-Alive</code>
 
-     <li><code>Method-Check</code></li>
-     <!--<li><code>Method-Check-Expires</code></li>-->
+     <li><code>Method-Check</code>
 
      <li><code>Referer</code>
 
@@ -768,6 +777,9 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
      <li><code>Via</code>
     </ul>
+   </li>
+   <!-- Access-Control and Method-Check-Expires are response headers and
+   therefore "safe". -->
 
    <li>
     <p>Also for security reasons, these steps <em class=ct>should</em> be
@@ -820,7 +832,8 @@ X-Test: one, two
    interface. This object can be used to register event listeners on which
    will be triggered during the upload process.
 
-  <h4 id=initiating><span class=secno>3.5.2. </span>Initiating a Request</h4>
+  <h4 id=request0><span class=secno>3.5.2. </span>Request Variables and
+   Algorithms</h4>
 
   <p>The <dfn id=same-origin0>same-origin flag</dfn> indicates whether the
    current being performed is <a href="#same-origin">same-origin</a> or not.
@@ -834,20 +847,6 @@ X-Test: one, two
   <p>The <dfn id=upload0>upload complete flag</dfn> indicates is used in
    several algorithms to determine whether or not to dispatch an event. The
    initial value of the flag is "false".
-
-  <p>When the steps below use the phrase <dfn id=make-a title="make a
-   request">make a <var>m</var> request</dfn> the user agent <em
-   class=ct>must</em> make a request to the <a href="#current">current
-   request URI</a>, using HTTP method <var>m</var>, user <var>stored
-   user</var> (if provided) and password <var>stored password</var> (if
-   provided), taking into account the entity body, list of request headers
-   and the rules listed after the <code><a href="#send">send()</a></code>
-   algorithm. The method <var>m</var> with which the request is made is the
-   <dfn id=request0>request method</dfn>.
-
-  <p class=issue>For non same-origin requests some extra precautions, such as
-   restricting the list of request headers, need to be taken that this
-   algorithm currently not covers in enough detail.
 
   <p>When the steps for the <code><a href="#send">send()</a></code> method
    say something is a <dfn id=network>network error</dfn> the user agent <em
@@ -972,6 +971,8 @@ X-Test: one, two
      attribute.
   </ul>
 
+  <h4 id=initiating><span class=secno>3.5.3. </span>Initiating a Request</h4>
+
   <p>The <dfn id=send title=send><code>send(<var>data</var>)</code></dfn>
    method initiates the request and its optional argument provides the <a
    href="#entity-body">entity body</a> for the request. Authors are
@@ -1081,15 +1082,14 @@ X-Test: one, two
     <p>If the <a href="#current">current request URI</a> is <a
      href="#same-origin">same-origin</a> this is a <dfn
      id=same-origin1>same-origin request</dfn>. Make a request to the <a
-     href="#current">current request URI</a>, <a href="#make-">make progress
-     notifications</a>, <a href="#make-0">make upload progress
-     notifications</a>, and follow the list of request rules:</p>
-    <!--
-    taking into
-    account the <span>entity body</span>, list of request headers etc.
-    user/password
-    -->
-    
+     href="#current">current request URI</a> using HTTP method <var>stored
+     method</var>, user <var>stored user</var> (if provided), password
+     <var>stored password</var> (if provided), taking into account the entity
+     body, list of request headers and the rules listed directly after this
+     set of steps. <a href="#make-">Make progress notifications</a>, <a
+     href="#make-0">make upload progress notifications</a>, and follow the
+     list of request rules:</p>
+
     <dl class=switch>
      <dt>If the response is an HTTP redirect
 
@@ -1112,8 +1112,8 @@ X-Test: one, two
          title="same-origin request">same-origin requests</a>.
 
        <li>
-        <p>Otherwise, follow the steps for a <span>non same-origin
-         request</span> terminating this one.
+        <p>Otherwise, follow the steps for a <a href="#non-same-origin">non
+         same-origin request</a> terminating this one.
       </ol>
 
       <p class=note>HTTP places requirements on the user agent regarding the
@@ -1165,10 +1165,22 @@ X-Test: one, two
     </dl>
 
     <p>Otherwise, if it is non same-origin this is a <dfn
-     id=non-same-origin>non-same-origin request</dfn>. Set the <a
+     id=non-same-origin>non same-origin request</dfn>. Set the <a
      href="#same-origin0">same-origin flag</a> to "false", then make a <a
-     href="#cross-site">cross-site access request</a> and handle the return
-     values as follows:</p>
+     href="#cross-site">cross-site access request</a>, using HTTP method
+     <var>stored method</var>, taking into account the entity body if
+     <var>stored method</var> is not <code>GET</code>, and ignoring any
+     header set by <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> other than those
+     that <a href="#case-insensitive-match" title="case-insensitive
+     match">case-insensitively match</a> <code>Accept</code> or
+     <code>Accept-Language</code>, and handle the return values as indicated
+     below.</p>
+
+    <p class=note>The <var>stored user</var> and <var>stored password</var>
+     variables are always ignored as part of a non same-origin request as
+     including them would allow a site to perform a distributed password
+     search.</p>
 
     <dl>
      <dt><a href="#status0">status return flag</a> is "same-origin"
@@ -1264,7 +1276,7 @@ X-Test: one, two
    class=ct>must</em> have the content-encodings automatically decoded.
    [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
-  <h4 id=aborting><span class=secno>3.5.3. </span>Aborting a Request</h4>
+  <h4 id=aborting><span class=secno>3.5.4. </span>Aborting a Request</h4>
 
   <p>When the <dfn id=abort><code>abort()</code></dfn> method is invoked, the
    user agent <em class=ct>must</em> act as if it had run the following steps
