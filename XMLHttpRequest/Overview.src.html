@@ -222,9 +222,10 @@ client.send();</code></pre>
 
    <dt><dfn id="conforming-xml-user-agent">Conforming XML user agent</dfn></dt>
 
-   <dd><p>A user agent that is both a <span>conforming user agent</span> and
-   a conforming XML processor that reports violations of namespace
-   well-formedness. [<cite><span>XML</span></cite>]
+   <dd><p>An XML user agent <em class="ct">must</em> be a <span>conforming
+   user agent</span> and <em class="ct">must</em> be a conforming XML
+   processor that reports violations of namespace well-formedness.
+   [<cite><span>XML</span></cite>]
    [<cite><span>XMLNS</span></cite>]</p></dd>
   </dl>
 
@@ -518,6 +519,9 @@ client.send();</code></pre>
    <var>charset</var>. Or, if that fails, return <code>null</code>.</p></li>
   </ol>
 
+  <p class="note">Authors are encouraged to simply encode their resources
+  using UTF-8.</p>
+
   <p>The <dfn id="xml-response-entity-body">XML response entity body</dfn> is
   either a <code>Document</code> representing the <span>response entity
   body</span> or <code>null</code>. The XML response entity body is the return
@@ -682,9 +686,13 @@ client.send();</code></pre>
    <var>value</var>)</code></dfn>, method</dt>
 
    <dd>
-    <p>Each request has a list of request headers with associated values. This
-    method can be used to manipulate those values and set new request
-    headers.</p>
+    <p>Each request has a list of request headers with associated values.
+    The <code>setRequestHeader()</code> method can be used to manipulate
+    those values and set new request headers.</p>
+
+    <p class="note">The <code>setRequestHeader()</code> method appends a
+    value if the HTTP header given as argument is already part of the list
+    of request headers.</p>
 
     <p>When invoked, the user agent <em class="ct">must</em> follow the
     following steps (unless otherwise indicated):</p>
@@ -779,11 +787,12 @@ X-Test: one, two
 
    <dd>
     <p>The <code>send()</code> method initiates the request and its optional
-    argument provides the <span>entity body</span>. Authors are strongly
-    encouraged to ensure that they have specified the
-    <code>Content-Type</code> header via <code>setRequestHeader()</code>
-    before invoking <code>send()</code> with a non-<code>null</code>
-    <var>data</var> argument.</p>
+    argument provides the <span>entity body</span>.</p>
+    
+    <p class="note">Authors are encouraged to ensure that they have
+    specified the <code>Content-Type</code> header via
+    <code>setRequestHeader()</code> before invoking <code>send()</code> with
+    a non-<code>null</code> <var>data</var> argument.</p>
 
     <p>When invoked, the user agent <em class="ct">must</em> follow the
     following steps (unless otherwise noted). Note that this algorithm might
@@ -820,7 +829,13 @@ X-Test: one, two
       <dl class="switch">
        <dt><var>data</var> is a <code>DOMString</code></dt>
 
-       <dd><p>Encode <var>data</var> using UTF-8 for transmission.</p></dd>
+       <dd>
+        <p>Encode <var>data</var> using UTF-8 for transmission.</p>
+
+        <p class="note">As the <code>Content-Type</code> is not taken into
+        account this can mean that there is a mismatch between the data
+        being sent and the encoding being declared.</p>
+       </dd>
 
        <dt><var>data</var> is a <code>Document</code>
 
@@ -1038,6 +1053,8 @@ X-Test: one, two
     headers, and sent in the <code>Cookie</code> header) as applicable.
     [<cite><span>RFC2965</span></cite>]</p>
 
+    <!-- It has been said that RFC2965 does not match reality. -->
+
     <p>If the user agent implements a HTTP cache it <em class="ct">should</em>
     respect <code>Cache-Control</code> request headers set by the script
     (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
@@ -1192,7 +1209,7 @@ client.onreadystatechange = function() {
 }
 
 // ...should output something similar to the following text:
-Content-Type: text/plain; charset=utf-8</code></pre>
+text/plain; charset=utf-8</code></pre>
     </div>
    </dd>
 
@@ -1397,6 +1414,7 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
 
   <p>The editor would like to thank
 
+  Addison Phillips,
   Ahmed Kamel,
   Alex Hopmann,
   Alex Vincent,
@@ -1415,6 +1433,7 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
   Douglas Livingstone,
   Elliotte Harold,
   Eric Lawrence,
+  Geoffrey Sneddon,
   Gideon Cohn,
   Gorm Haug Eriksen,
   Hallvord R. M. Steen,

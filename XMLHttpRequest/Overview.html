@@ -32,14 +32,14 @@
    <h1 class=head id=the-xmlhttprequest-object>The <code
     title="">XMLHttpRequest</code> Object</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 29 November 2007</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 6 December 2007</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
      href="http://dev.w3.org/2006/webapi/XMLHttpRequest/">http://dev.w3.org/2006/webapi/XMLHttpRequest/</a></dd>
-    <!--<dd><a href="http://www.w3.org/TR/2007/ED-XMLHttpRequest-20071129/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071129/</a></dd>-->
+    <!--<dd><a href="http://www.w3.org/TR/2007/ED-XMLHttpRequest-20071206/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071206/</a></dd>-->
 
     <dt>Latest Version:
 
@@ -108,7 +108,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 29 November 2007 Working Draft of The <code
+  <p>This is the 6 December 2007 Working Draft of The <code
    title="">XMLHttpRequest</code> Object specification. Please send comments
    to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
@@ -285,11 +285,11 @@ client.send();</code></pre>
    <dt><dfn id=conforming-xml-user-agent>Conforming XML user agent</dfn>
 
    <dd>
-    <p>A user agent that is both a <a
-     href="#conforming-user-agent">conforming user agent</a> and a conforming
-     XML processor that reports violations of namespace well-formedness.
-     [<cite><a href="#ref-xml">XML</a></cite>] [<cite><a
-     href="#ref-xmlns">XMLNS</a></cite>]
+    <p>An XML user agent <em class=ct>must</em> be a <a
+     href="#conforming-user-agent">conforming user agent</a> and <em
+     class=ct>must</em> be a conforming XML processor that reports violations
+     of namespace well-formedness. [<cite><a href="#ref-xml">XML</a></cite>]
+     [<cite><a href="#ref-xmlns">XMLNS</a></cite>]
   </dl>
 
   <h3 id=dependencies><span class=secno>2.1. </span>Dependencies</h3>
@@ -606,6 +606,9 @@ client.send();</code></pre>
      <var>charset</var>. Or, if that fails, return <code>null</code>.
   </ol>
 
+  <p class=note>Authors are encouraged to simply encode their resources using
+   UTF-8.
+
   <p>The <dfn id=xml-response-entity-body>XML response entity body</dfn> is
    either a <code>Document</code> representing the <a
    href="#response-entity-body">response entity body</a> or
@@ -805,9 +808,14 @@ client.send();</code></pre>
     <var>value</var>)</code></dfn>, method
 
    <dd>
-    <p>Each request has a list of request headers with associated values.
-     This method can be used to manipulate those values and set new request
-     headers.</p>
+    <p>Each request has a list of request headers with associated values. The
+     <code><a href="#setrequestheader">setRequestHeader()</a></code> method
+     can be used to manipulate those values and set new request headers.</p>
+
+    <p class=note>The <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> method appends a
+     value if the HTTP header given as argument is already part of the list
+     of request headers.</p>
 
     <p>When invoked, the user agent <em class=ct>must</em> follow the
      following steps (unless otherwise indicated):</p>
@@ -924,11 +932,13 @@ X-Test: one, two
    <dd>
     <p>The <code><a href="#send">send()</a></code> method initiates the
      request and its optional argument provides the <a
-     href="#entity-body">entity body</a>. Authors are strongly encouraged to
-     ensure that they have specified the <code>Content-Type</code> header via
-     <code><a href="#setrequestheader">setRequestHeader()</a></code> before
-     invoking <code><a href="#send">send()</a></code> with a
-     non-<code>null</code> <var>data</var> argument.</p>
+     href="#entity-body">entity body</a>.</p>
+
+    <p class=note>Authors are encouraged to ensure that they have specified
+     the <code>Content-Type</code> header via <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> before invoking
+     <code><a href="#send">send()</a></code> with a non-<code>null</code>
+     <var>data</var> argument.</p>
 
     <p>When invoked, the user agent <em class=ct>must</em> follow the
      following steps (unless otherwise noted). Note that this algorithm might
@@ -968,7 +978,11 @@ X-Test: one, two
        <dt><var>data</var> is a <code>DOMString</code>
 
        <dd>
-        <p>Encode <var>data</var> using UTF-8 for transmission.
+        <p>Encode <var>data</var> using UTF-8 for transmission.</p>
+
+        <p class=note>As the <code>Content-Type</code> is not taken into
+         account this can mean that there is a mismatch between the data
+         being sent and the encoding being declared.</p>
 
        <dt><var>data</var> is a <code>Document</code>
 
@@ -1205,7 +1219,7 @@ X-Test: one, two
      the <code>Set-Cookie</code> and <code>Set-Cookie2</code> response
      headers, and sent in the <code>Cookie</code> header) as applicable.
      [<cite><a href="#ref-rfc2965">RFC2965</a></cite>]</p>
-
+    <!-- It has been said that RFC2965 does not match reality. -->
     <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
      respect <code>Cache-Control</code> request headers set by the script
      (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
@@ -1371,7 +1385,7 @@ client.onreadystatechange = function() {
 }
 
 // ...should output something similar to the following text:
-Content-Type: text/plain; charset=utf-8</code></pre>
+text/plain; charset=utf-8</code></pre>
     </div>
 
    <dt><dfn id=responsetext><code>responseText</code></dfn> of type
@@ -1596,19 +1610,19 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
 
   <h2 class=no-num id=acknowledgments>Acknowledgments</h2>
 
-  <p>The editor would like to thank Ahmed Kamel, Alex Hopmann, Alex Vincent,
-   Alexey Proskuryakov, Asbj&oslash;rn Ulsberg, Boris Zbarsky, Bj&ouml;rn
-   H&ouml;hrmann, Cameron McCormack, Christophe Jolif, Charles
-   McCathieNevile, Dan Winship, David H&aring;s&auml;ther, Dean Jackson,
-   Denis Sureau, Doug Schepers, Douglas Livingstone, Elliotte Harold, Eric
-   Lawrence, Gideon Cohn, Gorm Haug Eriksen, Hallvord R. M. Steen,
-   H&aring;kon Wium Lie, Ian Davis, Ian Hickson, Ivan Herman, Jeff Walden,
-   Jens Lindstr&ouml;m, Jim Deegan, Jim Ley, Joe Farro, Jonas Sicking, Julian
-   Reschke, Karl Dubost, Maciej Stachowiak, Magnus Kristiansen, Marc Hadley,
-   Marcos Caceres, Mark Baker, Mark Nottingham, Mohamed Zergaoui, Pawel
-   Glowacki, Robin Berjon, Ruud Steltenpool, Simon Pieters, Stewart Brodie,
-   Sunava Dutta, Tom Magliery and Zhenbin Xu for their contributions to this
-   specification.
+  <p>The editor would like to thank Addison Phillips, Ahmed Kamel, Alex
+   Hopmann, Alex Vincent, Alexey Proskuryakov, Asbj&oslash;rn Ulsberg, Boris
+   Zbarsky, Bj&ouml;rn H&ouml;hrmann, Cameron McCormack, Christophe Jolif,
+   Charles McCathieNevile, Dan Winship, David H&aring;s&auml;ther, Dean
+   Jackson, Denis Sureau, Doug Schepers, Douglas Livingstone, Elliotte
+   Harold, Eric Lawrence, Geoffrey Sneddon, Gideon Cohn, Gorm Haug Eriksen,
+   Hallvord R. M. Steen, H&aring;kon Wium Lie, Ian Davis, Ian Hickson, Ivan
+   Herman, Jeff Walden, Jens Lindstr&ouml;m, Jim Deegan, Jim Ley, Joe Farro,
+   Jonas Sicking, Julian Reschke, Karl Dubost, Maciej Stachowiak, Magnus
+   Kristiansen, Marc Hadley, Marcos Caceres, Mark Baker, Mark Nottingham,
+   Mohamed Zergaoui, Pawel Glowacki, Robin Berjon, Ruud Steltenpool, Simon
+   Pieters, Stewart Brodie, Sunava Dutta, Tom Magliery and Zhenbin Xu for
+   their contributions to this specification.
 
   <p>Special thanks to the Microsoft employees who first implemented the
    <code title="">XMLHttpRequest</code> interface, which was first widely
