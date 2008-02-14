@@ -308,11 +308,11 @@ for (var i = 0; i &lt; groups.length; i++) {
 
   <p>Conformance requirements phrased as algorithms or specific steps may be
    implemented in any manner, so long as the end result is equivalent. In
-   doing so, implementations <em class=ct>may</em> assume that the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method of the
-   object implementing the <code><a href="#nsresolver">NSResolver</a></code>
-   interface (or ECMAScript <code>Function</code> being used in place of such
-   an object) returns consistent results when invoked.
+   doing so, implementations <em class=ct>may</em> assume that the
+   <code>lookupNamespaceURI()</code> method of the object implementing the
+   <code><a href="#nsresolver">NSResolver</a></code> interface (or ECMAScript
+   <code>Function</code> being used in place of such an object) returns
+   consistent results when invoked.
 
   <p>The construction "<code>Foo</code> object", where <code>Foo</code> is
    actually an interface, is sometimes used instead of the more accurate
@@ -595,40 +595,61 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    title="">NSResolver</code> Interface</h3>
 
   <p>The <code><a href="#nsresolver">NSResolver</a></code> interface allows
-   prefixes to be bound to a namespace URI. The object implementing this
-   interface is expected to be implemented by authors.
-
-  <p class=note>Other specifications may introduce methods that return an
-   object implementing <code><a href="#nsresolver">NSResolver</a></code> in
-   which case it would be implemented by the user agent.
+   prefixes to be bound to a namespace URI.
 
   <pre class=idl>interface <dfn id=nsresolver>NSResolver</dfn> {
-  DOMString       <a href="#lookupnamespaceuri">lookupNamespaceURI</a>(in DOMString prefix);
+  DOMString       <span>lookupNamespaceURI</span>(in DOMString prefix);
 };</pre>
 
-  <p>The <dfn id=lookupnamespaceuri><code>lookupNamespaceURI()</code></dfn>
-   method <em class=ct>must</em>, when invoked, return the namespace
-   represented by the prefix (<var>prefix</var>) or the default namespace if
-   the <var>prefix</var> argument is an empty string.
+  <p class=note>The object implementing this interface is expected to be
+   implemented by applications. Other specifications may introduce methods
+   that return an object implementing <code><a
+   href="#nsresolver">NSResolver</a></code>, in which case it would be
+   implemented by the user agent. When the object is implemented by the
+   application, some conformance requirements are relaxed in order to make it
+   easier for authors to write a conforming implementation.
 
-  <p>When the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method is
-   invoked with a prefix as the argument, it <em class=ct>must</em> return
-   the namespace URI for the given prefix. When the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method is
-   invoked with an empty string as the argument (representing the default
-   namespace), it <em class=ct>must</em>:
+  <p>When the <code>lookupNamespaceURI()</code> method is invoked, the
+   implementation <em class=ct>must</em> perform the following algorithm:
 
   <ul>
-   <li>If there is a default namespace, return the default namespace URI.
+   <li>If the given prefix is an empty string, then:
+    <ul>
+     <li>If there is a default namespace, return the default namespace URI.
 
-   <li>If there is no default namespace, return either the empty string,
-    <code>null</code>, or (if permitted by the language binding) no return
-    value (<code>undefined</code>).
+     <li>If there is no default namespace, return an empty string.
+    </ul>
+
+   <li>Otherwise, look up the namespace URI associated with the given prefix
+    and:
+    <ul>
+     <li>If the prefix has an associated namespace URI, return the URI.
+
+     <li>If the prefix has no associated namespace URI, return an empty
+      string.
+    </ul>
   </ul>
 
-  <p>The <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code>
-   <em class=ct>must</em> return consistent results each time it is invoked.
+  <p>If the <code>lookupNamespaceURI()</code> method is passed a value of
+   <code>null</code> or <code>undefined</code>, then the implementation <em
+   class=ct>must</em> act as if an empty string had been passed instead. If
+   the method is passed an object other than a string, the object <em
+   class=ct>must</em> be converted to a string and the implementation <em
+   class=ct>must</em> act as if the resulting string had been passed instead.
+   The method to convert an object to a string is dependent upon the language
+   used. For example, in ECMAScript, this is achieved by invoking the
+   <code>toString()</code> method on the object.
+
+  <p>If the <code><a href="#nsresolver">NSResolver</a></code> object is
+   implemented by the application instead of the user agent, then, where the
+   algorithm says to return an empty string, the implementation <em
+   class=ct>may</em> return <code>null</code> or <code>undefined</code>
+   instead. Additionally, the implementation is required to handle being
+   passed <code>null</code>, <code>undefined</code> or non-string objects as
+   the prefix parameter.
+
+  <p>The <code>lookupNamespaceURI()</code> <em class=ct>must</em> return
+   consistent results each time it is invoked.
 
   <p class=note>Authors are <em>strongly discouraged</em> from writing an
    <code><a href="#nsresolver">NSResolver</a></code> that returns
@@ -637,13 +658,13 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
   <p>To <dfn id=resolve title=resolve-prefixes>resolve namespace
    prefixes</dfn>, if there was an <code><a
    href="#nsresolver">NSResolver</a></code> object provided, implementations
-   <em class=ct>must</em> pass the prefix, preserving case, to the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method.
-   Implementations <em class=ct>must</em> handle prefixes case sensitively.
-   If there was no <code><a href="#nsresolver">NSResolver</a></code> object
-   provided, or if the method returns an empty string, the prefix represents
-   an <a href="#unresolvable">unresolvable namespace</a>. Otherwise, the
-   return value is the namespace for the given prefix.
+   <em class=ct>must</em> pass the prefix, preserving case, to the
+   <code>lookupNamespaceURI()</code> method. Implementations <em
+   class=ct>must</em> handle prefixes case sensitively. If there was no
+   <code><a href="#nsresolver">NSResolver</a></code> object provided, or if
+   the method returns an empty string, the prefix represents an <a
+   href="#unresolvable">unresolvable namespace</a>. Otherwise, the return
+   value is the namespace for the given prefix.
 
   <p class=note>The case sensitivity of namespace prefixes is effectively
    determined by the implementation of the <code><a
@@ -660,16 +681,15 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
 
   <p>To <dfn id=get-the>get the default namespace</dfn>, if there was an
    <code><a href="#nsresolver">NSResolver</a></code> object provided,
-   implementations <em class=ct>must</em> invoke the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method with the
-   empty string as the argument. If there is no <code><a
-   href="#nsresolver">NSResolver</a></code> object provided, or if the method
-   returns an empty string, then there is no default namespace. Otherwise,
-   the return value is the default namespace.
+   implementations <em class=ct>must</em> invoke the
+   <code>lookupNamespaceURI()</code> method with the empty string as the
+   argument. If there is no <code><a href="#nsresolver">NSResolver</a></code>
+   object provided, or if the method returns an empty string, then there is
+   no default namespace. Otherwise, the return value is the default
+   namespace.
 
   <p id=convert-value>While resolving either a prefix or the default
-   namespace, if the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method returns
+   namespace, if the <code>lookupNamespaceURI()</code> method returns
    <code>undefined</code> or <code>null</code>, the implementation <em
    class=ct>must</em> act as if an empty string had been returned. If the
    method returns an object other than a string, the object <em
@@ -687,13 +707,12 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    href="#get-the">get the default namespace</a>, if the implementation is
    passed a <code>Function</code> instead of an object implementing the
    <code><a href="#nsresolver">NSResolver</a></code> interface, it must
-   instead invoke the function itself instead of the <code><a
-   href="#lookupnamespaceuri">lookupNamespaceURI()</a></code> method.
+   instead invoke the function itself instead of the
+   <code>lookupNamespaceURI()</code> method.
 
   <p>The number of times that an implementation <em class=ct>may</em> invoke
-   the <code><a href="#lookupnamespaceuri">lookupNamespaceURI()</a></code>
-   method with each prefix and the order in which prefixes are resolved is
-   not defined by this specification.
+   the <code>lookupNamespaceURI()</code> method with each prefix and the
+   order in which prefixes are resolved is not defined by this specification.
 
   <div class=example>
    <p>The following examples make use of this sample document.</p>
@@ -712,8 +731,7 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
 &lt;/html></pre>
 
    <p>The <code><a href="#nsresolver">NSResolver</a></code> may be
-    implemented as an object with a <code><a
-    href="#lookupnamespaceuri">lookupNamespaceURI</a></code> method.</p>
+    implemented as an object with a <code>lookupNamespaceURI</code> method.</p>
 
    <pre>var resolver = {
   lookupNamespaceURI: function(prefix) {

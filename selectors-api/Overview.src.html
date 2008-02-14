@@ -469,34 +469,60 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
 	<h3 id="nsresolver-interface">The <code title="">NSResolver</code> Interface</h3>
 
 	<p>The <code>NSResolver</code> interface allows prefixes to be bound to a
-	   namespace URI. The object implementing this interface is expected to be
-	   implemented by authors.</p>
-
-	<p class="note">Other specifications may introduce methods that return an
-	   object implementing <code>NSResolver</code> in which case it would be
-	   implemented by the user agent.</p>
+	   namespace URI.</p>
 
 	<pre class="idl">interface <dfn>NSResolver</dfn> {
   DOMString       <span>lookupNamespaceURI</span>(in DOMString prefix);
 };</pre>
 
-	<p>The <dfn><code>lookupNamespaceURI()</code></dfn> method <em class="ct">must</em>,
-	   when invoked, return the namespace represented by the prefix (<var>prefix</var>)
-	   or the default namespace if the <var>prefix</var> argument is an empty
-	   string.</p>
+	<p class="note">The object implementing this interface is expected to be
+	   implemented by applications. Other specifications may introduce methods
+	   that return an object implementing <code>NSResolver</code>, in which case
+	   it would be implemented by the user agent. When the object is implemented
+	   by the application, some conformance requirements are relaxed in order
+	   to make it easier for authors to write a conforming implementation.</p>
 
-	<p>When the <code>lookupNamespaceURI()</code> method is invoked with a
-	   prefix as the argument, it <em class="ct">must</em> return the namespace
-	   URI for the given prefix. When the <code>lookupNamespaceURI()</code>
-	   method is invoked with an empty string as the argument (representing the
-	   default namespace), it <em class="ct">must</em>:</p>
+	<p>When the <code>lookupNamespaceURI()</code> method is invoked, the
+	   implementation <em class="ct">must</em> perform the following
+	   algorithm:</p>
 
 	<ul>
-		<li>If there is a default namespace, return the default namespace URI.</li>
-		<li>If there is no default namespace, return either the empty string,
-		    <code>null</code>, or (if permitted by the language binding) no
-		    return value (<code>undefined</code>).</li>
+		<li>If the given prefix is an empty string, then:
+			<ul>
+				<li>If there is a default namespace, return the default
+				    namespace URI.</li>
+				<li>If there is no default namespace, return an empty
+				    string.</li>
+			</ul>
+		</li>
+		<li>Otherwise, look up the namespace URI associated with the given
+		    prefix and:
+			<ul>
+				<li>If the prefix has an associated namespace URI, return the
+				    URI.</li>
+				<li>If the prefix has no associated namespace URI, return an
+				    empty string.</li>
+			</ul>
+		</li>
 	</ul>
+
+	<p>If the <code>lookupNamespaceURI()</code> method is passed a value of
+	   <code>null</code> or <code>undefined</code>, then the implementation
+	   <em class="ct">must</em> act as if an empty string had been passed
+	   instead. If the method is passed an object other than a string, the
+	   object <em class="ct">must</em> be converted to a string and the
+	   implementation <em class="ct">must</em> act as if the resulting string
+	   had been passed instead. The method to convert an object to a string is
+	   dependent upon the language used. For example, in ECMAScript, this is
+	   achieved by invoking the <code>toString()</code> method on the
+	   object.</p>
+
+	<p>If the <code>NSResolver</code> object is implemented by the application
+	   instead of the user agent, then, where the algorithm says to return an
+	   empty string, the implementation <em class="ct">may</em> return
+	   <code>null</code> or <code>undefined</code> instead. Additionally, the
+	   implementation is required to handle being passed <code>null</code>,
+	   <code>undefined</code> or non-string objects as the prefix parameter.</p>
 
 	<p>The <code>lookupNamespaceURI()</code> <em class="ct">must</em> return
 	   consistent results each time it is invoked.</p>
