@@ -203,9 +203,10 @@ for (var i = 0; i &lt; groups.length; i++) {
 	<dl>
 		<dt><dfn>conforming user agent</dfn></dt>
 		<dd>A user agent that implements the <code>DocumentSelector</code>,
-		    <code>ElementSelector</code> and <code>StaticNodeList</code>
-		    interfaces described in this specification and conforms to all
-		    <em class="ct">must</em>-level criteria that apply to implementations.</dd>
+		    <code>ElementSelector</code> and <code>NodeList</code> interfaces
+		    described in this specification and conforms to all
+		    <em class="ct">must</em>-level criteria that apply to
+		    implementations.</dd>
 
 		<dt><dfn>conforming namespace resolver</dfn></dt>
 		<dd>An object implementing the <code>NSResolver</code> interface which
@@ -338,17 +339,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   interface. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]</p>
 
 	<pre class="idl">interface <dfn id="dom-document-selector">DocumentSelector</dfn> {
-  Element         <span title="document-selectelement">querySelector</span>(in DOMString selectors);
-  Element         <span title="document-selectelement">querySelector</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
-  <span>StaticNodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors);
-  <span>StaticNodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
+  Element   <span title="document-selectelement">querySelector</span>(in DOMString selectors);
+  Element   <span title="document-selectelement">querySelector</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
+  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors);
+  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
 };
 
 interface <dfn id="dom-element-selector">ElementSelector</dfn> {
-  Element         <span title="element-selectelement">querySelector</span>(in DOMString selectors);
-  Element         <span title="element-selectelement">querySelector</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
-  <span>StaticNodeList</span>  <span title="element-selectallelements">querySelectorAll</span>(in DOMString selectors);
-  <span>StaticNodeList</span>  <span title="element-selectallelements">querySelectorAll</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
+  Element   <span title="element-selectelement">querySelector</span>(in DOMString selectors);
+  Element   <span title="element-selectelement">querySelector</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
+  <span>NodeList</span>  <span title="element-selectallelements">querySelectorAll</span>(in DOMString selectors);
+  <span>NodeList</span>  <span title="element-selectallelements">querySelectorAll</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
 };</pre>
 
 	<p>The term <dfn>first</dfn> used in the definitions of the
@@ -374,17 +375,27 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
 
 	<p>The <dfn id="document-selectallelements" title="document-selectallelements"><code>querySelectorAll()</code></dfn>
 	   methods on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>StaticNodeList</code> containing all of the
+	   when invoked, return a <code>NodeList</code> containing all of the
 	   matching <code>Element</code> nodes within the document, in document order.
 	   If there are no such nodes, the methods <em class="ct">must</em> return an empty
-	   <code>StaticNodeList</code>.</p>
+	   <code>NodeList</code>.</p>
 
 	<p>The <dfn id="element-selectallelements" title="element-selectallelements"><code>querySelectorAll()</code></dfn>
 	   methods on the <code>ElementSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>StaticNodeList</code> containing all of the
+	   when invoked, return a <code>NodeList</code> containing all of the
 	   matching <code>Element</code> nodes with the elements subtree, in document order.
 	   If there are no such nodes, the methods <em class="ct">must</em> return an empty
-	   <code>StaticNodeList</code>.</p>
+	   <code>NodeList</code>.</p>
+
+	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
+	   methods <em class="ct">must</em> be static, not
+	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>.
+	   ([<cite><a href="#ref-dom3core">DOM3Core</a></cite>], section 1.1.1)
+	   Subsequent changes to the structure of the underlying document
+	   <em class="ct">must not</em> be reflected in the <code>NodeList</code>
+	   object. This means that the object will instead contain a list of
+	   matching <code>Element</code> nodes that were in the document at the time
+	   the list was created.</p>
 
 	<p>Both <code title="document-selectelement">querySelector()</code> and
 	   <code title="document-selectallelements">querySelectorAll()</code> take
@@ -641,7 +652,7 @@ var svgImages = document.querySelectorAll("xh|p SVG|svg", resolver);</pre>
 		<p>Using the case insensitive namespace resolver, the prefix <code>xh</code>
 		   will be resolved as <code>http://www.w3.org/1999/xhtml</code> and
 		   <code>SVG</code> as <code>http://www.w3.org/2000/svg</code>. The
-		   <var>svgImages</var> variable will be a <code>StaticNodeList</code>
+		   <var>svgImages</var> variable will be a <code>NodeList</code>
 		   containing the two <code>svg</code> elements that are descendents of
 		   the <code>p</code> elements.</p>
 
@@ -685,21 +696,9 @@ var svgImages = document.querySelectorAll("xh|p SVG|svg", resolver);</pre>
     // Unknown error
   }
 }</pre>
-	</div>
 
-	<h3 id="staticnodelist">The <code title="">StaticNodeList</code> Interface</h3>
-
-	<pre class="idl">typedef <dfn>StaticNodeList</dfn> NodeList;</pre>
-
-	<p>The <code>StaticNodeList</code> <em class="ct">must</em> be implemented
-	   identically to the <code>NodeList</code> interface as defined in DOM
-	   Level 3 Core [<cite><a href="#ref-dom3core">DOM3Core</a></cite>] with the
-	   exception that the interface, as the name suggests, is static and not
-	   live.</p>
-
-	<div class="example">
 		<p>This example demonstrates how to iterate through the items in a
-		   <code>StaticNodeList</code>.</p>
+		   <code>NodeList</code>.</p>
 
 		<pre>var lis = document.querySelectorAll("ul.nav&gt;li");
 for (var i = 0; i &lt; lis.length; i++) {
@@ -707,24 +706,25 @@ for (var i = 0; i &lt; lis.length; i++) {
 }</pre>
 
 		<p>In ECMAScript, the language binding also allows <code>NodeList</code>s
-		   and <code>StaticNodeList</code>s to be addressed using the array
-		   notation, so that loop could be rewritten like this:</p>
+		   and to be addressed using the array notation, so that loop could be
+		   rewritten like this:</p>
 
 		<pre>for (var i = 0; i &lt; lis.length; i++) {
   process(lis[i]);
 }</pre>
 
-		<p>Since a <code>StaticNodeList</code> is not live, changes to the DOM
-		   do not affect the content of the list. Consider the <code>process()</code>
-		   function called in the previous examples is defined as follows:</p>
+		<p>Since the <code>NodeList</code> objects returned by these methods are
+		   not live, changes to the DOM do not affect the content of the list.
+		   Consider the <code>process()</code> function called in the previous
+		   examples is defined as follows:</p>
 
 		<pre>function process(elmt) {
   elmt.parentNode.removeChild(elmt);
 }</pre>
 
 		<p>This would cause each selected element to be removed from the DOM,
-		   but each element will remain in the <code>StaticNodeList</code>. If
-		   the list were a live <code>NodeList</code>, removing an item from the
+		   but each element will remain in the <code>NodeList</code>. If the
+		   list were a live <code>NodeList</code>, removing an item from the
 		   DOM would also remove the element from the list and adjust the
 		   indexes of subsequent elements. That would have adverse effects upon
 		   the loop because not all selected elements would be processed.</p>

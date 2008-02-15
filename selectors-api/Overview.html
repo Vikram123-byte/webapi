@@ -182,9 +182,6 @@
     <ul class=toc>
      <li><a href="#nsresolver-interface"><span class=secno>2.1 </span>The
       <code title="">NSResolver</code> Interface</a>
-
-     <li><a href="#staticnodelist"><span class=secno>2.2 </span>The <code
-      title="">StaticNodeList</code> Interface</a>
     </ul>
 
    <li class=no-num><a href="#references">References</a>
@@ -284,10 +281,10 @@ for (var i = 0; i &lt; groups.length; i++) {
 
    <dd>A user agent that implements the <code><a
     href="#dom-document-selector">DocumentSelector</a></code>, <code><a
-    href="#dom-element-selector">ElementSelector</a></code> and <code><a
-    href="#staticnodelist0">StaticNodeList</a></code> interfaces described in
-    this specification and conforms to all <em class=ct>must</em>-level
-    criteria that apply to implementations.
+    href="#dom-element-selector">ElementSelector</a></code> and
+    <code>NodeList</code> interfaces described in this specification and
+    conforms to all <em class=ct>must</em>-level criteria that apply to
+    implementations.
 
    <dt><dfn id=conforming0>conforming namespace resolver</dfn>
 
@@ -442,17 +439,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <pre
    class=idl>interface <dfn id=dom-document-selector>DocumentSelector</dfn> {
-  Element         <a href="#document-selectelement" title=document-selectelement>querySelector</a>(in DOMString selectors);
-  Element         <a href="#document-selectelement" title=document-selectelement>querySelector</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>querySelectorAll</a>(in DOMString selectors);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#document-selectallelements" title=document-selectallelements>querySelectorAll</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
+  Element   <a href="#document-selectelement" title=document-selectelement>querySelector</a>(in DOMString selectors);
+  Element   <a href="#document-selectelement" title=document-selectelement>querySelector</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
+  <span>NodeList</span>  <a href="#document-selectallelements" title=document-selectallelements>querySelectorAll</a>(in DOMString selectors);
+  <span>NodeList</span>  <a href="#document-selectallelements" title=document-selectallelements>querySelectorAll</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
 };
 
 interface <dfn id=dom-element-selector>ElementSelector</dfn> {
-  Element         <a href="#element-selectelement" title=element-selectelement>querySelector</a>(in DOMString selectors);
-  Element         <a href="#element-selectelement" title=element-selectelement>querySelector</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>querySelectorAll</a>(in DOMString selectors);
-  <a href="#staticnodelist0">StaticNodeList</a>  <a href="#element-selectallelements" title=element-selectallelements>querySelectorAll</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
+  Element   <a href="#element-selectelement" title=element-selectelement>querySelector</a>(in DOMString selectors);
+  Element   <a href="#element-selectelement" title=element-selectelement>querySelector</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
+  <span>NodeList</span>  <a href="#element-selectallelements" title=element-selectallelements>querySelectorAll</a>(in DOMString selectors);
+  <span>NodeList</span>  <a href="#element-selectallelements" title=element-selectallelements>querySelectorAll</a>(in DOMString selectors, in <a href="#nsresolver">NSResolver</a> nsresolver);
 };</pre>
 
   <p>The term <dfn id=first>first</dfn> used in the definitions of the
@@ -483,23 +480,29 @@ interface <dfn id=dom-element-selector>ElementSelector</dfn> {
    title=document-selectallelements><code>querySelectorAll()</code></dfn>
    methods on the <code><a
    href="#dom-document-selector">DocumentSelector</a></code> interface <em
-   class=ct>must</em>, when invoked, return a <code><a
-   href="#staticnodelist0">StaticNodeList</a></code> containing all of the
-   matching <code>Element</code> nodes within the document, in document
-   order. If there are no such nodes, the methods <em class=ct>must</em>
-   return an empty <code><a
-   href="#staticnodelist0">StaticNodeList</a></code>.
+   class=ct>must</em>, when invoked, return a <code>NodeList</code>
+   containing all of the matching <code>Element</code> nodes within the
+   document, in document order. If there are no such nodes, the methods <em
+   class=ct>must</em> return an empty <code>NodeList</code>.
 
   <p>The <dfn id=element-selectallelements
    title=element-selectallelements><code>querySelectorAll()</code></dfn>
    methods on the <code><a
    href="#dom-element-selector">ElementSelector</a></code> interface <em
-   class=ct>must</em>, when invoked, return a <code><a
-   href="#staticnodelist0">StaticNodeList</a></code> containing all of the
-   matching <code>Element</code> nodes with the elements subtree, in
-   document order. If there are no such nodes, the methods <em
-   class=ct>must</em> return an empty <code><a
-   href="#staticnodelist0">StaticNodeList</a></code>.
+   class=ct>must</em>, when invoked, return a <code>NodeList</code>
+   containing all of the matching <code>Element</code> nodes with the
+   elements subtree, in document order. If there are no such nodes, the
+   methods <em class=ct>must</em> return an empty <code>NodeList</code>.
+
+  <p>The <code>NodeList</code> object returned by the
+   <code>querySelectorAll()</code> methods <em class=ct>must</em> be static,
+   not <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live"
+   title="Document Object Model Core">live</a>. ([<cite><a
+   href="#ref-dom3core">DOM3Core</a></cite>], section 1.1.1) Subsequent
+   changes to the structure of the underlying document <em class=ct>must
+   not</em> be reflected in the <code>NodeList</code> object. This means that
+   the object will instead contain a list of matching <code>Element</code>
+   nodes that were in the document at the time the list was created.
 
   <p>Both <code title=document-selectelement><a
    href="#document-selectelement">querySelector()</a></code> and <code
@@ -773,8 +776,7 @@ var svgImages = document.querySelectorAll("xh|p SVG|svg", resolver);</pre>
     <code>xh</code> will be resolved as
     <code>http://www.w3.org/1999/xhtml</code> and <code>SVG</code> as
     <code>http://www.w3.org/2000/svg</code>. The <var>svgImages</var>
-    variable will be a <code><a
-    href="#staticnodelist0">StaticNodeList</a></code> containing the two
+    variable will be a <code>NodeList</code> containing the two
     <code>svg</code> elements that are descendents of the <code>p</code>
     elements.</p>
 
@@ -817,23 +819,9 @@ var svgImages = document.querySelectorAll("xh|p SVG|svg", resolver);</pre>
     // Unknown error
   }
 }</pre>
-  </div>
 
-  <h3 id=staticnodelist><span class=secno>2.2 </span>The <code
-   title="">StaticNodeList</code> Interface</h3>
-
-  <pre
-   class=idl>typedef <dfn id=staticnodelist0>StaticNodeList</dfn> NodeList;</pre>
-
-  <p>The <code><a href="#staticnodelist0">StaticNodeList</a></code> <em
-   class=ct>must</em> be implemented identically to the <code>NodeList</code>
-   interface as defined in DOM Level 3 Core [<cite><a
-   href="#ref-dom3core">DOM3Core</a></cite>] with the exception that the
-   interface, as the name suggests, is static and not live.
-
-  <div class=example>
    <p>This example demonstrates how to iterate through the items in a
-    <code><a href="#staticnodelist0">StaticNodeList</a></code>.</p>
+    <code>NodeList</code>.</p>
 
    <pre>var lis = document.querySelectorAll("ul.nav&gt;li");
 for (var i = 0; i &lt; lis.length; i++) {
@@ -841,15 +829,14 @@ for (var i = 0; i &lt; lis.length; i++) {
 }</pre>
 
    <p>In ECMAScript, the language binding also allows <code>NodeList</code>s
-    and <code><a href="#staticnodelist0">StaticNodeList</a></code>s to be
-    addressed using the array notation, so that loop could be rewritten like
-    this:</p>
+    and to be addressed using the array notation, so that loop could be
+    rewritten like this:</p>
 
    <pre>for (var i = 0; i &lt; lis.length; i++) {
   process(lis[i]);
 }</pre>
 
-   <p>Since a <code><a href="#staticnodelist0">StaticNodeList</a></code> is
+   <p>Since the <code>NodeList</code> objects returned by these methods are
     not live, changes to the DOM do not affect the content of the list.
     Consider the <code>process()</code> function called in the previous
     examples is defined as follows:</p>
@@ -859,8 +846,7 @@ for (var i = 0; i &lt; lis.length; i++) {
 }</pre>
 
    <p>This would cause each selected element to be removed from the DOM, but
-    each element will remain in the <code><a
-    href="#staticnodelist0">StaticNodeList</a></code>. If the list were a
+    each element will remain in the <code>NodeList</code>. If the list were a
     live <code>NodeList</code>, removing an item from the DOM would also
     remove the element from the list and adjust the indexes of subsequent
     elements. That would have adverse effects upon the loop because not all
