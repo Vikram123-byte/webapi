@@ -80,14 +80,14 @@
   found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
   at http://www.w3.org/TR/.</em></p>
 
-  <p>This is the [DATE: 3 August 2002] Working Draft of
+  <p>This is the <!--[DATE: 3 August 2002]-->First Public Working Draft of
   <code title="">XMLHttpRequest</code> Level 2. Please send comments to
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>
   (<a href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
   with <samp>[XHR2]</samp> at the start of the subject line.</p>
 
   <p class="issue">In case of conflict with the editor's draft of
-  <a href="http://dev.w3.org/2006/webapi/XMLHttpRequest/Overview.html">The
+  <a href="http://dev.w3.org/2006/webapi/XMLHttpRequest/">The
   <code>XMLHttpRequest</code> Object</a> that draft is likely to be more
   accurate. Please raise such differences on the
   <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> mailing
@@ -251,6 +251,9 @@
   <p class="issue">To
   <dfn id="dispatch-progress-event" title="dispatch a progress event">dispatch
   a progress event called <var>e</var></dfn> means&hellip;</p>
+  
+  <p class="issue">This will be defined in terms of the Progress Events
+  specification once that reaches a more stable state.</p>
 
 
   <h3 id="extensibility">Extensibility</h3>
@@ -570,10 +573,9 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
   <em class="ct">must</em> act as if it had run the steps below (unless
   otherwise indicated).</p>
   
-  <p class="note">For a <span>non same-origin request</span> HTTP headers
-  added to the list of request headers, other than <code>Accept</code> and
-  <code>Accept-Language</code>, are ignored and will not be part of the
-  request.</p>
+  <p class="issue">There should be a note here explaining restrictiosn on
+  headers for non same-origin requests, but those rules haven't been decided
+  upon just yet.</p>
 
   <ol>
    <li><p>If the state of the object is not
@@ -613,9 +615,7 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Expect</code></li>
      <li><code>Host</code></li>
      <li><code>Keep-Alive</code></li>
-     <li><code>Method-Check</code></li>
      <li><code>Referer</code></li>
-     <li><code>Referer-Root</code></li>
      <li><code>TE</code></li>
      <li><code>Trailer</code></li>
      <li><code>Transfer-Encoding</code></li>
@@ -623,14 +623,11 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Via</code></li>
     </ul>
    </li>
-   
-   <!-- Access-Control and Method-Check-Expires are response headers and
-   therefore "safe". -->
 
-   <li><p>Also for security reasons, these steps <em class="ct">should</em> be
-   terminated if the first six characters of the <var>header</var> argument
-   <span title="case-insensitive match">case-insensitively match</span>
-   <code>Proxy-</code>.</p></li>
+   <li><p>Also for security reasons, these steps <em class="ct">should</em>
+   be terminated if the start of the <var>header</var> argument
+   <span title="case-insensitive match">case-insensitively matches</span>
+   <code>Proxy-</code> or <code>Sec-</code>.</p></li>
 
    <li><p>If the <var>header</var> argument is not in the list of request
    headers append the <var>header</var> with its associated <var>value</var>
@@ -963,11 +960,12 @@ X-Test: one, two
     request</dfn>. Set the <span>same-origin flag</span> to "false", then
     make a <span>cross-site access request</span>, using HTTP method
     <var>stored method</var>, taking into account the entity body if
-    <var>stored method</var> is not <code>GET</code>, and ignoring any
-    header set by <code>setRequestHeader()</code> other than those that
-    <span title="case-insensitive match">case-insensitively match</span>
-    <code>Accept</code> or <code>Accept-Language</code>, and handle the
+    <var>stored method</var> is not <code>GET</code>, and handle the
     return values as indicated below.</p>
+    
+    <p class="issue">"Cross-site access request" will likely take a list of
+    methods in due course as headers in cross-site requests require a
+    careful policy.</p>
 
     <p class="note">The <var>stored user</var> and <var>stored
     password</var> variables are always ignored as part of a non same-origin
