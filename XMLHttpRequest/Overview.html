@@ -32,14 +32,14 @@
    <h1 class=head id=the-xmlhttprequest-object>The <code
     title="">XMLHttpRequest</code> Object</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 19 December 2007</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 25 February 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
      href="http://dev.w3.org/2006/webapi/XMLHttpRequest/">http://dev.w3.org/2006/webapi/XMLHttpRequest/</a></dd>
-    <!--<dd><a href="http://www.w3.org/TR/2007/ED-XMLHttpRequest-20071219/">http://www.w3.org/TR/2007/WD-XMLHttpRequest-20071219/</a></dd>-->
+    <!--<dd><a href="http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080225/">http://www.w3.org/TR/2008/WD-XMLHttpRequest-20080225/</a></dd>-->
 
     <dt>Latest Version:
 
@@ -108,7 +108,7 @@
    index</a> at http://www.w3.org/TR/.</em></p>
   <!-- change back to Last Call -->
 
-  <p>This is the 19 December 2007 Working Draft of The <code
+  <p>This is the 25 February 2008 Working Draft of The <code
    title="">XMLHttpRequest</code> Object specification. Please send comments
    to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
@@ -150,13 +150,12 @@
 
    <li><a href="#conformance"><span class=secno>2. </span>Conformance</a>
     <ul class=toc>
-     <li><a href="#dependencies"><span class=secno>2.1.
+     <li><a href="#dependencies"><span class=secno>2.1
       </span>Dependencies</a>
 
-     <li><a href="#terminology"><span class=secno>2.2. </span>Terminology</a>
-      
+     <li><a href="#terminology"><span class=secno>2.2 </span>Terminology</a>
 
-     <li><a href="#extensibility"><span class=secno>2.3.
+     <li><a href="#extensibility"><span class=secno>2.3
       </span>Extensibility</a>
     </ul>
 
@@ -166,10 +165,10 @@
    <li><a href="#xmlhttprequest"><span class=secno>4. </span>The <code
     title="">XMLHttpRequest</code> Object</a>
     <ul class=toc>
-     <li><a href="#events"><span class=secno>4.1. </span>Events for the <code
+     <li><a href="#events"><span class=secno>4.1 </span>Events for the <code
       title="">XMLHttpRequest</code> Object</a>
 
-     <li><a href="#exceptions"><span class=secno>4.2. </span>Exceptions for
+     <li><a href="#exceptions"><span class=secno>4.2 </span>Exceptions for
       the <code title="">XMLHttpRequest</code> Object</a>
     </ul>
 
@@ -292,7 +291,7 @@ client.send();</code></pre>
      [<cite><a href="#ref-xmlns">XMLNS</a></cite>]
   </dl>
 
-  <h3 id=dependencies><span class=secno>2.1. </span>Dependencies</h3>
+  <h3 id=dependencies><span class=secno>2.1 </span>Dependencies</h3>
 
   <p>This specification relies on several underlying specifications.
 
@@ -351,7 +350,7 @@ client.send();</code></pre>
      specification. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
   </dl>
 
-  <h3 id=terminology><span class=secno>2.2. </span>Terminology</h3>
+  <h3 id=terminology><span class=secno>2.2 </span>Terminology</h3>
 
   <p>There is a <dfn id=case-insensitive-match>case-insensitive match</dfn>
    of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
@@ -369,7 +368,7 @@ client.send();</code></pre>
    by the HTML&nbsp;5 specification. [<cite><a
    href="#ref-html5">HTML5</a></cite>]
 
-  <h3 id=extensibility><span class=secno>2.3. </span>Extensibility</h3>
+  <h3 id=extensibility><span class=secno>2.3 </span>Extensibility</h3>
 
   <p>Extensions of the API defined by this specification are <em>strongly
    discouraged</em>. User agents, Working Groups and other interested parties
@@ -522,7 +521,7 @@ client.send();</code></pre>
 
   <ol>
    <li>
-    <p>If the response entity body is "null" return <code>null</code> and
+    <p>If the response entity body is "null" return the empty string and
      terminate these steps.</p>
 
    <li>
@@ -603,7 +602,8 @@ client.send();</code></pre>
 
    <li>
     <p>Return the result of decoding the response entity body using
-     <var>charset</var>. Or, if that fails, return <code>null</code>.
+     <var>charset</var>. Replace bytes or sequences of bytes that are not
+     valid accordng to the <var>charset</var> with a single U+FFFD character.
   </ol>
 
   <p class=note>Authors are encouraged to simply encode their resources using
@@ -1315,7 +1315,7 @@ X-Test: one, two
 
      <li>
       <p>Return all the HTTP headers, as a single string, with each header
-       line separated by a U+000D CR U+000A LF pair excluding the status
+       line separated by a U+000D (CR) U+000A (LF) pair excluding the status
        line.
     </ol>
 
@@ -1368,7 +1368,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
        title="case-insensitive match">case-insensitively matches</a> multiple
        HTTP headers for the last request sent, return the values of these
        headers as a single concatenated string separated from each other by
-       an U+002C COMMA followed by an U+0020 SPACE and terminate these steps.
+       an U+002C followed by an U+0020 character and terminate these steps.
 
      <li>
       <p>If the <var>header</var> argument <a href="#case-insensitive-match"
@@ -1451,7 +1451,7 @@ text/plain; charset=utf-8</code></pre>
      an <code>INVALID_STATE_ERR</code> exception.</p>
   </dl>
 
-  <h3 id=events><span class=secno>4.1. </span>Events for the <code
+  <h3 id=events><span class=secno>4.1 </span>Events for the <code
    title="">XMLHttpRequest</code> Object</h3>
 
   <p>This section describes the various events that can be dispatched on
@@ -1471,7 +1471,7 @@ text/plain; charset=utf-8</code></pre>
     href="#ref-dom2events">DOM2Events</a></cite>]
   </dl>
 
-  <h3 id=exceptions><span class=secno>4.2. </span>Exceptions for the <code
+  <h3 id=exceptions><span class=secno>4.2 </span>Exceptions for the <code
    title="">XMLHttpRequest</code> Object</h3>
 
   <p>Several algorithms in this specification may result in an exception

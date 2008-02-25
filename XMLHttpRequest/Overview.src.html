@@ -448,7 +448,7 @@ client.send();</code></pre>
   value of the following algorithm:</p>
 
   <ol>
-   <li><p>If the response entity body is "null" return <code>null</code> and
+   <li><p>If the response entity body is "null" return the empty string and
    terminate these steps.</p>
 
    <li><p>Let <var>charset</var> be "null".</p></li>
@@ -456,8 +456,8 @@ client.send();</code></pre>
    <li><p>If there is no <code>Content-Type</code> header or there is a
    <code>Content-Type</code> header which contains a MIME type that is
    <code>text/xml</code>, <code>application/xml</code> or ends in
-   <code title="">+xml</code> (ignoring any parameters) use the rules set forth
-   in the XML specifications to determine the character encoding. Let
+   <code title="">+xml</code> (ignoring any parameters) use the rules set
+   forth in the XML specifications to determine the character encoding. Let
    <var>charset</var> be the determined character encoding.</p></li>
 
    <li><p>If there is a <code>Content-Type</code> header which contains a
@@ -516,7 +516,9 @@ client.send();</code></pre>
    UTF-8.</p></li>
 
    <li><p>Return the result of decoding the response entity body using
-   <var>charset</var>. Or, if that fails, return <code>null</code>.</p></li>
+   <var>charset</var>. Replace bytes or sequences of bytes that are not
+   valid accordng to the <var>charset</var> with a single U+FFFD
+   character.</p></li>
   </ol>
 
   <p class="note">Authors are encouraged to simply encode their resources
@@ -544,10 +546,10 @@ client.send();</code></pre>
     well-formedness error et cetera) terminate these steps return
     <code>null</code>. [<cite><span>XML</span></cite>]
     [<cite><span>XMLNS</span></cite>]</p>
-    
-    <p class="note">Scripts in the resulting document tree will not be executed,
-    resources referenced will not be loaded and no associated XSLT will be
-    applied.</p>
+
+    <p class="note">Scripts in the resulting document tree will not be
+    executed, resources referenced will not be loaded and no associated XSLT
+    will be applied.</p>
    </li>
 
    <li><p>Return an object implementing the <code>Document</code>
@@ -897,7 +899,7 @@ X-Test: one, two
 
       <dl class="switch">
        <dt>If the response is an HTTP redirect</dt>
-       
+
        <dd>
         <p>If the redirect does not violate security (it is
         <span>same-origin</span> for instance) or infinite loop precautions
@@ -1141,9 +1143,9 @@ X-Test: one, two
      <li><p>If the <span>error flag</span> is "true" return <code>null</code>
      and terminate these steps.</p></li>
 
-     <li><p>Return all the HTTP headers, as a single string, with each header
-     line separated by a U+000D CR U+000A LF pair excluding the status
-     line.</p></li>
+     <li><p>Return all the HTTP headers, as a single string, with each
+     header line separated by a U+000D (CR) U+000A (LF) pair excluding the
+     status line.</p></li>
     </ol>
 
     <div class="example">
@@ -1191,7 +1193,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <span title="case-insensitive match">case-insensitively matches</span>
      multiple HTTP headers for the last request sent, return the values of
      these headers as a single concatenated string separated from each
-     other by an U+002C COMMA followed by an U+0020 SPACE and terminate
+     other by an U+002C followed by an U+0020 character and terminate
      these steps.</p></li>
 
      <li><p>If the <var>header</var> argument
