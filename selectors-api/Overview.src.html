@@ -17,17 +17,18 @@
 	code { color:#FF4500; }
 	code :link, code :visited { color:inherit }
 	</style>
-	<link rel="stylesheet" type="text/css" href="http://www.w3.org/StyleSheets/TR/W3C-[STATUS]">
+	<link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base.css">
+	<link rel="stylesheet" type="text/css" href="http://www.w3.org/StyleSheets/TR/W3C-ED">
 </head>
 <body>
 	<div class="head">
 		<p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
-		<h1 id="selectors-api">Selectors API</h1>
+		<h1 id="title">Selectors API</h1>
 		<!-- "DOM Selectors" was not acceptable. "DOM Level 4 Selectors" and
 		conforming to the DOM specification template (if there is such a thing) is
 		just silly so we got stuck with this weird name. -->
 
-		<h2 class="no-num no-toc" id="w3c-doctype">[LONGSTATUS] [DATE: 3 August 2002]</h2>
+		<h2 class="no-num no-toc" id="W3C-doctype">W3C Working Draft [DATE: 3 August 2002]</h2>
 		<dl>
 			<dt>This Version:</dt>
 			<dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/ED-selectors-api-[CDATE]/</a></dd>
@@ -42,12 +43,12 @@
 			<dd><a href="http://www.w3.org/TR/2006/WD-selectors-api-20060525/">http://www.w3.org/TR/2006/WD-selectors-api-20060525/</a></dd>
 
 			<dt>Editors:</dt>
-			<dd><a href="http://lachy.id.au/">Lachlan Hunt</a>
-			    (<a href="http://www.opera.com/">Opera Software ASA</a>)
-			    &lt;<a href="mailto:lachlan.hunt@lachy.id.au">lachlan.hunt@lachy.id.au</a>&gt;</dd>
 			<dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a>
 			    (<a href="http://www.opera.com/">Opera Software ASA</a>)
 			    &lt;<a href="mailto:annevk@opera.com">annevk@opera.com</a>&gt;</dd>
+			<dd><a href="http://lachy.id.au/">Lachlan Hunt</a>
+			    (<a href="http://www.opera.com/">Opera Software ASA</a>)
+			    &lt;<a href="mailto:lachlan.hunt@lachy.id.au">lachlan.hunt@lachy.id.au</a>&gt;</dd>
 		</dl>
 
 		<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> © 2006-2007
@@ -236,6 +237,10 @@ for (var i = 0; i &lt; groups.length; i++) {
 	   actually an interface, is sometimes used instead of the more accurate
 	   "object implementing the <code>Foo</code> interface".</p>
 
+	<p>The IDL used in this specification uses the syntax defined in 
+	   Language Bindings for DOM Specifications
+	   [<cite><a href="#ref-bindings">Bindings</a></cite>].</p>
+
 	<h4 id="interoperability">Interoperability Considerations</h4>
 
 	<p><em>This section is non-normative.</em></p>
@@ -295,9 +300,12 @@ var x = document.querySelectorAll("foo|x, foo|y, bar|z", resolver);</pre>
 
 	<p>It is expected that implementing this specification introduces no new
 	   security risks for users.</p>
+
 	<p>Implementations <em class="ct">should</em> ensure they do not crash
-	   or behave erratically when facing when facing a hostile <code>NSResolver</code>
-	   object. Potentially hostile behaviour includes:</p>
+	   or behave erratically when facing when facing a misbehaving or hostile
+	   <code>NSResolver</code> object. Since the <code>NSResolver</code>
+	   object may be implemented by application authors, its behaviour
+	   could be unpredictable. Such behaviour could include:</p>
 	<ul>
 		<li>Returning inconsistent results;</li>
 		<li>Hanging;</li>
@@ -331,59 +339,40 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<h2 id="documentselector">The <code title="">querySelector()</code> and	<code title="">querySelectorAll()</code> Methods</h2>
 
-	<p>Objects implementing the <code>Document</code> interface, as defined in
-	   DOM Level 3 Core, <em class="ct">must</em> also implement the
-	   <code>DocumentSelector</code> interface. Likewise objects implementing
-	   the <code>Element</code> interface, as defined in DOM Level 3 Core,
-	   <em class="ct">must</em> also implement the <code>ElementSelector</code>
-	   interface. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]</p>
+	<p>Objects implementing either the <code>Document</code>,
+ 	   <code>DocumentFragment</code> or <code>Element</code> interfaces, as
+       defined in DOM Level 3 Core, <em class="ct">must</em> also implement the
+	   <code>NodeSelector</code> interface.
+	   [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]</p>
 
-	<pre class="idl">interface <dfn id="dom-document-selector">DocumentSelector</dfn> {
-  Element   <span title="document-selectelement">querySelector</span>(in DOMString selectors);
-  Element   <span title="document-selectelement">querySelector</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
-  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors);
-  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
+	<pre class="idl">interface <dfn id="dom-document-selector">NodeSelector</dfn> {
+  Element   <span title="document-selectelement">querySelector</span>([NoNull] in DOMString selectors) raises (NAMESPACE_ERR, SYNTAX_ERR);
+  Element   <span title="document-selectelement">querySelector</span>([NoNull] in DOMString selectors, in <span>NSResolver</span> nsresolver) raises (NAMESPACE_ERR, SYNTAX_ERR);
+  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>([NoNull] in DOMString selectors) raises (NAMESPACE_ERR, SYNTAX_ERR);
+  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>([NoNull] in DOMString selectors, in <span>NSResolver</span> nsresolver) raises (NAMESPACE_ERR, SYNTAX_ERR);
 };
-
-interface <dfn id="dom-element-selector">ElementSelector</dfn> {
-  Element   <span title="element-selectelement">querySelector</span>(in DOMString selectors);
-  Element   <span title="element-selectelement">querySelector</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
-  <span>NodeList</span>  <span title="element-selectallelements">querySelectorAll</span>(in DOMString selectors);
-  <span>NodeList</span>  <span title="element-selectallelements">querySelectorAll</span>(in DOMString selectors, in <span>NSResolver</span> nsresolver);
-};</pre>
-
+</pre>
 	<p>The term <dfn>first</dfn> used in the definitions of the
 	   <code>querySelector</code> methods means <em>first in document order</em>.
 	   The term <dfn>document order</dfn> means a depth-first pre-order traversal
-	   of the DOM tree or subtree in question. The term <dfn>element’s subtree</dfn>
-	   refers to the tree of elements that are descendants of the element upon
+	   of the DOM tree or subtree in question. The term <dfn>node’s subtree</dfn>
+	   refers to the tree of elements that are descendants of the node upon
 	   which the method was invoked. The term <dfn>matching <code>Element</code>
 	   node</dfn> refers to an <code>Element</code> node that matches the group
-	   of selectors (<var>selectors</var>) that was passed to the method.</p>
-
-	<p>The <dfn id="document-selectelement" title="document-selectelement"><code>querySelector()</code></dfn>
-	   methods on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return the first matching <code>Element</code> node within
-	   the document. If there is no such node, the methods <em class="ct">must</em>
-	   return <code>null</code>.</p>
+	   of selectors (<var>selectors</var>) that was passed to the method,
+	   according to the rules for matching elements defined in Selectors
+	   ([<cite><a href="#ref-selectors">Selectors</a></cite>]).</p>
 
 	<p>The <dfn id="element-selectelement" title="element-selectelement"><code>querySelector()</code></dfn>
-	   methods on the <code>ElementSelector</code> interface <em class="ct">must</em>,
+	   methods on the <code>NodeSelector</code> interface <em class="ct">must</em>,
 	   when invoked, return the first matching <code>Element</code> node within
-	   the element’s subtree. If there is no such node, the methods <em class="ct">must</em>
+	   the node’s subtree. If there is no such node, the methods <em class="ct">must</em>
 	   return <code>null</code>.</p>
 
-	<p>The <dfn id="document-selectallelements" title="document-selectallelements"><code>querySelectorAll()</code></dfn>
-	   methods on the <code>DocumentSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes within the document, in document order.
-	   If there are no such nodes, the methods <em class="ct">must</em> return an empty
-	   <code>NodeList</code>.</p>
-
 	<p>The <dfn id="element-selectallelements" title="element-selectallelements"><code>querySelectorAll()</code></dfn>
-	   methods on the <code>ElementSelector</code> interface <em class="ct">must</em>,
+	   methods on the <code>NodeSelector</code> interface <em class="ct">must</em>,
 	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes with the element’s subtree, in document order.
+	   matching <code>Element</code> nodes with the node’s subtree, in document order.
 	   If there are no such nodes, the methods <em class="ct">must</em> return an empty
 	   <code>NodeList</code>.</p>
 
@@ -401,18 +390,28 @@ interface <dfn id="dom-element-selector">ElementSelector</dfn> {
 	   <code title="document-selectallelements">querySelectorAll()</code> take
 	   a group of selectors (<var>selectors</var>) as the first argument and
 	   optionally an <code>NSResolver</code> (<var title="">nsresolver</var>) as
-	   the second.  The implementation must process the <var title="">selectors</var>
-	   according to <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of Selectors</a>
-	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 10). If
-	   the user agent also supports some level of CSS, the implementation
-	   <em class="ct">must</em> support the same set of selectors in both these
-	   APIs and CSS.</p>
+	   the second.  The implementation <code>must</code> process the
+	   <var title="">selectors</var> according to
+	   <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of Selectors</a>
+	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 10).
+	   Selectors are evaluated against a given element in the context the entire
+	   DOM tree in which the element is located.</p>
+
+	<p>If the user agent also supports some level of CSS, the implementation
+	   <em class="ct">should</em> support the same set of selectors in both
+	   these APIs and CSS.</p>
+
+	<!-- XXX Can't remember what this note was here for, but it doesn't seem to make sense now
+		<p class="note">This is to ensure that any DOM modifications performed by a
+		   misbehaving namespace resolver have occurred prior to matching any
+		   elements.</p>
+	-->
 
 	<p class="note">Authors are advised that while the use of pseudo-elements
 	   in selectors is permitted, they will not match any elements in the
 	   document, and thus would not result in any elements being returned.
-	   Therefore, authors should avoid the use pseudo-elements in selectors that
-	   are passed to the methods defined in this specification.</p>
+	   Therefore, authors should avoid the use of pseudo-elements in selectors
+	   that are passed to the methods defined in this specification.</p>
 
 	<p>Implementations <em class="ct">must</em> use the <var title="">nsresolver</var>
 	   argument to <span>get the default namespace</span> for the group of 
@@ -662,7 +661,7 @@ var svgImages = document.querySelectorAll("xh|p SVG|svg", resolver);</pre>
 		   restricted to characters, such as those in the US-ASCII subset, for
 		   which simply converting both strings to lowercase and comparing
 		   returns the correct result. If desired, an implementation of the
-		   full case mapping algorithm is left as an exersise for the
+		   full case mapping algorithm is left as an exercise for the
 		   reader.</p>
 
 		<p>Using the case insensitive namespace resolver, the prefix <code>xh</code>
