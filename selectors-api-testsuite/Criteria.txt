@@ -1,0 +1,34 @@
+Objects implementing the Document interface must also implement the NodeSelector interface.
+Objects implementing the DocumentFragment interface must also implement the NodeSelector interface.
+Objects implementing the Element interface must also implement the NodeSelector interface.
+
+The querySelector()  methods on the NodeSelector interface must, when invoked, return the first matching Element node within the node’s subtree.
+If there is no [matching nodes], the [querySelector()] methods must  return null.
+The querySelectorAll() methods on the NodeSelector interface must, when invoked, return a NodeList containing all of the matching Element nodes within the node’s subtree
+The nodes in the NodeList must be in document order.
+If there are no [matching] nodes, the [querySelectorAll()] methods must return an empty NodeList.
+The NodeList object returned by the querySelectorAll()  methods must be static.
+The implementation must process the selectors according to the grammar of Selectors
+Selectors are evaluated against a given element in the context the entire DOM tree in which the element is located.
+
+Implementations must use the nsresolver argument to get the default namespace for the group of selectors.
+- Implementations must invoke the lookupNamespaceURI() method with the empty string as the argument.
+
+If the selectors include namespace prefixes, the implementation must [use the nsresolver argument] to resolve those prefixes.
+- Implementations must pass [prefixes], preserving case, to the lookupNamespaceURI() method.
+- Implementations must handle prefixes case sensitively.
+
+If the given group of selectors is invalid, the implementation must raise a SYNTAX_ERR exception.
+When an unresolvable namespace is encountered, the implementation must raise a NAMESPACE_ERR exception.
+If an exception is raised by the NSResolver while resolving namespaces, processing must be aborted and the exception propagated to the caller.
+
+if the selectors argumemt is null, undefined, or omitted, the implementation must ac as if the selectors argument was set to [...]
+If the nsresolver argument is omitted, the implementation must act as if the nsresolver argument was set to null.
+
+If the lookupNamespaceURI() method returns null or undefined, the implementation must act as if an empty string had been returned.
+If the [lookupNamespaceURI()] method returns an object other than a string, the object must be converted to a string and the implementation must act as if the resulting string had been returned instead.
+
+Implementations must support the NSResolver being implemented as an Object.
+For ECMAScript, implementations must support the NSResolver being implemented as a Function
+if the implementation is passed a Function instead of an object implementing the NSResolver interface, it must instead invoke the function itself instead of the lookupNamespaceURI() method.
+
