@@ -334,10 +334,11 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<p>As <a href="http://www.w3.org/TR/css3-selectors/#link">defined in <cite>Selectors</cite></a>
 	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 6.6.1),
-	   user agents <em class="ct">may</em> treat all links as unvisited links,
-	   or implement other measures to preserve the user’s privacy.</p>
+	   user agents <em class="ct">may</em> treat all links as unvisited links.
+	   It is <em class="ct">recommended</em> that implementations behave
+	   consistently with other uses of Selectors supported by the user agent.</p>
 
-	<h2 id="documentselector">The <code title="">querySelector()</code> and	<code title="">querySelectorAll()</code> Methods</h2>
+	<h2 id="nodeselector">The <code title="">querySelector()</code> and	<code title="">querySelectorAll()</code> Methods</h2>
 
 	<p>Objects implementing either the <code>Document</code>,
  	   <code>DocumentFragment</code> or <code>Element</code> interfaces, as
@@ -355,13 +356,14 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p>The term <dfn>first</dfn> used in the definitions of the
 	   <code>querySelector</code> methods means <em>first in document order</em>.
 	   The term <dfn>document order</dfn> means a depth-first pre-order traversal
-	   of the DOM tree or subtree in question. The term <dfn>node’s subtree</dfn>
-	   refers to the tree of elements that are descendants of the node upon
-	   which the method was invoked. The term <dfn>matching <code>Element</code>
-	   node</dfn> refers to an <code>Element</code> node that matches the group
-	   of selectors (<var>selectors</var>) that was passed to the method,
-	   according to the rules for matching elements defined in Selectors
-	   ([<cite><a href="#ref-selectors">Selectors</a></cite>]).</p>
+	   of the DOM tree or subtree in question. The term <dfn>context node</dfn>
+	   refers to the node upon which the method was invoked. The term
+	   <dfn>node’s subtree</dfn> refers to the tree of elements that are
+	   descendants of the <span>context node</span>. The term <dfn>matching
+	   <code>Element</code> node</dfn> refers to an <code>Element</code> node
+	   that matches the group of selectors (<var>selectors</var>) that was
+	   passed to the method, according to the rules for matching elements
+	   defined in Selectors ([<cite><a href="#ref-selectors">Selectors</a></cite>]).</p>
 
 	<p>The <dfn id="element-selectelement" title="element-selectelement"><code>querySelector()</code></dfn>
 	   methods on the <code>NodeSelector</code> interface <em class="ct">must</em>,
@@ -372,7 +374,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p>The <dfn id="element-selectallelements" title="element-selectallelements"><code>querySelectorAll()</code></dfn>
 	   methods on the <code>NodeSelector</code> interface <em class="ct">must</em>,
 	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes with the node’s subtree, in document order.
+	   matching <code>Element</code> nodes within the node’s subtree, in document order.
 	   If there are no such nodes, the methods <em class="ct">must</em> return an empty
 	   <code>NodeList</code>.</p>
 
@@ -390,7 +392,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <code title="document-selectallelements">querySelectorAll()</code> take
 	   a group of selectors (<var>selectors</var>) as the first argument and
 	   optionally an <code>NSResolver</code> (<var title="">nsresolver</var>) as
-	   the second.  The implementation <code>must</code> process the
+	   the second.  The implementation <em class="ct">must</em> process the
 	   <var title="">selectors</var> according to
 	   <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of Selectors</a>
 	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 10).
@@ -547,18 +549,14 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p class="note">Authors are <em>strongly discouraged</em> from writing an
 	   <code>NSResolver</code> that returns inconsistent results.</p>
 
-	<p>To <dfn title="resolve-prefixes">resolve namespace prefixes</dfn>, if there was an <code>NSResolver</code>
-	   object provided, implementations <em class="ct">must</em> pass the
-	   prefix, preserving case, to the <code>lookupNamespaceURI()</code> method.
-	   Implementations <em class="ct">must</em> handle prefixes case
-	   sensitively. If there was no <code>NSResolver</code> object provided, or
-	   if the method returns an empty string, the prefix represents an
-	   <span>unresolvable namespace</span>. Otherwise, the return value is the
-	   namespace for the given prefix.</p>
-
-
-
-
+	<p>To <dfn title="resolve-prefixes">resolve namespace prefixes</dfn>, if
+	   there was an <code>NSResolver</code> object provided, implementations
+	   <em class="ct">must</em> pass the prefix, preserving case, to the
+	   <code>lookupNamespaceURI()</code> method. Implementations <em class="ct">must</em>
+	   handle prefixes case sensitively. If there was no <code>NSResolver</code>
+	   object provided, or if the method returns an empty string, the prefix
+	   represents an <span>unresolvable namespace</span>. Otherwise, the return
+	   value is the namespace for the given prefix.</p>
 
 	<p class="note">Although prefixes are case sensitive, there are no
 	   restrictions imposed by this specification on how the implementation of
@@ -566,11 +564,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   while the resolver may handle them case insensitively, such an approach
 	   is effectively the same as declaring all case variants of the prefix with
 	   the same namespace URI.</p>
-
-
-
-
-
 
 	<p>To <dfn>get the default namespace</dfn>, if there was an <code>NSResolver</code>
 	   object provided, implementations <em class="ct">must</em> invoke the
@@ -581,7 +574,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<p id="convert-value">While resolving either a prefix or the default
 	   namespace, if the <code>lookupNamespaceURI()</code> method returns
-	   <code>undefined</code> or <code>null</code>, the implementation
+	   <code>null</code> or <code>undefined</code>, the implementation
 	   <em class="ct">must</em> act as if an empty string had been returned.
 	   If the method returns an object other than a string, the object
 	   <em class="ct">must</em> be converted to a string and the
