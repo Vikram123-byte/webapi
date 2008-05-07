@@ -33,13 +33,13 @@
 		conforming to the DOM specification template (if there is such a thing) is
 		just silly so we got stuck with this weird name. -->
    
-   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 8 April 2008</h2>
+   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 6 May 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-selectors-api-20080408/">http://www.w3.org/TR/2008/ED-selectors-api-20080408/</a>
+     href="http://www.w3.org/TR/2008/ED-selectors-api-20080506/">http://www.w3.org/TR/2008/ED-selectors-api-20080506/</a>
 
     <dt>Latest Version:
 
@@ -178,7 +178,7 @@
       Considerations </a>
     </ul>
 
-   <li><a href="#documentselector"><span class=secno>2. </span>The <code
+   <li><a href="#nodeselector"><span class=secno>2. </span>The <code
     title="">querySelector()</code> and <code
     title="">querySelectorAll()</code> Methods</a>
     <ul class=toc>
@@ -428,10 +428,11 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   <p>As <a href="http://www.w3.org/TR/css3-selectors/#link">defined in
    <cite>Selectors</cite></a> ([<cite><a
    href="#ref-selectors">Selectors</a></cite>], section 6.6.1), user agents
-   <em class=ct>may</em> treat all links as unvisited links, or implement
-   other measures to preserve the user’s privacy.
+   <em class=ct>may</em> treat all links as unvisited links. It is <em
+   class=ct>recommended</em> that implementations behave consistently with
+   other uses of Selectors supported by the user agent.
 
-  <h2 id=documentselector><span class=secno>2. </span>The <code
+  <h2 id=nodeselector><span class=secno>2. </span>The <code
    title="">querySelector()</code> and <code
    title="">querySelectorAll()</code> Methods</h2>
 
@@ -453,13 +454,14 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <code>querySelector</code> methods means <em>first in document order</em>.
    The term <dfn id=document>document order</dfn> means a depth-first
    pre-order traversal of the DOM tree or subtree in question. The term <dfn
-   id=nodes>node’s subtree</dfn> refers to the tree of elements that are
-   descendants of the node upon which the method was invoked. The term <dfn
-   id=matching>matching <code>Element</code> node</dfn> refers to an
-   <code>Element</code> node that matches the group of selectors
-   (<var>selectors</var>) that was passed to the method, according to the
-   rules for matching elements defined in Selectors ([<cite><a
-   href="#ref-selectors">Selectors</a></cite>]).
+   id=context>context node</dfn> refers to the node upon which the method was
+   invoked. The term <dfn id=nodes>node’s subtree</dfn> refers to the tree
+   of elements that are descendants of the <a href="#context">context
+   node</a>. The term <dfn id=matching>matching <code>Element</code>
+   node</dfn> refers to an <code>Element</code> node that matches the group
+   of selectors (<var>selectors</var>) that was passed to the method,
+   according to the rules for matching elements defined in Selectors
+   ([<cite><a href="#ref-selectors">Selectors</a></cite>]).
 
   <p>The <dfn id=element-selectelement
    title=element-selectelement><code>querySelector()</code></dfn> methods on
@@ -473,7 +475,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    methods on the <code><a
    href="#dom-document-selector">NodeSelector</a></code> interface <em
    class=ct>must</em>, when invoked, return a <code>NodeList</code>
-   containing all of the matching <code>Element</code> nodes with the
+   containing all of the matching <code>Element</code> nodes within the
    node’s subtree, in document order. If there are no such nodes, the
    methods <em class=ct>must</em> return an empty <code>NodeList</code>.
 
@@ -491,8 +493,8 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    title=document-selectallelements>querySelectorAll()</code> take a group of
    selectors (<var>selectors</var>) as the first argument and optionally an
    <code><a href="#nsresolver">NSResolver</a></code> (<var
-   title="">nsresolver</var>) as the second. The implementation
-   <code>must</code> process the <var title="">selectors</var> according to
+   title="">nsresolver</var>) as the second. The implementation <em
+   class=ct>must</em> process the <var title="">selectors</var> according to
    <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar
    of Selectors</a> ([<cite><a href="#ref-selectors">Selectors</a></cite>],
    section 10). Selectors are evaluated against a given element in the
@@ -680,7 +682,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <p id=convert-value>While resolving either a prefix or the default
    namespace, if the <code>lookupNamespaceURI()</code> method returns
-   <code>undefined</code> or <code>null</code>, the implementation <em
+   <code>null</code> or <code>undefined</code>, the implementation <em
    class=ct>must</em> act as if an empty string had been returned. If the
    method returns an object other than a string, the object <em
    class=ct>must</em> be converted to a string and the implementation must
