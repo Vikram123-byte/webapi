@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>File I/O</title>
+<style type="text/css">
+    @media print {
+
+      a[href]:after {
+        content: "(" url(attr(href)) ")";
+      }
+
+      a[href^='#']:after {
+        display:none;
+      }
+
+    }
+    pre.idl {
+      border:solid thin;
+      background:#eee;
+      color:#000;
+      padding:0.5em
+    }
+    pre.idl :link, pre.idl :visited {
+      color:inherit;
+      background:transparent
+    }
+
+    pre.example em, code em {
+      font-style: inherit;
+      font-weight: bold;
+    }
+
+    dfn {
+      font-style:normal;
+      font-weight:bolder
+    }
+    em.ct {
+      font-style:normal;
+      font-weight:normal;
+      font-variant:small-caps
+    }
+    .issue {
+      padding:.5em;
+      border:solid red
+    }
+    .example {
+      border:double #f0f;
+      background:#ffffdf
+    }
+    .comment {
+      color:#000;
+      background:salmon
+    }
+    .element-info {
+      padding:.5em;
+      border:1px solid green;
+      background:lightyellow
+    }
+    dd > dl {
+      margin:0px;
+      padding:0px
+    }
+    code {
+      color:inherit;
+    }
+    code :link, code :visited {
+      color:inherit
+    }
+</style>
+  <link href="http://www.w3.org/StyleSheets/TR/base" rel="stylesheet"
+  type="text/css">
+  <link href="#fulltoc" rel="contents">
+
+</head>
+<body>
+  <h1 class="no-num no-toc">File I/O</h1>
+
+  <p>Copyright © 2008 Opera Software ASA. All rights reserved.</p>
+
+  <h2 id="sotd">Status</h2>
+
+  <p>This document is a proposal from Opera Software, submitted to the WebAPI
+  working group as a proposed base for the work item currently called "file
+  upload API". In the event of this draft being accepted as a basis for the 
+  Working Group drafts, Opera Software will offer Copyright and any other
+  Intellectual Property Rights in accordance with standard practice under the
+  W3C's Royalty-Free Patent Policy.</p>
+
+  <h2 id="abstract" class="no-num no-toc">Abstract</h2>
+
+  <p>This document describes an interface for an abstract File I/O interface
+  where web applications can interact with a file system, without any prior
+  knowledge about the underlying filesystem. This interface can be used for
+  e.g. an image preview before submitting a form or for saving a drawing from a
+  <code>canvas</code> painting web application locally.</p>
+
+  <h2 class="no-num no-toc">Table of Contents</h2>
+  <!--begin-toc-->
+  <!--end-toc-->
+
+  <h2 id="introduction">Introduction</h2>
+
+  <p>Traditionally, web applications have had little to no access to resources
+  residing on the local filesystem. The ECMAScript interfaces for file I/O
+  specifies a sandboxed file system, where a widget or other trusted component
+  can gain access to the local file system.</p>
+
+  <p>The File I/O interfaces in this specification represent an abstract
+  filesystem, without knowledge of the underlying filesystem's path separators,
+  conventions for setting file properties such as read/write permissions.</p>
+
+  <p>The interfaces provide methods for opening files, writing to them, creating
+  files and directories, moving or deleting them, and so forth.</p>
+  
+  <p class="issue">There are several known issues in this specification. The
+  usage of RFC2119 terminology needs to be tighter, processing requirements are
+  not properly defined everywhere, exceptions are poorly handled at the moment,
+  some terms are used but not defined, and so forth.</p>
+
+  <h2 id="mountpoints">Mountpoints</h2>
+
+  <p>In order to work with files, an application first has to acquire
+  a mountpoint. A mountpoint is either a reference to a file or folder
+  on a disk, or an abstract reference to a set of files which might not
+  necessarily be within the same folder.</p>
+
+  <h2 id="filesystem-object">The <code><span>FileSystem</span></code>
+  interface</h2>
+
+  <p>In a context where the <code><span>FileSystem</span></code> interface is
+  made available to applications, the interface is instantiated as
+  <code>opera.io.filesystem</code>. When present, this object provides
+  attributes and methods for acquiring access to files and folders on the local
+  filesystem.</p>
+
+<pre class="idl"><code>interface <dfn>FileSystem</dfn> {
+  readonly attribute <span>File</span>      <span>mountPoints</span>;
+
+  <span>File</span>               <span>mountSystemDirectory</span>(in DOMString location);
+  <span>File</span>               <span>mountSystemDirectory</span>(in DOMString location,
+                                                                    in DOMString name);
+  void               <span>removeMountPoint</span>(in File mountpoint);
+  void               <span>removeMountPoint</span>(in DOMString name);
+  void               <span>browseForDirectory</span>(in DOMString name,
+                                        in DOMString defaultLocation,
+                                        in function callback);
+  void               <span>browseForDirectory</span>(in DOMString name,
+                                        in DOMString defaultLocation,
+                                        in function callback,
+                                        in Boolean persistent);
+  void               <span>browseForFile</span>(in DOMString name,
+                                   in DOMString defaultLocation,
+                                   in function callback);
+  void               <span>browseForFile</span>(in DOMString name,
+                                   in DOMString defaultLocation,
+                                   in function callback,
+                                   in Boolean persistent);
+  void               <span>browseForFile</span>(in DOMString name,
+                                   in DOMString defaultLocation,
+                                   in function callback,
+                                   in Boolean persistent,
+                                   in Boolean multiple);
+  void               <span>browseForSave</span>(in DOMString filename,
+                                   in DOMString defaultLocation,
+                                   in function callback,
+                                   in Boolean persistent);
+
+}</code></pre>
+
+  <h3
+  id="filesystem-attributes-and-methods"><code><span>FileSystem</span></code>
+  attributes and methods</h3>
+
+  <h4 id="filesystem-mountpoints">The <code><dfn>mountPoints</dfn></code>
+  attribute of type <code><span>File</span></code>, readonly</h4>
+
+  <p>The <code><span>mountPoints</span></code> attribute, of type
+  <code><span>File</span></code> is a file object that contains a collection of
+  <code><span>File</span></code> objects representing the other currently
+  mounted directories.</p>
+
+  <h4 id="filesystem-mountsystemdirectory">The
+  <code><dfn>mountSystemDirectory</dfn></code>() method</h4>
+
+  <p>The <code><span>mountSystemDirectory</span></code>() method is used to
+  mount predefined directories that the application should normally have access
+  to, such as the application folder, or the application's private storage
+  folder.</p>
+
+  <p>The <code><span>mountSystemDirectory</span></code>() method takes a
+  DOMString argument, <code>location</code>, which expresses the location of the
+  system directory. Additionally, an optional <code>name</code> argument may be
+  specified, which will correspond to the
+  <code><span>mountpoint_name</span></code> of a mountpoint protocol URL. If
+  this argument is missing, it is assumed to be present, with the same value as
+  the <code>location</code> argument.</p>
+
+  <dl>
+    <dt>storage</dt>
+    <dd>A private file storage where the application can store data required for
+    the application. Read-write</dd>
+
+    <dt>application</dt>
+    <dd>The files and folders where the application resides. When mounted,
+    this directory is read-only.</dd>
+  </dl>
+
+  <p>If the <code><span>mountSystemDirectory</span></code>() method is called,
+  and it does not specify a valid mountpoint, the call to the method will result
+  in no action, and the return value will be <code>null</code>. When the
+  function is called, and its call results in a valid mountpoint being created,
+  the function returns a reference to the newly mounted file object.</p>
+
+  <h3 id="filesystem-removeMountPoint">The
+  <code><dfn>removeMountPoint</dfn></code>() method</h3>
+
+  <p>The <code><span>removeMountPoint</span></code> method takes a
+  <code><span>File</span></code> argument of an object which is a
+  mountpoint or a DOMString with the name of a mountpoint. When
+  called, the user agent must mark the mountpoint as not persistent,
+  must remove the mountpoint from the list of mountpoints, and must
+  finally return nothing.</p>
+
+  <p class="issue">If the mountpoint being removed is not a current
+  mountpoint, a <code>general</code> error is thrown. (A more sane exception
+  should be implemented)</p>
+
+  <h4 id="filesystem-browsefordirectory">The
+  <code><span>browseForDirectory</span></code>() method</h4>
+
+  <p>The <code><span>browseForDirectory</span></code>() is used to acquire
+  access to a sandboxed file system resource on the user's system. When invoked,
+  the method <em>should</em> present the user with a directory chooser dialog.
+  On implementations where the user-visible file system representation consists
+  of a single folder, and implementation <em>may</em> just display a
+  confirmation dialog asking the user whether the user wants to allow
+  access.</p>
+
+  <p>The first argument to <code><span>browseForDirectory</span></code>() is a
+  <code>DOMString</code> with the desired name of the mountpoint. This argument
+  will correspond to the <code><span>mountpoint_name</span></code> of a
+  mountpoint protocol URL. If the type of the argument is wrong, or the value of
+  the string specified is not permissible as a name for a mountpoint, a generic
+  error is thrown.</p>
+
+  <p>The second argument to <code><span>browseForDirectory</span></code>() is a
+  DOMString representing the default location in which the dialog should start.
+  The locations themselves are case-insensitive strings such as 'Photos',
+  'Documents', 'Music', 'Images', but other, system-specific strings may also
+  exist. In the case that the string specified is not supported by the system,
+  the <code><span>browseForDirectory</span></code>() method is expected to start
+  in what corresponds to the user's home directory, or last directory, depending
+  on the conventions of the operating system the application is running.</p>
+
+  <p>The third argument to <code><span>browseForDirectory</span></code>(), a
+  function, <em>must</em> called when the user has successfully navigated to a
+  directory, and selected/approved the folder selection. This function is called
+  with the newly acquired mountpoint represented as a
+  <code><span>File</span></code> object. In the case that a user cancels the
+  dialog, the callback is called, but the argument to the function
+  <em>should</em> be null.</p>
+
+  <p>The last argument to <code><span>browseForDirectory</span></code> is a
+  <code>Boolean</code> argument determining whether the mountpoint is to be
+  made persistent across restarts of the application. If this argument is
+  missing, it is assumed to be present, with a default value of
+  <code>false</code>. If the argument is true then the
+  <code><span>File</span></code> object must be marked as persistent.</p>
+
+  <p>A call to <code><span>browseForDirectory</span></code>() <em>should</em> be
+  ignored if the call does not happen as a direct result of direct user
+  interaction. User interaction is defined as being any non-synthetic click,
+  mousedown, mouseup or key event, similar to how a heuristic pop-up blocker
+  prohibits opening popups except when as a result of direct user
+  interaction. If <code><span>browseForDirectory</span></code>() is called
+  without such interaction, the call <em>should</em> be ignored entirely by the
+  underlying runtime.</p>
+
+  <p>After successfully calling and selecting a valid directory, the
+  <code><span>File</span></code> object acquired from
+  <code><span>browseForDirectory</span></code>() <em>must</em> be made available
+  in the <code><span>mountPoints</span></code> <code><span>File</span></code>
+  object.</p>
+
+  <p>Further, after successfully mounting, the files contained within the
+  mountpoint <em>must</em> be available through the
+  <code><span>mountpoint</span></code> protocol.</p>
+
+  <p>When attempting to create a mountpoint with a name that is previously in
+  use, a <code>GENERIC_ERR</code> exception is thrown.</p>
+
+  <h4 id="filesystem-browseforfile">The
+  <code><span>browseForFile</span></code>() method</h4>
+
+  <p>The <code><span>browseForFile</span></code>() method takes three arguments,
+  plus two optional arguments, and is used to allow the user to browse for a
+  single directory.</p>
+
+  <p>The return value, and first four arguments for
+  <code><span>browseForFile</span></code>() are the same as for
+  <code><span>browseForDirectory</span></code>(). The
+  <code><span>browseForFile</span></code>() method also follows the same
+  restrictions on when the method can be called, and returns the same errors as
+  the <code><span>browseForDirectory</span></code>() method.</p>
+
+  <p>The fifth, optional, argument to <code><span>browseForFile</span></code>()
+  is an Array of content types that should be shown in the file chooser dialog,
+  and that should be selectable in a dropdown of file types to be filtered.</p>
+
+  <p class="issue">It's an open issue what should be in this array exactly.</p>
+
+  <h4 id="filesystem-browseforsave">The
+  <code><span>browseForSave</span></code>() method</h4>
+
+  <p>The <code><span>browseForSave</span></code>() method is used to select a
+  file for saving. When called, the function returns void.</p>
+
+  <p>The first argument to <code><span>browseForSave</span></code>() is a
+  DOMString with the suggested default file name for saving. The second and
+  third arguments specifies, as for the other <code>browseFor*</code>() methods,
+  a suggested default location to save the file in, and the callback to call
+  once the user has selected a file for saving. If the forth argument
+  is <code>true</code> then the <code><span>File</span></code> object
+  must be marked persistent.</p>
+
+  <p>When the user has successfully selected a file to save, the callback
+  is called with a <code><span>File</span></code> as argument. This file object
+  may or may not exist on disk (i.e. have it's <code><span>exists</span></code>
+  attribute set or not), depending on whether the user chose an existing file or
+  created a new one in the dialog.</p>
+
+  <h2 id="file-interface">The <code><span>File</span></code> interface</h2>
+
+  <p>The <code><span>File</span></code> interface represents objects in a
+  virtual filesystem, and can represent either a file or a folder.  A
+  file object consists of a number of properties, and methods for working on
+  these objects</p>
+
+  <p><code><span>File</span></code> objects that are marked as
+  persistent must persist across restarts of the application.</p>
+
+<pre class="idl"><code>interface <dfn>File</dfn> {
+  readonly attribute File      <span>parent</span>; // Null if this is the mountpoint
+  readonly attribute Boolean   <span>readOnly</span>;
+  readonly attribute Boolean   <span>exists</span>;
+  readonly attribute Boolean   <span>isFile</span>;
+  readonly attribute Boolean   <span>isDirectory</span>;
+  readonly attribute Boolean   <span>isArchive</span>;
+  readonly attribute Object    <span>metaData</span>;
+           attribute Date      <span>created</span>;
+           attribute Date      <span>modified</span>;
+  readonly attribute DOMString <span>name</span>;
+  readonly attribute DOMString <span>path</span>;
+  readonly attribute DOMString <span>nativePath;</span>
+  readonly attribute Integer   <span>fileSize</span>;
+  readonly attribute Integer   <span>length</span>;
+  readonly attribute Integer   <span>maxPathLength</span>;
+
+  FileStream      <span>open</span>(in File file, in DOMString mode);
+  FileStream      <span>open</span>(in File file, in DOMString mode, in Boolean async);
+
+  FileStream      <span>open</span>(in DOMString file, in DOMString mode);
+  FileStream      <span>open</span>(in DOMString file, in DOMString mode, in Boolean async);
+
+  File            <span>copyTo</span>(in File path);
+  File            <span>copyTo</span>(in File path, in Boolean overwrite);
+  File            <span>copyTo</span>(in File path, in Boolean overwrite, in Function onCompleteCallback);
+  File            <span>copyTo</span>(in DOMString path);
+  File            <span>copyTo</span>(in DOMString path, in Boolean overwrite);
+  File            <span>copyTo</span>(in DOMString path, in Boolean overwrite, in Function onCompleteCallback);
+
+
+  File            <span>moveTo</span>(in File path);
+  File            <span>moveTo</span>(in File path, in Boolean overwrite);
+  File            <span>moveTo</span>(in File path, in Boolean overwrite, in Function onCompleteCallback);
+  File            <span>moveTo</span>(in DOMString path);
+  File            <span>moveTo</span>(in DOMString path, in Boolean overwrite);
+  File            <span>moveTo</span>(in DOMString path, in Boolean overwrite, in Function onCompleteCallback);
+
+  File            <span>createDirectory</span>(in File directory);
+  File            <span>createDirectory</span>(in DOMString directory);
+
+  Boolean         <span>deleteDirectory</span>(in DOMString directory)
+  Boolean         <span>deleteDirectory</span>(in DOMString directory, in Boolean recursive)
+  Boolean         <span>deleteDirectory</span>(in File directory)
+  Boolean         <span>deleteDirectory</span>(in File directory, in Boolean recursive)
+
+  void            <span>deleteFile</span>(in File file);
+  void            <span>deleteFile</span>(in DOMString file);
+
+  void            <span>refresh</span>();
+  File            <span>resolve</span>(in DOMString path);
+
+  DOMString       <span>toString</span>();
+}</code></pre>
+
+  <h3 id="file-members">Members of the <code><span>File</span></code> interface</h3>
+
+  <h4 id="file-parent">The <code><dfn>parent</dfn></code> attribute, of type
+  <code><span>File</span></code>, readonly</h4>
+
+  <p>The <code><span>parent</span></code> attribute contains a pointer to the
+  parent file object. Normally, this object will have the attribute
+  <code><span>isDirectory</span></code> set to <code>true</code>, but in the
+  case where it also represents an archive file in the zip format (or other
+  supported formats, this object will in addition have the
+  <code><span>isArchive</span></code> attribute set to true. In the case
+  that the File object is the same object as the
+  <code><span>mountPoints</span></code> attribute of the
+  <code><dfn>FileSystem</dfn></code> object, the value will be
+  <code>null</code>.</p>
+
+  <p>For other file references that does not naturally have a parent, the value
+  will also be null.</p>
+
+  <h4 id="file-readonly">The <code><dfn>readOnly</dfn></code> attribute, of
+  type <code>Boolean</code>, readonly</h4>
+
+  <p>The <code><span>readonly</span></code> attribute determines whether a
+  <code><span>File</span></code> object is writable. If the file is writable,
+  the value of the attribute <em>must</em> be <code>false</code>, otherwise it
+  <em>must</em> be <code>true</code>.</p>
+
+  <h4 id="file-exists">The <code><dfn>exists</dfn></code> attribute, of
+  type <code>Boolean</code>, readonly</h4>
+
+  <p>If the file reference held by the <code><span>File</span></code> object
+  exists as an object on disk, the value of this attribute <em>must</em> be
+  <code>true</code>, otherwise the value must be <code>false</code>.</p>
+
+  <h4 id="file-isfile">The <code><dfn>isFile</dfn></code> attribute, of
+  type <code>Boolean</code>, readonly</h4>
+
+  <p>If the object referenced by the <code><span>File</span></code> object
+  is a file, the value of this attribute will be <code>true</code>, otherwise
+  <code>false</code>. This also applies to files that can be treated as an
+  archive, such as a zip file.</p>
+
+  <h4 id="file-isdirectory">The <code><dfn>isDirectory</dfn></code> attribute, of
+  type <code>Boolean</code>, readonly</h4>
+
+  <p>If the object referenced by the <code><span>File</span></code> object is a
+  directory, the value of this attribute will be <code>true</code>, otherwise
+  <code>false</code>. File that has the <code><span>isArchive</span></code>
+  attribute set, such as zip files will also have this attribute set.</p>
+
+  <h4 id="file-isarchive">The <code><dfn>isArchive</dfn></code> attribute, of
+  type <code>Boolean</code>, readonly</h4>
+
+  <p>If the <code><span>File</span></code> object being referenced is an archive
+  type file, i.e. a zip file, the value of this attribute will be
+  <code>true</code>, otherwise the value of this attribute will be false.</p>
+
+  <p>Files where this attribute is true, are treatable both as directories, or
+  as files: It is thus possible to resolve files inside the archive directly for
+  opening, or the stream is openable using the <code><span>open</span></code>()
+  method.</p>
+
+  <h4 id="file-metadata">The <code><dfn>metaData</dfn></code> attribute, of type
+  <code>Object</code>, readonly</h4>
+
+  <p>The <code><span>metaData</span></code> attribute is an <code>Object</code>
+  that holds various metatdata connected to the file. Normally, the value of
+  this attribute will be <code>null</code>.</p>
+
+  <h4 id="file-created">The <code><dfn>created</dfn></code> attribute, of type
+  <code>Date</code></h4>
+
+  <p>The <code><span>created</span></code> attribute is a
+  <code><span>Date</span></code> object corresponding to the File object's
+  creation time. The value of the object <em>should not</em> be null if creation
+  date of the file or directory is missing, but <em>may</em> fall back to using
+  another appropriate date.</p>
+
+  <p>Assigning a <code>Date</code> object to the
+  <code><span>created</span></code> date should, if possible set the creation
+  date for the file. If setting this date is not possible, assigning a date to
+  the <code><span>created</span></code> attribute in question should fail
+  silently.</p>
+
+  <h4 id="file-created">The <code><dfn>modified</dfn></code> attribute, of type
+  <code>Date</code></h4>
+
+  <p>The <code><span>modified</span></code> attribute is a
+  <code><span>Date</span></code> object corresponding to the File object's
+  creation time. The value of the object <em>should not</em> be null if creation
+  date of the file or directory is missing, but <em>may</em> fall back to using
+  another appropriate date.</p>
+
+  <p>Assigning a <code>Date</code> object to the
+  <code><span>modified</span></code> date should, if possible set the creation
+  date for the file. If setting this date is not possible, assigning a
+  modification date to the <code><span>modified</span></code> attribute in
+  question should fail silently.</p>
+
+  <h4 id="file-name">The <code><dfn>name</dfn></code> attribute, of type
+  <code>DOMString</code>, readonly</h4>
+
+  <p>The <code><span>name</span></code> attribute is the URL encoded file name
+  of the file or directory represented by the <code><span>File</span></code>
+  object.</p>
+
+  <p>If the <code><span>File</span></code> object is a directory, the value of
+  the <code><span>name</span></code> attribute will be that of the directory
+  itself.</p>
+
+  <h4 id="file-path">The <code><dfn>path</dfn></code> attribute, of type
+  <code>DOMString</code>, readonly</h4>
+
+  <p>The <code><span>path</span></code> attribute is a URL encoded
+  <code>DOMString</code> holding the path of the file as represented in the
+  context of the sandboxed file system representation. The path is absolute,
+  beginning with a slash, and the name of the mountpoint.</p>
+
+  <p>The <code><span>path</span></code> attribute <em>must</em> include the name
+  of the file or the folder itself.</p>
+
+  <h4 id="file-nativepath">The <code><dfn>nativePath</dfn></code> attribute, of
+  type <code>DOMString</code>, readonly</h4>
+
+  <p>The <code><span>nativePath</span></code> attribute is a
+  <code>DOMString</code> with a system-specific representation of the complete
+  path (including filename) of the object on disk. </p>
+
+  <p>Unlike other path references, the <code><span>nativePath</span></code>
+  <em>should not</em> be URL encoded, and resolving this native path
+  <code><span>should not</span></code> work in any method that resolves path or
+  file names.</p>
+
+  <p>For <code><span>File</span></code> objects mounted using
+  <code><span>mountSystemDirectory</span></code>()
+  <code><span>nativePath</span></code> will be the empty string.</p>
+
+  <h4 id="file-filesize">The <code><dfn>fileSize</dfn></code> attribute, of
+  type <code>DOMString</code>, readonly</h4>
+
+  <p>If the object referenced by a <code><span>File</span></code> object is a
+  file, i.e. the value of the <code><span>isFile</span></code> attribute is
+  <code>true</code>, the value of the <code><span>fileSize</span></code>
+  attribute will represent the file size, in bytes, of the
+  <code><span>File</span></code> object.</p>
+
+  <p>When the <code><span>File</span></code> object in question is not a file,
+  meaning that <code><span>isFile</span></code> is <code>false</code>, the value
+  of <code><span>fileSize</span></code> is <code>0</code>.</p>
+
+  <h4 id="file-length">The <code><dfn>length</dfn></code> attribute, of
+  type <code>DOMString</code>, readonly</h4>
+
+  <p>The <code><span>length</span></code> attribute represents the number of
+  files and folders contained within a <code><span>File</span></code> object
+  that has its <code><span>isDirectory</span></code> attribute set to
+  <code>true</code>.</p>
+
+  <p>For objects that has <code><span>isDirectory</span></code> set to
+  <code>false</code>, the value must always be 0.</p>
+
+  <p>Note that the <code><span>length</span></code> attribute is not
+  dynamically updated, and <em>should</em> initially be 0 before
+  <code><span>refresh</span></code>() is called on the object, with the notable
+  exception of the <code><span>File</span></code> object in the
+  <code><span>mountPoints</span></code> attribute.</p>
+
+  <h4 id="file-maxpathlength">The <code><dfn>maxPathLength</dfn></code>
+  attribute, of type <code>unsigned int</code>, readonly</h4>
+
+  <p>The <code><span>maxPathLength</span></code> attribute is a number
+  representing the maximum number of characters that can be used in a
+  pathname of files contained within a <code><span>File</span></code> object.</p>
+
+  <h4 id="file-open">The <code><dfn>open</dfn></code>() method</h4>
+
+  <p>The <code><span>open</span></code>() method is used to open a file
+  stream for reading and writing. Upon a successful call to open, a new
+  <code><span>FileStream</span></code> object is returned, allowing an
+  application to read contents from and write contents to a file.</p>
+
+  <p>The <code><span>open</span></code>() method takes three arguments. The
+  first argument should be either a <code>DOMString</code>
+  path reference, or a <code><span>File</span></code> object, or null. In
+  the case that the value is <code>null</code>, a call to open
+  <code><span>open</span></code>() <em class="ct">must</em> attempt to open
+  the file object on which the call itself was made.</p>
+
+  <p>The second argument to <code><span>open</span></code>() is a DOMString,
+  describing the file mode to use when opening the file. Valid modes are:</p>
+
+  <p class="issue">Should these be bit fields or enums instead of strings?</p>
+
+  <dl>
+    <dt>r</dt>
+    <dd>Open stream for reading, place pointer at the beginning of the file.</dd>
+    <dt>r+</dt>
+    <dd>Open the stream for reading and writing. Place the pointer at the
+    beginning</dd>
+    <dt>w</dt>
+    <dd>Open file for writing, set the pointer to the start of the stream. If
+    the file exists, truncate the file to zero-length. If the file does not
+    exist, create it</dd>
+    <dt>w+</dt>
+    <dd>Open file for reading and writing, set the pointer to the start of the
+    stream. If the file exists, truncate the file to zero-length. If the file
+    does not exist, create it</dd>
+    <dt>a</dt>
+    <dd>Open file for writing, set the pointer to the end of the stream. If the
+    file does not exist, creating it. Any operation in writing to the stream,
+    <em>should</em> move the file pointer to the end of the file before writing,
+    including setting the<code><span>FileStream</span></code>'s
+    <code><span>position</span></code> attribute to the end of the file.</dd>
+    <dt>a+</dt>
+    <dd>Open file for reading and writing, set the pointer to the end of the
+    stream. If the file does not exist, creating it. Any operation in writing to
+    the stream, <em>should</em> move the file pointer to the end of the file
+    before writing, including setting the<code><span>FileStream</span></code>'s
+    <code><span>position</span></code> attribute to the end of the file.</dd>
+
+  </dl>
+
+  <p>The third, optional <code>Boolean</code> argument to
+  <code><span>open</span></code>() determines whether the file is opened in
+  synchronous or asynchronous mode. </p>
+
+  <p>If a file is successfully opened, the call to
+  <code><span>open</span></code>() <em>must</em> return a
+  <code><span>FileStream</span></code> object.</p>
+
+  <p>If opening of the file fails, a number of exceptions may be thrown:</p>
+
+  <dl>
+    <dt>WRONG_ARGUMENTS_ERR</dt>
+    <dd>Is thrown when the object passed to the first argument is not a
+    file or string,</dd>
+    <dt>WRONG_TYPE_OF_OBJECT_ERR</dt>
+    <dd>If the object is a file, but does not allow
+    <code><span>open</span></code>() to be invoked, for instance if the file is
+    a directory.</dd>
+    <dt>SECURITY_ERR</dt>
+    <dd>If opening the <code><span>File</span></code> object is not permitted.</dd>
+  </dl>
+
+  <p>Other, generic or specific exceptions may be thrown, depending on external
+  circumstances, such as an out-of-memory situation.</p>
+
+  <h4 id="file-copyto">The <code><dfn>copyTo</dfn></code>() method</h4>
+
+  <p>The <code><span>copyTo</span></code>() method is used to copy a file from
+  one location to another. The function has one mandatory argument, either a
+  <code>DOMString</code> with the URL encoded  path of the desired destination, or
+  <code><span>File</span></code> object representing the desired location.</p>
+
+  <p>The second, optional argument to <code><span>copyTo</span></code> is a
+  boolean attribute telling whether the destination file should be overwritten
+  in the case that the destination file already exists. The default value of
+  this attribute is <code>false</code>. When the destination file exists, and
+  the value of this attribute is <code>false</code>, the
+  <code><span>copyTo</span></code>() operation <em>must</em> fail with a
+  <code>GENERAL_ERR</code> exception.</p>
+
+  <p>When <code><span>copyTo</span></code>() is successfully invoked, and a
+  copy operation takes place, the call will return a
+  <code><span>File</span></code> object with a reference to the new file.</p>
+
+  <p>The third, optional argument to <code><span>copyTo</span></code>() is a
+  function that is called when the copyTo() operation is complete. </p>
+
+  <h4 id="file-moveto">The <code><dfn>moveTo</dfn></code>() method</h4>
+
+  <p>The <code><span>moveTo</span></code>() method is used to move a file from
+  one location to another. The function has one mandatory argument, either a
+  <code>DOMString</code> with the URL encoded path of the desired destination, or
+  <code><span>File</span></code> object representing the desired
+  destination.</p>
+
+  <p>The second, optional argument to <code><span>moveTo</span></code>() is a
+  boolean attribute telling whether the destination file should be overwritten
+  in the case that the destination file already exists. The default value of
+  this attribute is <code>false</code>. When the destination file exists, and
+  the value of this attribute is <code>false</code>, the
+  <code><span>moveTo</span></code>() operation <em>must</em> fail with a
+  <code>GENERAL_ERR</code> exception.</p>
+
+  <p>The third, optional argument to <code><span>moveTo</span></code>() is a
+  function that is called when the copyTo() operation is complete.</p>
+
+  <p>When <code><span>moveTo</span></code>() is successfully invoked, and a
+  copy operation takes place, the call will return a
+  <code><span>File</span></code> object with a reference to the new file.</p>
+
+  <p class="issue">The call semantics are unclear at this point.</p>
+
+  <h4 id="file-createdirectory">The <code><dfn>createDirectory</dfn></code>()
+  method</h4>
+
+  <p>The <code><span>createDirectory</span></code>() method is used to create
+  new directories.</p>
+
+  <p>The first argument <em>must</em> either be a <code><span>File</span></code>
+  object acquired using a <code><span>resolve</span></code>() operation, or a
+  <code>DOMString</code> with a properly URL encoded path for the directory.</p>
+
+  <p>The UA <em>must</em> attempt to create all the parent
+  directories needed to create the desired directory. If some of these
+  directories are pre-existing, the UA <em>must not</em> delete these
+  directories.</p>
+
+  <p>If the UA, after a successful invocation of the method, is able to
+  create the desired directory, the method must return a
+  <code><span>File</span></code> object referencing the freshly created
+  directory.</p>
+
+  <p>If creating the directory fails, an system-dependent exception
+  <em>should</em> be thrown. What these errors are may vary from system to
+  system, and as such are not specified further.</p>
+
+  <p class="issue">Perhaps we just should throw
+  "DIRECTORY_CREATION_FAILED_ERR"?</p>
+
+  <h4 id="file-deletedirectory">The <code><dfn>deleteDirectory</dfn></code>()
+  method</h4>
+
+  <p>The <code><span>deleteDirectory</span></code>() method is used to delete a
+  <code><span>File</span></code> object with the
+  <code><span>isDirectory</span></code> attribute set to true, and the
+  <code><span>isFile</span></code> attribute set to false.</p>
+
+  <p>The first argument to the file <em>must</em> be either a valid
+  <code><span>File</span></code> object, or a
+  <code><span>DOMString</span></code> with a URL encoded path to the
+  directory.</p>
+
+  <p>The second, optional argument to the method is a <code>Boolean</code>
+  which, when set to <code>true</code> means that the UA should try to
+  recursively delete the directory with all its descendants. When this attribute
+  is true, the UA <em>should</em> recursively delete all the files and folders
+  contained within the file. In this case, failure to delete a single file or
+  folder is not considered a fatal error, and the UA <code>should</code>
+  continue with the  operation until as many files as possible are deleted.</p>
+
+  <p>The return value for <code><span>deleteDirectory</span></code>() is of type
+  <code>Boolean</code>. If deletion of the resource is successful, and the UA is
+  able to delete the resource itself, including any descendant files and
+  directories, the return value is <code>true</code>, otherwise, the return
+  value is false.</p>
+
+  <h4 id="file-deletefile">The <code><dfn>deleteFile</dfn></code>() method</h4>
+
+  <p>The <code><span>deleteFile</span></code>() method is used to delete a
+  single <code><span>File</span></code> whose value for
+  <code><span>isFile</span></code> is <code>true</code>. When invoked, the
+  method always returns void.</p>
+
+  <p class="issue">Should an exception be thrown or a boolean be returned for
+  failure cases?</p>
+
+  <h4 id="file-refresh">The <code><dfn>refresh</dfn></code>() method</h4>
+
+  <p>The <code><span>refresh</span></code>() method takes no arguments, and
+  returns no value. When the method is invoked on a
+  <code><span>File</span></code> where the value of the <span>isDirectory</span>
+  attribute is <code>true</code>, the <code><span>length</span></code> is
+  updated, and the object is populated with <code><span>File</span></code>
+  objects available through accessing the object as an array using numerical
+  indices.</p>
+
+  <h4 id="file-resolve">The <code><dfn>resolve</dfn></code>() method</h4>
+
+  <p>The <code><span>resolve</span></code>() method is used to acquire a
+  reference to a file or folder in the form of a <code><span>File</span></code>
+  object on disk, thus making it possible to manipulate the contents of this
+  file or folder. In the case that the resource does not previously exist,
+  acquiring this <code><span>File</span></code> reference, later operations may
+  be used to create the resource.</p>
+
+  <p>The <code><span>resolve</span></code>() method takes a
+  <code>DOMString</code> argument which is a URL escaped path, and returns a
+  <code><span>File</span></code> object.</p>
+
+  <p>When invoked with a correct argument, the
+  <code><span>resolve</span></code>() method <em>must</em> return a reference
+  either to an existing <code><span>File</span></code> object, meaning one where
+  the value of the <code><span>exists</span></code> is true, or a new file where
+  the value of the attribute is <code>false</code>.</p>
+
+  <h4 id="file-tostring">The <code><dfn>toString</dfn></code>() method</h4>
+
+  <p>In the context of a File object, the object's
+  <code><span>toString</span></code>() method <em>should</em> return the file's
+  complete absolute path (including filename), URL encoded.</p>
+
+  <h2 id="filestream-interface">The <code><span>FileStream</span></code>
+  interface</h2>
+
+  <p>The <code><span>FileStream</span></code> interface represents a
+  <code><span>File</span></code> object opened for reading and/or writing, and
+  defines methods and attributes for doing this work.</p>
+
+<pre class="idl"><code>interface <dfn>FileStream</dfn> {
+           attribute unsigned Integer   <span>position</span>;
+  readonly attribute unsigned Integer   <span>bytesAvailable</span>;
+  readonly attribute          Boolean   <span>eof</span>;
+           attribute          DOMString <span>encoding</span>; // default "UTF-8"
+
+  void             <span>close</span>();
+
+  DOMString        <span>read</span>(in Integer length);
+  DOMString        <span>read</span>(in Integer length ,in DOMString charset);
+
+  DOMString        <span>readLine</span>();
+  DOMString        <span>readLine</span>(in DOMString charset);
+
+  ByteArray        <span>readBytes</span>(in Integer length);
+  ByteArray        <span>readBytes</span>(in Integer length, in Integer offset);
+
+  DOMString        <span>readBase64</span>(in Integer length);
+
+  void             <span>write</span>(in DOMString string);
+  void             <span>write</span>(in DOMString string, in DOMString charset);
+
+  void             <span>writeLine</span>(in DOMString string);
+  void             <span>writeLine</span>(in DOMString string, in DOMString charset);
+
+  void             <span>writeBytes</span>(in ByteArray bytes);
+  void             <span>writeBytes</span>(in ByteArray bytes, in Integer length);
+
+  void             <span>writeFile</span>(in File file);
+
+  void             <span>writeImage</span>(in HTMLCanvasElement canvas);
+  void             <span>writeImage</span>(in HTMLImageElement image);
+  void             <span>writeBase64</span>(in DOMString string);
+}</code></pre>
+
+  <h3 id="filestream-members">Members of the
+  <code><span>FileStream</span></code> interface</h3>
+
+  <h4 id="filestream-position">The <code><dfn>position</dfn></code> attribute,
+  of type unsigned integer</h4>
+
+  <p>The <code><span>position</span></code> attribute determines the position of
+  the file pointer from within the file as an offset of bytes from the start of
+  the file stream. When invoking an operation that reads or writes from the
+  stream, the operation will take place from the position in the
+  <code><span>position</span></code> attribute.</p>
+
+  <p>When setting the value, any value in the range 0 -
+  (<code><span>File</span></code>.<code><span>fileSize</span></code>) is
+  accepted. If a script sets <code><span>position</span></code>&lt;0, the value
+  is set to 0. If
+  <code><span>position</span></code>&gt;<code><span>fileSize</span></code>, then
+  position is set to <code><span>fileSize</span></code> </p>
+
+  <h4 id="filestream-bytesavailable">The <code><dfn>bytesAvailable</dfn></code>
+  attribute, of type unsigned integer, readonly</h4>
+
+  <p>The <code><span>bytesAvailable</span></code> attribute is a positive
+  integer giving the number of bytes that are available for reading from the
+  stream. The value should be equal to the length of the file minus the current
+  position of the current position within the file.</p>
+
+  <h4 id="filestream-eof">The <code><dfn>eof</dfn></code> attribute, of type
+  <code>Boolean</code></h4>
+
+  <p>The <code><span>eof</span></code> attribute is <code>true</code> whenever
+  the value of <code><span>pointer</span></code> is beyond the end of the last
+  byte of the <code><span>FileStream</span></code> (when position is equal to or
+  greater than fileSize), otherwise the value is
+  <code><span>false</span></code>.</p>
+
+  <h4 id="filestream-close">The <code><dfn>close</dfn></code>() method</h4>
+
+  <p>The <code><span>close</span></code>() method takes no arguments, and
+  returns no value. The method is used to close a previously opened file stream.
+  When invoked, the method <em>should</em> immediatly close the stream (pending
+  any buffered writes that may not be complete), and free any locks that
+  <em>may</em> have been set on the file.</p>
+
+  <h4 id="filestream-read">The <code><dfn>read</dfn></code>() method</h4>
+
+  <p>The <code><span>read</span></code>() method is used to read characters from
+  the <code><span>FileStream</span></code>. The first argument to the method,
+  length, is an unsigned integer deciding how many characters are read from the
+  stream.</p>
+
+  <p>The second argument to the method is optional, and when present
+  <em>must</em> be <code><span>DOMString</span></code> specifying which
+  character encoding is to be assumed when reading from the stream.</p>
+
+  <p>A successful invocation of <code><span>read</span></code>()
+  <em>must</em> return a valid <code><span>DOMString</span></code> containing
+  the characters read from the stream, and the
+  <code><span>position</span></code> attribute should be advanced to the
+  position after the last octet read.</p>
+
+  <p>In the case that an octet obtained from a <code><span>read</span></code>()
+  invocation are invalid in a <code><span>DOMString</span></code>, the
+  characters in question <em>should</em> be replaced with a U+FFFD replacement
+  character. If the <code><span>read</span></code>() operation starts in the
+  middle of a multibyte character, and it is possible to determine this, the UA
+  <em>should</em> also replace the octets that cannot be represented in a
+  <code><span>DOMString</span></code> with the U+FFFD replacement character.</p>
+
+  <p>When invoking a <code><span>read</span></code>() when there are no bytes
+  left to read in the stream, and the <code><span>eof</span></code> attribute is
+  already set to <code>true</code>, a call to <code><span>read</span></code>()
+  <em>must</em> return <code>null</code>.</p>
+
+  <p>When invoking a <code><span>read</span></code>() operation is invoked with
+  a length argument, and this length argument means that reading will proceed
+  beyond the end of the stream, the invocation <em>must</em> read only to the
+  end of the stream, and set the <code><span>eof</span></code> attribute on the
+  <code><span>FileStream</span></code>. The return value <em>must</em> then be
+  all characters up until the end of the stream. Authors are cautioned that the
+  length of the returned <code>DOMString</code> <em>may</em> be less than that
+  of the requested length argument.</p>
+
+  <p>When reading from the start of a stream, e.g. when the
+  <code><span>position</span></code> is at 0, or before the first valid octet
+  that is a valid character in a <code><span>DOMString</span></code>,
+  <code><span>read</span></code>() <em>may</em> skip forward to the first
+  character, provided that the first octets represent a valid <abbr title="Byte
+  Order Mark">BOM</abbr>.</p>
+
+  <p>If reading from a stream fails, the UA <em>may</em> throw a
+  system-specific exception.</p>
+
+  <h4 id="filestream-readline">The <code><dfn>readLine</dfn></code>() method</h4>
+
+  <p>The <code><span>readLine</span></code>() method is used to read a single
+  line of input from a valid <code><span>FileStream</span></code> instance. The
+  method accepts an optional <code>DOMString</code> argument specifying the
+  charset the stream is to be interpreted as.</p>
+
+  <p>A successful invocation of <code><span>readLine</span></code>()
+  <em>must</em> return a valid <code>DOMString</code>, not including the CR and
+  LF characters, and replacing invalid characters with the U+FFFD replacement
+  character. A successful invocation <em>must</em> also cause the UA to advance
+  the <code><span>position</span></code> within the file to the first character
+  after a valid octet sequence representing a newline.</p>
+
+  <p>When invoking a <code><span>readLine</span></code>() when are no bytes left
+  to read in the stream, and when the <code><span>eof</span></code> attribute is
+  already set, a call to <code><span>read</span></code>() <em>must</em> return
+  <code>null</code>.</p>
+
+  <p>If reading from a stream fails, the UA <em>may</em> throw a
+  system-specific exception.</p>
+
+  <h4 id="filestream-readbytes">The <code><dfn>readBytes</dfn></code>() method</h4>
+
+  <p>The <code><span>readBytes</span></code> method is used to read an octet off
+  a valid <code><span>FileStream</span></code> instance. The method takes one
+  argument, an unsigned integer representing the number of octets to be read
+  from the stream.</p>
+
+  <p>When a successful call to <code><span>readBytes</span></code>() method is
+  made, an UA <em>must</em> return a valid <code><span>ByteArray</span></code>
+  containing the octets read. When reading beyond the end of the stream, the UA
+  <em>must</em> set the <code><span>eof</span></code> attribute to
+  <code>true</code>, and return a <code><span>ByteArray</span></code> containing
+  the octets from the position it started to read from the stream until the
+  end. As such, a developer cannot rely on the length of the ByteArray being
+  equal to the length specified in the length argument to the stream.</p>
+
+  <p>If <code><span>readBytes</span></code>() is invoked when the
+  <code><span>eof</span></code> attribute is set to <code>true</code>, the UA
+  <em>must</em> return <code>null</code>.</p>
+
+  <p>A UA <em>may</em> throw system-specific exceptions if it is unable to read
+  from the stream.</p>
+
+  <h4 id="filestream-readbase64">The <code><dfn>readBase64</dfn></code>() method</h4>
+
+  <p>The <code><span>readBase64</span></code> method is used to read an octet
+  from a valid <code><span>FileStream</span></code> instance, and return a
+  <code>DOMString</code> with a base-64 encoded representation of the octets
+  read from the stream. The method takes one argument, an unsigned integer
+  representing the number of octets to be read from the stream.</p>
+
+  <p>When a successful call to <code><span>readBase64</span></code>() method is
+  made, an UA <em>must</em> return a valid <code><span>ByteArray</span></code>
+  containing the octets read. When reading beyond the end of the stream, the UA
+  <em>must</em> set the <code><span>eof</span></code> attribute to
+  <code>true</code>, and return a <code><span>DOMString</span></code> containing
+  the octets from the position it started to read from the stream until the
+  end. As with <code><span>readBytes</span></code>(), a developer cannot rely
+  on the returned <code>DOMString</code> representing a base-64 encoded string
+  whose length, when converted back to a <code><span>ByteArray</span></code>,
+  matches the length specified in the first argument to
+  <code><span>readBase64</span></code>().</p>
+
+  <p>If <code><span>readBase64</span></code>() is invoked when the
+  <code><span>eof</span></code> attribute is set to <code>true</code>, the UA
+  <em>must</em> return <code>null</code>.</p>
+
+  <p>A UA <em>may</em> throw system-specific exceptions if it is unable to read
+  from the stream.</p>
+
+  <h4 id="filestream-write">The <code><dfn>write</dfn></code>() method</h4>
+
+  <p>The <code><span>write</span></code>() method is used to write character
+  data to a file stream.</p>
+
+  <p>The first argument to <code><span>write</span></code>() is mandatory, and
+  <em>must</em> be a valid <code>DOMString</code> containing the data to be
+  written to the stream. When the method is successfully invoked, the UA
+  <em>should</em> write the data in this first argument to the file stream
+  starting from the position in the <code><span>position</span></code>
+  attribute, unless the file is opened in append mode. If the file is opened in
+  append mode, the position should be advanced to the end of file before
+  writing.</p>
+
+  <p>The second argument to <code><span>write</span></code>(), of type
+  <code>DOMString</code>, is used to specify which character encoding should be
+  used when writing the string specififed in the first argument.</p>
+
+  <p><code><span>write</span></code>() <em>may</em> throw a system-specific
+  error if writing fails, when conditions such as running out of free disk space
+  arises.</p>
+
+  <h4 id="filestream-writeline">The <code><dfn>writeLine</dfn></code>() method</h4>
+
+  <p>The <code><span>writeLine</span></code>() method is used to write character
+  data to a file stream, and emit a valid linefeed sequence after the input
+  string.</p>
+
+  <p>The first argument to <code><span>writeLine</span></code>() is mandatory,
+  and <em>must</em> be a valid <code>DOMString</code> containing the data to be
+  written to the stream. When the method is successfully invoked, the UA
+  <em>should</em> write the data in this first argument, plus a valid linefeed
+  sequence to the file stream starting from the position in the
+  <code><span>position</span></code> attribute, unless the file is opened in
+  append mode. If the file is opened in append mode, the position should be
+  advanced to the end of file before writing.</p>
+
+  <p>The second argument to <code><span>writeLine</span></code>(), of type
+  <code>DOMString</code>, is used to specify which character encoding should be
+  used when writing the string specififed in the first argument.</p>
+
+  <p><code><span>writeLine</span></code>() <em>may</em> throw a system-specific
+  error if writing fails, when conditions such as running out of free disk space
+  arises.</p>
+
+  <p class="issue">Valid linefeed sequences are not specified yet.</p>
+
+  <p class="issue">write and writeLine currently both write UTF-8 only, and
+  ignores any encoding specified.</p>
+
+  <p class="issue">The valid strings for selecting encoding needs to be
+  listed.</p>
+
+  <h4 id="filestream-writebytes">The <code><dfn>writeBytes</dfn></code>() method</h4>
+
+  <p>The <code><span>writeBytes</span></code>() method is used to write a series
+  of octets to the file stream specified.</p>
+
+  <p>The first argument to <code><span>writeBytes</span></code>() is a
+  <code><span>ByteArray</span></code> containing the data to be written. When
+  the method is successfuly invoked, the UA <em>should</em> write the data to
+  the <code><span>FileStream</span></code>, starting from the current position,
+  as given by the <code><span>position</span></code> attribute, unless the
+  file is opened in append mode, in which case the position <em>must</em> be set
+  to the end of the file before the writing operation commences.</p>
+
+  <p><code><span>writeBytes</span></code>() <em>may</em> throw a system-specific
+  error if writing fails, when conditions such as running out of free disk space
+  arises.</p>
+
+  <h4 id="filestream-writebase64">The <code><dfn>writeBase64</dfn></code>() method</h4>
+
+  <p>The <code><span>writeBase64</span></code>() method is used to write a
+  series of octets to the file stream specified with the octets input specified
+  as a base-64 encoded string.</p>
+
+  <p>The first argument to <code><span>writeBase64</span></code>() is a
+  <code>DOMString</code> containing the data to be written. When the method is
+  successfuly invoked, the UA <em>should</em> take the base64-encoded string,
+  convert it to a <code><span>ByteArray</span></code>, and write the data to the
+  <code><span>FileStream</span></code>, starting from the current position, as
+  given by the <code><span>position</span></code> attribute, unless the file is
+  opened in append mode, in which case the position <em>must</em> be set to the
+  end of the file before the writing operation commences.</p>
+
+  <p><code><span>writeBytes</span></code>() <em>may</em> throw a system-specific
+  error if writing fails, when conditions such as running out of free disk space
+  arises.</p>
+
+  <h4 id="filestream-writefile">The <code><dfn>writeFile</dfn></code>() method</h4>
+
+  <p>The <code><span>writeFile</span></code>() method is used to write the entire
+  contents of a valid <code><span>File</span></code> object to the
+  <code><span>FileStream</span></code></p>
+
+  <p>The <code><span>writeFile</span></code>() method takes one mandatory
+  argument, a valid <code><span>File</span></code> object. When the method is
+  successfully invoked, the UA <em>should</em> write the contents of the file,
+  starting from the current <code><span>position</span></code>, unless the file
+  is in append mode, in which case the <code><span>position</span></code> should
+  be set to be at the end of the <code><span>FileStream</span></code>.</p>
+
+  <p>Given two file objects, <code>f1</code> and <code>f2</code>, calling
+  <code>f1.open(f1,"w").writeFile(f2)</code> <em>should</em> behave the same as
+  the following example:</p>
+
+  <pre class="example"><code>
+var srcStream = f2.open(f2,"r");
+var destStream = f1.open(f1,"rw");
+
+var srcData = srcStream.read(f2.fileSize);
+srcStream.close();
+destStream.writeBytes(srcData);
+destStream.close();
+  </code></pre>
+
+  <p><code><span>writeFile</span></code> has no return value.</p>
+
+  <h4 id="filestream-writeimage">The <code><span>writeImage</span></code>() method</h4>
+
+  <p>The <code><span>writeImage</span></code>() method is used to write the
+  contents of a <code>HTMLCanvasElement</code> object or an
+  <code>HTMLImageElement</code> to a file.</p>
+
+  <p>The method accepts one argument, which is mandatory. This argument can be
+  either a <code>HTMLCanvasElement</code> object or an
+  <code>HTMLImageElement</code> instance. If
+  <code><span>writeImage</span></code>() is successfully invoked, the UA
+  <em>should</em> write the image, starting from the current
+  <code><span>position</span></code>, unless the file is in append mode, in
+  which case the <code><span>position</span></code> should be set to be at the
+  end of the <code><span>FileStream</span></code>.</p>
+
+  <p>When writing a <code>HTMLCanvasElement</code>, the image
+  should be encoded as image/png. In the case that the image is a
+  <code>HTMLImageElement</code>, the image should be written with the same
+  encoding that is used in the original element.</p>
+
+  <h2 id="reserved-characters">Reserved characters and filenames</h2>
+
+  <h3 id="disallowed-characters">Disallowed characters</h3>
+
+  <p>The U+002F solidus character, <var>/</var> is a reserved character and
+  <em class="ct">must not</em> be used to name a file or folder.</p>
+
+  <h3 id="discouraged-characters">Discouraged characters</h3>
+
+  <p>Different file systems have different conventions for file names, and may
+  or may not allow use of certain characters in a file or path name. For
+  portability, applications are therefore discouraged when creating folders or
+  files.  The list is as follows:</p>
+
+  <table>
+    <tr>
+      <th>Character</th>
+      <th>Reason</th>
+    </tr>
+    <tr>
+      <td>:</td>
+      <td>Used to denote alternate file streams on NTFS file systems, as a path
+      separator on OS X, and used to determine the mountpoint (e.g. C:) on
+      Windows systems.</td>
+    </tr>
+
+    <tr>
+      <td>?</td>
+      <td>Used as a wildcard match on virtually all systems, and explicitly
+      illegal in filenames on Windows systems</td>
+    </tr>
+
+    <tr>
+      <td>*</td>
+      <td>Used as a wildcard match on virtually all systems, and
+      explicitly illegal in filenames on Windows systems</td>
+    </tr>
+
+    <tr>
+      <td>|, &lt; and &gt;</td>
+      <td>Used for pipes and redirection on Unix systems</td>
+    </tr>
+
+    <tr>
+      <td>\</td>
+      <td>Used as path separator on Windows systems</td>
+    </tr>
+  </table>
+
+  <h3 id="illegal-filenames">Illegal file names</h3>
+
+  <p>The file names '.' and '..' are used to denote current folder and parent
+  folder on virtually all file systems, and creating files or folders with these
+  names are thus disallowed</p>
+
+  <h3 id="discouraged-filenames">Discouraged file names</h3>
+
+  <p>In addition to the disallowed file names, a number of file names are
+  discouraged for portable applications, because these files cannot be recreated
+  reliably on all platforms. The list is as follows:</p>
+
+  <p>CON, PRN, AUX, CLOCK$, NUL, COM0, COM1, COM2, COM3, COM4, COM5, COM6, COM7,
+  COM8, COM9 LPT0, LPT1, LPT2, LPT3, LPT4, LPT5, LPT6, LPT7, LPT8, and LPT9.</p>
+
+  <p>Authors <em class="ct">should not</em> create files using any of these
+  names, also including creating the file with an additional extension.</p>
+
+  <h2 id="mountpoint-protocol">The <code><dfn>mountpoint</dfn></code> URL
+  protocol</h2>
+
+  <p>When referencing files in mountpoints from inside an application, the
+  <code><span>mountpoint</span></code> protocol is used. The scheme-specific
+  syntax is described as below.</p>
+
+  <pre class="bnf"> mountpoint_url = "mountpoint:" "//" <dfn>mountpoint_name</dfn> [ abs_path ]</pre>
+
+  <p>Here, <var><span>mountpoint_name</span></var> corresponds to a previously
+  mounted directory, and <var><span>abs_path</span></var> corresponds to an
+  absolute path within the specified mountpoint.</p>
+
+  <p>The absolute path in a mountpoint always starts with the character for the path
+  separator '/', (Unicode U+002F solidus). </p>
+
+  <p>For instance, if a user has acquired a mountpoint, and named it
+  <var>myImages</var> using the call
+  <code>browseForDirectory("<em>myImages</em>","",callback_function)</code>, the
+  user can access files inside the mountpoint by creating an absolute URI:</p>
+
+  <pre class="example"><code>mountpoint://myImages/example.txt</code></pre>
+
+</body>
+</html>
