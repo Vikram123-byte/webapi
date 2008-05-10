@@ -5,8 +5,8 @@
 	<title>Selectors API</title>
 	<style type="text/css">
 	pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
-
 	pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
+
 	div.example { border-left:double; padding-left:1em }
 	dfn { font-style:normal; font-weight:bolder }
 	em.ct { font-style:normal; font-weight:normal; font-variant:small-caps }
@@ -17,7 +17,6 @@
 	code { color:#FF4500; }
 	code :link, code :visited { color:inherit }
 	</style>
-	<link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base.css">
 	<link rel="stylesheet" type="text/css" href="http://www.w3.org/StyleSheets/TR/W3C-ED">
 </head>
 <body>
@@ -337,7 +336,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   It is <em class="ct">recommended</em> that implementations behave
 	   consistently with other uses of Selectors supported by the user agent.</p>
 
-	<h2 id="nodeselector">The <code title="">querySelector()</code> and	<code title="">querySelectorAll()</code> Methods</h2>
+	<h2 id="nodeselector">The <code>querySelector()</code> and	<code>querySelectorAll()</code> Methods</h2>
 
 	<p>Objects implementing either the <code>Document</code>,
  	   <code>DocumentFragment</code> or <code>Element</code> interfaces, as
@@ -346,10 +345,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]</p>
 
 	<pre class="idl">interface <dfn id="dom-document-selector">NodeSelector</dfn> {
-  Element   <span title="document-selectelement">querySelector</span>([NoNull] in DOMString selectors) raises (NAMESPACE_ERR, SYNTAX_ERR);
-  Element   <span title="document-selectelement">querySelector</span>([NoNull] in DOMString selectors, in <span>NSResolver</span> nsresolver) raises (NAMESPACE_ERR, SYNTAX_ERR);
-  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>([NoNull] in DOMString selectors) raises (NAMESPACE_ERR, SYNTAX_ERR);
-  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>([NoNull] in DOMString selectors, in <span>NSResolver</span> nsresolver) raises (NAMESPACE_ERR, SYNTAX_ERR);
+  Element   <span title="document-selectelement">querySelector</span>(in DOMString selectors)
+                              raises (NAMESPACE_ERR, SYNTAX_ERR);
+  Element   <span title="document-selectelement">querySelector</span>(in DOMString selectors,
+                          in <span>NSResolver</span> nsresolver)
+                              raises (NAMESPACE_ERR, SYNTAX_ERR, NOT_SUPPORTED_ERR);
+
+  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors)
+                                 raises (NAMESPACE_ERR, SYNTAX_ERR);
+  <span>NodeList</span>  <span title="document-selectallelements">querySelectorAll</span>(in DOMString selectors,
+                             in <span>NSResolver</span> nsresolver)
+                                 raises (NAMESPACE_ERR, SYNTAX_ERR, NOT_SUPPORTED_ERR);
 };
 </pre>
 	<p>The term <dfn>first</dfn> used in the definitions of the
@@ -377,6 +383,48 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   If there are no such nodes, the methods <em class="ct">must</em> return an empty
 	   <code>NodeList</code>.</p>
 
+
+	<p>Both <code title="document-selectelement">querySelector()</code> and
+	   <code title="document-selectallelements">querySelectorAll()</code> take
+	   a group of selectors (<var>selectors</var>) as the first argument and
+	   optionally an <code>NSResolver</code> (<var title="">nsresolver</var>) as
+	   the second.</p>
+
+	<p>The caller <em class="ct">must</em> pass a valid group of selectors.
+	   If the group of selectors uses namespace prefixes, or if the default
+	   namespace for group of selectors is not the <code>null</code> namespace,
+	   the caller <em class="ct">must</em> also pass in an <code>NSResolver</code>
+	   object that correctly defines the default namespace and/or the namespace
+	   prefixes used. Otherwise, the caller <em class="ct">may</em> set the
+	   <var title="">nsresolver</var> argument to <code>null</code> or omit it
+	   if the language binding permits.</p>
+
+	<p class="note">Authors are advised that while the use of pseudo-elements
+	   in selectors is permitted, they will not match any elements in the
+	   document, and thus would not result in any elements being returned.
+	   Therefore, authors should avoid the use of pseudo-elements in selectors
+	   that are passed to the methods defined in this specification.</p>
+
+	<p>The implementation <em class="ct">must</em> first trim any leading or
+	   trailing whitespace from the value of the <var>selectors</var> parameter.
+	   The implementation <em class="ct">must</em> then process the value
+	   according to <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of Selectors</a>
+	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 10). If
+	   the <var>selectors</var> parameter is set to either <code>null</code> or
+	   <code>undefined</code>, the implementation <em class="ct">must</em>
+	   behave as if an empty string had been passed instead. Selectors are
+	   evaluated against a given element in the context the entire DOM tree in
+	   which the element is located. If the given group of selectors is
+	   <a href="http://www.w3.org/TR/css3-selectors/#Conformance">invalid</a>
+	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 13), the
+	   implementation <em class="ct">must</em>
+	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-SYNTAX_ERR">raise a <code>SYNTAX_ERR</code> exception</a>
+	   ([<cite><a href="#ref-dom3core">DOM3Core</a></cite>], section 1.4).</p>
+
+	<p>If the user agent also supports some level of CSS, the implementation
+	   <em class="ct">should</em> support the same set of selectors in both
+	   these APIs and CSS.</p>
+
 	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
 	   methods <em class="ct">must</em> be static, not
 	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>.
@@ -387,50 +435,57 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   matching <code>Element</code> nodes that were in the document at the time
 	   the list was created.</p>
 
-	<p>Both <code title="document-selectelement">querySelector()</code> and
-	   <code title="document-selectallelements">querySelectorAll()</code> take
-	   a group of selectors (<var>selectors</var>) as the first argument and
-	   optionally an <code>NSResolver</code> (<var title="">nsresolver</var>) as
-	   the second.  The implementation <em class="ct">must</em> process the
-	   <var title="">selectors</var> according to
-	   <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of Selectors</a>
-	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 10).
-	   Selectors are evaluated against a given element in the context the entire
-	   DOM tree in which the element is located.</p>
+		<div class="example">
+			<p>The methods accept a group of selectors (comma separated) as the
+			   argument. The following example would select all <code>p</code>
+			   elements in the document that have a class of either
+			   "<code>error</code>" or "<code>warning</code>".</p>
 
-	<p>If the user agent also supports some level of CSS, the implementation
-	   <em class="ct">should</em> support the same set of selectors in both
-	   these APIs and CSS.</p>
+			<pre>var alerts = document.querySelectorAll("p.warning, p.error");</pre>
 
-	<!-- XXX Can't remember what this note was here for, but it doesn't seem to make sense now
-		<p class="note">This is to ensure that any DOM modifications performed by a
-		   misbehaving namespace resolver have occurred prior to matching any
-		   elements.</p>
-	-->
+			<p>The <code title="document-selectelement">querySelector()</code>
+			   methods also accept a group of selectors and they will return the
+			   first element (if any) that matches any of the selectors in the
+			   group.</p>
 
-	<p class="note">Authors are advised that while the use of pseudo-elements
-	   in selectors is permitted, they will not match any elements in the
-	   document, and thus would not result in any elements being returned.
-	   Therefore, authors should avoid the use of pseudo-elements in selectors
-	   that are passed to the methods defined in this specification.</p>
+			<pre>var x = document.querySelector("#foo, #bar");</pre>
 
-	<p>Implementations <em class="ct">must</em> use the <var title="">nsresolver</var>
-	   argument to <span>get the default namespace</span> for the group of 
-	   selectors and, if the selectors include namespace prefixes, the
-	   implementation must also use it to <span title="resolve-prefixes">resolve those prefixes</span>.
+			<p><var>x</var> would contain the first element in the document with an
+			   ID of either <code>foo</code> or <code>bar</code> (or both).</p>
 
-	<p>If the group of selectors uses namespace prefixes, or if the default
-	   namespace for the group of selectors is not the <code>null</code>
-	   namespace, the caller <em class="ct">must</em> pass in an
-	   <code>NSResolver</code> object. Otherwise, the caller <em class="ct">may</em>
-	   set the argument to <code>null</code> or omit it if the language binding
-	   permits.</p>
+			<p>The methods can also be invoked on elements. In this example, the
+			   method is invoked on an element that is the target of an event
+			   listener.</p>
 
-	<p>If the given group of selectors is <a href="http://www.w3.org/TR/css3-selectors/#Conformance">invalid</a>
-	   ([<cite><a href="#ref-selectors">Selectors</a></cite>], section 13), the
-	   implementation <em class="ct">must</em>
-	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-SYNTAX_ERR">raise a <code>SYNTAX_ERR</code> exception</a>
+			<pre>function handle(evt) {
+	  var x = evt.target.querySelector("span");
+	  ...
+	  // Do something with x
+	}</pre>
+		</div>
+
+
+	<h3>Resolving Namespaces</h3>
+
+	<p>Support for resolving namespaces is <em class="ct">optional</em>.</p>
+	
+	<p>If the implementation does not support resolving namespaces, then when
+	   the <var>nsesolver</var> parameter is provided and it is not set to
+	   either <code>null</code> or <code>undefined</code>, the implementation
+	   <em class="ct">must</em> 
+	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-NOT_SUPPORTED_ERR">raise a <code>NOT_SUPPORTED_ERR</code> exception</a>.
 	   ([<cite><a href="#ref-dom3core">DOM3Core</a></cite>], section 1.4).</p>
+
+	<p>If the implementation does support resolving namespaces, then the
+	   implementation <em class="ct">must</em> use the <var title="">nsresolver</var>
+	   to <span>get the default namespace</span> for the group of selectors.
+	   If the group of selectors include namespace prefixes, the implementation
+	   must also use it to <span title="resolve-prefixes">resolve those prefixes</span>.
+
+	<p>For languages that support optional arguments for methods, such as
+	   ECMAScript, if the <var title="">nsresolver</var> argument is omitted,
+	   the implementation <em class="ct">must</em> act as if the
+	   <var title="">nsresolver</var> argument was set to <code>null</code>.</p>
 
 	<p>An <dfn>unresolvable namespace</dfn> is a namespace that cannot be
 	   resolved because there was no <code>NSResolver</code> provided or the
@@ -445,45 +500,52 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   prefixes. The default namespace will always resolve as either the null
 	   namespace or the value returned by the <code>NSResolver</code>.</p>
 
+	<p>To <dfn>get the default namespace</dfn>, if there was an <code>NSResolver</code>
+	   object provided, implementations <em class="ct">must</em> invoke the
+	   <code>lookupNamespaceURI()</code> method with the empty string as the
+	   argument. If there is no <code>NSResolver</code> object provided, or if
+	   the method returns an empty string, then there is no default namespace.
+	   Otherwise, the return value is the default namespace.</p>
+
+	<p>To <dfn title="resolve-prefixes">resolve namespace prefixes</dfn>, if
+	   there was an <code>NSResolver</code> object provided, implementations
+	   <em class="ct">must</em> pass the prefix, preserving case, to the
+	   <code>lookupNamespaceURI()</code> method. Implementations <em class="ct">must</em>
+	   handle prefixes case sensitively. If there was no <code>NSResolver</code>
+	   object provided, or if the method returns an empty string, the prefix
+	   represents an <span>unresolvable namespace</span>. Otherwise, the return
+	   value is the namespace for the given prefix.</p>
+
+	<p class="note">Although prefixes are case sensitive, there are no
+	   restrictions imposed by this specification on how the implementation of
+	   the <code>NSResolver</code> object may handle them internally. Thus,
+	   while the resolver may handle them case insensitively, such an approach
+	   is effectively the same as declaring all case variants of the prefix with
+	   the same namespace URI.</p>
+
+	<p id="convert-value">While resolving either a prefix or the default
+	   namespace, if the <code>lookupNamespaceURI()</code> method returns
+	   <code>null</code> or <code>undefined</code>, the implementation
+	   <em class="ct">must</em> act as if an empty string had been returned.
+	   If the method returns an object other than a string, the object
+	   <em class="ct">must</em> be converted to a string and the
+	   implementation must act as if the resulting string had been returned
+	   instead. The method to convert an object to a string is dependent upon
+	   the language used. For example, in ECMAScript, this is achieved by
+	   invoking the <code>toString()</code> method on the object.</p>
+
 	<p>If an exception is raised by the <code>NSResolver</code> while resolving
 	   namespaces, processing <em class="ct">must</em> be aborted and the
 	   exception propagated to the caller.</p>
 
-	<p>For languages that support optional arguments for methods, such as
-	   ECMAScript, if the <var title="">nsresolver</var> argument is omitted,
-	   the implementation <em class="ct">must</em> act as if the
-	   <var title="">nsresolver</var> argument was set to <code>null</code>.</p>
+	<p>In the algorithms to <span>resolve namespace prefixes</span> or to
+	   <span>get the default namespace</span>, if the implementation is passed a
+	   <code>Function</code> (in language bindings such as ECMAScript that
+	   support this) instead of an object implementing the <code>NSResolver</code>
+	   interface, it must instead invoke the function itself instead of the
+	   <code>lookupNamespaceURI()</code> method.</p>
 
-	<div class="example">
-		<p>The methods accept a group of selectors (comma separated) as the
-		   argument. The following example would select all <code>p</code>
-		   elements in the document that have a class of either
-		   "<code>error</code>" or "<code>warning</code>".</p>
-
-		<pre>var alerts = document.querySelectorAll("p.warning, p.error");</pre>
-
-		<p>The <code title="document-selectelement">querySelector()</code>
-		   methods also accept a group of selectors and they will return the
-		   first element (if any) that matches any of the selectors in the
-		   group.</p>
-
-		<pre>var x = document.querySelector("#foo, #bar");</pre>
-
-		<p><var>x</var> would contain the first element in the document with an
-		   ID of either <code>foo</code> or <code>bar</code> (or both).</p>
-
-		<p>The methods can also be invoked on elements. In this example, the
-		   method is invoked on an element that is the target of an event
-		   listener.</p>
-
-		<pre>function handle(evt) {
-  var x = evt.target.querySelector("span");
-  ...
-  // Do something with x
-}</pre>
-	</div>
-
-	<h3 id="nsresolver-interface">The <code title="">NSResolver</code> Interface</h3>
+	<h3 id="nsresolver-interface">The <code>NSResolver</code> Interface</h3>
 
 	<p>The <code>NSResolver</code> interface allows prefixes to be bound to a
 	   namespace URI.</p>
@@ -548,49 +610,11 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p class="note">Authors are <em>strongly discouraged</em> from writing an
 	   <code>NSResolver</code> that returns inconsistent results.</p>
 
-	<p>To <dfn title="resolve-prefixes">resolve namespace prefixes</dfn>, if
-	   there was an <code>NSResolver</code> object provided, implementations
-	   <em class="ct">must</em> pass the prefix, preserving case, to the
-	   <code>lookupNamespaceURI()</code> method. Implementations <em class="ct">must</em>
-	   handle prefixes case sensitively. If there was no <code>NSResolver</code>
-	   object provided, or if the method returns an empty string, the prefix
-	   represents an <span>unresolvable namespace</span>. Otherwise, the return
-	   value is the namespace for the given prefix.</p>
-
-	<p class="note">Although prefixes are case sensitive, there are no
-	   restrictions imposed by this specification on how the implementation of
-	   the <code>NSResolver</code> object may handle them internally. Thus,
-	   while the resolver may handle them case insensitively, such an approach
-	   is effectively the same as declaring all case variants of the prefix with
-	   the same namespace URI.</p>
-
-	<p>To <dfn>get the default namespace</dfn>, if there was an <code>NSResolver</code>
-	   object provided, implementations <em class="ct">must</em> invoke the
-	   <code>lookupNamespaceURI()</code> method with the empty string as the
-	   argument. If there is no <code>NSResolver</code> object provided, or if
-	   the method returns an empty string, then there is no default namespace.
-	   Otherwise, the return value is the default namespace.</p>
-
-	<p id="convert-value">While resolving either a prefix or the default
-	   namespace, if the <code>lookupNamespaceURI()</code> method returns
-	   <code>null</code> or <code>undefined</code>, the implementation
-	   <em class="ct">must</em> act as if an empty string had been returned.
-	   If the method returns an object other than a string, the object
-	   <em class="ct">must</em> be converted to a string and the
-	   implementation must act as if the resulting string had been returned
-	   instead. The method to convert an object to a string is dependent upon
-	   the language used. For example, in ECMAScript, this is achieved by
-	   invoking the <code>toString()</code> method on the object.</p>
 
 	<p>For ECMAScript, this object <em class="ct">may</em> be implemented as a
 	   <code>Function</code> and implementations <em class="ct">must</em>
 	   support the <code>NSResolver</code> being implemented as either a
-	   <code>Function</code> or an <code>Object</code>. In the algorithms to
-	   <span>resolve namespace prefixes</span> or to <span>get the default
-	   namespace</span>, if the implementation is passed a <code>Function</code>
-	   instead of an object implementing the <code>NSResolver</code> interface,
-	   it must instead invoke the function itself instead of the
-	   <code>lookupNamespaceURI()</code> method.</p>
+	   <code>Function</code> or an <code>Object</code>.</p>
 
 	<p>The number of times that an implementation <em class="ct">may</em> invoke
 	   the <code>lookupNamespaceURI()</code> method with each prefix and the
