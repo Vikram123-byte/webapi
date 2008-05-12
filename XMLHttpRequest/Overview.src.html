@@ -313,7 +313,8 @@ client.send();</code></pre>
   
   <p>Apart from requirements affecting security made throughout this
   specification implementations <em class="ct">may</em>, at their
-  discretion, not expose certain headers, such as HttpOnly cookies.</p>
+  discretion, not expose certain headers, such as headers containing
+  HttpOnly cookies.</p>
 
 
 
@@ -353,7 +354,7 @@ client.send();</code></pre>
 
   <div class="example">
    <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
-   object <var><code>client</code></var> will have a pointer to
+   object, <var><code>client</code></var> will have a pointer to
    <var><code>iframe.document</code></var> in the following example:</p>
 
    <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
@@ -590,7 +591,7 @@ client.send();</code></pre>
      <li><p>If <var>stored method</var>
      <span title="case-insensitive match">case-insensitively matches</span>
      <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
-     <code>HEAD</code>, <code>OPTIONS</code> <code>POST</code>,
+     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
      <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
      <var>stored method</var> be the canonical uppercase form of the matched
      method name.</p></li>
@@ -665,9 +666,15 @@ client.send();</code></pre>
      <li><p>If the <var>password</var> argument was not omitted and is
      <code>null</code> remove <var>stored password</var>.</p></li>
 
-     <li><p><span title="abort send()">Abort the <code>send()</code>
-     algorithm</span>, set <span>response entity body</span> to "null" and
-     reset the list of request headers.<p></li>
+     <li>
+      <p><span title="abort send()">Abort the <code>send()</code>
+      algorithm</span>, set <span>response entity body</span> to "null" and
+      reset the list of request headers.<p>
+
+      <p class="note">This step and the next only has effect if
+      <code>send()</code> and/or <code>setRequestHeader()</code> has been
+      used.</p>
+     </li>
 
      <li><p>The user agent <em class="ct">should</em> cancel any network
      activity for which the object is responsible.</p></li>
@@ -854,8 +861,8 @@ X-Test: one, two
         is <code>null</code>.</p>
 
         <p>If no <code>Content-Type</code> header has been set using
-        <code>setRequestHeader()</code> append a <code>Content-Type</code>
-        header to the list of request headers with a value of
+        <code>setRequestHeader()</code> set a <code>Content-Type</code>
+        request header with a value of
         <code>application/xml;charset=<var>charset</var></code> where
         <var>charset</var> is the encoding used to encode the document.</p>
 
@@ -895,7 +902,7 @@ X-Test: one, two
      algorithm though.)</p></li>
 
      <li>
-      <p>While downloading the resource the following rules are to be
+      <p>While executing the request the following rules are to be
       observed.</p>
 
       <dl class="switch">
@@ -1084,10 +1091,9 @@ X-Test: one, two
     <code>Accept-Charset</code> headers as appropriate.
     Unless set through <code>setRequestHeader()</code> user agents
     <em class="ct">should</em> set the <code>Accept</code> and
-    <code>Accept-Language</code> headers as well. Responses to such requests
-    <em class="ct">must</em> have the
-    content-encodings automatically decoded.
-    [<cite><span>RFC2616</span></cite>]</p>
+    <code>Accept-Language</code> headers as well. Responses
+    <em class="ct">must</em> have the content-encodings automatically
+    decoded. [<cite><span>RFC2616</span></cite>]</p>
    </dd>
 
    <dt><dfn id="abort"><code>abort()</code></dfn>, method</dt>
@@ -1457,6 +1463,7 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
   Jonas Sicking,
   Julian Reschke,
   Karl Dubost,
+  Lachlan Hunt,
   Maciej Stachowiak,
   Magnus Kristiansen,
   Marc Hadley,

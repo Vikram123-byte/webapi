@@ -380,7 +380,7 @@ client.send();</code></pre>
 
   <p>Apart from requirements affecting security made throughout this
    specification implementations <em class=ct>may</em>, at their discretion,
-   not expose certain headers, such as HttpOnly cookies.
+   not expose certain headers, such as headers containing HttpOnly cookies.
 
   <h2 id=xmlhttprequest><span class=secno>4. </span>The <code
    title="">XMLHttpRequest</code> Object</h2>
@@ -420,7 +420,7 @@ client.send();</code></pre>
 
   <div class=example>
    <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
-    object <var><code>client</code></var> will have a pointer to
+    object, <var><code>client</code></var> will have a pointer to
     <var><code>iframe.document</code></var> in the following example:</p>
 
    <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
@@ -686,7 +686,7 @@ client.send();</code></pre>
       <p>If <var>stored method</var> <a href="#case-insensitive-match"
        title="case-insensitive match">case-insensitively matches</a>
        <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
-       <code>HEAD</code>, <code>OPTIONS</code> <code>POST</code>,
+       <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
        <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
        <var>stored method</var> be the canonical uppercase form of the
        matched method name.
@@ -786,6 +786,10 @@ client.send();</code></pre>
        reset the list of request headers.
 
       <p>
+
+      <p class=note>This step and the next only has effect if <code><a
+       href="#send">send()</a></code> and/or <code><a
+       href="#setrequestheader">setRequestHeader()</a></code> has been used.</p>
 
      <li>
       <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -1001,11 +1005,10 @@ X-Test: one, two
          is <code>null</code>.</p>
 
         <p>If no <code>Content-Type</code> header has been set using <code><a
-         href="#setrequestheader">setRequestHeader()</a></code> append a
-         <code>Content-Type</code> header to the list of request headers with
-         a value of <code>application/xml;charset=<var>charset</var></code>
-         where <var>charset</var> is the encoding used to encode the
-         document.</p>
+         href="#setrequestheader">setRequestHeader()</a></code> set a
+         <code>Content-Type</code> request header with a value of
+         <code>application/xml;charset=<var>charset</var></code> where
+         <var>charset</var> is the encoding used to encode the document.</p>
 
         <p class=note>Subsequent changes to the <code>Document</code> have no
          effect on what is submitted.</p>
@@ -1044,8 +1047,7 @@ X-Test: one, two
        steps in the algorithm though.)
 
      <li>
-      <p>While downloading the resource the following rules are to be
-       observed.</p>
+      <p>While executing the request the following rules are to be observed.</p>
 
       <dl class=switch>
        <dt>If the response is an HTTP redirect
@@ -1251,8 +1253,8 @@ X-Test: one, two
      <code>Accept-Charset</code> headers as appropriate. Unless set through
      <code><a href="#setrequestheader">setRequestHeader()</a></code> user
      agents <em class=ct>should</em> set the <code>Accept</code> and
-     <code>Accept-Language</code> headers as well. Responses to such requests
-     <em class=ct>must</em> have the content-encodings automatically decoded.
+     <code>Accept-Language</code> headers as well. Responses <em
+     class=ct>must</em> have the content-encodings automatically decoded.
      [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
 
    <dt><dfn id=abort><code>abort()</code></dfn>, method
@@ -1629,11 +1631,11 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
    Harold, Eric Lawrence, Geoffrey Sneddon, Gideon Cohn, Gorm Haug Eriksen,
    Hallvord R. M. Steen, H&aring;kon Wium Lie, Ian Davis, Ian Hickson, Ivan
    Herman, Jeff Walden, Jens Lindstr&ouml;m, Jim Deegan, Jim Ley, Joe Farro,
-   Jonas Sicking, Julian Reschke, Karl Dubost, Maciej Stachowiak, Magnus
-   Kristiansen, Marc Hadley, Marcos Caceres, Mark Baker, Mark Nottingham,
-   Mohamed Zergaoui, Pawel Glowacki, Robin Berjon, Ruud Steltenpool, Simon
-   Pieters, Stewart Brodie, Sunava Dutta, Tom Magliery and Zhenbin Xu for
-   their contributions to this specification.
+   Jonas Sicking, Julian Reschke, Karl Dubost, Lachlan Hunt, Maciej
+   Stachowiak, Magnus Kristiansen, Marc Hadley, Marcos Caceres, Mark Baker,
+   Mark Nottingham, Mohamed Zergaoui, Pawel Glowacki, Robin Berjon, Ruud
+   Steltenpool, Simon Pieters, Stewart Brodie, Sunava Dutta, Tom Magliery and
+   Zhenbin Xu for their contributions to this specification.
 
   <p>Special thanks to the Microsoft employees who first implemented the
    <code title="">XMLHttpRequest</code> interface, which was first widely
