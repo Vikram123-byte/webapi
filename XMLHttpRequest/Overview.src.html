@@ -235,7 +235,7 @@ client.send();</code></pre>
    <dt>DOM</dt>
 
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
-   <em class="ct">must</em> support some subset of the functionality
+   <em class="ct">must</em> support at least the subset of the functionality
    defined in DOM Events and DOM Core that this specification relies upon.
    [<cite><span>DOM2Events</span></cite>]
    [<cite><span>DOM3Core</span></cite>]</p></dd>
@@ -598,10 +598,15 @@ client.send();</code></pre>
      <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
      M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
-     <li><p>If <var>stored method</var> is one of <code>CONNECT</code>,
-     <code>TRACE</code>, or <code>TRACK</code> the user agent
-     <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
-     and terminate these steps.</p></li>
+     <li>
+      <p>If <var>stored method</var> is one of <code>CONNECT</code>,
+      <code>TRACE</code>, or <code>TRACK</code> the user agent
+      <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
+      and terminate these steps.</p>
+    
+      <p class="note"><code>TRACK</code> poses a security issue to legacy
+      server deployments.</p>
+     </li>
 
      <li><p>Drop the fragment identifier (if any) from <var>url</var> and let
      <var>stored url</var> be the result of that operation.</p></li>
@@ -740,8 +745,11 @@ client.send();</code></pre>
       <ul>
        <li><code>Accept-Charset</code></li>
        <li><code>Accept-Encoding</code></li>
+       <li><code>Authorization</code></li>
        <li><code>Connection</code></li>
        <li><code>Content-Length</code></li>
+       <li><code>Cookie</code></li>
+       <li><code>Cookie2</code></li>
        <li><code>Content-Transfer-Encoding</code></li>
        <li><code>Date</code></li>
        <li><code>Expect</code></li>
@@ -979,9 +987,10 @@ X-Test: one, two
        <dt>In case of network errors</dt>
 
        <dd>
-        <p>In case of DNS errors, or other type of network errors, run the
-        following set of steps. <span class="note">This does not include HTTP
-        responses that indicate some type of error, such as HTTP status code
+        <p>In case of DNS errors, timeout, TLS negotiation failure, or other
+        type of network errors, run the following set of steps.
+        <span class="note">This does not include HTTP responses that
+        indicate some type of error, such as HTTP status code
         410.</span></p>
 
         <ol>
