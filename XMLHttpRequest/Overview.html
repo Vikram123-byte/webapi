@@ -1252,10 +1252,12 @@ X-Test: one, two
      no-cache</code> bypasses the cache). It <em class=ct>must not</em> send
      <code>Cache-Control</code> or <code>Pragma</code> request headers
      automatically unless the user explicitly requests such behavior
-     (<abbr>e.g.</abbr>, by (force-)reloading the page). <code>304 Not
-     Modified</code> responses that are a result of a user agent generated
-     conditional request <em class=ct>must</em> be presented as <code>200
-     OK</code> responses with the appropriate content. The user agent <em
+     (<abbr>e.g.</abbr>, by (force-)reloading the page).</p>
+
+    <p>For <code>304 Not Modified</code> responses that are a result of a
+     user agent generated conditional request the user agent <em
+     class=ct>must</em> act as if the server gave a <code>200 OK</code>
+     response with the appropriate content. The user agent <em
      class=ct>must</em> allow scripts to override automatic cache validation
      by setting request headers (e.g., <code>If-None-Match</code>,
      <code>If-Modified-Since</code>), in which case <code>304 Not
@@ -1343,7 +1345,7 @@ var client = new XMLHttpRequest();
 client.open("GET", "test.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 3) {
+ if(this.readyState == 2) {
   print(this.getAllResponseHeaders());
  }
 }
@@ -1404,7 +1406,7 @@ var client = new XMLHttpRequest();
 client.open("GET", "test.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 3) {
+ if(this.readyState == 2) {
   print(client.getResponseHeader("Content-Type"));
  }
 }
@@ -1463,8 +1465,9 @@ text/plain; charset=utf-8</code></pre>
    <dd>
     <p>On getting, if available, it <em class=ct>must</em> return the HTTP
      status text sent by the server (appears after the status code).
-     Otherwise, if not available, the user agent <em class=ct>must</em> raise
-     an <code>INVALID_STATE_ERR</code> exception.</p>
+     Otherwise, if not available (request is not initiated for instance), the
+     user agent <em class=ct>must</em> raise an
+     <code>INVALID_STATE_ERR</code> exception.</p>
   </dl>
 
   <h3 id=events><span class=secno>4.1 </span>Events for the <code
