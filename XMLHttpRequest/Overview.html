@@ -32,13 +32,13 @@
    <h1 class=head id=the-xmlhttprequest-object>The <code
     title="">XMLHttpRequest</code> Object</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 16 May 2008</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 26 May 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080516/">http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080516/</a>
+     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080526/">http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080526/</a>
 
     <dt>Latest Version:
 
@@ -109,7 +109,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 16 May 2008 Last Call Working Draft of The <code
+  <p>This is the 26 May 2008 Last Call Working Draft of The <code
    title="">XMLHttpRequest</code> Object specification. Please send comments
    to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
@@ -349,6 +349,13 @@ client.send();</code></pre>
 
     <p>Other requirements regarding HTTP are made throughout the
      specification. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
+
+   <dt>Web IDL
+
+   <dd>A <a href="#conforming-user-agent">conforming user agent</a> <em
+    class=ct>must</em> also be a conforming implementation of the IDL
+    fragment in this specification, as described in the Web IDL
+    specification. [<cite><span>WebIDL</span></cite>]
   </dl>
 
   <h3 id=terminology><span class=secno>2.2 </span>Terminology</h3>
@@ -429,7 +436,7 @@ client.send();</code></pre>
   </div>
 
   <pre
-   class=idl>interface <dfn id=xmlhttprequest-object>XMLHttpRequest</dfn> {
+   class=idl>[Constructor] interface <dfn id=xmlhttprequest-object>XMLHttpRequest</dfn> {
   // event handler
            attribute EventListener <a href="#onreadystatechange">onreadystatechange</a>;
 
@@ -444,11 +451,11 @@ client.send();</code></pre>
   // request
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>);
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
   void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
   void <a href="#send">send</a>();
-  void <a href="#send">send</a>(in DOMString <var>data</var>);
+  void <a href="#send">send</a>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
   void <a href="#send">send</a>(in Document <var>data</var>);
   void <a href="#abort">abort</a>();
 
@@ -845,15 +852,9 @@ client.send();</code></pre>
      <li>
       <p>If the <var>header</var> argument does not match the <dfn
        id=field-name><code>field-name</code> production</dfn> as defined by
-       section 4.2 of RFC 2616 or is <code>null</code> raise a
-       <code>SYNTAX_ERR</code> exception and terminate these steps. [<cite><a
+       section 4.2 of RFC 2616 raise a <code>SYNTAX_ERR</code> exception and
+       terminate these steps. [<cite><a
        href="#ref-rfc2616">RFC2616</a></cite>]
-
-     <li>
-      <p>If the <var>value</var> argument is <code>null</code> terminate
-       these steps. (Do not raise an exception.)
-     </li>
-     <!-- undefined is to be treated as null here... -->
 
      <li>
       <p>If the <var>value</var> argument does not match the <dfn
@@ -1010,12 +1011,16 @@ X-Test: one, two
        <dt><var>data</var> is a <code>Document</code>
 
        <dd>
-        <p>Serialize <var>data</var> into a namespace well-formed XML
-         document and encoded using the encoding given by
-         <code><var>data</var>.inputEncoding</code>, when not
-         <code>null</code>, or UTF-8 otherwise. Or, if this fails because the
-         <code>Document</code> cannot be serialized act as if <var>data</var>
-         is <code>null</code>.</p>
+        <p>Let <var>data</var> be <code><var>data</var>.innerHTML</code> as
+         defined by section 2.5.3 of HTML&nbsp;5. Encode it using
+         <code><var>data</var>.inputEncoding</code> or UTF-8 if that is
+         <code>null</code>. Re-raise any exceptions the
+         <code><var>data</var>.innerHTML</code> getter algorithm raises.
+         [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
+
+        <p class=note>If the document cannot be serialized the
+         <code>document.innerHTML</code> algorithm raises an
+         <code>INVALID_STATE_ERR</code> exception.</p>
 
         <p>If no <code>Content-Type</code> header has been set using <code><a
          href="#setrequestheader">setRequestHeader()</a></code> set a
@@ -1640,6 +1645,11 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized Resource
     Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard, editors. IETF,
     January 2005.
+
+   <dt>[<dfn id=ref-webidl>Web IDL</dfn>]
+
+   <dd><cite><a href="http://dev.w3.org/2006/webapi/Binding4DOM/">Web
+    IDL</a></cite> (editor's draft), C. McCormack, editor. W3C, 2008.
 
    <dt>[<dfn id=ref-xml>XML</dfn>]
 
