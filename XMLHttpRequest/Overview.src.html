@@ -124,18 +124,20 @@
 
   <p><em>This section is non-normative.</em></p>
 
-  <p>The <code>XMLHttpRequest</code> object implements an interface exposed by
-  a scripting engine that allows scripts to perform HTTP client functionality,
-  such as submitting form data or loading data from a server.</p>
+  <p>The <code>XMLHttpRequest</code> object implements an interface exposed
+  by a scripting engine that allows scripts to perform HTTP client
+  functionality, such as submitting form data or loading data from a
+  server. It is the ECMAScript HTTP API.</p>
 
   <p>The name of the object is <code>XMLHttpRequest</code> for compatibility
-  with the Web, though each component of this name is potentially misleading.
-  First, the object supports any text based format, including XML. Second, it
-  can be used to make requests over both HTTP and HTTPS (some implementations
-  support protocols in addition to HTTP and HTTPS, but that functionality is
-  not covered by this specification). Finally, it supports "requests" in a
-  broad sense of the term as it pertains to HTTP; namely all activity involved
-  with HTTP requests or responses for the defined HTTP methods.</p>
+  with the Web, though each component of this name is potentially
+  misleading. First, the object supports any text based format, including
+  XML. Second, it can be used to make requests over both HTTP and HTTPS
+  (some implementations support protocols in addition to HTTP and HTTPS, but
+  that functionality is not covered by this specification). Finally, it
+  supports "requests" in a broad sense of the term as it pertains to HTTP;
+  namely all activity involved with HTTP requests or responses for the
+  defined HTTP methods.</p>
 
   <div class="example">
    <p>Some simple code to do something with data from an XML document fetched
@@ -597,13 +599,18 @@ client.send();</code></pre>
      RFC 2616, raise a <code>SYNTAX_ERR</code> exception and terminate these
      steps. [<cite><span>RFC2616</span></cite>]</p></li>
 
-     <li><p>If <var>stored method</var>
-     <span title="case-insensitive match">case-insensitively matches</span>
-     <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
-     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
-     <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
-     <var>stored method</var> be the canonical uppercase form of the matched
-     method name.</p></li>
+     <li>
+      <p>If <var>stored method</var>
+      <span title="case-insensitive match">case-insensitively matches</span>
+      <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
+      <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
+      <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
+      <var>stored method</var> be the canonical uppercase form of the
+      matched method name.</p>
+      
+      <p class="note">If it does not match any of the above, it is passed
+      through literally, including in the final request.</p>
+     </li>
      <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
      M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
@@ -847,7 +854,8 @@ X-Test: one, two
      <span><code>send()</code> flag</span> to "true".</p></li>
 
      <li>
-      <p>If <var>stored method</var> is <code>GET</code> act as if the
+      <p>If <var>stored method</var> is <code>GET</code> or
+      <code>HEAD</code> act as if the
       <var>data</var> argument is <code>null</code>.</p>
 
       <p>If the <var>data</var> argument has not been omitted and is not
@@ -871,15 +879,16 @@ X-Test: one, two
        <dd>
         <p>Let <var>data</var> be <code><var>data</var>.innerHTML</code> as
         defined by section 2.5 of HTML&nbsp;5. Encode it using
-        <code><var>data</var>.inputEncoding</code> or UTF-8 if that is
+        <code><var>data</var>.inputEncoding</code> or UTF-8 if
+        <code><var>data</var>.inputEncoding</code> is
         <code>null</code>. Re-raise any exceptions the
         <code><var>data</var>.innerHTML</code> getter algorithm raises.
         [<cite><span>HTML5</span></cite>]</p>
-        
+
         <p class="note">If the document cannot be serialized the
         <code>document.innerHTML</code> algorithm raises an
         <code>INVALID_STATE_ERR</code> exception.</p>
-        
+
         <p>If no <code>Content-Type</code> header has been set using
         <code>setRequestHeader()</code> set a <code>Content-Type</code>
         request header with a value of

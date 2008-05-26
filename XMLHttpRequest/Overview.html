@@ -188,7 +188,7 @@
   <p>The <code><a href="#xmlhttprequest-object">XMLHttpRequest</a></code>
    object implements an interface exposed by a scripting engine that allows
    scripts to perform HTTP client functionality, such as submitting form data
-   or loading data from a server.
+   or loading data from a server. It is the ECMAScript HTTP API.
 
   <p>The name of the object is <code><a
    href="#xmlhttprequest-object">XMLHttpRequest</a></code> for compatibility
@@ -698,7 +698,10 @@ client.send();</code></pre>
        <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
        <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
        <var>stored method</var> be the canonical uppercase form of the
-       matched method name.
+       matched method name.</p>
+
+      <p class=note>If it does not match any of the above, it is passed
+       through literally, including in the final request.</p>
      </li>
      <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
      M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
@@ -990,8 +993,8 @@ X-Test: one, two
        href="#send-flag"><code>send()</code> flag</a> to "true".
 
      <li>
-      <p>If <var>stored method</var> is <code>GET</code> act as if the
-       <var>data</var> argument is <code>null</code>.</p>
+      <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
+       act as if the <var>data</var> argument is <code>null</code>.</p>
 
       <p>If the <var>data</var> argument has not been omitted and is not
        <code>null</code> use it for the <dfn id=entity-body>entity body</dfn>
@@ -1013,10 +1016,11 @@ X-Test: one, two
        <dd>
         <p>Let <var>data</var> be <code><var>data</var>.innerHTML</code> as
          defined by section 2.5 of HTML&nbsp;5. Encode it using
-         <code><var>data</var>.inputEncoding</code> or UTF-8 if that is
-         <code>null</code>. Re-raise any exceptions the
-         <code><var>data</var>.innerHTML</code> getter algorithm raises.
-         [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
+         <code><var>data</var>.inputEncoding</code> or UTF-8 if
+         <code><var>data</var>.inputEncoding</code> is <code>null</code>.
+         Re-raise any exceptions the <code><var>data</var>.innerHTML</code>
+         getter algorithm raises. [<cite><a
+         href="#ref-html5">HTML5</a></cite>]</p>
 
         <p class=note>If the document cannot be serialized the
          <code>document.innerHTML</code> algorithm raises an
