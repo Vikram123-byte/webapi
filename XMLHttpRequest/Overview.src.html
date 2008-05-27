@@ -419,7 +419,7 @@ client.send();</code></pre>
   whose value is <code>1</code>.</p>
 
   <p>The OPENED state has an associated <dfn id="send-flag"><code>send()</code>
-  flag</dfn> which indicates whether the <code>send()</code> method has been
+  flag</dfn> that indicates whether the <code>send()</code> method has been
   invoked. It can be either "true" or "false" and has an initial value of
   "false".</p>
 
@@ -440,7 +440,7 @@ client.send();</code></pre>
   whose value is <code>4</code>.</p>
 
   <p>The DONE state has an associated <dfn id="error-flag">error flag</dfn>
-  which indicates some type of network error or abortion. It can be either
+  that indicates some type of network error or abortion. It can be either
   "true" or "false" and has an initial value of "false".</p>
 
   <p>The <dfn id="response-entity-body">response entity body</dfn> is the
@@ -466,7 +466,7 @@ client.send();</code></pre>
    forth in the XML specifications to determine the character encoding. Let
    <var>charset</var> be the determined character encoding.</p></li>
 
-   <li><p>If there is a <code>Content-Type</code> header which contains a
+   <li><p>If the <code>Content-Type</code> header contains a
    <code>text/html</code> MIME type follow the rules set forth in the
    HTML&nbsp;5 specification to determine the character encoding. Let
    <var>charset</var> be the determined character encoding.
@@ -527,8 +527,8 @@ client.send();</code></pre>
    character.</p></li>
   </ol>
 
-  <p class="note">Authors are encouraged to simply encode their resources
-  using UTF-8.</p>
+  <p class="note">Authors are encouraged to encode their resources using
+  UTF-8.</p>
 
   <p>The <dfn id="xml-response-entity-body">XML response entity body</dfn> is
   either a <code>Document</code> representing the <span>response entity
@@ -573,8 +573,9 @@ client.send();</code></pre>
    <dt><dfn id="readystate"><code>readyState</code></dfn> of type
    <code>unsigned short</code>, readonly</dt>
 
-   <dd><p>On getting the attribute <em class="ct">must</em> return the value
-   of the constant corresponding to the object's current state.</p></dd>
+   <dd><p>On getting, the attribute <em class="ct">must</em> return the
+   value of the constant corresponding to the object's current
+   state.</p></dd>
 
    <dt><dfn id="open" title="open"><code>open(<var>method</var>,
    <var>url</var>, <var>async</var>, <var>user</var>,
@@ -1100,8 +1101,14 @@ X-Test: one, two
     object to be part of the protection space that includes the accessed
     URIs and send <code>Authorization</code> headers and handle <code>401
     Unauthorized</code> requests appropriately. If authentication fails,
-    user agents <em class="ct">should</em> prompt the users for credentials.
+    and <var>stored user</var> and <var>stored password</var> are not
+    provided, user agents <em class="ct">should</em> prompt the users for
+    credentials.
     [<cite><span>RFC2617</span></cite>]</p>
+
+    <p class="note">Users are not prompted if credentials are provided
+    through the <code>open()</code> API so that authors can implement their
+    own user interface.</p>
 
     <p>If the user agent supports HTTP State Management it
     <em class="ct">should</em> persist, discard and send cookies (as received
@@ -1141,10 +1148,11 @@ X-Test: one, two
     content-encodings automatically decoded.
     [<cite><span>RFC2616</span></cite>]</p>
     
-    <p>User agents <em class="ct">should not</em> include request headers
-    other than those indicate above or other than those authors are not
-    allowed to set using <code>setRequestHeader()</code>. This ensures that
-    authors have a reasonably predictable API.</p>
+    <p>Besides the <span>author request headers</span> user agents
+    <em class="ct">should not</em> include additional request headers other
+    than those mentioned above or other than those authors are not allowed
+    to set using <code>setRequestHeader()</code>. This ensures that authors
+    have a reasonably predictable API.</p>
    </dd>
 
    <dt><dfn id="abort"><code>abort()</code></dfn>, method</dt>
@@ -1356,7 +1364,7 @@ text/plain; charset=utf-8</code></pre>
   
   <p>Several algorithms in this specification may result in an exception
   being thrown. These exceptions are all part of the group
-  <code>ExceptionCode</code> and use the <code>DOMException</code> object
+  <code>ExceptionCode</code> and use the <code>DOMException</code> object,
   which is defined in DOM Level 3 Core. In addition this specification
   extends the <code>ExceptionCode</code> group with several new
   constants as indicated below. [<cite><span>DOM3Core</span></cite>]</p>

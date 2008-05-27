@@ -487,7 +487,7 @@ client.send();</code></pre>
    state"><code>OPENED</code></dfn> constant, whose value is <code>1</code>.
 
   <p>The OPENED state has an associated <dfn id=send-flag><code>send()</code>
-   flag</dfn> which indicates whether the <code><a
+   flag</dfn> that indicates whether the <code><a
    href="#send">send()</a></code> method has been invoked. It can be either
    "true" or "false" and has an initial value of "false".
 
@@ -509,7 +509,7 @@ client.send();</code></pre>
    value is <code>4</code>.
 
   <p>The DONE state has an associated <dfn id=error-flag>error flag</dfn>
-   which indicates some type of network error or abortion. It can be either
+   that indicates some type of network error or abortion. It can be either
    "true" or "false" and has an initial value of "false".
 
   <p>The <dfn id=response-entity-body>response entity body</dfn> is the
@@ -539,7 +539,7 @@ client.send();</code></pre>
      <var>charset</var> be the determined character encoding.
 
    <li>
-    <p>If there is a <code>Content-Type</code> header which contains a
+    <p>If the <code>Content-Type</code> header contains a
      <code>text/html</code> MIME type follow the rules set forth in the
      HTML&nbsp;5 specification to determine the character encoding. Let
      <var>charset</var> be the determined character encoding. [<cite><a
@@ -610,8 +610,7 @@ client.send();</code></pre>
      character.
   </ol>
 
-  <p class=note>Authors are encouraged to simply encode their resources using
-   UTF-8.
+  <p class=note>Authors are encouraged to encode their resources using UTF-8.
 
   <p>The <dfn id=xml-response-entity-body>XML response entity body</dfn> is
    either a <code>Document</code> representing the <a
@@ -662,7 +661,7 @@ client.send();</code></pre>
     <code>unsigned short</code>, readonly
 
    <dd>
-    <p>On getting the attribute <em class=ct>must</em> return the value of
+    <p>On getting, the attribute <em class=ct>must</em> return the value of
      the constant corresponding to the object's current state.
 
    <dt><dfn id=open title=open><code>open(<var>method</var>, <var>url</var>,
@@ -1263,9 +1262,14 @@ X-Test: one, two
      class=ct>should</em> consider requests originating from this object to
      be part of the protection space that includes the accessed URIs and send
      <code>Authorization</code> headers and handle <code>401
-     Unauthorized</code> requests appropriately. If authentication fails,
+     Unauthorized</code> requests appropriately. If authentication fails, and
+     <var>stored user</var> and <var>stored password</var> are not provided,
      user agents <em class=ct>should</em> prompt the users for credentials.
      [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]</p>
+
+    <p class=note>Users are not prompted if credentials are provided through
+     the <code><a href="#open">open()</a></code> API so that authors can
+     implement their own user interface.</p>
 
     <p>If the user agent supports HTTP State Management it <em
      class=ct>should</em> persist, discard and send cookies (as received in
@@ -1305,9 +1309,10 @@ X-Test: one, two
      content-encodings automatically decoded. [<cite><a
      href="#ref-rfc2616">RFC2616</a></cite>]</p>
 
-    <p>User agents <em class=ct>should not</em> include request headers other
-     than those indicate above or other than those authors are not allowed to
-     set using <code><a
+    <p>Besides the <a href="#author-request-headers">author request
+     headers</a> user agents <em class=ct>should not</em> include additional
+     request headers other than those mentioned above or other than those
+     authors are not allowed to set using <code><a
      href="#setrequestheader">setRequestHeader()</a></code>. This ensures
      that authors have a reasonably predictable API.</p>
 
@@ -1533,7 +1538,7 @@ text/plain; charset=utf-8</code></pre>
 
   <p>Several algorithms in this specification may result in an exception
    being thrown. These exceptions are all part of the group
-   <code>ExceptionCode</code> and use the <code>DOMException</code> object
+   <code>ExceptionCode</code> and use the <code>DOMException</code> object,
    which is defined in DOM Level 3 Core. In addition this specification
    extends the <code>ExceptionCode</code> group with several new constants as
    indicated below. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
