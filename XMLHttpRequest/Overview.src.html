@@ -297,15 +297,8 @@ client.send();</code></pre>
   of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
   character range A-Z to the range a-z both strings are identical.</p>
 
-  <p>Two URIs are <dfn id="same-origin">same-origin</dfn> if after
-  performing scheme-based normalization on both URIs as described in section
-  5.3.3 of RFC 3987 the scheme, ihost and port components are
-  identical. If either URI does not have an ihost component the URIs
-  <em class="ct">must not</em> be considered same-origin.
-  [<cite><span>RFC3986</span></cite>]
-  [<cite><span>RFC3987</span></cite>]</p>
-  
-  <p>The terms <dfn id="origin">origin</dfn> and
+  <p>The terms <dfn id="origin">origin</dfn>,
+  <dfn id="same-origin">same origin</dfn>, and
   <dfn id="event-handler-attribute">event handler DOM attribute</dfn> are
   defined by the HTML&nbsp;5 specification.
   [<cite><span>HTML5</span></cite>]</p>
@@ -418,7 +411,8 @@ client.send();</code></pre>
   constant, whose value is <code>0</code>.</p>
 
   <p>The OPENED state is the state of the object when the <code>open()</code>
-  method has been successfully invoked. During this state request headers can
+  method has been successfully invoked. During this state
+  <span>author request headers</span> can
   be set using <code>setRequestHeader()</code> and the request can be made
   using <code>send()</code>. This state is represented by the
   <dfn id="opened-state" title="OPENED state"><code>OPENED</code></dfn> constant,
@@ -648,7 +642,7 @@ client.send();</code></pre>
      <li><p>If <var>stored url</var> just contains the <code>"user"</code>
      format let <var>stored user</var> be the user part.</p></li>
 
-     <li><p>If <var>stored url</var> is not of the <span>same-origin</span>
+     <li><p>If <var>stored url</var> is not of the <span>same origin</span>
      as the <span>origin</span> of the <span><code>Document</code>
      pointer</span> the user agent <em class="ct">should</em> raise a
      <code>SECURITY_ERR</code> exception and terminate these steps.</p></li>
@@ -690,7 +684,7 @@ client.send();</code></pre>
      <li>
       <p><span title="abort send()">Abort the <code>send()</code>
       algorithm</span>, set <span>response entity body</span> to "null" and
-      reset the list of request headers.<p>
+      empty the list of <span>author request headers</span>.<p>
 
       <p class="note">This step and the next only has effect if
       <code>send()</code> and/or <code>setRequestHeader()</code> has been
@@ -716,9 +710,17 @@ client.send();</code></pre>
    <var>value</var>)</code></dfn>, method</dt>
 
    <dd>
-    <p>Each request has a list of request headers with associated values.
-    The <code>setRequestHeader()</code> method can be used to manipulate
-    those values and set new request headers.</p>
+    <p>
+    The object has an associated list of <dfn id="author-request-headers">author request headers</dfn>
+    consisting of HTTP header name/value pairs. The
+    <code>setRequestHeader()</code> method can be used to set new request
+    headers and append to request headers already in the list.</p>
+    
+    <p>As indicated in the algorithm below certain headers cannot be
+    set and are left up to the user agent. In addition there are certain
+    other headers the user agent will take control of if they are not set by
+    the author as indicated at the end of the <code>send()</code> method
+    section.</p>
 
     <p class="note">The <code>setRequestHeader()</code> method appends a
     value if the HTTP header given as argument is already part of the list
@@ -748,7 +750,8 @@ client.send();</code></pre>
       4.2 of RFC 2616 raise a <code>SYNTAX_ERR</code> and terminate these
       steps. [<cite><span>RFC2616</span></cite>]</p>
 
-      <p class="note">The empty string is legal.</p>
+      <p class="note">The empty string is legal and represents the empty
+      header value.</p>
      </li>
 
      <li>
@@ -775,22 +778,30 @@ client.send();</code></pre>
        <li><code>Trailer</code></li>
        <li><code>Transfer-Encoding</code></li>
        <li><code>Upgrade</code></li>
+       <li><code>User-Agent</code></li>
        <li><code>Via</code></li>
       </ul>
+      
+      <p>&hellip; or if the start of the <var>header</var> argument
+      <span title="case-insensitive match">case-insensitively matches</span>
+      <code>Proxy-</code> or <code>Sec-</code> (including when the argument
+      is just <code>Proxy-</code> or <code>Sec-</code>).</p>
+      
+      <p class="note">The above headers are not allowed to be set as they
+      are better controlled by the user agent as it knows best what value
+      they should have. Header names starting with <code>Sec-</code> are not
+      allowed to be set to allow new headers to be minted in the future that
+      are guaranteed not to come from <code>XMLHttpRequest</code>. (Older
+      clients would however still be vulnerable as they allow such headers
+      to be set.)</p>
      </li>
-     
-     <li><p>Also for security reasons, these steps
-     <em class="ct">should</em> be terminated if the start of the
-     <var>header</var> argument
-     <span title="case-insensitive match">case-insensitively matches</span>
-     <code>Proxy-</code> or <code>Sec-</code>.</p></li>
 
-     <li><p>If the <var>header</var> argument is not in the list of request
-     headers append the <var>header</var> with its associated <var>value</var>
+     <li><p>If the <var>header</var> argument is not in the <span>author request
+     headers</span> list append the <var>header</var> with its associated <var>value</var>
      to the list and terminate these steps.</p></li>
 
-     <li><p>If the <var>header</var> argument is in the list of request
-     headers either use multiple headers, combine the values or use a
+     <li><p>If the <var>header</var> argument is in the <span>author request
+     headers</span> list either use multiple headers, combine the values or use a
      combination of those (section 4.2, RFC 2616).
      [<cite><span>RFC2616</span></cite>]</p></li>
      <!-- XXX it seems UAs always combine the values -->
@@ -835,10 +846,10 @@ X-Test: one, two
     algorithm is aborted</dfn> the user agent <em class="ct">must</em>
     terminate the algorithm after finishing the step it is on.</p>
 
-    <p class="note">The following algorithm can not be aborted through script
-    when <var>async</var> is <code>false</code>. It can only be aborted when
-    <var>async</var> is <code>true</code> and only after the method call has
-    returned.</p>
+    <p class="note">The following algorithm cannot be aborted through
+    script when <var>async</var> is <code>false</code>. It can only be
+    aborted when <var>async</var> is <code>true</code> and only after the
+    method call has returned.</p>
 
     <ol>
      <li><p>If the state of the object is not
@@ -915,8 +926,8 @@ X-Test: one, two
      <li><p>Make a request to <var>stored url</var>, using HTTP method
      <var>stored method</var>, user <var>stored user</var> (if provided) and
      password <var>stored password</var> (if provided), taking into account
-     the entity body, list of request headers and the rules listed directly
-     after this set of steps.</p></li>
+     the entity body, list of <span>author request headers</span> and the
+     rules listed directly after this set of steps.</p></li>
 
      <li>
       <p>Synchronously dispatch a <code>readystatechange</code> event on the
@@ -939,7 +950,7 @@ X-Test: one, two
 
        <dd>
         <p>If the redirect does not violate security (it is
-        <span>same-origin</span> for instance) or infinite loop precautions
+        <span>same origin</span> for instance) or infinite loop precautions
         and the scheme is supported transparently follow the redirect and go
         to the start of this step (step 8).</p>
 
@@ -954,8 +965,8 @@ X-Test: one, two
 
         <ol>
          <li><p>Set the <span>response entity body</span> to "null", the
-         <span>error flag</span> to "true" and reset the list of request
-         headers.</p></li>
+         <span>error flag</span> to "true" and empty the list of
+         <span>author request headers</span>.</p></li>
 
          <li><p>Synchronously switch the state to
          <span title="DONE state">DONE</span>.</p></li>
@@ -983,8 +994,8 @@ X-Test: one, two
 
         <ol>
          <li><p>Set the <span>response entity body</span> to "null", the
-         <span>error flag</span> to "true" and reset the list of request
-         headers.</p></li>
+         <span>error flag</span> to "true" and empty the list of
+         <span>author request headers</span>.</p></li>
 
          <li><p>Synchronously switch the state to
          <span title="DONE state">DONE</span>.</p></li>
@@ -1016,8 +1027,8 @@ X-Test: one, two
 
         <ol>
          <li><p>Set the <span>response entity body</span> to "null", the
-         <span>error flag</span> to "true" and reset the list of request
-         headers.</p></li>
+         <span>error flag</span> to "true" and empty the list of
+         <span>author request headers</span>.</p></li>
 
          <li><p>Synchronously switch the state to
          <span title="DONE state">DONE</span>.</p></li>
@@ -1085,11 +1096,11 @@ X-Test: one, two
     send <code>Proxy-Authorization</code> headers as specified.</p>
 
     <p>If the user agent supports HTTP Authentication it
-    <em class="ct">should</em> consider requests originating from this object
-    to be part of the protection space that includes the accessed URIs and
-    send <code>Authorization</code> headers and handle <code>401
-    Unauthorized</code> requests appropriately. If authentication fails, user
-    agents <em class="ct">should</em> prompt the users for credentials.
+    <em class="ct">should</em> consider requests originating from this
+    object to be part of the protection space that includes the accessed
+    URIs and send <code>Authorization</code> headers and handle <code>401
+    Unauthorized</code> requests appropriately. If authentication fails,
+    user agents <em class="ct">should</em> prompt the users for credentials.
     [<cite><span>RFC2617</span></cite>]</p>
 
     <p>If the user agent supports HTTP State Management it
@@ -1102,22 +1113,22 @@ X-Test: one, two
     <!-- These specs do not match reality. -->
 
     <p>If the user agent implements a HTTP cache it <em class="ct">should</em>
-    respect <code>Cache-Control</code> request headers set by the script
-    (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
-    no-cache</code> bypasses the cache). It <em class="ct">must not</em> send
+    respect <code>Cache-Control</code> request headers set by
+    <code>setRequestHeader()</code> (e.g., <code>Cache-Control: no-cache</code>
+    bypasses the cache). It <em class="ct">must not</em> send
     <code>Cache-Control</code> or <code>Pragma</code> request headers
     automatically unless the user explicitly requests such behavior
     (<abbr>e.g.</abbr>, by (force-)reloading the page).</p>
-    
+
     <p>For <code>304 Not Modified</code> responses that are a result of a
     user agent generated conditional request the user agent
     <em class="ct">must</em> act as if the server gave a <code>200
     OK</code> response with the appropriate content. The user agent
-    <em class="ct">must</em> allow scripts to override automatic cache
-    validation by setting request headers (e.g., <code>If-None-Match</code>,
-    <code>If-Modified-Since</code>), in which case <code>304 Not
-    Modified</code> responses <em class="ct">must</em> be passed through.
-    [<cite><span>RFC2616</span></cite>]</p>
+    <em class="ct">must</em> allow <code>setRequestHeader()</code> to
+    override automatic cache validation by setting request headers (e.g.,
+    <code>If-None-Match</code>, <code>If-Modified-Since</code>), in which
+    case <code>304 Not Modified</code> responses <em class="ct">must</em> be
+    passed through. [<cite><span>RFC2616</span></cite>]</p>
 
     <p>If the user agent implements server-driven content-negotiation
     it <em class="ct">should</em> set <code>Accept-Encoding</code> and
@@ -1129,6 +1140,11 @@ X-Test: one, two
     <code>*/*</code>. Responses <em class="ct">must</em> have the
     content-encodings automatically decoded.
     [<cite><span>RFC2616</span></cite>]</p>
+    
+    <p>User agents <em class="ct">should not</em> include request headers
+    other than those indicate above or other than those authors are not
+    allowed to set using <code>setRequestHeader()</code>. This ensures that
+    authors have a reasonably predictable API.</p>
    </dd>
 
    <dt><dfn id="abort"><code>abort()</code></dfn>, method</dt>
@@ -1370,7 +1386,6 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
   raised when the user aborts a request in synchronous requests.</p>
 
 
-
   <h2 class="no-num" id="notcovered">Not in this Specification</h2>
 
   <p><em>This section is non-normative.</em></p>
@@ -1455,11 +1470,14 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource Identifier
    (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding, L. Masinter,
    editors. IETF, January 2005.</dd>
-   
-   <dt>[<dfn id="ref-rfc3987">RFC3987</dfn>]</dt>
+
+   <!--
+   <dt>[<dfn id=ref-rfc3987>RFC3987</dfn>]</dt>
+
    <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized
    Resource Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard, editors.
-   IETF, January 2005.</dd>
+   IETF, January 2005. L. Masinter, editors. IETF, January 2005.</dd>
+   -->
 
    <dt>[<dfn id="ref-webidl">Web IDL</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/webapi/Binding4DOM/">Web
