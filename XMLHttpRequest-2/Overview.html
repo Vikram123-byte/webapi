@@ -37,18 +37,28 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 7 April 2008</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 28 May 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080407/">http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080407/</a>
+     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080528/">http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080528/</a>
 
     <dt>Latest Version:
 
     <dd><a
      href="http://www.w3.org/TR/XMLHttpRequest2/">http://www.w3.org/TR/XMLHttpRequest2/</a>
+
+    <dt>Latest Editor Version:
+
+    <dd><a
+     href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/">http://dev.w3.org/2006/webapi/XMLHttpRequest-2/</a>
+
+    <dt>Previous Version:
+
+    <dd><a
+     href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/</a>
 
     <dt>Editor:
 
@@ -91,7 +101,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the <!-- 7 April 2008-->First Public Working Draft of <code
+  <p>This is the 28 May 2008 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapi@w3.org?subject=[XHR2]%20">public-webapi@w3.org</a>
    (<a
@@ -251,20 +261,21 @@
 
    <dd>
     <p>A <a href="#conforming-user-agent" title="conforming user
-     agent">conforming user agent</a> <em class=ct>must</em> support some
-     version of DOM Events and DOM Core, because this specification uses some
-     of the features defined in those specifications. [<cite><a
+     agent">conforming user agent</a> <em class=ct>must</em> support at least
+     the subset of the functionality defined in DOM Events and DOM Core that
+     this specification relies upon, such as various exceptions
+     <code>EventTarget</code>. [<cite><a
      href="#ref-dom2events">DOM2Events</a></cite>] [<cite><a
      href="#ref-dom3core">DOM3Core</a></cite>]
 
    <dt>HTML&nbsp;5
 
    <dd>
-    <p>This specification depends on HTML&nbsp;5 for defining the
-     <code>Window</code> object and how to parse a <code>text/html</code>
-     resource. A <a href="#conforming-user-agent">conforming user agent</a>
-     <em class=ct>must</em> support these features. [<cite><a
-     href="#ref-html5">HTML5</a></cite>]</p>
+    <p>A <a href="#conforming-user-agent">conforming user agent</a> <em
+     class=ct>must</em> support at least the subset of the functionality
+     defined in HTML&nbsp;5 that this specification relies upon, such as the
+     <code>Window</code> object and serializing a <code>Document</code>
+     object. [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
 
     <p class=note>The <a
      href="http://www.w3.org/TR/2006/WD-Window-20060407/">Window Object
@@ -282,6 +293,13 @@
      throughout the specification. [<cite><a
      href="#rfc-rfc2616">RFC2616</a></cite>]
 
+   <dt>Web IDL
+
+   <dd>A <a href="#conforming-user-agent">conforming user agent</a> <em
+    class=ct>must</em> also be a conforming implementation of the IDL
+    fragments in this specification, as described in the Web IDL
+    specification. [<cite><span>WebIDL</span></cite>]
+
    <dt>XML
 
    <dd>
@@ -298,17 +316,9 @@
    of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
    character range A-Z to the range a-z both strings are identical.
 
-  <p>A URI is <dfn id=same-origin>same-origin</dfn> with the <a
-   href="#origin">origin</a> of the <a
-   href="#document-pointer"><code>Document</code> pointer</a> if after
-   performing scheme-based normalization on both URIs as described in section
-   5.3.3 of RFC 3987 the scheme, ihost and port components are identical. If
-   either URI does not have an ihost component the URIs <em class=ct>must
-   not</em> be considered same-origin. [<cite><span>RFC3987</span></cite>]
-
-  <p>The terms <dfn id=origin>origin</dfn> and <dfn
-   id=event-handler-attribute>event handler DOM attribute</dfn> are defined
-   by the HTML&nbsp;5 specification. [<cite><a
+  <p>The terms <dfn id=origin>origin</dfn>, <dfn id=same-origin>same
+   origin</dfn> and <dfn id=event-handler-attribute>event handler DOM
+   attribute</dfn> are defined by the HTML&nbsp;5 specification. [<cite><a
    href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
@@ -362,7 +372,7 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
   // for future use
 };
 
-interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a> {
+[Constructor] interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute EventListener <a href="#onreadystatechange">onreadystatechange</a>;
 
@@ -374,19 +384,18 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
   const unsigned short <a href="#done-state" title="DONE state">DONE</a> = 4;
   readonly attribute unsigned short <a href="#readystate">readyState</a>;
 
-
   // <a href="#request-metadata">request metadata</a>
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>);
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, in DOMString <var>user</var>, in DOMString <var>password</var>);
-  void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
+  void <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
   
   // <a href="#request">request</a>
   readonly attribute <a href="#xmlhttprequestupload-interface">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
   void <a href="#send">send</a>();
   void <a href="#send">send</a>(in ByteArray <var>data</var>);
-  void <a href="#send">send</a>(in DOMString <var>data</var>);
+  void <a href="#send">send</a>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
   void <a href="#send">send</a>(in Document <var>data</var>);
   void <a href="#abort">abort</a>();
 
@@ -441,6 +450,12 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
    <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
   </div>
+
+  <p>The <a href="#origin">origin</a> of an <code><a
+   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> object is the
+   <a href="#origin">origin</a> of the associated <code>Document</code>
+   object returned by the <a href="#document-pointer"><code>Document</code>
+   pointer</a>.
 
   <h3 id=event-handler-attributes><span class=secno>3.2 </span>Event Handler
    Attributes</h3>
@@ -520,9 +535,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    <dd>
     <p>The <code><a href="#open">open()</a></code> method has been
      successfully invoked. During this state request headers can be set using
-     <code><a href="#setrequestheader">setRequestHeader()</a></code> and the
-     request can be made using the <code><a href="#send">send()</a></code>
-     method.
+     <code>setRequestHeader()</code> and the request can be made using the
+     <code><a href="#send">send()</a></code> method.
 
    <dt><dfn id=headers-received-state title="HEADERS_RECEIVED
     state"><code>HEADERS_RECEIVED</code></dfn> (numeric value 2)
@@ -531,7 +545,7 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
     <p>All HTTP headers have been received. Several response members of the
      object are now available.</p>
 
-    <p class=note>For non same-origin requests the object will never be in
+    <p class=note>For non same origin requests the object will never be in
      this state.</p>
 
    <dt><dfn id=loading-state title="LOADING state"><code>LOADING</code></dfn>
@@ -549,12 +563,13 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
   </dl>
 
   <p>The OPEN state has an associated <dfn id=send-flag><code>send()</code>
-   flag</dfn> which can be either "true" or "false". The initial value of the
-   <code title="">send()</code> flag is "false".
+   flag</dfn> that indicates whether the <code><a
+   href="#send">send()</a></code> method has been invoked. It can be either
+   "true" or "false" and has an initial value of "false".
 
   <p>The DONE state has an associated <dfn id=error-flag>error flag</dfn>
-   which can be either "true" or "false". The initial value of the error flag
-   is "false".
+   that indicates some type of network error or abortion. It can be either
+   "true" or "false" and has an initial value of "false".
 
   <h3 id=request-metadata><span class=secno>3.4 </span>Request Metadata</h3>
 
@@ -581,10 +596,13 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
     <p>If <var>stored method</var> <a href="#case-insensitive-match"
      title="case-insensitive match">case-insensitively matches</a>
      <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
-     <code>HEAD</code>, <code>OPTIONS</code> <code>POST</code>,
+     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
      <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
      <var>stored method</var> be the canonical uppercase form of the matched
-     method name.
+     method name.</p>
+
+    <p class=note>If it does not match any of the above, it is passed through
+     literally, including in the final request.</p>
    </li>
    <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
    M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
@@ -594,18 +612,21 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      <code>TRACE</code>, or <code>TRACK</code> the user agent <em
      class=ct>should</em> raise a <code><a
      href="#security-err">SECURITY_ERR</a></code> exception and terminate
-     these steps.
+     these steps.</p>
+
+    <p class=note><code>TRACK</code> poses a security issue to legacy server
+     deployments.</p>
+
+   <li>
+    <p>If <var>stored url</var> is a relative reference as defined by RFC
+     3987, resolve it using the current value of the <code>baseURI</code>
+     attribute of the <a href="#document-pointer"><code>Document</code>
+     pointer</a>. If this fails raise a <code>SYNTAX_ERR</code> exception and
+     terminate these steps. [<cite><a href="#ref-rfc3987">RFC3987</a></cite>]
 
    <li>
     <p>Drop the fragment identifier (if any) from <var>url</var> and let
      <var>stored url</var> be the result of that operation.
-
-   <li>
-    <p>If <var>stored url</var> is a relative reference resolve it using the
-     current value of the <code>baseURI</code> attribute of the <a
-     href="#document-pointer"><code>Document</code> pointer</a>. If this
-     fails raise a <code>SYNTAX_ERR</code> exception and terminate these
-     steps.
 
    <li>
     <p>If <var>stored url</var> contains an unsupported scheme raise a
@@ -630,8 +651,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    <li class=note>
     <p>The previous level of this specification raised a <code><a
      href="#security-err">SECURITY_ERR</a></code> at this place in case of a
-     non same-origin <var>stored url</var>. This specification supports non
-     same-origin requests and therefore this exception is no longer raised
+     non same origin <var>stored url</var>. This specification supports non
+     same origin requests and therefore this exception is no longer raised
      here.
 
    <li>
@@ -675,9 +696,12 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
     <p><a href="#abort-send-algorithm" title="abort send()">Abort the
      <code>send()</code> algorithm</a>, set <a
      href="#response-entity-body">response entity body</a> to "null" and
-     reset the list of request headers.
+     empty the <a href="#author-request-headers">author request headers</a>
+     list.</p>
 
-    <p>
+    <p class=note>This step and the next only has effect if <code><a
+     href="#send">send()</a></code> and/or <code>setRequestHeader()</code>
+     has been used.</p>
 
    <li>
     <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -694,17 +718,28 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      method call.
   </ol>
 
-  <p>Each request has a list of request headers with associated values. The
-   <dfn id=setrequestheader
-   title=setrequestheader><code>setRequestHeader(<var>header</var>,
-   <var>value</var>)</code></dfn> method can be used to manipulate those
-   values and set new request headers. When invoked, the user agent <em
-   class=ct>must</em> act as if it had run the steps below (unless otherwise
-   indicated).
+  <p>The object has an associated list of <dfn
+   id=author-request-headers>author request headers</dfn> consisting of HTTP
+   header name/value pairs. The <code>setRequestHeader()</code> method can be
+   used to set new request headers and append to request headers already in
+   the list.
 
-  <p class=note>For non same-origin requests using the HTTP <code>GET</code>
+  <p>As indicated in the algorithm below certain headers cannot be set and
+   are left up to the user agent. In addition there are certain other headers
+   the user agent will take control of if they are not set by the author as
+   indicated at the end of the <code><a href="#send">send()</a></code> method
+   section.
+
+  <p class=note>The <code>setRequestHeader()</code> method appends a value if
+   the header given as argument is already part of the <a
+   href="#author-request-headers">author request headers</a> list.
+
+  <p class=note>For non same origin requests using the HTTP <code>GET</code>
    method a preflight request is made when headers other than
    <code>Accept</code> and <code>Accept-Language</code> are set.
+
+  <p>When invoked, the user agent <em class=ct>must</em> follow the following
+   steps (unless otherwise indicated):
 
   <ol>
    <li>
@@ -719,20 +754,16 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
    <li>
     <p>If the <var>header</var> argument does not match the <code><a
-     href="#field-name">field-name</a></code> production or is
-     <code>null</code> raise a <code>SYNTAX_ERR</code> exception and
-     terminate these steps.
-
-   <li>
-    <p>If the <var>value</var> argument is <code>null</code> terminate these
-     steps. (Do not raise an exception.)
-   </li>
-   <!-- undefined is to be treated as null here... -->
+     href="#field-name">field-name</a></code> production raise a
+     <code>SYNTAX_ERR</code> exception and terminate these steps.
 
    <li>
     <p>If the <var>value</var> argument does not match the <code><a
      href="#field-value">field-value</a></code> production raise a
-     <code>SYNTAX_ERR</code> and terminate these steps.
+     <code>SYNTAX_ERR</code> and terminate these steps.</p>
+
+    <p class=note>The empty string is legal and represents the empty header
+     value.</p>
 
    <li>
     <p>For security reasons, these steps <em class=ct>should</em> be
@@ -745,9 +776,15 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
      <li><code>Accept-Encoding</code>
 
+     <li><code>Authorization</code>
+
      <li><code>Connection</code>
 
      <li><code>Content-Length</code>
+
+     <li><code>Cookie</code>
+
+     <li><code>Cookie2</code>
 
      <li><code>Content-Transfer-Encoding</code>
 
@@ -759,6 +796,9 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
      <li><code>Keep-Alive</code>
 
+     <li><code><a href="#origin">Origin</a></code></li>
+     <!-- new in xhr2 -->
+
      <li><code>Referer</code>
 
      <li><code>TE</code>
@@ -769,25 +809,37 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
      <li><code>Upgrade</code>
 
+     <li><code>User-Agent</code>
+
      <li><code>Via</code>
     </ul>
 
-   <li>
-    <p>Also for security reasons, these steps <em class=ct>should</em> be
-     terminated if the start of the <var>header</var> argument <a
+    <p>&hellip; or if the start of the <var>header</var> argument <a
      href="#case-insensitive-match" title="case-insensitive
      match">case-insensitively matches</a> <code>Proxy-</code> or
-     <code>Sec-</code>.
+     <code>Sec-</code> (including when the argument is just
+     <code>Proxy-</code> or <code>Sec-</code>).</p>
+
+    <p class=note>The above headers are not allowed to be set as they are
+     better controlled by the user agent as it knows best what value they
+     should have. Header names starting with <code>Sec-</code> are not
+     allowed to be set to allow new headers to be minted in the future that
+     are guaranteed not to come from <code><a
+     href="#xmlhttprequest-interface">XMLHttpRequest</a></code>. (Older
+     clients would however still be vulnerable as they allow such headers to
+     be set.)</p>
 
    <li>
-    <p>If the <var>header</var> argument is not in the list of request
-     headers append the <var>header</var> with its associated
-     <var>value</var> to the list and terminate these steps.
+    <p>If the <var>header</var> argument is not in the <a
+     href="#author-request-headers">author request headers</a> list append
+     the <var>header</var> with its associated <var>value</var> to the list
+     and terminate these steps.
 
    <li>
-    <p>If the <var>header</var> argument is in the list of request headers
-     either use multiple headers, combine the values or use a combination of
-     those (section 4.2, RFC 2616). [<cite><a
+    <p>If the <var>header</var> argument is in the <a
+     href="#author-request-headers">author request headers</a> list either
+     use multiple headers, combine the values or use a combination of those
+     (section 4.2, RFC 2616). [<cite><a
      href="#rfc-rfc2616">RFC2616</a></cite>]
    </li>
    <!-- XXX it seems UAs always combine the values -->
@@ -827,8 +879,8 @@ X-Test: one, two
   <h4 id=request0><span class=secno>3.5.2 </span>Request Variables and
    Algorithms</h4>
 
-  <p>The <dfn id=same-origin0>same-origin flag</dfn> indicates whether the
-   current being performed is <a href="#same-origin">same-origin</a> or not.
+  <p>The <dfn id=same-origin0>same origin flag</dfn> indicates whether the
+   current being performed is <a href="#same-origin">same origin</a> or not.
    A value of "true" indicates it is and "false" indicates it is not.
 
   <p>The <dfn id=current>current request URI</dfn> is initially <var>stored
@@ -847,8 +899,8 @@ X-Test: one, two
   <ol>
    <li>
     <p>Set the <a href="#response-entity-body">response entity body</a> to
-     "null", the <a href="#error-flag">error flag</a> to "true" and reset the
-     list of request headers.
+     "null", the <a href="#error-flag">error flag</a> to "true" and empty the
+     <a href="#author-request-headers">author request headers</a> list.
 
    <li>
     <p>Synchronously switch the state to <a href="#done-state" title="DONE
@@ -886,8 +938,8 @@ X-Test: one, two
   <ol>
    <li>
     <p>Set the <a href="#response-entity-body">response entity body</a> to
-     "null", the <a href="#error-flag">error flag</a> to "true" and reset the
-     list of request headers.
+     "null", the <a href="#error-flag">error flag</a> to "true" and empty the
+     <a href="#author-request-headers">author request headers</a> list.
 
    <li>
     <p>Synchronously switch the state to <a href="#done-state" title="DONE
@@ -969,10 +1021,9 @@ X-Test: one, two
    method initiates the request and its optional argument provides the <a
    href="#entity-body">entity body</a> for the request. Authors are
    encouraged to ensure that they have specified the
-   <code>Content-Type</code> header via <code><a
-   href="#setrequestheader">setRequestHeader()</a></code> before invoking
-   <code title="">send()</code> with a non-<code>null</code> <var>data</var>
-   argument.
+   <code>Content-Type</code> header via <code>setRequestHeader()</code>
+   before invoking <code title="">send()</code> with a non-<code>null</code>
+   <var>data</var> argument.
 
   <p>When invoked, the user agent <em class=ct>must</em> act as if it had run
    the following steps (unless otherwise noted). Note that this algorithm
@@ -1010,6 +1061,9 @@ X-Test: one, two
      dispatched for historical reasons.</p>
 
    <li>
+    <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
+     act as if the <var>data</var> argument is <code>null</code>.</p>
+
     <p>If the <var>data</var> argument has not been omitted and is not
      <code>null</code> use it for the <a href="#entity-body">entity body</a>
      observing the following rules:</p>
@@ -1028,15 +1082,22 @@ X-Test: one, two
      <dt><var>data</var> is a <code>Document</code>
 
      <dd>
-      <p>Serialize <var>data</var> into a namespace well-formed XML document
-       and encoded using the encoding given by
-       <code><var>data</var>.xmlEncoding</code>, if specified, or UTF-8
-       otherwise. Or, if this fails because the <code>Document</code> cannot
-       be serialized act as if <var>data</var> is <code>null</code>.</p>
+      <p>Let <var>data</var> be <code><var>data</var>.innerHTML</code> as
+       defined by section 2.5 of HTML&nbsp;5. Encode it using
+       <code><var>data</var>.inputEncoding</code> or UTF-8 if
+       <code><var>data</var>.inputEncoding</code> is <code>null</code>.
+       Re-raise any exceptions the <code><var>data</var>.innerHTML</code>
+       getter algorithm raises. [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
 
-      <p>If no <code>Content-Type</code> header is in the list of request
-       headers append a <code>Content-Type</code> header to the list of
-       request headers with a value of <code>application/xml</code>.</p>
+      <p class=note>If the document cannot be serialized the
+       <code>document.innerHTML</code> algorithm raises an
+       <code>INVALID_STATE_ERR</code> exception.</p>
+
+      <p>If no <code>Content-Type</code> header has been set using
+       <code>setRequestHeader()</code> set a <code>Content-Type</code>
+       request header with a value of
+       <code>application/xml;charset=<var>charset</var></code> where
+       <var>charset</var> is the encoding used to encode the document.</p>
 
       <p class=note>Subsequent changes to the <code>Document</code> have no
        effect on what is submitted.</p>
@@ -1072,13 +1133,13 @@ X-Test: one, two
 
    <li>
     <p>If the <a href="#current">current request URI</a> is <a
-     href="#same-origin">same-origin</a> this is a <dfn
-     id=same-origin1>same-origin request</dfn>. Make a request to the <a
-     href="#current">current request URI</a> using HTTP method <var>stored
-     method</var>, user <var>stored user</var> (if provided), password
-     <var>stored password</var> (if provided), taking into account the entity
-     body, list of request headers and the rules listed directly after this
-     set of steps. <a href="#make-">Make progress notifications</a>, <a
+     href="#same-origin">same origin</a> this is a <dfn id=same-origin1>same
+     origin request</dfn>. Make a request to the <a href="#current">current
+     request URI</a> using HTTP method <var>stored method</var>, user
+     <var>stored user</var> (if provided), password <var>stored
+     password</var> (if provided), taking into account the entity body, list
+     of request headers and the rules listed directly after this set of
+     steps. <a href="#make-">Make progress notifications</a>, <a
      href="#make-0">make upload progress notifications</a>, and follow the
      list of request rules:</p>
 
@@ -1099,13 +1160,13 @@ X-Test: one, two
 
        <li>
         <p>If the <a href="#current">current request URI</a> is <a
-         href="#same-origin">same-origin</a> follow the redirect while
-         observing the request rules for <a href="#same-origin1"
-         title="same-origin request">same-origin requests</a>.
+         href="#same-origin">same origin</a> follow the redirect while
+         observing the request rules for <span title="same-origin
+         request">same origin requests</span>.
 
        <li>
-        <p>Otherwise, follow the steps for a <a href="#non-same-origin">non
-         same-origin request</a> terminating this one.
+        <p>Otherwise, follow the steps for a <a href="#non-same">non same
+         origin request</a> terminating this one.
       </ol>
 
       <p class=note>HTTP places requirements on the user agent regarding the
@@ -1124,10 +1185,12 @@ X-Test: one, two
      <dt>If there is a network error
 
      <dd>
-      <p>In case of DNS errors, or other type of network errors, this is a <a
-       href="#network">network error</a>. <span class=note>This does not
-       include HTTP responses that indicate some type of error, such as HTTP
-       status code 410.</span>
+      <p>In case of DNS errors, TLS negotiation failure, or other type of
+       network errors, this is a <a href="#network">network error</a>. Do not
+       request any kind of user interaction.
+
+      <p class=note>This does not include HTTP responses that indicate some
+       type of error, such as HTTP status code 410.</p>
 
      <dt>Once all HTTP headers have been received
 
@@ -1156,11 +1219,10 @@ X-Test: one, two
        complete resource has been downloaded go to the next step.
     </dl>
 
-    <p>Otherwise, if it is non same-origin this is a <dfn
-     id=non-same-origin>non same-origin request</dfn>. Set the <a
-     href="#same-origin0">same-origin flag</a> to "false", then make a <a
-     href="#cross-site">cross-site access request</a>, passing these as
-     parameters:</p>
+    <p>Otherwise, if it is non same origin this is a <dfn id=non-same>non
+     same origin request</dfn>. Set the <a href="#same-origin0">same origin
+     flag</a> to "false", then make a <a href="#cross-site">cross-site access
+     request</a>, passing these as parameters:</p>
 
     <ul>
      <li>The <a href="#current">current request URI</a>.
@@ -1178,9 +1240,10 @@ X-Test: one, two
     <p>Handle the return values as described below.</p>
 
     <p class=note>The <var>stored user</var> and <var>stored password</var>
-     variables are always ignored as part of a non same-origin request as
+     variables are always ignored as part of a non same origin request as
      including them would allow a site to perform a distributed password
-     search.</p>
+     search. However, user agents will include credentials in the request (if
+     the user has any) as required elsewhere.</p>
 
     <dl>
      <dt><a href="#status0">status return flag</a> is "same-origin"
@@ -1188,8 +1251,8 @@ X-Test: one, two
      <dd>
       <p>Set the <a href="#current">current request URI</a> to the value of
        the <a href="#uri-return">uri return flag</a>, set the <a
-       href="#same-origin0">same-origin flag</a> to "true", and then make a
-       <a href="#same-origin1">same-origin request</a>.
+       href="#same-origin0">same origin flag</a> to "true", and then make a
+       <a href="#same-origin1">same origin request</a>.
 
      <dt><a href="#status0">status return flag</a> is "network"
 
@@ -1233,18 +1296,25 @@ X-Test: one, two
   </ol>
 
   <p>If the user agent allows the user to configure a proxy it <em
-   class=ct>should</em> modify the request appropriately; <abbr title="in
-   other words">i.e.</abbr>, connect to the proxy host instead of the origin
-   server, modify the <code>Request-Line</code> and send
-   <code>Proxy-Authorization</code> headers as specified.
+   class=ct>should</em> modify the request appropriately; i.e., connect to
+   the proxy host instead of the origin server, modify the
+   <code>Request-Line</code> and send <code>Proxy-Authorization</code>
+   headers as specified.
 
   <p>If the user agent supports HTTP Authentication it <em
    class=ct>should</em> consider requests originating from this object to be
    part of the protection space that includes the accessed URIs and send
    <code>Authorization</code> headers and handle <code>401
-   Unauthorized</code> requests appropriately. If authentication fails, user
-   agents <em class=ct>should</em> prompt the users for credentials.
-   [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]
+   Unauthorized</code> requests appropriately. If authentication fails,
+   <var>stored user</var> and <var>stored password</var> are not provided,
+   and the request is <a href="#same-origin">same origin</a>, user agents <em
+   class=ct>should</em> prompt the users for credentials. [<cite><a
+   href="#ref-rfc2617">RFC2617</a></cite>]
+
+  <p class=note>Users are not prompted if credentials are provided through
+   the <code><a href="#open">open()</a></code> API so that authors can
+   implement their own user interface. They are also not prompted for
+   cross-site requests.
 
   <p>If the user agent supports HTTP State Management it <em
    class=ct>should</em> persist, discard and send cookies (as received in the
@@ -1253,16 +1323,18 @@ X-Test: one, two
    href="#ref-rfc2965">RFC2965</a></cite>]
 
   <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
-   respect <code>Cache-Control</code> request headers set by the script
-   (<abbr title="for example">e.g.</abbr>, <code>Cache-Control:
+   respect <code>Cache-Control</code> request headers set by the
+   <code>setRequestHeader()</code> (e.g., <code>Cache-Control:
    no-cache</code> bypasses the cache). It <em class=ct>must not</em> send
    <code>Cache-Control</code> or <code>Pragma</code> request headers
    automatically unless the user explicitly requests such behavior
-   (<abbr>e.g.</abbr>, by (force-)reloading the page). <code>304 Not
-   Modified</code> responses that are a result of a user agent generated
-   conditional request <em class=ct>must</em> be presented as <code>200
-   OK</code> responses with the appropriate content. The user agent <em
-   class=ct>must</em> allow scripts to override automatic cache validation by
+   (<abbr>e.g.</abbr>, by (force-)reloading the page).
+
+  <p>For <code>304 Not Modified</code> responses that are a result of a user
+   agent generated conditional request the user agent <em class=ct>must</em>
+   act as if the server gave a <code>200 OK</code> response with the
+   appropriate content. The user agent <em class=ct>must</em> allow
+   <code>setRequestHeader()</code> to override automatic cache validation by
    setting request headers (e.g., <code>If-None-Match</code>,
    <code>If-Modified-Since</code>), in which case <code>304 Not
    Modified</code> responses <em class=ct>must</em> be passed through.
@@ -1270,13 +1342,19 @@ X-Test: one, two
 
   <p>If the user agent implements server-driven content-negotiation it <em
    class=ct>should</em> set <code>Accept-Encoding</code> and
-   <code>Accept-Charset</code> headers as appropriate; it <em class=ct>must
-   not</em> automatically set the <code>Accept</code>. If the
-   <code>Accept-Language</code> header is not set using <code><a
-   href="#setrequestheader">setRequestHeader()</a></code> user agents <em
-   class=ct>should</em> provide it. Responses to such requests <em
-   class=ct>must</em> have the content-encodings automatically decoded.
-   [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
+   <code>Accept-Charset</code> headers as appropriate. Unless set through
+   <code>setRequestHeader()</code> user agents <em class=ct>should</em> set
+   the <code>Accept</code> and <code>Accept-Language</code> headers as well.
+   If <code>Accept</code> is set by the user agent it <em class=ct>must</em>
+   have the value <code>*/*</code>. Responses <em class=ct>must</em> have the
+   content-encodings automatically decoded. [<cite><a
+   href="#rfc-rfc2616">RFC2616</a></cite>]
+
+  <p>Besides the <a href="#author-request-headers">author request headers</a>
+   user agents <em class=ct>should not</em> include additional request
+   headers other than those mentioned above or other than those authors are
+   not allowed to set using <code>setRequestHeader()</code>. This ensures
+   that authors have a reasonably predictable API.
 
   <h4 id=aborting><span class=secno>3.5.4 </span>Aborting a Request</h4>
 
@@ -1345,7 +1423,7 @@ X-Test: one, two
 
    <li>
     <p>If the <a href="#error-flag">error flag</a> is "true" or the <a
-     href="#same-origin0">same-origin flag</a> is "false" return the empty
+     href="#same-origin0">same origin flag</a> is "false" return the empty
      sting and terminate these steps.
 
    <li>
@@ -1359,7 +1437,7 @@ var client = new XMLHttpRequest();
 client.open("GET", "test.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 3) {
+ if(this.readyState == 2) {
   print(this.getAllResponseHeaders());
  }
 }
@@ -1396,15 +1474,6 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code> and terminate these steps.
 
    <li>
-    <p>If the <a href="#same-origin0">same-origin flag</a> is "false" and the
-     <var>header</var> argument does not <a href="#case-insensitive-match"
-     title="case-insensitive match">case-insensitively matches</a>
-     <code>Cache-Control</code>, <code>Content-Language</code>,
-     <code>Content-Type</code>, <code>Expires</code>,
-     <code>Last-Modified</code>, or <code>Pragma</code> return
-     <code>null</code> and terminate these steps.
-
-   <li>
     <p>If the <var>header</var> argument <a href="#case-insensitive-match"
      title="case-insensitive match">case-insensitively matches</a> multiple
      HTTP headers for the last request sent, return the values of these
@@ -1421,13 +1490,17 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Return <code>null</code>.
   </ol>
 
+  <p class=note>The Access Control for Cross-Site Requests specification
+   filters the headers that are exposed by <code><a
+   href="#getresponseheader">getResponseHeader()</a></code>.
+
   <div class=example>
    <pre><code>// The following script:
 var client = new XMLHttpRequest();
 client.open("GET", "test.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 3) {
+ if(this.readyState == 2) {
   print(client.getResponseHeader("Content-Type"));
  }
 }
@@ -1444,9 +1517,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <p>The <dfn id=statustext><code>statusText</code></dfn> attribute, on
    getting and if available, <em class=ct>must</em> return the HTTP status
-   text sent by the server (appears after the status code). If not available,
-   the user agent <em class=ct>must</em> raise an
-   <code>INVALID_STATE_ERR</code> exception.
+   text sent by the server (appears after the status code). If not available
+   (request is not initiated for instance), the user agent <em
+   class=ct>must</em> raise an <code>INVALID_STATE_ERR</code> exception.
 
   <h3 id=response-body><span class=secno>3.7 </span>Response Body</h3>
 
@@ -1528,16 +1601,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
        <th>Description
 
-     <tbody>
+     <tbody><!-- UTF-32 is dead
       <tr>
        <td>00 00 FE FF
-
        <td>UTF-32BE BOM
-
       <tr>
        <td>FF FE 00 00
-
-       <td>UTF-32LE BOM
+       <td>UTF-32LE BOM-->
 
       <tr>
        <td>FE FF
@@ -1569,6 +1639,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      valid accordng to the <var>charset</var> with a single U+FFFD character.
   </ol>
 
+  <p class=note>Authors are encouraged to encode their resources using UTF-8.
+
   <p>The <dfn id=document-response-entity-body>document response entity
    body</dfn> is either a <code>Document</code> representing the <a
    href="#response-entity-body">response entity body</a> or
@@ -1581,25 +1653,26 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code>.
 
    <li>
+    <p>If <a href="#final-mime-type">final MIME type</a> is not "null",
+     <code>text/html</code>, <code>text/xml</code>,
+     <code>application/xml</code>, and does not end in <code
+     title="">+xml</code> terminate these steps and return <code>null</code>.
+
+   <li>
     <p>If <a href="#final-mime-type">final MIME type</a> is
-     <code>text/html</code> return an object implementing the
-     <code>Document</code> interface that represents the <a
+     <code>text/html</code> let <var>document</var> be an object implementing
+     the <code>Document</code> interface that represents the <a
      href="#response-entity-body">response entity body</a> parsed following
      the rules set forth in the HTML specification for an HTML parser with
      scripting disabled and then terminate this algorithm. [<cite><a
-     href="#ref-html5">HTML5</a></cite>]
+     href="#ref-html5">HTML5</a></cite>]</p>
 
    <li>
-    <p>If <a href="#final-mime-type">final MIME type</a> is not "null", not
-     <code>text/xml</code>, not <code>application/xml</code> and does not end
-     in <code title="">+xml</code> terminate these steps and return
-     <code>null</code>.
-
-   <li>
-    <p>Parse the response entity body into a document tree following the
-     rules from the XML specifications. Let the result be <var>parsed
-     document</var>. If this fails (unsupported character encoding, namespace
-     well-formedness error et cetera) terminate these steps return
+    <p>Otherwise, let <var>document</var> be an object implementing the
+     <code>Document</code> interface that represents the result of parsing
+     the response entity body into a document tree following the rules from
+     the XML specifications. If this fails (unsupported character encoding,
+     namespace well-formedness error et cetera) terminate these steps return
      <code>null</code>. [<cite><a href="#ref-xml">XML</a></cite>] [<cite><a
      href="#ref-xmlns">XMLNS</a></cite>]</p>
 
@@ -1608,14 +1681,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      will be applied.</p>
 
    <li>
-    <p>Let <var>document</var> be an object implementing the
-     <code>Document</code> interface representing the <var>parsed
-     document</var>.
-
-   <li>
-    <p>If the <a href="#same-origin0">same-origin flag</a> is "false" ensure
-     that the <code>cookie</code> attribute of <var>document</var> returns
-     the empty string on getting.
+    <p>Ensure that the <code>cookie</code> attribute on <var>document</var>
+     returns the empty string if the <a href="#same-origin0">same origin
+     flag</a> is "false".
 
    <li>
     <p>Return <var>document</var>.
@@ -1759,7 +1827,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <p>Several algorithms in this specification may result in an exception
    being thrown. These exceptions are all part of the group
-   <code>ExceptionCode</code> and use the <code>DOMException</code> object
+   <code>ExceptionCode</code> and use the <code>DOMException</code> object,
    which is defined in DOM Level 3 Core. In addition this specification
    extends the <code>ExceptionCode</code> group with several new constants as
    indicated below. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
@@ -1788,6 +1856,9 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
    when the user aborts a request in synchronous requests.
 
   <h2 class=no-num id=references>References</h2>
+  <!--
+  <p>Unless marked "Non-normative" these references are normative.
+  -->
 
   <dl>
    <dt>[<dfn id=ref-ac>AC</dfn>]
@@ -1865,6 +1936,17 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 102;</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource
     Identifier (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding,
     L. Masinter, editors. IETF, January 2005.
+
+   <dt>[<dfn id=ref-rfc3987>RFC3987</dfn>]
+
+   <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized Resource
+    Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard, editors. IETF,
+    January 2005. L. Masinter, editors. IETF, January 2005.
+
+   <dt>[<dfn id=ref-webidl>Web IDL</dfn>]
+
+   <dd><cite><a href="http://dev.w3.org/2006/webapi/Binding4DOM/">Web
+    IDL</a></cite> (editor's draft), C. McCormack, editor. W3C, 2008.
 
    <dt>[<dfn id=ref-xml>XML</dfn>]
 
