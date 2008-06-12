@@ -527,7 +527,7 @@ client.send();</code></pre>
    <li><p>Return the result of decoding the response entity body using
    <var>charset</var>. Replace bytes or sequences of bytes that are not
    valid according to the <var>charset</var> with a single U+FFFD
-   character.</p></li>
+   REPLACEMENT CHARACTER character.</p></li>
   </ol>
 
   <p class="note">Authors are encouraged to encode their resources using
@@ -854,10 +854,9 @@ X-Test: one, two
     algorithm is aborted</dfn> the user agent <em class="ct">must</em>
     terminate the algorithm after finishing the step it is on.</p>
 
-    <p class="note">The following algorithm cannot be aborted through
-    script when <var>async</var> is <code>false</code>. It can only be
-    aborted when <var>async</var> is <code>true</code> and only after the
-    method call has returned.</p>
+    <p class="note">The <code title="">send()</code> algorithm can only be
+    aborted when <var>async</var> is <code>true</code> (i.e., the request is
+    done asynchronously) and only after the method call has returned.</p>
 
     <ol>
      <li><p>If the state of the object is not
@@ -1218,8 +1217,9 @@ X-Test: one, two
      and terminate these steps.</p></li>
 
      <li><p>Return all the HTTP headers, as a single string, with each
-     header line separated by a U+000D (CR) U+000A (LF) pair excluding the
-     status line.</p></li>
+     header line separated by a U+000D CR U+000A LF pair excluding the
+     status line, and with each header name and header value separated by a
+     U+003A COLON U+0020 SPACE pair.</p></li>
     </ol>
 
     <div class="example">
@@ -1267,7 +1267,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <span title="case-insensitive match">case-insensitively matches</span>
      multiple HTTP headers for the last request sent, return the values of
      these headers as a single concatenated string separated from each
-     other by an U+002C followed by an U+0020 character and terminate
+     other by a U+002C COMMA U+0020 SPACE character pair and terminate
      these steps.</p></li>
 
      <li><p>If the <var>header</var> argument
