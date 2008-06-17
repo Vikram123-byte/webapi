@@ -7,7 +7,7 @@
   <style type="text/css">
 .example {border:  2px double Grey; padding-left: 2em}
 .issue {background-color: #ffffbf; border:  2px dashed Red;}
-  </style>
+.todo {border: dotted thin}</style>
   <link rel="stylesheet" type="text/css" media="screen"
   href="http://www.w3.org/Stylesheets/TR/Base.css">
 </head>
@@ -20,17 +20,17 @@ alt="W3C" height="48" width="72"> </a>
 
 <h1 id="title">Progress events 1.0</h1>
 
-<h2>Editor's Draft 23 February 2008</h2>
+<h2 id="Editor">Editor's Draft 17 June 2008</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.20">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.20</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.21">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.21</a></dd>
   <dt>Latest Editor's version:</dt>
     <dd><a
       href="http://www.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous version:</dt>
     <dd><a
-      href="http://www.w3.org/TR/2007/WD-progress-events-20071023">http://www.w3.org/TR/2007/WD-progress-events-20071023</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.20">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.20</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -54,7 +54,8 @@ use</a> rules apply.</p>
 </div>
 
 <div>
-<h2 class="notoc"><a id="abstract" name="abstract">Abstract</a></h2>
+<h2 class="notoc" id="Abstract"><a id="abstract"
+name="abstract">Abstract</a></h2>
 
 <p>This document describes event types that can be used for monitoring the
 progress of an operation. It is primarily intended for contexts such as data
@@ -80,18 +81,23 @@ network-based events. This editor's draft does not imply any consensus of or
 endorsement by any member of the working group, and may contain minor or
 major errors.</p>
 
-<p>This version is published as a draft replacement for the <a
-href="http://www.w3.org/TR/2007/WD-progress-events-20071023">second W3C
-Working Draft</a> and resolves <a
-href="http://www.w3.org/2006/webapi/track/products/12">all known issues</a>
-from that draft. All comments are welcome and may be sent to <a
-href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>. All messages
+<p>This version is published as an initial response to comments received on
+the <a href="http://www.w3.org/TR/2008/WD-progress-events-20080521">third W3C
+Working Draft</a>. All comments are welcome and should be sent to the new
+Working Group list at <a
+href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>. All messages
 received at this address are viewable in a <a
-href="http://lists.w3.org/Archives/Public/public-webapi/">public archive</a>.
-Unless any issues are raised by review of this draft this specification will
-hopefully be published as a Last Call Working draft early in the second
-quarter of 2008. Currently there are no known issues which are unresolved by
-this specification.</p>
+href="http://lists.w3.org/Archives/Public/public-webapps/">public archive</a>
+(Please note that a different list has been used until now, so old messages
+will be <a href="http://lists.w3.org/Archives/Public/public-webapi/">archived
+there instead</a>). Given the issues raised by review of the Public Workng
+Draft this specification will hopefully be published as a Last Call Working
+draft in the third quarter of 2008. Currently there are is at least one
+substantice issue unresolved by this specification: <span class="issue"><a
+href="http://www.w3.org/2008/webapps/track/issues/3">ISSUE-3</a>: Should
+there be an eventType defined in this specification to allow the use of
+document.createEvent</span>. There are several editorial changes expected,
+labelled as follows: <span class="todo">@@Do something</span></p>
 
 <p>This document was produced by a group operating under the <a
 href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004
@@ -115,45 +121,50 @@ document as other than work in progress.</p>
 
 <div class="toc">
 <ul>
-  <li><a href="#Conformanc">Conformance</a></li>
-  <li><a href="#Progress">The <code>ProgressEvent</code> events</a> 
+  <li><a href="#Abstract">Abstract</a></li>
+  <li><a href="#Status">Status of this Document</a></li>
+  <li><a href="#Conformanc">1. Conformance</a></li>
+  <li><a href="#Progress">2. The <code>ProgressEvent</code> events</a>
     <ul>
-      <li><a href="#Event">Event definitions</a></li>
-      <li><a href="#Interface">Interface definitions</a></li>
-      <li><a href="#Referring">Referring to progress events from other
-        specifications</a> 
-        <ul>
-          <li><a href="#Example">Example 1: Using progress events in another
-            specification:</a></li>
-        </ul>
-      </li>
-      <li><a href="#Using">Using progress events in Web content</a> 
-        <ul>
-          <li><a href="#Example1">Example 2: Using <code>progress</code>
-            event an SVG document. </a></li>
-        </ul>
-      </li>
+      <li><a href="#Event">2.1 Event definitions</a></li>
+      <li><a href="#Event1">2.2 Event firing order</a></li>
+      <li><a href="#Interface">2.3 Interface definitions</a></li>
     </ul>
   </li>
-  <li><a href="#Change">Change History</a></li>
-  <li><a href="#References">References</a> 
+  <li><a href="#Referring">3. Referring to progress events from other
+    specifications</a>
     <ul>
-      <li><a href="#Normative">Normative references</a></li>
-      <li><a href="#Informativ">Informative references</a></li>
+      <li><a href="#Example">Example 1: Using progress events in another
+        specification:</a></li>
     </ul>
   </li>
-  <li><a href="#Acknowledg">Acknowledgements</a></li>
+  <li><a href="#Using">4. Using progress events in Web content</a>
+    <ul>
+      <li><a href="#Example1">Example 2: Using Progress events in an SVG
+        document. </a></li>
+      <li><a href="#Example11">Example 3: Using Progress events in an HTML
+        document. </a></li>
+    </ul>
+  </li>
+  <li><a href="#References">5. References</a>
+    <ul>
+      <li><a href="#Normative">5.1 Normative references</a></li>
+      <li><a href="#Informativ">5.2 Informative references</a></li>
+    </ul>
+  </li>
+  <li><a href="#Acknowledg">6. Acknowledgements</a></li>
+  <li><a href="#Change">7. Change History</a></li>
 </ul>
 </div>
 
-<h2 id="Conformanc">Conformance</h2>
+<h2 id="Conformanc">1. Conformance</h2>
 
-<p>The terms <strong>must</strong>, <strong>should</strong>,
-<strong>may</strong>, <strong>must not</strong>, <strong>should not</strong>,
-are used in this document in accordance with [<a
+<p>The terms <em>must</em>, <em>should</em>, <em>may</em>, <em>must not</em>,
+<em>should not</em>, are used in this document in accordance with [<a
 href="#RFC2119">RFC2119</a>]. A conformant implementation of this
 specification meets all relevant requirements identified by the use of these
-terms.</p>
+terms. Except where noted otherwise, all sections of this document are
+normative, except examples which are informative.</p>
 
 <p>There are three classes of conformance to this specification:</p>
 <dl>
@@ -164,27 +175,27 @@ terms.</p>
       href="#Referring">Referring to progress events from other
       specifications</a>.</dd>
   <dt>User agent</dt>
-    <dd>A conforming user agent implements all the requirements described for
-      user agents throughout this specification. A conforming user agent
-      <em>should</em> implement all the recommendations for user agents as
-      well.</dd>
+    <dd>A user agent <em>must</em> implement all the requirements described
+      for user agents throughout this specification in order to be a
+      conforming user agent. A conforming user agent <em>should</em>
+      implement all the recommendations for user agents as well.</dd>
   <dt>Content</dt>
-    <dd>Conforming content generates and consumes progress events in
-      accordance with the requirements defined in this specification, and in
-      accordance with any additional conformance requirements defined by a
-      specification which describes an operation that can lead to progress
-      events being dispatched. (Note that content which meets the
-      requirements of a specification which is not conformant to this
-      specification may still be conforming content as defined for this
-      specification).</dd>
+    <dd>Conforming content <em>must</em> generate and consume progress events
+      in accordance with the definitions of those events in this
+      specification, and in accordance with any additional conformance
+      requirements defined by a specification which describes an operation
+      that can lead to progress events being dispatched. (Note that content
+      which meets the requirements of a specification which is not conformant
+      to this specification may still be conforming content as defined for
+      this specification).</dd>
 </dl>
 
-<h2 id="Progress">The <code>ProgressEvent</code> events</h2>
+<h2 id="Progress">2. The <code>ProgressEvent</code> events</h2>
 
-<h3 id="Event">Event definitions</h3>
+<h3 id="Event">2.1 Event definitions</h3>
 </div>
 
-<p>The following events are defined in this specification</p>
+<p>The following events are defined in this specification:</p>
 
 <table border="1">
   <caption></caption>
@@ -205,8 +216,9 @@ terms.</p>
       <td><code>progress</code></td>
       <td>The operation is in progress</td>
       <td>zero or more</td>
-      <td>May be dispatched zero or more times after a <code>loadstart</code>
-        event, before any of error, abort or load events are dispatched</td>
+      <td><em>May</em> be dispatched zero or more times after a
+        <code>loadstart</code> event, before any <code>error</code>,
+        <code>abort</code> or <code>load</code> event is dispatched</td>
     </tr>
     <tr>
       <td><code>error</code></td>
@@ -230,21 +242,48 @@ terms.</p>
   </tbody>
 </table>
 
-<p>By default these events do not bubble, and are not be cancelable. </p>
+<p>User agents <em>must</em> implement these events such that by default the
+events do not bubble, and are not be cancelable. </p>
 
-<p>These events trigger event listeners attached on <code>Element</code>
-nodes for that event and on the capture and target phases. </p>
+<p>User agents <em>must</em> ensure that these events trigger event listeners
+attached on <code>Element</code> nodes for the relevant event and on the
+capture and target phases. </p>
 
 <p>No default action is defined for these events. </p>
 
-<p>These events are in the <samp>null</samp> namespace. Two kinds of
-initialisation methods are provided: one in which the namespace is required
-(and must be <samp>null</samp>) and one which assigns the <samp>null</samp>
-namespace automatically, This specification does not recommend use of one
-method over the other, and authors may choose whichever method suits them
-better for any given usage.</p>
+<p>These events are in "no namespace", that is for the purposes of namespaced
+systems they use the <samp>null</samp> namespace. Two kinds of initialisation
+methods are provided: one (<code><a
+href="#initProgre2">initProgressEventNS</a></code>) in which the namespace is
+<em>required</em> and <em>must</em> be <samp>null</samp> (any event in
+another namespace is not defined by this specification), and one (<code><a
+href="#initProgressEvent">initProgressEvent</a></code>) which assigns the
+<samp>null</samp> namespace automatically. This specification does not
+recommend use of one method over the other, and authors may choose whichever
+method suits them better for any given usage.</p>
 
-<h3 id="Interface">Interface definitions</h3>
+<h3 id="Event1">2.2 Event firing order</h3>
+<ul>
+  <li>The user agent <em>must</em> dispatch a <code>loadstart</code> event
+    when a relevant operation has begun. </li>
+  <li>The user agent <span class="term"><em>may</em></span> dispatch one or
+    more <code>progress</code> events while a network operation is taking
+    place.</li>
+  <li>If the operation fails to complete the user agent <em>must</em>
+    dispatch either an <code>error</code> event, if the failure to complete
+    was due to an error (such as a timeout, or network error), or an
+    <code>abort</code> event if the operation was deliberately cancelled
+    (e.g. by user interaction or through a script call).</li>
+  <li>If the Operation successfully completes, the user agent <em>must</em>
+    dispatch a <code>load</code> event. </li>
+</ul>
+
+<p>In short, there must be at least one <code>loadstart</code> event,
+followed by zero or more <code>progress</code> events, followed by one event
+which may be any of <code>error</code>, <code>abort</code> or
+<code>load</code>, according to the outcome of the operation.</p>
+
+<h3 id="Interface">2.3 Interface definitions</h3>
 
 <p>Where this specification repeats information from the DOM Level 3 Events
 specification [<a href="#D3E">D3E</a>], the repeated information in this
@@ -263,14 +302,14 @@ specifications the DOM Level 3 Events specification is normative.</p>
                                           in boolean       cancelableArg,
                                           in boolean       lengthComputableArg,
                                           in unsigned long loadedArg,
-                                          in unsigned long totalArg,
+                                          in unsigned long totalArg)
      void               initProgressEventNS(in DOMString namespaceURI,
                                             in DOMString typeArg,
                                             in boolean       canBubbleArg,
                                             in boolean       cancelableArg,
                                             in boolean       lengthComputableArg,
                                             in unsigned long loadedArg,
-                                            in unsigned long totalArg,
+                                            in unsigned long totalArg)
 };</pre>
       </div>
       <p><br>
@@ -283,13 +322,15 @@ specifications the DOM Level 3 Events specification is normative.</p>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long</span> <span
         class="dom-attr-name"><code>loaded</code></span></dt>
-          <dd>Specifies the number of bytes downloaded since the beginning of
-            the download. This refers to the content, excluding headers and
-            overhead from the transaction, and where there is a
+          <dd>Specifies the number of bytes transferred since the beginning
+            of the operation. This refers to the content, excluding headers
+            and overhead from the transaction, and where there is a
             content-encoding or transfer-encoding refers to the number of
             bytes to be transferred, i.e. with the relevant encodings
             applied. For more details on HTTP see [<a
-            href="#RFC2616">RFC2616</a>]. </dd>
+            href="#RFC2616">RFC2616</a>]. <span class="issue"><a
+            href="http://www.w3.org/2008/webapps/track/issues/4">ISSUE-4</a>:
+            Should this be left to specifications to define?</span></dd>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long</span> <span
         class="dom-attr-name"><code>total</code></span></dt>
@@ -312,14 +353,14 @@ specifications the DOM Level 3 Events specification is normative.</p>
               <dt><span class="dom-parameters">Parameters</span></dt>
                 <dd><dl>
                     <dt><var>typeArg</var> of type DOMString</dt>
-                      <dd>This <em>must</em> be one of
+                      <dd>If the value of this parameter is not one of
                         <samp>loadstart</samp>, <samp>progress</samp>,
-                        <samp>error</samp>, <samp>abort</samp>,
-                        <samp>load</samp>. If it is not one of those values
-                        then this specification does not define the resulting
-                        event. Refer to the <code>Event.initEvent()</code>
-                        method [<a href="#D3E">D3E</a>] for further
-                        description of this parameter.</dd>
+                        <samp>error</samp>, <samp>abort</samp>, or
+                        <samp>load</samp> then this specification does not
+                        define the resulting event. Refer to the
+                        <code>Event.initEvent()</code> method [<a
+                        href="#D3E">D3E</a>] for further description of this
+                        parameter.</dd>
                     <dt><var>canBubbleArg</var> of type boolean</dt>
                       <dd>Specifies <code>Event.bubbles</code>. This
                         parameter overrides the intrinsic bubbling behavior
@@ -334,17 +375,17 @@ specifications the DOM Level 3 Events specification is normative.</p>
                       <dd>If the user agent has reliable information about
                         the value of total, then this <em>should</em> be
                         true. If the user agent does not have reliable
-                        information about the vale of total, this
+                        information about the value of total, this
                         <em>should</em> be false</dd>
                     <dt><var>loadedArg</var> of type unsigned long</dt>
                       <dd>This parameter specifies the total number of bytes
-                        already loaded. If this value is not a non-negative
-                        number, the user agent <em>must</em> change it to
-                        zero.</dd>
+                        already transferred. If this value is not a
+                        non-negative number, the user agent <em>must</em>
+                        change it to zero.</dd>
                     <dt><var>totalArg</var> of type unsigned long</dt>
                       <dd>This specifies the total number of bytes to be
-                        loaded. If lengthComputable is <var>false</var>, this
-                        <em>must</em> be zero. If any other parameter is
+                        transferred. If lengthComputable is <var>false</var>,
+                        this <em>must</em> be zero. If any other parameter is
                         passed, and lengthComputable is false, the user agent
                         <em>must</em> override this and set the value to
                         zero. If lengthComputable is <var>true</var>, and the
@@ -363,7 +404,8 @@ specifications the DOM Level 3 Events specification is normative.</p>
           </dd>
       </dl>
       <dl>
-        <dt><span class="dom-method-name">initProgressEventNS</span></dt>
+        <dt><span class="dom-method-name"
+        id="initProgre2">initProgressEventNS</span></dt>
           <dd>This method is used to initialize the value of a namespaced
             ProgressEvent object and has the same behavior as
             <code>Event.initEventNS()</code> [<a href="#D3E">D3E</a>]. Except
@@ -389,32 +431,20 @@ specifications the DOM Level 3 Events specification is normative.</p>
     </dd>
 </dl>
 
-<h3 id="Referring">Referring to progress events from other specifications</h3>
+<h2 id="Referring">3. Referring to progress events from other
+specifications</h2>
 
 <p>A progress event occurs when the user agent makes progress in some data
 transfer operation, such as loading a resource from the web via
-XMLHttpRequest [<a href="#XHR">XHR</a>]. Specifications which have a use case
-for these events <em>should</em> define when Progress events are
+XMLHttpRequest [<a href="#XHR">XHR</a>]. Conforming specifications which use
+progress events <em>must</em> define the targets on which progress events are
 dispatched.</p>
-<ul>
-  <li>The user agent <em>must</em> dispatch a <code>start</code> event when a
-    relevant operation has begun. </li>
-  <li>The user agent <span class="term"><em>may</em></span> dispatch one or
-    more <code>progress</code> events while a network operation is taking
-    place.</li>
-  <li>If the operation fails to complete the user agent <em>must</em>
-    dispatch either an <code>error</code> event, if the failure to complete
-    was due to an error (such as a timeout, or network error), or an
-    <code>abort</code> event if the operation was deliberately cancelled
-    (e.g. by user interaction or through a script call).</li>
-  <li>If the Operation successfully completes, the user agent <em>must</em>
-    dispatch a <code>load</code> event. </li>
-</ul>
 
-<p>In short, there must be at least one <code>start</code> event, followed by
-zero or more <code>progress</code> events, followed by one event which may be
-any of <code>error</code>, <code>abort</code> or <code>load</code>, according
-to the outcome of the operation.</p>
+<p>Either by reference or by direct inclusion, conforming specifications
+<em>must</em> maintain and <em>must not</em> contradict the requirements for
+and definition of the events as described in the section <a
+href="../../../../tmp/Progress.html#Progress">The <code>ProgressEvent</code>
+events</a></p>
 
 <h4 id="Example">Example 1: Using progress events in another
 specification:</h4>
@@ -437,13 +467,15 @@ body. For the receive phase, the total attribute specifies the size of the
 content to be returned in the HTTP HEAD operation.</p>
 </div>
 
-<h3 id="Using">Using progress events in Web content</h3>
+<h2 id="Using">4. Using progress events in Web content</h2>
 
 <p>Scripts may use progress events in order to provide feedback on operations
 performed by an application. </p>
 
-<h4 id="Example1">Example 2: Using <code>progress</code> event an SVG
-document. </h4>
+<h4 id="Example1">Example 2: Using Progress events in an SVG document. </h4>
+
+<p>This example is informative and does not necessarily illustrate best
+practice.</p>
 
 <p>In this example, the application uses the information in progress events
 emitted as an image loads in order to fill a progress bar as it receives
@@ -504,10 +536,148 @@ progress bar to indicate that there is still some kind of activity.</p>
   &lt;/g&gt;
 &lt;/svg&gt;</code></pre>
 
-<h2 id="Change">Change History</h2>
+<h4 id="Example11">Example 3: Using Progress events in an HTML document. </h4>
+
+<p>This example is informative and does not necessarily illustrate best
+practice.</p>
+
+<p>In this example, the application creates an XMLHttpRequest [<a
+href="#XHR">XHR</a>], in an HTML5 [HTML5] document and checks whether it
+makes progress. (Note that this relies on draft specifications and may need
+to change)</p>
+<pre class="example"><code>&lt;!DOCTYPE html&gt;
+ &lt;html&gt;
+  &lt;head&gt;
+   &lt;title&gt;Using Progress Events&lt;/title&gt;  
+   &lt;script&gt;
+    var theTransfer = new XMLHttpRequest();
+    <span class="todo">//start up the request properly</span>
+    
+    theTransfer.addEventListener("progress",updateProgress,false);
+    theTransfer.addEventListener("load",worky,false);
+    theTransfer.addEventListener("error",failToWorky,false);
+    theTransfer.addEventListener("abort",whatForYouDoThat,false);
+
+   theTransfer.open()
+
+   function updateProgress(evt) {  
+          var progressCount = document.getElementById('progressCount');
+          progressCount.child[1].data = evt.loaded;
+       if (evt.lengthComputable &amp;&amp; evt.total != 0) {                  // show progress
+          var totalCount = document.getElementById('total');
+          totalCount.child[1].data = evt.total;
+       } else { // we don't know the size
+          var totalCount = document.getElementById('totalCount');
+          totalCount.setAttribute("irrelevant", "irrelevant");
+       }   
+   }
+               
+   function worky(evt) {
+       alert("Yuk! Modal dialog! But the transfer completed ;) ");
+   }
+               
+   function failToWorky(evt) {
+       alert("The horror! The transfer failed!!!");
+   }
+               
+   function worky(evt) {
+       alert("Hey! User control is not relevant here...");
+   }
+   &lt;/script&gt;
+
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;p id="theProgress"&gt;So far, I have loaded &lt;span id="progressCount"&gt;0&lt;/span&gt; bytes
+     &lt;span id="totalCount" irrelevant="irrelevant"&gt;of the total transfer of 
+     &lt;span id="total"&gt;the total&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+  &lt;/body&gt;
+ &lt;/html&gt;</code></pre>
+
+<p></p>
+
+<h2 id="References">5. References</h2>
+
+<h3 id="Normative">5.1 Normative references</h3>
+<dl>
+  <dt>[<a name="D3E" id="D3E">D3E</a>] DOM Level 3 Events.</dt>
+    <dd>Björn Höhrmann, ed. W3C Working draft, available at <a
+      href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-interface">http://www.w3.org/TR/DOM-Level-3-Events/</a></dd>
+  <dt id="ref-rfc2119">[<a name="RFC2119" id="RFC2119">RFC2119</a>] Key words
+  for use in RFCs to indicate Requirement Levels</dt>
+    <dd>S Bradner, 1997. The specification for how to use english to specify
+      normatively, as if it were a technical language. Available at <a
+      href="http://rfc.net/rfc2119.html">http://rfc.net/rfc2119.html</a></dd>
+  <dt>[<a name="RFC2616" id="RFC2616">RFC2616</a>] Hypertext Transfer
+  Protocol -- HTTP/1.1</dt>
+    <dd>R Fielding et al., 1999. Available at <a
+      href="http://rfc.net/rfc2616.html">http://rfc.net/rfc2616.html</a></dd>
+</dl>
+
+<h3 id="Informativ">5.2 Informative references</h3>
+<dl>
+  <dt>[<a name="IEoP" id="IEoP">IEoP</a>] onProgress event in Internet
+  Explorer</dt>
+    <dd>Documentation available at <a
+      href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/com/html/07b3e629-a558-4a0e-8307-ca922f56e00c.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/com/html/07b3e629-a558-4a0e-8307-ca922f56e00c.asp</a></dd>
+  <dt>[<a name="MAE" id="MAE">MAE</a>] Media Access Events</dt>
+    <dd>Ola Anderson, Jean-Claude Duford, Roland Lundblad, eds. W3C Working
+      Draft available at <a
+      href="http://www.w3.org/TR/MediaAccessEvents/">http://www.w3.org/TR/MediaAccessEvents/</a></dd>
+  <dt>[<a name="SVGD" id="SVGD">SVGD</a>] The proposed progress event in SVG
+  1.2</dt>
+    <dd>Available at <a
+      href="http://www.w3.org/TR/2006/CR-SVGMobile12-20060810/svgudom.html#events__ProgressEvent">http://www.w3.org/TR/2006/CR-SVGMobile12-20060810/svgudom.html#events__ProgressEvent</a></dd>
+  <dt>[<a name="WPE" id="WPE">WPE</a>] The <code>progress</code> element
+  proposed by WHAT-WG</dt>
+    <dd>I Hickson, ed. Latest version available at <a
+      href="http://www.whatwg.org/specs/web-apps/current-work/#progress0">http://www.whatwg.org/specs/web-apps/current-work/#progress0</a></dd>
+  <dt>[<a name="XHR" id="XHR">XHR</a>] XMLHTTPRequest</dt>
+    <dd>A van Kesteren, ed.. Latest draft available at <a
+      href="http://www.w3.org/TR/xmlhttprequest">http://www.w3.org/TR/xmlhttprequest</a></dd>
+</dl>
+
+<h2 id="Acknowledg">6. Acknowledgements</h2>
+
+<p>The editor would like to thank the SVG working group for producing the
+draft [<a href="#SVGD">SVGD</a>] that this was initially based on. The
+WHATWG's proposed <code>progress</code> element [<a href="#WPE">WPE</a>] and
+the documentation for Internet Explorer's <code>onProgress</code>
+implementation [<a href="#IEoP">IEoP</a>] were also useful as an initial
+reference for this specification. In addition, the following individuals'
+comments have been invaluable in preparing this draft:</p>
+
+<p>Robin Berjon, Jean-Yves Bitterlich, Marcos Caceres, Suresh Chitturi, Alex
+Danilo, Erik Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm
+Eriksen, Ian Hickson, Bjoern Hoehrmann, Björn Hoehrmann, David Håsäther,
+Bjï¿½rn Höhrmann, Bjoern Hï¿½hrmann, Anne van Kesteren, Travis Leithead,
+Aaron Leventhal, Jim Ley, Chrus Lilley, Cameron McCormack, Olli Pettay,
+Michael Antony Puls, Nandini Ramani, Robert Sayre, Alan Schepers, Doug
+Schepers, Rich Schwerdtfeger, Lisa Seeman, Andrew Shellshear, Ellen Siegel,
+Andy Sledd, Maciej Stachowiak, Boris Zbarsky, Gottfried Zimmermann</p>
+
+<p>The editor apologises to anyone who has inadvertently been left off this
+list, and welcomes corrections.</p>
+
+<h2 id="Change">7. Change History</h2>
 <dl>
   <dt><a
-  href="../Progress.html?rev=1.19">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.20</a></dt>
+  href="../Progress.html?rev=1.21">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.21</a>
+  (based on proposed Third Public Working Draft)</dt>
+    <dd>Editorial changes designed to clarify conformance requirements for
+      each type of conformance.
+      <ul>
+        <li>Added ISSUE-3 (should there be eventType) - likely to be resolved
+          as "yes"</li>
+        <li>Clarified especially in the conformance section which setions are
+          normative</li>
+        <li>Added some of an HTML/XHR example</li>
+        <li>Changed wording to clarify that progress events can be on any
+          kind of transfer</li>
+        <li>Changed feedback and archive address</li>
+      </ul>
+    </dd>
+  <dt><a
+  href="../Progress.html?rev=1.20">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.20</a></dt>
     <dd><ul>
         <li>Resolved <a
           href="http://www.w3.org/2006/webapi/track/issues/119">ISSUE-119</a>
@@ -638,70 +808,7 @@ progress bar to indicate that there is still some kind of activity.</p>
 </dl>
 
 <p>Various editorial changes and corrections and modifications to the
-examples are made from draft to draft. These are not noted in the change
-history.</p>
-
-<h2 id="References">References</h2>
-
-<h3 id="Normative">Normative references</h3>
-<dl>
-  <dt>[<a name="D3E" id="D3E">D3E</a>] DOM Level 3 Events.</dt>
-    <dd>Björn Höhrmann, ed. W3C Working draft, available at <a
-      href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-interface">http://www.w3.org/TR/DOM-Level-3-Events/</a></dd>
-  <dt id="ref-rfc2119">[<a name="RFC2119" id="RFC2119">RFC2119</a>] Key words
-  for use in RFCs to indicate Requirement Levels</dt>
-    <dd>S Bradner, 1997. The specification for how to use english to specify
-      normatively, as if it were a technical language. Available at <a
-      href="http://rfc.net/rfc2119.html">http://rfc.net/rfc2119.html</a></dd>
-  <dt>[<a name="RFC2616" id="RFC2616">RFC2616</a>] Hypertext Transfer
-  Protocol -- HTTP/1.1</dt>
-    <dd>R Fielding et al., 1999. Available at <a
-      href="http://rfc.net/rfc2616.html">http://rfc.net/rfc2616.html</a></dd>
-</dl>
-
-<h3 id="Informativ">Informative references</h3>
-<dl>
-  <dt>[<a name="IEoP" id="IEoP">IEoP</a>] onProgress event in Internet
-  Explorer</dt>
-    <dd>Documentation available at <a
-      href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/com/html/07b3e629-a558-4a0e-8307-ca922f56e00c.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/com/html/07b3e629-a558-4a0e-8307-ca922f56e00c.asp</a></dd>
-  <dt>[<a name="MAE" id="MAE">MAE</a>] Media Access Events</dt>
-    <dd>Ola Anderson, Jean-Claude Duford, Roland Lundblad, eds. W3C Working
-      Draft available at <a
-      href="http://www.w3.org/TR/MediaAccessEvents/">http://www.w3.org/TR/MediaAccessEvents/</a></dd>
-  <dt>[<a name="SVGD" id="SVGD">SVGD</a>] The proposed progress event in SVG
-  1.2</dt>
-    <dd>Available at <a
-      href="http://www.w3.org/TR/2006/CR-SVGMobile12-20060810/svgudom.html#events__ProgressEvent">http://www.w3.org/TR/2006/CR-SVGMobile12-20060810/svgudom.html#events__ProgressEvent</a></dd>
-  <dt>[<a name="WPE" id="WPE">WPE</a>] The <code>progress</code> element
-  proposed by WHAT-WG</dt>
-    <dd>I Hickson, ed. Latest version available at <a
-      href="http://www.whatwg.org/specs/web-apps/current-work/#progress0">http://www.whatwg.org/specs/web-apps/current-work/#progress0</a></dd>
-  <dt>[<a name="XHR" id="XHR">XHR</a>] XMLHTTPRequest</dt>
-    <dd>A van Kesteren, ed.. Latest draft available at <a
-      href="http://www.w3.org/TR/xmlhttprequest">http://www.w3.org/TR/xmlhttprequest</a></dd>
-</dl>
-
-<h2 id="Acknowledg">Acknowledgements</h2>
-
-<p>The editor would like to thank the SVG working group for producing the
-draft [<a href="#SVGD">SVGD</a>] that this was initially based on. The
-WHATWG's proposed <code>progress</code> element [<a href="#WPE">WPE</a>] and
-the documentation for Internet Explorer's <code>onProgress</code>
-implementation [<a href="#IEoP">IEoP</a>] were also useful as an initial
-reference for this specification. In addition, the following individuals'
-comments have been invaluable in preparing this draft:</p>
-
-<p>Robin Berjon, Jean-Yves Bitterlich, Marcos Caceres, Suresh Chitturi, Alex
-Danilo, Erik Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm
-Eriksen, Ian Hickson, Bjoern Hoehrmann, Björn Hoehrmann, David Håsäther,
-Bjï¿½rn Höhrmann, Bjoern Hï¿½hrmann, Anne van Kesteren, Travis Leithead,
-Aaron Leventhal, Jim Ley, Chrus Lilley, Cameron McCormack, Michael Antony
-Puls, Nandini Ramani, Robert Sayre, Alan Schepers, Doug Schepers, Rich
-Schwerdtfeger, Lisa Seeman, Andrew Shellshear, Ellen Siegel, Andy Sledd,
-Maciej Stachowiak, Boris Zbarsky, Gottfried Zimmermann</p>
-
-<p>The editor apologises to anyone who has inadvertently been left off this
-list, and welcomes corrections.</p>
+examples are made from draft to draft. These are generally not noted in the
+change history.</p>
 </body>
 </html>
