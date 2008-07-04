@@ -62,10 +62,9 @@ function TestSuite() {
 						// Maximum number of attempts reached, record failure
 						fail("timeout -- could be a networking issue");
 					}
+				} else {
+					recordResult(index, true, ""); // Record success and move to next test
 				}
-				//opera.postError("Recording Result");
-				recordResult(index, true, ""); // Record success and move to next test
-				//opera.postError("Result recorded");
 			} catch (e) {
 				recordResult(index, false, e.message);  // Record failure and move to next test
 			}
