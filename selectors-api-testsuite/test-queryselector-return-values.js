@@ -1,26 +1,38 @@
 /**
  * This set tests that the methods return the correct matching element
  */
+var iframe = document.createElement("iframe");
+var iframeLoaded = false;
+var attempts = 0;
+iframe.onload = function() {
+	iframeLoaded = true;
+}
+
 var tests = [
 function() {
 	// Tests that querySelector matches the correct element
 
-	// XXX
-	// This will be replaced later to use the TestSuite framework to dynamically load the correct page and wait for it to be ready
-	// Currently, this script may fail if the iframe doc hasn't completed loading.
-	var doc = document.getElementsByTagName("iframe")[0];
+	iframe.src = "support/test.html";
+	if (!iframe.parentNode) {
+		document.body.appendChild(iframe);
+	}
+	if (!iframeLoaded) {
+		attempts++;		
+		return false;
+	}
+	var doc = iframe.contentDocument;
 
 	var selectors = [
-		{selector: "body", expected: document.getElementById("body"), description: "Element selector"},
-		{selector: "body#body", expected: document.getElementById("body"), description: "Element selector with ID selector"},
-		{selector: "ul#firstUL", expected: document.getElementById(""), description: "Element selector with ID selector"},
-		{selector: "#firstp #simon1", expected: document.getElementById("simon1"), description: "ID selectors with descendant combinator"},
-		{selector: "#台北Táiběi", expected: document.getElementById("台北Táiběi"), description: "ID Selector with Unicode characters (non-ASCII)"},
-		{selector: "#one, #two", expected: document.getElementById("one"), description: "Multiple ID selectors"},
-		{selector: "#two, #one", expected: document.getElementById("one"), description: "Multiple ID selectors"},
-		{selector: "#one, #non-existent", expected: document.getElementById("one"), description: "Multiple ID selectors"},
-		{selector: "#non-existent, #one", expected: document.getElementById("one"), description: "Multiple ID selectors"}
-	//	{selector: "", expected: document.getElementById(""), description: ""},
+		{selector: "body", expected: doc.getElementById("body"), description: "Element selector"},
+		{selector: "body#body", expected: doc.getElementById("body"), description: "Element selector with ID selector"},
+		{selector: "ul#firstUL", expected: doc.getElementById("firstUL"), description: "Element selector with ID selector"},
+		{selector: "#firstp #simon1", expected: doc.getElementById("simon1"), description: "ID selectors with descendant combinator"},
+		{selector: "#台北Táiběi", expected: doc.getElementById("台北Táiběi"), description: "ID Selector with Unicode characters (non-ASCII)"},
+		{selector: "#one, #two", expected: doc.getElementById("one"), description: "Multiple ID selectors"},
+		{selector: "#two, #one", expected: doc.getElementById("one"), description: "Multiple ID selectors"},
+		{selector: "#one, #non-existent", expected: doc.getElementById("one"), description: "Multiple ID selectors"},
+		{selector: "#non-existent, #one", expected: doc.getElementById("one"), description: "Multiple ID selectors"}
+	//	{selector: "", expected: doc.getElementById(""), description: ""},
 	];
 
 	var a, b, msg;
@@ -32,6 +44,7 @@ function() {
 
 		ts.assert(a === b, msg);
 	}
+	alert(attempts);
 	return true;
 }
 /*,

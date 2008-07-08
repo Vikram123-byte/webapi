@@ -24,10 +24,6 @@ function TestSuite() {
 	var retry = 0; // Retry count for current test
 	var delay = 10; // Delay between tests in ms
 
-	// iframe for use by tests to load external resources when needed
-	// Need to add utility functions to allow tests to access this
-	var iframe = document.createElement("iframe");
-
 	var recordResult = function(testID, result, message) {
 		results.push({"id": testID, "result": result, "message": message})
 		retry = 0; // Reset retry count
@@ -77,11 +73,11 @@ function TestSuite() {
 	this.runTests = function(testArray, callback) {
 		if (!inProgress) {
 			inProgress = true; // Can only execute one set of tests at a time
-			index = 0;
+			index      = 0;
 
-			results = new Array(); // Clear previous results
-			tests = testArray;
-			notify = callback || function(){};
+			results    = new Array(); // Clear previous results
+			tests      = testArray;
+			notify     = callback || function(){};
 
 			this.nextTest();
 			return true;
@@ -117,7 +113,28 @@ function TestSuite() {
 			li.appendChild(text);
 			ol.appendChild(li);
 		}
-	}	
+	}
 }
 
 var ts = new TestSuite();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
