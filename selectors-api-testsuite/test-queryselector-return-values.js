@@ -3,7 +3,7 @@
  */
 var iframe = document.createElement("iframe");
 var iframeLoaded = false;
-var attempts = 0;
+
 iframe.onload = function() {
 	iframeLoaded = true;
 }
@@ -17,7 +17,6 @@ function() {
 		document.body.appendChild(iframe);
 	}
 	if (!iframeLoaded) {
-		attempts++;		
 		return false;
 	}
 	var doc = iframe.contentDocument;
@@ -44,7 +43,6 @@ function() {
 
 		ts.assert(a === b, msg);
 	}
-	alert(attempts);
 	return true;
 }
 /*,
