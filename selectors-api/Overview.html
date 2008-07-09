@@ -32,13 +32,13 @@
 		conforming to the DOM specification template (if there is such a thing) is
 		just silly so we got stuck with this weird name. -->
    
-   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 12 June 2008</h2>
+   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 9 July 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-selectors-api-20080612/">http://www.w3.org/TR/2008/ED-selectors-api-20080612/</a>
+     href="http://www.w3.org/TR/2008/ED-selectors-api-20080709/">http://www.w3.org/TR/2008/ED-selectors-api-20080709/</a>
 
     <dt>Latest Version:
 
@@ -506,13 +506,15 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    title="">nsresolver</var>) as the second.
 
   <p>The caller <em class=ct>must</em> pass a valid group of selectors. If
-   the group of selectors uses namespace prefixes, or if the default
-   namespace for group of selectors is not the <code>null</code> namespace,
-   the caller <em class=ct>must</em> also pass in an <code><a
-   href="#nsresolver">NSResolver</a></code> object that correctly defines the
-   default namespace and/or the namespace prefixes used. Otherwise, the
-   caller <em class=ct>may</em> set the <var title="">nsresolver</var>
-   argument to <code>null</code> or omit it if the language binding permits.
+   the group of selectors uses <a href="#namespace"
+   title=need-to-resolve>namespace prefixes that need to be resolved</a>, or
+   if the default namespace for group of selectors is not the
+   <code>null</code> namespace, the caller <em class=ct>must</em> also pass
+   in an <code><a href="#nsresolver">NSResolver</a></code> object that
+   correctly defines the default namespace and/or the namespace prefixes
+   used. Otherwise, the caller <em class=ct>may</em> set the <var
+   title="">nsresolver</var> argument to <code>null</code> or omit it if the
+   language binding permits.
 
   <p class=note>Authors are advised that while the use of pseudo-elements in
    selectors is permitted, they will not match any elements in the document,
@@ -600,8 +602,18 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    implementation <em class=ct>must</em> use the <var
    title="">nsresolver</var> to <a href="#get-the">get the default
    namespace</a> for the group of selectors. If the group of selectors
-   include namespace prefixes, the implementation must also use it to <a
-   href="#resolve" title=resolve-prefixes>resolve those prefixes</a>.
+   include namespace prefixes that <a href="#namespace"
+   title=need-to-resolve>need to be resolved</a>, the implementation must
+   also use it to <a href="#resolve" title=resolve-prefixes>resolve those
+   prefixes</a>.
+
+  <p>A <dfn id=namespace title=need-to-resolve>namespace prefix needs to be
+   resolved</dfn> if the namespace component is neither empty (e.g.
+   <code>|div</code>), representing the null namespace, or an an asterisk
+   (e.g. <code>*|div</code>), representing any namespace. Since the asterisk
+   or empty namespace prefix do not need to be resolved, implementations must
+   support these regardless of whether or not they supports resolving
+   prefixes.
 
   <p>For languages that support optional arguments for methods, such as
    ECMAScript, if the <var title="">nsresolver</var> argument is omitted, the

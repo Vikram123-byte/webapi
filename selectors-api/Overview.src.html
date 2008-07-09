@@ -385,14 +385,14 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   optionally an <code>NSResolver</code> (<var title="">nsresolver</var>) as
 	   the second.</p>
 
-	<p>The caller <em class="ct">must</em> pass a valid group of selectors.
-	   If the group of selectors uses namespace prefixes, or if the default
-	   namespace for group of selectors is not the <code>null</code> namespace,
-	   the caller <em class="ct">must</em> also pass in an <code>NSResolver</code>
-	   object that correctly defines the default namespace and/or the namespace
-	   prefixes used. Otherwise, the caller <em class="ct">may</em> set the
-	   <var title="">nsresolver</var> argument to <code>null</code> or omit it
-	   if the language binding permits.</p>
+	<p>The caller <em class="ct">must</em> pass a valid group of selectors. If
+	   the group of selectors uses <span title="need-to-resolve">namespace prefixes that need to be resolved</span>,
+	   or if the default namespace for group of selectors is not the
+	   <code>null</code> namespace, the caller <em class="ct">must</em> also
+	   pass in an <code>NSResolver</code> object that correctly defines the
+	   default namespace and/or the namespace prefixes used. Otherwise, the
+	   caller <em class="ct">may</em> set the <var title="">nsresolver</var>
+	   argument to <code>null</code> or omit it if the language binding permits.</p>
 
 	<p class="note">Authors are advised that while the use of pseudo-elements
 	   in selectors is permitted, they will not match any elements in the
@@ -472,8 +472,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p>If the implementation does support resolving namespaces, then the
 	   implementation <em class="ct">must</em> use the <var title="">nsresolver</var>
 	   to <span>get the default namespace</span> for the group of selectors.
-	   If the group of selectors include namespace prefixes, the implementation
-	   must also use it to <span title="resolve-prefixes">resolve those prefixes</span>.
+	   If the group of selectors include namespace prefixes that
+	   <span title="need-to-resolve">need to be resolved</span>, the
+	   implementation must also use it to
+	   <span title="resolve-prefixes">resolve those prefixes</span>.</p>
+
+	<p>A <dfn title="need-to-resolve">namespace prefix needs to be resolved</dfn>
+	   if the namespace component is neither empty (e.g. <code>|div</code>),
+	   representing the null namespace, or an an asterisk (e.g. <code>*|div</code>),
+	   representing any namespace.  Since the asterisk or empty namespace prefix
+	   do not need to be resolved, implementations must support these
+	   regardless of whether or not they supports resolving prefixes.</p>
 
 	<p>For languages that support optional arguments for methods, such as
 	   ECMAScript, if the <var title="">nsresolver</var> argument is omitted,
@@ -503,11 +512,11 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p>To <dfn title="resolve-prefixes">resolve namespace prefixes</dfn>, if
 	   there was an <code>NSResolver</code> object provided, implementations
 	   <em class="ct">must</em> pass the prefix, preserving case, to the
-	   <code>lookupNamespaceURI()</code> method. Implementations <em class="ct">must</em>
-	   handle prefixes case sensitively. If there was no <code>NSResolver</code>
-	   object provided, or if the method returns <code>null</code>, the prefix
-	   represents an <span>unresolvable namespace</span>. Otherwise, the return
-	   value is the namespace for the given prefix.</p>
+	   <code>lookupNamespaceURI()</code> method. Implementations
+	   <em class="ct">must</em> handle prefixes case sensitively. If there was
+	   no <code>NSResolver</code> object provided, or if the method returns
+	   <code>null</code>, the prefix represents an <span>unresolvable namespace</span>.
+	   Otherwise, the return value is the namespace for the given prefix.</p>
 
 	<p class="note">Although prefixes are case sensitive, there are no
 	   restrictions imposed by this specification on how the implementation of
