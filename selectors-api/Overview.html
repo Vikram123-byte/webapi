@@ -32,13 +32,13 @@
 		conforming to the DOM specification template (if there is such a thing) is
 		just silly so we got stuck with this weird name. -->
    
-   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 14 July 2008</h2>
+   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 16 July 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-selectors-api-20080714/">http://www.w3.org/TR/2008/ED-selectors-api-20080714/</a>
+     href="http://www.w3.org/TR/2008/ED-selectors-api-20080716/">http://www.w3.org/TR/2008/ED-selectors-api-20080716/</a>
 
     <dt>Latest Version:
 
@@ -293,18 +293,11 @@ for (var i = 0; i &lt; groups.length; i++) {
    <dt><dfn id=conforming>conforming user agent</dfn>
 
    <dd>A user agent that implements the <code><a
-    href="#dom-document-selector">NodeSelector</a></code> and
-    <code>NodeList</code> interfaces described in this specification and
-    conforms to all <em class=ct>must</em>-level criteria that apply to
-    implementations.
+    href="#dom-document-selector">NodeSelector</a></code> interface described
+    in this specification and conforms to all <em class=ct>must</em>-level
+    criteria that apply to implementations.
 
-   <dt><dfn id=conforming0>conforming namespace resolver</dfn>
-
-   <dd>An object implementing the <code>NSResolver</code> interface which
-    conforms to all <em class=ct>must</em>-level criteria that apply to the
-    <code>NSResolver</code> interface.
-
-   <dt><dfn id=conforming1>conforming application</dfn>
+   <dt><dfn id=conforming0>conforming application</dfn>
 
    <dd>An application that uses the interfaces defined in this specification
     and conforms to all <em class=ct>must</em>-level criteria that apply to
@@ -317,12 +310,7 @@ for (var i = 0; i &lt; groups.length; i++) {
    href="#SELECT" rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>.
 
   <p>Conformance requirements phrased as algorithms or specific steps may be
-   implemented in any manner, so long as the end result is equivalent. In
-   doing so, implementations <em class=ct>may</em> assume that the
-   <code>lookupNamespaceURI()</code> method of the object implementing the
-   <code>NSResolver</code> interface (or ECMAScript <code>Function</code>
-   being used in place of such an object) returns consistent results when
-   invoked.
+   implemented in any manner, so long as the end result is equivalent.
 
   <p>The construction "<code>Foo</code> object", where <code>Foo</code> is
    actually an interface, is sometimes used instead of the more accurate
@@ -337,50 +325,10 @@ for (var i = 0; i &lt; groups.length; i++) {
 
   <p><em>This section is non-normative.</em>
 
-  <p>Since implementations may optimise the algorithms described in this
-   specification, and because some may invoke the <code>NSResolver</code>
-   object more than others, interoperability concerns may arise if the
-   <code>NSResolver</code> object causes side effects or returns inconsistent
-   results each time it is invoked.
-
-  <div class=example>
-   <p>In the following example, the <code>NSResolver</code> causes a side
-    effect when executed.</p>
-
-   <pre>function resolver(prefix) {
-  sideEffect();
-  if (prefix == "test") {
-    return "http://example.org/test";
-  }
-}
-
-var x = document.querySelectorAll("test|*:empty > test|p", resolver)</pre>
-
-   <p>Some implementations may not need to <span>resolve the namespace
-    prefix</span> in order to determine that the selector cannot match any
-    elements, in which case <code>sideEffect()</code> will not be invoked.</p>
-
-   <p>The following example could return inconsistent results each time it is
-    invoked, depending on the order in which namespace prefixes are resolved
-    and the number of times the resolver is invoked to for the
-    <code>foo</code> prefix.</p>
-
-   <pre>var i = 0;
-function resolver(prefix) {
-
-  var ns = ["http://example.org/foo",
-            "http://example.org/bar",
-            "http://example.org/baz"];
-  return ns[i++];
-}
-
-var x = document.querySelectorAll("foo|x, foo|y, bar|z", resolver);</pre>
-
-   <p>This could result in selecting <code>x</code>, <code>y</code> and
-    <code>z</code> elements from almost any combination of namespaces that
-    may be returned. The result is unpredictable and different results may
-    occur in different implementations.</p>
-  </div>
+  <p>Some implementations might have different levels of support for
+   Selectors. If some implementations lack support for some selectors, then
+   if those selectors are used, such implementations could return different
+   results from those that do support them.
 
   <h3 id=extensibility><span class=secno>3.1 </span>Extensibility</h3>
 
@@ -396,31 +344,12 @@ var x = document.querySelectorAll("foo|x, foo|y, bar|z", resolver);</pre>
   <p>It is expected that implementing this specification introduces no new
    security risks for users.
 
-  <p>Implementations <em class=ct>should</em> ensure they do not crash or
-   behave erratically when facing when facing a misbehaving or hostile
-   <code>NSResolver</code> object. Since the <code>NSResolver</code> object
-   may be implemented by application authors, its behaviour could be
-   unpredictable. Such behaviour could include:
-
-  <ul>
-   <li>Returning inconsistent results;
-
-   <li>Hanging;
-
-   <li>Changing the DOM during the operation.
-  </ul>
-
   <p>If, at any time, the implementation detects a situation which would
    violate security policies, the implementation MAY abort and raise a
    security exception. If any other error condition occurs which is not
    covered directly by this or any other relevant specification, the
    implementation <em class=ct>MAY</em> abort and raise an appropriate,
    language-binding-specific or implementation-specific exception.
-
-  <p class=note>Other potential error conditions include being provided with
-   an object via the <var title="">nsresolver</var> parameter, which does not
-   implement the <code>NSResolver</code> interface, or omitting required
-   parameters.
 
   <h2 id=privacy><span class=secno>5. </span>Privacy Considerations</h2>
 
@@ -465,12 +394,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   <pre
    class=idl>[NoInterfaceObject] interface <dfn id=dom-document-selector>NodeSelector</dfn> {
   Element   <a href="#queryselector" title=queryselector>querySelector</a>([Null=Empty, Undefined=Empty] in DOMString selectors);
-  Element   <a href="#queryselector" title=queryselector>querySelector</a>([Null=Empty, Undefined=Empty] in DOMString selectors,
-                          [Null=Empty, Undefined=Empty] in <span>DOMString</span> nsresolver);
-
-  <span>NodeList</span>  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>([Null=Empty, Undefined=Empty] in DOMString selectors);
-  <span>NodeList</span>  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>([Null=Empty, Undefined=Empty] in DOMString selectors,
-                             [Null=Empty, Undefined=Empty] in <span>DOMString</span> nsresolver);
+  NodeList  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>([Null=Empty, Undefined=Empty] in DOMString selectors);
 };
 </pre>
 
@@ -486,60 +410,45 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <code>Element</code> node that matches the group of selectors
    (<var>selectors</var>) that was passed to the method, according to the
    rules for matching elements defined in Selectors <a href="#SELECT"
-   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>.</p>
-  <!-- Include the following paragraph to define the context element for use with
-   - the :context pseudo-class proposal.  Leave commented out until that proposal
-   - has been updated.  Will also need to define "context element", probably by
-   - reference to the :context pseudo-class spec.
+   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>.
 
-	<p>If the <span>context node</span> is a <code>Document</code> node, then
-	   the <span>context element</span> is the <code>documentElement</code> of
-	   the given document.  If the <span>context node</span> is an
-	   <code>Element</code> node, then the <span>context element</span> is the
-	   same as the <span>context node</span>.</p>
--->
+  <p>If the <a href="#context">context node</a> is a <code>Document</code>
+   node, then the <span>scope element</span> is the
+   <code>documentElement</code> of the given document. If the <a
+   href="#context">context node</a> is an <code>Element</code> node, then the
+   <span>scope element</span> is the same as the <a href="#context">context
+   node</a>.
+
+  <p class=issue>The previous paragraph has been included to define which
+   element will be matched by the proposed <code>:scope</code> pseudo-class.
+   If and when that proposal is accepted, this will need an appropriate
+   reference.
 
   <p>The <dfn id=queryselector
-   title=queryselector><code>querySelector()</code></dfn> methods on the
+   title=queryselector><code>querySelector()</code></dfn> method on the
    <code><a href="#dom-document-selector">NodeSelector</a></code> interface
    <em class=ct>must</em>, when invoked, return the first matching
    <code>Element</code> node within the node’s subtree. If there is no such
-   node, the methods <em class=ct>must</em> return <code>null</code>.
+   node, the method <em class=ct>must</em> return <code>null</code>.
 
   <p>The <dfn id=queryselectorall
-   title=queryselectorall><code>querySelectorAll()</code></dfn> methods on
-   the <code><a href="#dom-document-selector">NodeSelector</a></code>
-   interface <em class=ct>must</em>, when invoked, return a
-   <code>NodeList</code> containing all of the matching <code>Element</code>
-   nodes within the node’s subtree, in document order. If there are no such
-   nodes, the methods <em class=ct>must</em> return an empty
-   <code>NodeList</code>.
+   title=queryselectorall><code>querySelectorAll()</code></dfn> method on the
+   <code><a href="#dom-document-selector">NodeSelector</a></code> interface
+   <em class=ct>must</em>, when invoked, return a <code>NodeList</code>
+   containing all of the matching <code>Element</code> nodes within the
+   node’s subtree, in document order. If there are no such nodes, the
+   method <em class=ct>must</em> return an empty <code>NodeList</code>.
 
   <p>Both <code title=queryselector><a
    href="#queryselector">querySelector()</a></code> and <code
    title=queryselectorall><a
-   href="#queryselectorall">querySelectorAll()</a></code> take a group of
-   selectors (<var>selectors</var>) as the first argument and optionally a <a
-   href="#set-of">set of namespace declarations</a> (<var
-   title="">nsresolver</var>) as the second.
-
-  <p>The caller <em class=ct>must</em> pass a valid group of selectors. If
-   the group of selectors uses <a href="#namespace"
-   title=need-to-resolve>namespace prefixes that need to be resolved</a>, or
-   if the default namespace for group of selectors is not the null namespace,
-   the caller <em class=ct>must</em> also pass in a <a href="#set-of">set of
-   namespace declarations</a> that correctly declare the default namespace
-   and/or the namespace prefixes used. Otherwise, the caller <em
-   class=ct>may</em> set the <var title="">nsresolver</var> argument to
-   <code>null</code> or omit it if the language binding permits.
-
-  <p>The <dfn id=set-of>set of namespace declarations</dfn> must be a string
-   that contains zero or more namespace declarations matching the <a
-   href="http://www.w3.org/TR/css3-namespace/#syntax"><code>namespace</code>
-   production</a> defined in the grammar of the CSS Namespaces Module (<a
-   href="#CSS3NAMESPACE"
-   rel=biblioentry>[CSS3NAMESPACE]<!--{{!CSS3NAMESPACE}}--></a>, section
-   3.1).
+   href="#queryselectorall">querySelectorAll()</a></code> take a <a
+   href="http://www.w3.org/TR/css3-selectors/#grouping">group of
+   selectors</a> (<var>selectors</var>) as their argument (<a href="#SELECT"
+   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 5). The caller <em
+   class=ct>must</em> pass a valid group of selectors. The group of selectors
+   <em class=ct>must not</em> use <a href="#namespace"
+   title=need-to-resolve>namespace prefixes that need to be resolved</a>.
 
   <p class=note>Authors are advised that while the use of pseudo-elements in
    selectors is permitted, they will not match any elements in the document,
@@ -549,17 +458,17 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <p>The implementation <em class=ct>must</em> first trim any leading or
    trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace"
-   title=Selectors>whitespace</a> (<a href="#SELECT"
-   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 4) from the value
-   of the <var>selectors</var> parameter. The implementation <em
-   class=ct>must</em> then process the value according to <a
+   title=Selectors>whitespace</a> from the value of the <var>selectors</var>
+   parameter. The implementation <em class=ct>must</em> then process the
+   value according to <a
    href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of
    Selectors</a> (<a href="#SELECT"
-   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 10).
-
-  <p>Selectors are evaluated against a given element in the context the
-   entire DOM tree in which the element is located. If the given group of
-   selectors is <a
+   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 10). If the
+   <var>selectors</var> parameter is set to either <code>null</code> or
+   <code>undefined</code>, the implementation <em class=ct>must</em> behave
+   as if an empty string had been passed instead. Selectors are evaluated
+   against a given element in the context the entire DOM tree in which the
+   element is located. If the given group of selectors is <a
    href="http://www.w3.org/TR/css3-selectors/#Conformance">invalid</a> (<a
    href="#SELECT" rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section
    13), the implementation <em class=ct>must</em> <a
@@ -568,17 +477,12 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
    section 1.4).
 
-  <p>If either the <var>selectors</var> or <var title="">nsresolver</var>
-   parameters are set to either <code>null</code> or <code>undefined</code>,
-   the implementation <em class=ct>must</em> behave as if an empty string had
-   been passed instead.
-
   <p>If the user agent also supports some level of CSS, the implementation
    <em class=ct>should</em> support the same set of selectors in both these
    APIs and CSS.
 
   <p>The <code>NodeList</code> object returned by the <code><a
-   href="#queryselectorall">querySelectorAll()</a></code> methods <em
+   href="#queryselectorall">querySelectorAll()</a></code> method <em
    class=ct>must</em> be static, not <a
    href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live"
    title="Document Object Model Core">live</a>. (<a href="#DOM-LEVEL-3-CORE"
@@ -589,7 +493,72 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    contain a list of matching <code>Element</code> nodes that were in the
    document at the time the list was created.
 
+  <h3 id=resolving><span class=secno>6.1 </span>Resolving Namespaces</h3>
+
+  <p>If the group of selectors include <a href="#namespace"
+   title=need-to-resolve>namespace prefixes that need to be resolved</a>, the
+   implementation must <a
+   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-NAMESPACE_ERR">raise
+   a <code>NAMESPACE_ERR</code> exception</a> (<a href="#DOM-LEVEL-3-CORE"
+   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
+   section 1.4).
+
+  <p>A <dfn id=namespace title=need-to-resolve>namespace prefix needs to be
+   resolved</dfn> if the namespace component is neither empty (e.g.
+   <code>|div</code>), representing the null namespace, or an an asterisk
+   (e.g. <code>*|div</code>), representing any namespace. Since the asterisk
+   or empty namespace prefix do not need to be resolved, implementations that
+   support the namespace syntax in Selectors <em class=ct>must</em> support
+   these. <a href="#SELECT" rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>
+
+  <p class=note>Implementations that don't support the namespace syntax in
+   Selectors would instead throw a <code>SYNTAX_ERR</code> because it would
+   be treated as an invalid selector.
+
+  <h2 id=dom-feature><span class=secno>7. </span>DOM Feature String</h2>
+
+  <p>DOM3 Core defines mechanisms for checking for interface support, and for
+   obtaining implementations of interfaces, using <a
+   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMFeatures">feature
+   strings</a>. (<a href="#DOM-LEVEL-3-CORE"
+   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
+   section 1.3.6)
+
+  <p>A DOM application can use the <dfn id=hasfeature
+   title=hasFeature><code>hasFeature(<var>feature</var>,
+   <var>version</var>)</code></dfn> method of the
+   <code>DOMImplementation</code> interface with parameter values "<code
+   title="">Selectors-API</code>" and "<code>1.0</code>" (respectively) to
+   determine whether or not this module is supported by the implementation.
+   Conforming implementations <em class=ct>must</em> respond with a
+   <code>true</code> value when the <code><a
+   href="#hasfeature">hasFeature</a></code> method is queried with this
+   value. Authors are cautioned, however, that UAs returning
+   <code>true</code> might not be perfectly compliant, and that UAs returning
+   <code>false</code> might well have support for features in this
+   specification; in general, therefore, use of this method is discouraged.
+
+  <h2 id=examples0><span class=secno>8. </span>Examples</h2>
+
+  <p class=issue>Since removing all the NSResolver examples, this section
+   needs to reviewed and possibly expanded.
+
   <div class=example>
+   <p>The following examples make use of this sample document.</p>
+
+   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xml:lang="en">
+  &lt;head>
+    &lt;title&gt;Selectors API Example&lt;/title&gt;
+  &lt;/head>
+  &lt;body>
+    &lt;div>&lt;svg:svg … > … &lt;/svg:svg>&lt;/div&gt;
+    &lt;p>&lt;svg:svg … > … &lt;/svg:svg>&lt;/p&gt;
+    &lt;p>&lt;svg xmlns="http://www.w3.org/2000/svg" … > … &lt;/svg>&lt;/p>
+  &lt;/body>
+&lt;/html></pre>
+
    <p>The methods accept a group of selectors (comma separated) as the
     argument. The following example would select all <code>p</code> elements
     in the document that have a class of either "<code>error</code>" or
@@ -610,202 +579,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
     method is invoked on an element that is the target of an event listener.</p>
 
    <pre>function handle(evt) {
-	  var x = evt.target.querySelector("span");
-	  ...
-	  // Do something with x
-	}</pre>
-  </div>
-
-  <h3 id=resolving><span class=secno>6.1 </span>Resolving Namespaces</h3>
-
-  <p>Support for resolving namespaces is <em class=ct>optional</em>.
-
-  <p>If the implementation does not support resolving namespaces, then when
-   the <var>nsesolver</var> parameter is provided and it is not set to either
-   <code>null</code> or <code>undefined</code>, the implementation <em
-   class=ct>must</em> <a
-   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-NOT_SUPPORTED_ERR">raise
-   a <code>NOT_SUPPORTED_ERR</code> exception</a>. (<a
-   href="#DOM-LEVEL-3-CORE"
-   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
-   section 1.4).
-
-  <p>If the implementation does support resolving namespaces, then the
-   implementation <em class=ct>must</em> process the value of the <var
-   title="">nsresolver</var> parameter according requirements specified in
-   the CSS Namespaces Module <a href="#CSS3NAMESPACE"
-   rel=biblioentry>[CSS3NAMESPACE]<!--{{!CSS3NAMESPACE}}--></a>. The
-   implementation <em class=ct>must</em> then resolve the default namespace
-   and any prefixes used in the group of selectors using these namespace
-   declarations.
-
-  <p class=issue>If there is a syntax error in the nsresolver, should there
-   be a SYNTAX_ERR, a NAMESPACE_ERR or just ignore the invalid declaration
-   and all subsequent declarations, as defined in CSS3 Namespaces?
-
-  <p>A <dfn id=namespace title=need-to-resolve>namespace prefix needs to be
-   resolved</dfn> if the namespace component is neither empty (e.g.
-   <code>|div</code>), representing the null namespace, or an an asterisk
-   (e.g. <code>*|div</code>), representing any namespace. Since the asterisk
-   or empty namespace prefix do not need to be resolved, implementations that
-   support the namespace syntax in Selectors <em class=ct>must</em> support
-   these regardless of whether or not they supports resolving prefixes. <a
-   href="#SELECT" rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>
-
-  <p class=note>Implementations that don't support the namespace syntax in
-   Selectors would instead throw a <code>SYNTAX_ERR</code> because it would
-   be treated as an invalid selector.
-
-  <p>For languages that support optional arguments for methods, such as
-   ECMAScript, if the <var title="">nsresolver</var> argument is omitted, the
-   implementation <em class=ct>must</em> act as if the <var
-   title="">nsresolver</var> argument was set to <code>null</code>.
-
-  <p>An <dfn id=unresolvable>unresolvable namespace</dfn> is a namespace that
-   cannot be resolved because there was no <var>nsresolver</var> provided or
-   it does not contain a namespace declaration for a given prefix. When an <a
-   href="#unresolvable">unresolvable namespace</a> is encountered, the
-   implementation <em class=ct>must</em> <a
-   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-NAMESPACE_ERR">raise
-   a <code>NAMESPACE_ERR</code> exception</a> (<a href="#DOM-LEVEL-3-CORE"
-   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
-   section 1.4).
-
-  <p class=note>Unresolvable namespaces can only occur for namespace
-   prefixes. The default namespace will be the null namespace if it is not
-   declared.
-
-  <h2 id=dom-feature><span class=secno>7. </span>DOM Feature String</h2>
-
-  <p>DOM3 Core defines mechanisms for checking for interface support, and for
-   obtaining implementations of interfaces, using <a
-   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMFeatures">feature
-   strings</a>. <a href="#DOM-LEVEL-3-CORE"
-   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>
-
-  <p>A DOM application can use the <dfn id=hasfeature
-   title=hasFeature><code>hasFeature(<var>feature</var>,
-   <var>version</var>)</code></dfn> method of the
-   <code>DOMImplementation</code> interface with parameter values "<code
-   title="">Selectors-API</code>" and "<code>1.0</code>" (respectively) to
-   determine whether or not this module is supported by the implementation.
-   Conforming implementations <em class=ct>must</em> respond with a
-   <code>true</code> value when the <code><a
-   href="#hasfeature">hasFeature</a></code> method is queried with this
-   value. Authors are cautioned, however, that UAs returning
-   <code>true</code> might not be perfectly compliant, and that UAs returning
-   <code>false</code> might well have support for features in this
-   specification; in general, therefore, use of this method is discouraged.
-
-  <h2 id=examples0><span class=secno>8. </span>Examples</h2>
-
-  <p class=issue>The following examples need to be updated.
-
-  <div class=example>
-   <p>The following examples make use of this sample document.</p>
-
-   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:svg="http://www.w3.org/2000/svg"
-      xml:lang="en">
-  &lt;head>
-    &lt;title&gt;Selectors API Example&lt;/title&gt;
-  &lt;/head>
-  &lt;body>
-    &lt;div>&lt;svg:svg … > … &lt;/svg:svg>&lt;/div&gt;
-    &lt;p>&lt;svg:svg … > … &lt;/svg:svg>&lt;/p&gt;
-    &lt;p>&lt;svg xmlns="http://www.w3.org/2000/svg" … > … &lt;/svg>&lt;/p>
-  &lt;/body>
-&lt;/html></pre>
-
-   <p>The <code>NSResolver</code> may be implemented as an object with a
-    <code>lookupNamespaceURI</code> method.</p>
-
-   <pre>var resolver = {
-  lookupNamespaceURI: function(prefix) {
-    var ns = {
-      "xh"  :"http://www.w3.org/1999/xhtml",
-      "xbl" :"http://www.w3.org/ns/xbl",
-      "svg" :"http://www.w3.org/2000/svg",
-      "math":"http://www.w3.org/1998/Math/MathML"
-    };
-    return ns[prefix];
-  }
-}</pre>
-
-   <p>For convenience, in ECMAScript, the <code>NSResolver</code> may also be
-    implemented as a function. In the above example, namespace prefixes are
-    resolved case sensitively. If case insensitive namespace prefixes are
-    desired, it is possible to implement this in the resolver by altering the
-    case of the prefix before comparison.</p>
-
-   <pre>function resolver(prefix) {
-  var ns = {
-    "xh"  :"http://www.w3.org/1999/xhtml",
-    "xbl" :"http://www.w3.org/ns/xbl",
-    "svg" :"http://www.w3.org/2000/svg",
-    "math":"http://www.w3.org/1998/Math/MathML"
-  };
-  return ns[prefix.toLowerCase()];
-}
-
-var svgImages = document.querySelectorAll("xh|p SVG|svg", resolver);</pre>
-
-   <p class=note>This is not a proper implementation of caseless matching in
-    Unicode, which requires both strings that are being compared to be case
-    folded prior to performing a binary comparison <a href="#UAX21"
-    rel=biblioentry>[UAX21]<!--{{UAX21}}--></a>. However, this is a
-    sufficient approximation for prefixes that are restricted to characters,
-    such as those in the US-ASCII subset, for which simply converting both
-    strings to lowercase and comparing returns the correct result. If
-    desired, an implementation of the full case mapping algorithm is left as
-    an exercise for the reader.</p>
-
-   <p>Using the case insensitive namespace resolver, the prefix
-    <code>xh</code> will be resolved as
-    <code>http://www.w3.org/1999/xhtml</code> and <code>SVG</code> as
-    <code>http://www.w3.org/2000/svg</code>. The <var>svgImages</var>
-    variable will be a <code>NodeList</code> containing the two
-    <code>svg</code> elements that are descendents of the <code>p</code>
-    elements.</p>
-
-   <p>The default namespace can be specified so that prefixes do not need to
-    be used for selecting elements in a specific namespace. In the following
-    example, the default namespace has been set to the XHTML namespace.</p>
-
-   <pre>function resolver(prefix) {
-  var ns = {
-    ""    :"http://www.w3.org/1999/xhtml", // Default namespace
-    "xbl" :"http://www.w3.org/ns/xbl",
-    "svg" :"http://www.w3.org/2000/svg",
-    "math":"http://www.w3.org/1998/Math/MathML"
-  };
-  return ns[prefix];
-}</pre>
-
-   <p>Using this resolver, the previous example can be rewritten without
-    explicitly declaring the XHTML namespace using the <code>xh</code>
-    prefix.</p>
-
-   <pre>var svgImages = document.querySelectorAll("p svg|svg", resolver);</pre>
-
-   <p>In the following example, the <code>foo</code> namespace is undefined
-    and will result in an unresolvable namespace. The
-    <code>NAMESPACE_ERR</code> exception can be handled using a
-    <code>try</code>/<code>catch</code> block.</p>
-
-   <pre>try {
-  document.querySelectorAll("foo|bar", resolver);
-} catch (e) {
-  switch (e.code) {
-  case DOMException.NAMESPACE_ERR:
-    // Namespace error
-    break;
-  case DOMException.SYNTAX_ERR:
-    // Syntax error
-    break;
-  default:
-    // Unknown error
-  }
+  var x = evt.target.querySelector("span");
+  ...
+  // Do something with x
 }</pre>
 
    <p>This example demonstrates how to iterate through the items in a
@@ -858,16 +634,6 @@ for (var i = 0; i &lt; lis.length; i++) {
     Sheets Level 2 Revision 1 (CSS 2.1) Specification.</cite></a> 19 July
     2007. W3C Candidate Recommendation. (Work in progress.) URL: <a
     href="http://www.w3.org/TR/2007/CR-CSS21-20070719">http://www.w3.org/TR/2007/CR-CSS21-20070719</a>
-    </dd>
-   <!---->
-
-   <dt id=CSS3NAMESPACE>[CSS3NAMESPACE]
-
-   <dd>Elika J. Etemad; Anne van Kesteren. <a
-    href="http://www.w3.org/TR/2008/WD-css3-namespace-20080215"><cite>CSS
-    Namespaces Module.</cite></a> 15 February 2008. W3C Working Draft. (Work
-    in progress.) URL: <a
-    href="http://www.w3.org/TR/2008/WD-css3-namespace-20080215">http://www.w3.org/TR/2008/WD-css3-namespace-20080215</a>
     </dd>
    <!---->
 
@@ -935,15 +701,6 @@ for (var i = 0; i &lt; lis.length; i++) {
     href="http://www.ecma-international.org/publications/standards/Ecma-262.htm"><cite>ECMAScript
     Language Specification, Third Edition.</cite></a> December 1999. URL: <a
     href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">http://www.ecma-international.org/publications/standards/Ecma-262.htm</a>
-    </dd>
-   <!---->
-
-   <dt id=UAX21>[UAX21]
-
-   <dd>Mark Davis. <a
-    href="http://www.unicode.org/reports/tr21/tr21-5.html"><cite>Case
-    Mappings.</cite></a> 26 March 2001. Unicode Standard Annex #21. URL: <a
-    href="http://www.unicode.org/reports/tr21/tr21-5.html">http://www.unicode.org/reports/tr21/tr21-5.html</a>
     </dd>
    <!---->
   </dl>
