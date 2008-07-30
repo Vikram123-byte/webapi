@@ -16,7 +16,12 @@
       { 
          color:green; 
       }
-      
+           
+      .def 
+      { 
+         font-weight: normal; 
+      }
+
       .example 
       { 
          border:2px double gray; 
@@ -253,7 +258,7 @@
       </p>
 
       <p> 
-         This interface must be implemented on all elements, regardless of their namespace.  For the purpose of Element Traversal, the implementation must handle entity reference nodes as if each entity reference has been fully expanded.  Navigation must be irrespective of namespace, e.g. if an element in the HTML namespace is followed by element in the SVG namespace, the <a href="#attribute-nextElementSibling"><code>nextElementSibling</code></a> attribute on the HTML element will return the SVG element. 
+         This interface must be implemented on all elements, regardless of their namespace.  EntityReference nodes are not visible to the Element Traversal mechanism; if the tree-walker encounteres an EntityReference node, it descends into it without informing the caller, and processes any children as if they had been present at the place where the entity node was found.  Navigation must be irrespective of namespace, e.g. if an element in the HTML namespace is followed by element in the SVG namespace, the <a href="#attribute-nextElementSibling"><code>nextElementSibling</code></a> attribute on the HTML element will return the SVG element.  All of these attributes are read-only.
       </p>
 
       <h3 id="attribute-firstElementChild">2.1. <code>firstElementChild</code></h3>
@@ -283,7 +288,7 @@
       <h3 id="attribute-childElementCount">2.5. <code>childElementCount</code></h3>
 
       <p>
-         Accessing this attribute of an element must return the current number of child nodes of that element which are of <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-111237558"><code>nodeType</code></a> <code>1</code>.  An implementation may store this number, or it may calculate it upon evocation of this attribute, but the number must always represent the number of child element nodes at the time the attribute is accessed.  Only immediate child nodes must counted, e.g. elements which are child nodes of one of the child nodes of the element on which the attribute is accessed are not included in this count.  If the element on which this attribute is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this attribute must return 0. 
+         Accessing this attribute of an element must return the current number of child nodes of that element which are of <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-111237558"><code>nodeType</code></a> <code>1</code>.  An implementation may store this number, or it may calculate it upon evocation of this attribute, but the number must always represent the number of child element nodes at the time the attribute is accessed.  Only immediate child nodes must be counted, e.g. elements which are child nodes of one of the child nodes of the element on which the attribute is accessed are not included in this count.  If the element on which this attribute is accessed does not have any child nodes, or if none of those child nodes are element nodes, then this attribute must return 0. 
       </p>
 
    </div>
@@ -333,7 +338,7 @@ function spaceChildren( el ) {
    // get count of element nodes
    var elCount = el.childElementCount;
    
-   var eachWidth = window.innerWidth / elCount;
+   var eachWidth = window.innerWidth / (elCount + 1);
 
    // get first child element 
    var childEl = el.firstElementChild;
@@ -346,6 +351,7 @@ function spaceChildren( el ) {
       // position child
       childEl.style.setProperty( 'position', 'absolute', '' );
       childEl.style.setProperty( 'left', nextPos + 'px', '' );
+      childEl.style.setProperty( 'width', eachWidth + 'px', '' );
       
       //increment position by width
       nextPos += eachWidth;
@@ -530,15 +536,13 @@ interface ElementTraversal
    <div class="section">
       <h2 id="ecmascript-bindings">B. ECMAScript Language Binding</h2>
 
-      <div class="code">
+      <div>
          <dl>
             <dt>Object <code>Element</code></dt>
             <dd>
                <dl>
-                  <dt>In a User Agent which implements the <a href="#interface-elementTraversal"><code>ElementTraversal</code></a> interface, <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-745549614"><code>Element</code></a> has the all the properties and methods of <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1950641247"><code>Node</code></a> and <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-745549614"><code>Element</code></a> as defined in other DOM specifications, and in addition has the properties defined below.</dt>
-
-                  <dt>The <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-745549614"><code>Element</code></a> object has the following properties:</dt>
-                  <dd>
+                  <dt class="def">In a User Agent which implements the <a href="#interface-elementTraversal"><code>ElementTraversal</code></a> interface, <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-745549614"><code>Element</code></a> has all the properties and methods of <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-1950641247"><code>Node</code></a> and <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-745549614"><code>Element</code></a> as defined in other DOM specifications, and in addition has the following properties:</dt>
+                  <dd class="code">
                      <dl>
                         <dt><a href="#attribute-firstElementChild"><code>firstElementChild</code></a></dt>
                         <dd>This read-only property is of type <a href="http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html#ID-745549614"><code>Element</code></a>.</dd>
@@ -634,7 +638,7 @@ public interface ElementTraversal
       <h2 id="acknow">F. Acknowledgments</h2>
 
       <p> 
-         The editor would like to thank the following people for contributing to this specification: David Andersson, Robin Berjon, Jean-Yves Bitterlich, Daniel Glazman, Bjoern Hoehrmann, Chris Lilley, Charles McCathieNevile, Cameron McCormack, Simon Pieters, Nandini Ramani, Jonas Sicking, Andrew Sledd, Kurosawa Takeshi, Anne van Kesteren, Boris Zbarsky, and Mohamed Zergaoui.  The editor would additionally like to thank the SVG <acronym title="Working Group">WG</acronym> for producing the draft [<a href="#ref-SVGD">SVGD</a>] on which this was initially based.
+         The editor would like to thank the following people for contributing to this specification: David Andersson, Robin Berjon, Jean-Yves Bitterlich, Sergiu Dumitriu, Daniel Glazman, Bjoern Hoehrmann, Chris Lilley, Charles McCathieNevile, Cameron McCormack, Simon Pieters, Nandini Ramani, Jonas Sicking, Andrew Sledd, Kurosawa Takeshi, Anne van Kesteren, Boris Zbarsky, and Mohamed Zergaoui.  The editor would additionally like to thank the SVG <acronym title="Working Group">WG</acronym> for producing the draft [<a href="#ref-SVGD">SVGD</a>] on which this was initially based.
       </p>
 
    </div>
