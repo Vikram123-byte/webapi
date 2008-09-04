@@ -230,13 +230,17 @@
 
   <h3 id="terminology">Terminology</h3>
 
-  <p>There is a <dfn id="case-insensitive-match">case-insensitive match</dfn>
-  of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
-  character range A-Z to the range a-z both strings are identical.</p>
-
-  <p>The terms <dfn id="origin">origin</dfn>, <dfn id="same-origin">same
-  origin</dfn> and <dfn id="event-handler-attribute">event handler DOM
-  attribute</dfn> are defined by the HTML&nbsp;5 specification.
+  <p>The terms and algorithms
+  <dfn id="url-fragment">&lt;fragment></dfn>,
+  <dfn id="url-scheme">&lt;scheme></dfn>,
+  <dfn id="ascii-case-insensitive">ASCII case-insensitive</dfn>,
+  <dfn id="uppercase" title="uppercase">converting a string to uppercase</dfn>,
+  <dfn id="event-handler-attribute">event handler DOM attribute</dfn>,
+  <dfn id="url-base">base URL</dfn>,
+  <dfn id="origin">origin</dfn>,
+  <dfn id="same-origin">same origin</dfn>, and
+  <dfn id="url-resolve">resolve a URL</dfn>
+  are defined by the HTML&nbsp;5 specification.
   [<cite><span>HTML5</span></cite>]</p>
 
   <p>The term <dfn id="entity-body">entity body</dfn> is used as described
@@ -245,7 +249,7 @@
   and <dfn><code>field-value</code></dfn> are used as described in section
   4.2 of RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
 
-  <p>The terms <dfn>status return flag</dfn>, <dfn>uri return flag</dfn>,
+  <p>The terms <dfn>status return flag</dfn>, <dfn>url return flag</dfn>,
   and <dfn>cross-site access request</dfn> are defined by the Access Control
   for Cross-site Requests specification.
   [<cite><span>AC</span></cite>]
@@ -301,6 +305,7 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
   readonly attribute unsigned short <span>readyState</span>;
 
   // <a href="#request-metadata">request metadata</a>
+           attribute boolean <span>withCredentials</span>;
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
@@ -454,7 +459,7 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
    during the transfer (such as infinite redirects).</p></dd>
   </dl>
 
-  <p>The OPEN state has an associated
+  <p>The OPENED state has an associated
   <dfn id="send-flag"><code>send()</code> flag</dfn> that indicates whether
   the <code>send()</code> method has been invoked. It can be either "true"
   or "false" and has an initial value of "false".</p>
@@ -486,17 +491,16 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
 
    <li>
     <p>If <var>stored method</var>
-    <span title="case-insensitive match">case-insensitively matches</span>
+    <span title="ASCII case-insensitive">case-insensitively matches</span>
     <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
-    <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
-    <var>stored method</var> be the canonical uppercase form of the matched
-    method name.</p>
+    <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code>
+    <span title="uppercase">convert <var>stored method</var> to uppercase</span>.</p>
 
     <p class="note">If it does not match any of the above, it is passed
-    through literally, including in the final request.</p>
+    through <em>literally</em>, including in the final request.</p>
    </li>
-   <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
+   <!-- WebKit (and supposedly Gecko) also uppercase: COPY, INDEX, LOCK,
    M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
    <li>
@@ -505,26 +509,27 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
     <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
     and terminate these steps.</p>
 
-    <p class="note"><code>TRACK</code> poses a security issue to legacy
-    server deployments.</p>
+    <p class="note">Allowing these methods would pose a security risk.
+    [<cite><span>HTTPVERBSEC</span></cite>]</p>
    </li>
 
-   <li><p>If <var>stored url</var> is a relative reference as defined by RFC
-   3987, resolve it using the current value of the <code>baseURI</code>
-   attribute of the <span><code>Document</code> pointer</span>. If this
-   fails raise a <code>SYNTAX_ERR</code> exception and terminate these
-   steps. [<cite><span>RFC3987</span></cite>]</p></li>
+   <li><p><span title="Resolve a URL">Resolve <var>stored url</var></span>
+   with the <span><code>Document</code> pointer</span> being the associated
+   <var>document</var> and UTF-8 being the <var>encoding</var> of that
+   <var>document</var>. If the <span>resolve a URL</span> algorithm returns
+   an error raise a <code>SYNTAX_ERR</code> exception and terminate these
+   steps.</p></li>
 
-   <li><p>Convert <var>stored url</var> to a URI as defined by section 3.1
-   of RFC 3987. If this fails (the ToASCII operation for instance), raise a
-   <code>SYNTAX_ERR</code> exception and terminate these steps.
-   [<cite><span>RFC3987</span></cite>]</p></li>
+   <!-- Presto and Gecko override the encoding. WebKit does not. Trident
+   does not support non-ASCII URLs. This matters for the <query> component,
+   see HTML5. -->
 
-   <li><p>Drop the fragment identifier (if any) from <var>url</var> and let
-   <var>stored url</var> be the result of that operation.</p></li>
+   <li><p>Drop <code>&lt;fragment></code> from
+   <var>stored url</var>.</p></li>
 
-   <li><p>If <var>stored url</var> contains an unsupported scheme raise a
-   <code>NOT_SUPPORTED_ERR</code> and terminate these steps.</p></li>
+   <li><p>If <var>stored url</var> contains an unsupported
+   <code>&lt;scheme></code> raise a <code>NOT_SUPPORTED_ERR</code> and
+   terminate these steps.</p></li>
 
    <li><p>If the <code>"user:password"</code> format in the
    <code>userinfo</code> production defined in section 3.2.1 of RFC 3986 is
@@ -646,6 +651,8 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
     <ul>
      <li><code>Accept-Charset</code></li>
      <li><code>Accept-Encoding</code></li>
+     <li><code>Access-Control-Request-Headers</code></li> <!-- new in xhr2 -->
+     <li><code>Access-Control-Request-Method</code></li> <!-- new in xhr2 -->
      <li><code>Authorization</code></li>
      <li><code>Connection</code></li>
      <li><code>Content-Length</code></li>
@@ -656,7 +663,7 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
      <li><code>Expect</code></li>
      <li><code>Host</code></li>
      <li><code>Keep-Alive</code></li>
-     <li><code>Origin</code></li> <!-- new in xhr2 -->
+     <li><code title="">Origin</code></li> <!-- new in xhr2 -->
      <li><code>Referer</code></li>
      <li><code>TE</code></li>
      <li><code>Trailer</code></li>
@@ -709,6 +716,34 @@ client.send();
 X-Test: one, two
 ...</code></pre>
   </div>
+  
+  <p>The <dfn>credentials flag</dfn> takes the values true and false, true
+  by default, and indicates whether a non <span>same origin</span> request
+  includes cookie and HTTP authentication data. It is used during the
+  <code>send()</code> algorithm.</p>
+  
+  <p>When the <code>withCredentials</code> attribute is set, the following
+  algorithm <em class="ct">must</em> be followed:</p>
+  
+  <ol>
+   <li><p>If the state of the object is not
+   <span title="OPENED state">OPENED</span> raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the <span><code>send()</code> flag</span> is "true" raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the given value is <code>true</code>, set the
+   <span>credentials flag</span> to true. Otherwise, set the
+   <span>credentials flag</span> to false.</p></li>
+  </ol>
+  
+  <p>On getting, the <code>withCredentials</code> attribute
+  <em class="ct">must</em> return <code>true</code> if the
+  <span>credentials flag</span> is true, and <code>false</code> if the
+  <span>credentials flag</span> is false.</p>
 
   <h3 id="request">Request</h3>
 
@@ -726,11 +761,7 @@ X-Test: one, two
 
   <h4>Request Variables and Algorithms</h4>
 
-  <p>The <dfn>same origin flag</dfn> indicates whether the current being
-  performed is <span>same origin</span> or not. A value of "true" indicates
-  it is and "false" indicates it is not.</p>
-
-  <p>The <dfn>current request URI</dfn> is initially <var>stored url</var>
+  <p>The <dfn>current request URL</dfn> is initially <var>stored url</var>
   (as set by the <code>open()</code> method) and is updated as described in
   the <code>send()</code> algorithm.</p>
   
@@ -798,9 +829,21 @@ X-Test: one, two
    <li><p>Terminate the overall algorithm.</p></li>
   </ol>
   
-  <p>When the steps for the <code>send()</code> method say to <dfn>switch
-  to the LOADING state</dfn> the user agent <em class="ct">must</em> act as
-  if the following steps had been run:</p>
+  <p>When the steps for the <code>send()</code> method say to
+  <dfn id="switch-headers-received">switch to the HEADERS_RECEIVED state</dfn> the user agent
+  <em class="ct">must</em> act as if the following steps had been run:</p>
+
+  <ol>
+   <li><p>Synchronously switch the state to
+   <span title="HEADERS_RECEIVED state">HEADERS_RECEIVED</span>.</p></li>
+
+   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
+   event</span> on the object.</p></li>
+  </ol>
+
+  <p>When the steps for the <code>send()</code> method say to
+  <dfn id="switch-loading">switch to the LOADING state</dfn> the user agent
+  <em class="ct">must</em> act as if the following steps had been run:</p>
   
   <ol>
    <li><p>Synchronously switch the state to
@@ -854,10 +897,9 @@ X-Test: one, two
   algorithm is aborted</dfn> the user agent <em class="ct">must</em>
   terminate the algorithm after finishing the step it is on.</p>
 
-  <p class="note">The following algorithm can not be aborted through script
-  when <var>async</var> is <code>false</code>. It can only be aborted when
-  <var>async</var> is <code>true</code> and only after the method call has
-  returned.</p>
+  <p class="note">The <code title="">send()</code> algorithm can only be
+  aborted when <var>async</var> is <code>true</code> (i.e., the request is
+  done asynchronously) and only after the method call has returned.</p>
 
   <ol>
    <li><p>If the state of the object is not
@@ -944,9 +986,10 @@ X-Test: one, two
    algorithm though.)</p></li>
 
    <li>
-    <p>If the <span>current request URI</span> is <span>same origin</span>
+    <!-- XXX same origin with what?! -->
+    <p>If the <span>current request URL</span> is <span>same origin</span>
     this is a <dfn>same origin request</dfn>. Make a request to the
-    <span>current request URI</span> using HTTP method <var>stored
+    <span>current request URL</span> using HTTP method <var>stored
     method</var>, user <var>stored user</var> (if provided), password
     <var>stored password</var> (if provided), taking into account the entity
     body, list of request headers and the rules listed directly after this
@@ -963,10 +1006,11 @@ X-Test: one, two
       <p>Otherwise, run the following set of steps:</p>
 
       <ol>
-       <li><p>Set the <span>current request URI</span> to the new
+       <li><p>Set the <span>current request URL</span> to the new
        location.</p></li>
 
-       <li><p>If the <span>current request URI</span> is
+       <!-- XXX same origin with what?! -->
+       <li><p>If the <span>current request URL</span> is
        <span>same origin</span> follow the redirect while observing the
        request rules for <span title="same-origin request">same origin
        requests</span>.</p></li>
@@ -1000,18 +1044,7 @@ X-Test: one, two
      </dd>
 
      <dt>Once all HTTP headers have been received</dt>
-     <dd>
-      <p>If all HTTP headers have been received, before receiving the
-      message body (if any) run the following steps:</p>
-
-      <ol>
-       <li><p>Synchronously switch the state to
-       <span title="HEADERS_RECEIVED state">HEADERS_RECEIVED</span>.</p></li>
-
-       <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-       event</span> on the object.</p></li>
-      </ol>
-     </dd>
+     <dd><p><span>Switch to the HEADERS_RECEIVED state</span>.</p></dd>
 
      <dt>Once the first byte (or more) of the response entity body has been
      received</dt>
@@ -1022,17 +1055,17 @@ X-Test: one, two
     </dl>
 
     <p>Otherwise, if it is non same origin this is a <dfn>non same origin
-    request</dfn>. Set the <span>same origin flag</span> to "false", then
-    make a <span>cross-site access request</span>, passing these as
-    parameters:</p>
+    request</dfn>. Make a <span>cross-site access request</span>, passing
+    these as parameters:</p>
 
     <ul>
-     <li>The <span>current request URI</span>.
+     <li>The <span>current request URL</span>.
      <li>The <var>stored method</var>.
      <li>The list of request headers.
      <li>The entity body.
-     <li>The origin of the object hold by the
+     <li>The <span>origin</span> of the object hold by the
      <span><code>Document</code> pointer</span>.</li>
+     <li>The <span>credentials flag</span>.</li>
     </ul>
 
     <p>Handle the return values as described below.</p>
@@ -1042,12 +1075,13 @@ X-Test: one, two
     request as including them would allow a site to perform a distributed
     password search. However, user agents will include credentials in the
     request (if the user has any) as required elsewhere.</p>
+    
+    <p>Also, <span>make upload progress notifications</span>.</p>
 
     <dl>
      <dt><span>status return flag</span> is "same-origin"</dt>
-     <dd><p>Set the <span>current request URI</span> to the value of the
-     <span>uri return flag</span>, set the <span>same origin flag</span> to
-     "true", and then make a <span>same origin
+     <dd><p>Set the <span>current request URL</span> to the value of the
+     <span>url return flag</span> and then make a <span>same origin
      request</span>.</p></dd>
 
      <dt><span>status return flag</span> is "network"</dt>
@@ -1057,9 +1091,12 @@ X-Test: one, two
      <dd><p>This is an <span>abort error</span>.</p></dd>
 
      <dt><span>status return flag</span> is "success"</dt>
-     <dd><p><span>Make progress notifications</span>, <span>switch to the
-     LOADING state</span> and once the resource has been downloaded
-     completely go to the next step.</p></dd>
+     <dd><p><span>Switch to the HEADERS_RECEIVED state</span>,
+     <span>make progress notifications</span>, and
+     <span>switch to the LOADING state</span> once the first byte (or more)
+     of the response entity body has been received or if there is no
+     response entity body. Once the resource has been received completely go
+     to the next step.</p></dd>
     </dl>
    </li>
 
@@ -1076,9 +1113,6 @@ X-Test: one, two
 
      <li><p>Synchronously <span>dispatch a progress event</span> called
      <code>load</code> on the object.</p></li>
-
-     <li><p>If <var>async</var> is <code>false</code> return the method
-     call.</p></li>
     </ol>
    </li>
   </ol>
@@ -1096,7 +1130,10 @@ X-Test: one, two
   Unauthorized</code> requests appropriately. If authentication fails,
   <var>stored user</var> and <var>stored password</var> are not
   provided, and the request is <span>same origin</span>, user agents
-  <em class="ct">should</em> prompt the users for credentials.
+  <em class="ct">should</em> prompt the users for credentials. If
+  authentication fails, and <var>stored user</var> and
+  <var>stored password</var> are provided, user agents
+  <em class="ct">must not</em> prompt the user for credentials.
   [<cite><span>RFC2617</span></cite>]</p>
 
   <p class="note">Users are not prompted if credentials are provided
@@ -1200,9 +1237,8 @@ X-Test: one, two
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>If the <span>error flag</span> is "true" or the <span>same origin
-   flag</span> is "false" return the empty sting and terminate these
-   steps.</p></li>
+   <li><p>If the <span>error flag</span> is "true" return the empty sting
+   and terminate these steps.</p></li>
 
    <li><p>Return all the HTTP headers, as a single string, with each header
    line separated by a U+000D CR U+000A LF pair excluding the status
@@ -1228,6 +1264,10 @@ Connection: Keep-Alive
 Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
+
+  <p class="note">The Access Control for Cross-Site Requests specification
+  filters the headers that are exposed by
+  <code>getAllResponseHeaders()</code>. [<cite><span>AC</span></cite>]</p>
 
 
   <p>The
@@ -1263,10 +1303,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <li><p>Return <code>null</code>.</p></li>
   </ol>
-  
+
   <p class="note">The Access Control for Cross-Site Requests specification
   filters the headers that are exposed by
-  <code>getResponseHeader()</code>.</p>
+  <code>getResponseHeader()</code>. [<cite><span>AC</span></cite>]</p>
 
   <div class="example">
    <pre><code>// The following script:
@@ -1571,10 +1611,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   which is defined in DOM Level 3 Core. In addition this specification
   extends the <code>ExceptionCode</code> group with several new
   constants as indicated below. [<cite><span>DOM3Core</span></cite>]</p>
+  
+  <p class="note">Thus, exceptions used by this specification and not
+  defined in this section are defined by DOM Level 3 Core.</p>
 
   <pre class="idl">const unsigned short <span>SECURITY_ERR</span> = 18;
-const unsigned short <span>NETWORK_ERR</span> = 101;
-const unsigned short <span>ABORT_ERR</span> = 102;</pre>
+const unsigned short <span>NETWORK_ERR</span> = 19;
+const unsigned short <span>ABORT_ERR</span> = 20;</pre>
 
   <p>The <dfn id="security-err"><code>SECURITY_ERR</code></dfn> exception is
   raised if an attempt is made to perform an operation or access some data
@@ -1583,18 +1626,15 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
 
   <!-- http://lists.w3.org/Archives/Public/public-webapi/2006May/0027.html -->
 
-  <p class="note">The <code title="">SECURITY_ERR</code> exception is
-  expected to be eventually folded into an update of the the DOM Level 3
-  Core specification with an equivalent definition and identical constant
-  value. Until that happens it is defined here to guide implementors. (This
-  is also the reason it has a different constant value from the other
-  exceptions.)</p>
-
   <p>The <dfn id="network-err"><code>NETWORK_ERR</code></dfn> exception is
   raised when a network error occurs in synchronous requests.</p>
 
   <p>The <dfn id="abort-err"><code>ABORT_ERR</code></dfn> exception is
   raised when the user aborts a request in synchronous requests.</p>
+  
+  <p class="note">These exceptions might be folded into an update of
+  DOM Level 3 Core in due course, as they are appropriate for other API
+  specifications as well.</p>
 
 
   <h2 class="no-num" id="references">References</h2>
@@ -1605,9 +1645,9 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
 
   <dl>
    <dt>[<dfn id="ref-ac">AC</dfn>]</dt>
-   <dd><cite><a href="http://www.w3.org/TR/access-control/">Access Control
-   for Cross-site Requests</a></cite> (work in progress), A. van Kesteren,
-   editor. W3C, February 2008.</dd>
+   <dd><cite><a href="http://dev.w3.org/2006/waf/access-control/">Access
+   Control for Cross-Site Requests</a></cite> (work in progress), A. van
+   Kesteren, editor. W3C, 2008.</dd>
 
    <dt>[<dfn id="ref-dom2events">DOM2Events</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-2-Events/">Document
@@ -1622,14 +1662,27 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
 
    <dt>[<dfn id="ref-ecmascript">ECMAScript</dfn>]</dt>
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
-   Language Specification</a></cite>, Third Edition. ECMA, December 1999.</dd>
+   Language Specification</a></cite>, Third Edition. ECMA, December
+   1999.</dd>
 
    <dt>[<dfn id="ref-html5">HTML5</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/html/wg/html5/">HTML&nbsp;5</a></cite>
    (work in progress), I. Hickson, D. Hyatt, editors. W3C, 2008.</dd>
    <dd><cite><a href="http://www.whatwg.org/specs/web-apps/current-work/">HTML&nbsp;5</a></cite>
    (work in progress), I. Hickson, editor. WHATWG, 2008.</dd>
-   
+
+   <dt>[<dfn id="ref-httpverbsec">HTTPVERBSEC</dfn>]</dt>
+   <dd>(Non-normative)
+   <cite><a href="http://www.kb.cert.org/vuls/id/867593">Multiple vendors'
+   web servers enable HTTP TRACE method by default</a></cite>, US-CERT.</dd>
+   <dd>(Non-normative)
+   <cite><a href="http://www.kb.cert.org/vuls/id/288308">Microsoft Internet
+   Information Server (IIS) vulnerable to cross-site scripting via HTTP
+   TRACK method</a></cite>, US-CERT.</dd>
+   <dd>(Non-normative)
+   <cite><a href="http://www.kb.cert.org/vuls/id/150227">HTTP proxy default
+   configurations allow arbitrary TCP connections</a></cite>, US-CERT.</dd>
+
    <dt>[<dfn id="ref-pe">PE</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/progress-events/">Progress Events
    1.0</a></cite> (work in progress), C. McCathieNeville, editor. W3C,
@@ -1671,8 +1724,8 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
    IETF, January 2005. L. Masinter, editors. IETF, January 2005.</dd>
 
    <dt>[<dfn id="ref-webidl">Web IDL</dfn>]</dt>
-   <dd><cite><a href="http://dev.w3.org/2006/webapi/Binding4DOM/">Web
-   IDL</a></cite> (editor's draft), C. McCormack, editor. W3C, 2008.</dd>
+   <dd><cite><a href="http://dev.w3.org/2006/webapi/WebIDL/">Web
+   IDL</a></cite> (work in progress), C. McCormack, editor. W3C, 2008.</dd>
 
    <dt>[<dfn id="ref-xml">XML</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/xml/">Extensible Markup Language
@@ -1691,7 +1744,7 @@ const unsigned short <span>ABORT_ERR</span> = 102;</pre>
   to this specification (ordered by first name):</p>
 
   <p>The editor would like to thank
-  
+
   Alexey Proskuryakov,
   David Andersson,
   Elliotte Harold,
