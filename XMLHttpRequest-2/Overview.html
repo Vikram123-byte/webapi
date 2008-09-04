@@ -924,9 +924,9 @@ X-Test: one, two
    and is updated as described in the <code><a href="#send">send()</a></code>
    algorithm.
 
-  <p>The <dfn id=upload0>upload complete flag</dfn> indicates is used in
-   several algorithms to determine whether or not to dispatch an event. The
-   initial value of the flag is "false".
+  <p>The <dfn id=upload-complete-flag>upload complete flag</dfn> indicates is
+   used in several algorithms to determine whether or not to dispatch an
+   event. It takes true and false as values with false as default.
 
   <p>When the steps for the <code><a href="#send">send()</a></code> method
    say something is a <dfn id=network>network error</dfn> the user agent <em
@@ -957,8 +957,8 @@ X-Test: one, two
      object.
 
    <li>
-    <p>If the <a href="#upload0">upload complete flag</a> is "false" set the
-     flag to "true" and synchronously <a
+    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+     false, set the flag to true and synchronously <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
      <code><a href="#error-event">error</a></code> on the object returned by
      the <code><a href="#upload">upload</a></code> attribute.
@@ -996,8 +996,8 @@ X-Test: one, two
      href="#abort-event">abort</a></code> on the object.
 
    <li>
-    <p>If the <a href="#upload0">upload complete flag</a> is "false" set the
-     flag to "true" and synchronously <a
+    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+     false, set the flag to true and synchronously <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
      <code title=abort-event><a href="#abort-event">abort</a></code> on the
      object returned by the <code><a href="#upload">upload</a></code>
@@ -1039,31 +1039,34 @@ X-Test: one, two
   <p>When the steps for the <code><a href="#send">send()</a></code> method
    say to <dfn id=make->make progress notifications</dfn> user agents <em
    class=ct>must</em>, while the download is progressing and <var>async</var>
-   is <code>true</code>, synchronously <a
-   href="#dispatch-progress-event">dispatch a progress event</a> called
-   <code><a href="#progress-event">progress</a></code> at the object every
-   350ms (±200ms) or for every byte received, whichever is <em>least</em>
+   is <code>true</code>, <a href="#dispatch-progress-event">dispatch a
+   progress event</a> called <code><a
+   href="#progress-event">progress</a></code> at the object every 350ms
+   (±200ms) or for every byte received, whichever is <em>least</em>
    frequent.
 
   <p>When the steps for the <code><a href="#send">send()</a></code> method
    say to <dfn id=make-0>make upload progress notifications</dfn> user agents
-   <em class=ct>must</em>, if the request entity body is not empty and
-   <var>async</var> is <code>true</code> follow the following rules:
+   <em class=ct>must</em>, if <var>async</var> is <code>true</code>, follow
+   these rules:
 
   <ul>
    <li>
-    <p>While the request entity body is being uploaded synchronously <a
+    <p>While the request entity body is being uploaded and the <a
+     href="#upload-complete-flag">upload complete flag</a> is false, <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
      <code><a href="#progress-event">progress</a></code> at the object
-     returned by the <code><a href="#upload">upload</a></code> attribute.</p>
+     returned by the <code><a href="#upload">upload</a></code> attribute
+     every 350ms (±200ms) or for every byte transmitted, whichever is
+     <em>least</em> frequent.
 
    <li>
     <p>If the request entity body has been successfully uploaded and the <a
-     href="#upload0">upload complete flag</a> is "false" set the flag to
-     "true" and synchronously <a href="#dispatch-progress-event">dispatch a
-     progress event</a> called <code><a href="#load-event">load</a></code> at
-     the object returned by the <code><a href="#upload">upload</a></code>
-     attribute.
+     href="#upload-complete-flag">upload complete flag</a> is still false,
+     set the flag to true and synchronously <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#load-event">load</a></code> at the object returned by
+     the <code><a href="#upload">upload</a></code> attribute.
   </ul>
 
   <h4 id=initiating><span class=secno>3.5.3 </span>Initiating a Request</h4>
@@ -1163,6 +1166,12 @@ X-Test: one, two
 
     <p>If the <var>data</var> argument has been omitted, or is
      <code>null</code>, no entity body is used in the request.</p>
+
+   <li>
+    <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
+     true if there is no request entity body or if the request entity is
+     empty. Otherwise, set the <a href="#upload-complete-flag">upload
+     complete flag</a> to false.
 
    <li>
     <p>If <var>async</var> is <code>true</code> synchronously <a
@@ -1443,8 +1452,8 @@ X-Test: one, two
      href="#abort-event">abort</a></code> on the object.
 
    <li>
-    <p>If the <a href="#upload0">upload complete flag</a> is "false" set the
-     flag to "true" and synchronously <a
+    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+     false, set the flag to true and synchronously <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
      <code title=abort-event><a href="#abort-event">abort</a></code> on the
      object returned by the <code><a href="#upload">upload</a></code>

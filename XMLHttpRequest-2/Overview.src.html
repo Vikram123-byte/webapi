@@ -765,9 +765,9 @@ X-Test: one, two
   (as set by the <code>open()</code> method) and is updated as described in
   the <code>send()</code> algorithm.</p>
   
-  <p>The <dfn>upload complete flag</dfn> indicates is used in several
-  algorithms to determine whether or not to dispatch an event. The initial
-  value of the flag is "false".</p>
+  <p>The <dfn id="upload-complete-flag">upload complete flag</dfn> indicates
+  is used in several algorithms to determine whether or not to dispatch an
+  event. It takes true and false as values with false as default.</p>
 
   <p>When the steps for the <code>send()</code> method say something is a
   <dfn>network error</dfn> the user agent <em class="ct">must</em> act as if
@@ -791,8 +791,8 @@ X-Test: one, two
    <li><p>Synchronously <span>dispatch a progress event</span> called
    <code>error</code> on the object.</p></li>
    
-   <li><p>If the <span>upload complete flag</span> is "false" set the flag
-   to "true" and synchronously <span>dispatch a progress event</span> called
+   <li><p>If the <span>upload complete flag</span> is false, set the flag
+   to true and synchronously <span>dispatch a progress event</span> called
    <code>error</code> on the object returned by the <code>upload</code>
    attribute.</p></li>
 
@@ -821,8 +821,8 @@ X-Test: one, two
    <li><p>Synchronously <span>dispatch a progress event</span> called
    <code title="abort-event">abort</code> on the object.</p></li>
        
-   <li><p>If the <span>upload complete flag</span> is "false" set the flag
-   to "true" and synchronously <span>dispatch a progress event</span> called
+   <li><p>If the <span>upload complete flag</span> is false, set the flag
+   to true and synchronously <span>dispatch a progress event</span> called
    <code title="abort-event">abort</code> on the object returned by the
    <code>upload</code> attribute.</p></li>
 
@@ -856,23 +856,25 @@ X-Test: one, two
   <p>When the steps for the <code>send()</code> method say to <dfn>make
   progress notifications</dfn> user agents <em class="ct">must</em>, while
   the download is progressing and <var>async</var> is <code>true</code>,
-  synchronously <span>dispatch a progress event</span> called
+  <span>dispatch a progress event</span> called
   <code>progress</code> at the object every 350ms (±200ms) or for every byte
   received, whichever is <em>least</em> frequent.</p>
   
   <p>When the steps for the <code>send()</code> method say to <dfn>make
   upload progress notifications</dfn> user agents <em class="ct">must</em>,
-  if the request entity body is not empty and <var>async</var> is
-  <code>true</code> follow the following rules:</p>
+  if <var>async</var> is <code>true</code>, follow these rules:</p>
 
   <ul>
-   <li><p>While the request entity body is being uploaded synchronously
+   <li><p>While the request entity body is being uploaded and the
+   <span>upload complete flag</span> is false,
    <span>dispatch a progress event</span> called <code>progress</code> at
-   the object returned by the <code>upload</code> attribute.</p>
+   the object returned by the <code>upload</code> attribute every 350ms
+   (±200ms) or for every byte transmitted, whichever is <em>least</em>
+   frequent.</p></li>
 
    <li><p>If the request entity body has been successfully uploaded and the
-   <span>upload complete flag</span> is "false" set the flag to "true" and
-   synchronously <span>dispatch a progress event</span> called
+   <span>upload complete flag</span> is still false, set the flag to true
+   and synchronously <span>dispatch a progress event</span> called
    <code>load</code> at the object returned by the <code>upload</code>
    attribute.</p></li>
   </ul>
@@ -971,6 +973,10 @@ X-Test: one, two
     <p>If the <var>data</var> argument has been omitted, or is
     <code>null</code>, no entity body is used in the request.</p>
    </li>
+   
+   <li><p>Set the <span>upload complete flag</span> to true if there is no
+   request entity body or if the request entity is empty. Otherwise, set the
+   <span>upload complete flag</span> to false.</p></li>
 
    <li><p>If <var>async</var> is <code>true</code> synchronously
    <span>dispatch a progress event</span> called <code>loadstart</code> on
@@ -1216,8 +1222,8 @@ X-Test: one, two
    <li><p>Synchronously <span>dispatch a progress event</span> called
    <code title="abort-event">abort</code> on the object.</p></li>
    
-   <li><p>If the <span>upload complete flag</span> is "false" set the flag
-   to "true" and synchronously <span>dispatch a progress event</span> called
+   <li><p>If the <span>upload complete flag</span> is false, set the flag to
+   true and synchronously <span>dispatch a progress event</span> called
    <code title="abort-event">abort</code> on the object returned by the
    <code>upload</code> attribute.</p></li>
   </ol>
