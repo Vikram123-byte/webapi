@@ -296,14 +296,17 @@ client.send();</code></pre>
 
   <h3 id="terminology">Terminology</h3>
 
-  <p>There is a <dfn id="case-insensitive-match">case-insensitive match</dfn>
-  of strings <var>s1</var> and <var>s2</var> if after mapping the ASCII
-  character range A-Z to the range a-z both strings are identical.</p>
-
-  <p>The terms <dfn id="origin">origin</dfn>,
+  <p>The terms and algorithms
+  <dfn id="url-fragment">&lt;fragment></dfn>,
+  <dfn id="url-scheme">&lt;scheme></dfn>,
+  <dfn id="ascii-case-insensitive">ASCII case-insensitive</dfn>,
+  <dfn id="uppercase" title="uppercase">converting a string to uppercase</dfn>,
+  <dfn id="event-handler-attribute">event handler DOM attribute</dfn>,
+  <dfn id="url-base">base URL</dfn>,
+  <dfn id="origin">origin</dfn>,
   <dfn id="same-origin">same origin</dfn>, and
-  <dfn id="event-handler-attribute">event handler DOM attribute</dfn> are
-  defined by the HTML&nbsp;5 specification.
+  <dfn id="url-resolve">resolve a URL</dfn>
+  are defined by the HTML&nbsp;5 specification.
   [<cite><span>HTML5</span></cite>]</p>
 
 
@@ -602,17 +605,16 @@ client.send();</code></pre>
 
      <li>
       <p>If <var>stored method</var>
-      <span title="case-insensitive match">case-insensitively matches</span>
+      <span title="ASCII case-insensitive">case-insensitively matches</span>
       <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
       <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
-      <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> let
-      <var>stored method</var> be the canonical uppercase form of the
-      matched method name.</p>
-      
+      <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code>
+      <span title="uppercase">convert <var>stored method</var> to uppercase</span>.</p>
+
       <p class="note">If it does not match any of the above, it is passed
-      through literally, including in the final request.</p>
+      through <em>literally</em>, including in the final request.</p>
      </li>
-     <!-- WebKit (and supposedly Firefox) also uppercase: COPY, INDEX, LOCK,
+     <!-- WebKit (and supposedly Gecko) also uppercase: COPY, INDEX, LOCK,
      M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
      <li>
@@ -625,23 +627,23 @@ client.send();</code></pre>
       [<cite><span>HTTPVERBSEC</span></cite>]</p>
      </li>
 
-     <li><p>If <var>stored url</var> is a relative reference as defined by
-     RFC 3987, resolve it using
-     the current value of the <code>baseURI</code> attribute of the
-     <span><code>Document</code> pointer</span>. If this fails raise a
-     <code>SYNTAX_ERR</code> exception and terminate these steps.
-     [<cite><span>RFC3987</span></cite>]</p></li>
+     <li><p><span title="Resolve a URL">Resolve <var>stored url</var></span>
+     with the <span><code>Document</code> pointer</span> being the
+     associated <var>document</var> and UTF-8 being the <var>encoding</var>
+     of that <var>document</var>. If the <span>resolve a URL</span>
+     algorithm returns an error raise a <code>SYNTAX_ERR</code> exception
+     and terminate these steps.</p></li>
 
-     <li><p>Convert <var>stored url</var> to a URI as defined by section 3.1
-     of RFC 3987. If this fails (the ToASCII operation fails for instance),
-     raise a <code>SYNTAX_ERR</code> exception and terminate these steps.
-     [<cite><span>RFC3987</span></cite>]</p></li>
+     <!-- Presto and Gecko override the encoding. WebKit does not. Trident
+     does not support non-ASCII URLs. This matters for the <query>
+     component, see HTML5. -->
 
-     <li><p>Drop the fragment identifier (if any) from <var>url</var> and
-     let <var>stored url</var> be the result of that operation.</p></li>
+     <li><p>Drop <code>&lt;fragment></code> from
+     <var>stored url</var>.</p></li>
 
-     <li><p>If <var>stored url</var> contains an unsupported scheme raise a
-     <code>NOT_SUPPORTED_ERR</code> and terminate these steps.</p></li>
+     <li><p>If <var>stored url</var> contains an unsupported
+     <code>&lt;scheme></code> raise a <code>NOT_SUPPORTED_ERR</code> and
+     terminate these steps.</p></li>
 
      <li><p>If the <code>"user:password"</code> format in the
      <code>userinfo</code> production defined in section 3.2.1 of RFC 3986
@@ -768,7 +770,7 @@ client.send();</code></pre>
      <li>
       <p>For security reasons, these steps <em class="ct">should</em> be
       terminated if the <var>header</var> argument
-      <span title="case-insensitive match">case-insensitively matches</span>
+      <span title="ASCII case-insensitive">case-insensitively matches</span>
       one of the following headers:</p>
 
       <ul>
@@ -794,7 +796,7 @@ client.send();</code></pre>
       </ul>
 
       <p>&hellip; or if the start of the <var>header</var> argument
-      <span title="case-insensitive match">case-insensitively matches</span>
+      <span title="ASCII case-insensitive">case-insensitively matches</span>
       <code>Proxy-</code> or <code>Sec-</code> (including when the argument
       is just <code>Proxy-</code> or <code>Sec-</code>).</p>
       
@@ -1125,8 +1127,10 @@ X-Test: one, two
     URIs and send <code>Authorization</code> headers and handle <code>401
     Unauthorized</code> requests appropriately. If authentication fails,
     and <var>stored user</var> and <var>stored password</var> are not
-    provided, user agents <em class="ct">should</em> prompt the users for
-    credentials.
+    provided, user agents <em class="ct">should</em> prompt the user for
+    credentials. If authentication fails, and <var>stored user</var> and
+    <var>stored password</var> are provided, user agents
+    <em class="ct">must not</em> prompt the user for credentials.
     [<cite><span>RFC2617</span></cite>]</p>
 
     <p class="note">Users are not prompted if credentials are provided
@@ -1280,14 +1284,14 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code> and terminate these steps.</p></li>
 
      <li><p>If the <var>header</var> argument
-     <span title="case-insensitive match">case-insensitively matches</span>
+     <span title="ASCII case-insensitive">case-insensitively matches</span>
      multiple HTTP headers for the last request sent, return the values of
      these headers as a single concatenated string separated from each
      other by a U+002C COMMA U+0020 SPACE character pair and terminate
      these steps.</p></li>
 
      <li><p>If the <var>header</var> argument
-     <span title="case-insensitive match">case-insensitively matches</span>
+     <span title="ASCII case-insensitive">case-insensitively matches</span>
      a single HTTP header for the last request sent return the  value of
      that header and terminate these steps.</p></li>
 
@@ -1510,14 +1514,9 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding, L. Masinter,
    editors. IETF, January 2005.</dd>
 
-   <dt>[<dfn id=ref-rfc3987>RFC3987</dfn>]</dt>
-   <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized
-   Resource Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard, editors.
-   IETF, January 2005.</dd>
-
    <dt>[<dfn id="ref-webidl">Web IDL</dfn>]</dt>
-   <dd><cite><a href="http://dev.w3.org/2006/webapi/Binding4DOM/">Web
-   IDL</a></cite> (editor's draft), C. McCormack, editor. W3C, 2008.</dd>
+   <dd><cite><a href="http://dev.w3.org/2006/webapi/WebIDL/">Web
+   IDL</a></cite> (work in progress), C. McCormack, editor. W3C, 2008.</dd>
 
    <dt>[<dfn id="ref-xml">XML</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/xml/">Extensible Markup Language
