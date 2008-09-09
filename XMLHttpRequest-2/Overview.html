@@ -37,13 +37,13 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 4 September 2008</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 9 September 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080904/">http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080904/</a>
+     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080909/">http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080909/</a>
 
     <dt>Latest Version:
 
@@ -101,7 +101,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 4 September 2008 Working Draft of <code
+  <p>This is the 9 September 2008 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapi@w3.org?subject=[XHR2]%20">public-webapi@w3.org</a>
    (<a
@@ -390,7 +390,7 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
   void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
-  void <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
   
   // <a href="#request">request</a>
   readonly attribute <a href="#xmlhttprequestupload-interface">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
@@ -536,8 +536,9 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
    <dd>
     <p>The <code><a href="#open">open()</a></code> method has been
      successfully invoked. During this state request headers can be set using
-     <code>setRequestHeader()</code> and the request can be made using the
-     <code><a href="#send">send()</a></code> method.
+     <code><a href="#setrequestheader">setRequestHeader()</a></code> and the
+     request can be made using the <code><a href="#send">send()</a></code>
+     method.
 
    <dt><dfn id=headers-received-state title="HEADERS_RECEIVED
     state"><code>HEADERS_RECEIVED</code></dfn> (numeric value 2)
@@ -704,8 +705,8 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
      list.</p>
 
     <p class=note>This step and the next only has effect if <code><a
-     href="#send">send()</a></code> and/or <code>setRequestHeader()</code>
-     has been used.</p>
+     href="#send">send()</a></code> and/or <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> has been used.</p>
 
    <li>
     <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -724,9 +725,10 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
 
   <p>The object has an associated list of <dfn
    id=author-request-headers>author request headers</dfn> consisting of HTTP
-   header name/value pairs. The <code>setRequestHeader()</code> method can be
-   used to set new request headers and append to request headers already in
-   the list.
+   header name/value pairs. The <dfn id=setrequestheader
+   title=setRequestHeader><code>setRequestHeader(<var>header</var>)</code></dfn>
+   method can be used to set new request headers and append to request
+   headers already in the list.
 
   <p>As indicated in the algorithm below certain headers cannot be set and
    are left up to the user agent. In addition there are certain other headers
@@ -734,16 +736,18 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
    indicated at the end of the <code><a href="#send">send()</a></code> method
    section.
 
-  <p class=note>The <code>setRequestHeader()</code> method appends a value if
-   the header given as argument is already part of the <a
+  <p class=note>The <code><a
+   href="#setrequestheader">setRequestHeader()</a></code> method appends a
+   value if the header given as argument is already part of the <a
    href="#author-request-headers">author request headers</a> list.
 
   <p class=note>For non same origin requests using the HTTP <code>GET</code>
    method a preflight request is made when headers other than
    <code>Accept</code> and <code>Accept-Language</code> are set.
 
-  <p>When invoked, the user agent <em class=ct>must</em> follow the following
-   steps (unless otherwise indicated):
+  <p>When <code><a href="#setrequestheader">setRequestHeader()</a></code> is
+   invoked, the user agent <em class=ct>must</em> follow the following steps
+   (unless otherwise indicated):
 
   <ol>
    <li>
@@ -1075,9 +1079,10 @@ X-Test: one, two
    method initiates the request and its optional argument provides the <a
    href="#entity-body">entity body</a> for the request. Authors are
    encouraged to ensure that they have specified the
-   <code>Content-Type</code> header via <code>setRequestHeader()</code>
-   before invoking <code title="">send()</code> with a non-<code>null</code>
-   <var>data</var> argument.
+   <code>Content-Type</code> header via <code><a
+   href="#setrequestheader">setRequestHeader()</a></code> before invoking
+   <code title="">send()</code> with a non-<code>null</code> <var>data</var>
+   argument.
 
   <p>When invoked, the user agent <em class=ct>must</em> act as if it had run
    the following steps (unless otherwise noted). Note that this algorithm
@@ -1146,9 +1151,9 @@ X-Test: one, two
        <code>document.innerHTML</code> algorithm raises an
        <code>INVALID_STATE_ERR</code> exception.</p>
 
-      <p>If no <code>Content-Type</code> header has been set using
-       <code>setRequestHeader()</code> set a <code>Content-Type</code>
-       request header with a value of
+      <p>If no <code>Content-Type</code> header has been set using <code><a
+       href="#setrequestheader">setRequestHeader()</a></code> set a
+       <code>Content-Type</code> request header with a value of
        <code>application/xml;charset=<var>charset</var></code> where
        <var>charset</var> is the encoding used to encode the document.</p>
 
@@ -1379,38 +1384,41 @@ X-Test: one, two
    href="#ref-rfc2965">RFC2965</a></cite>]
 
   <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
-   respect <code>Cache-Control</code> request headers set by the
-   <code>setRequestHeader()</code> (e.g., <code>Cache-Control:
-   no-cache</code> bypasses the cache). It <em class=ct>must not</em> send
-   <code>Cache-Control</code> or <code>Pragma</code> request headers
-   automatically unless the user explicitly requests such behavior
-   (<abbr>e.g.</abbr>, by (force-)reloading the page).
+   respect <code>Cache-Control</code> request headers set by the <code><a
+   href="#setrequestheader">setRequestHeader()</a></code> (e.g.,
+   <code>Cache-Control: no-cache</code> bypasses the cache). It <em
+   class=ct>must not</em> send <code>Cache-Control</code> or
+   <code>Pragma</code> request headers automatically unless the user
+   explicitly requests such behavior (<abbr>e.g.</abbr>, by (force-)reloading
+   the page).
 
   <p>For <code>304 Not Modified</code> responses that are a result of a user
    agent generated conditional request the user agent <em class=ct>must</em>
    act as if the server gave a <code>200 OK</code> response with the
-   appropriate content. The user agent <em class=ct>must</em> allow
-   <code>setRequestHeader()</code> to override automatic cache validation by
-   setting request headers (e.g., <code>If-None-Match</code>,
-   <code>If-Modified-Since</code>), in which case <code>304 Not
-   Modified</code> responses <em class=ct>must</em> be passed through.
-   [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
+   appropriate content. The user agent <em class=ct>must</em> allow <code><a
+   href="#setrequestheader">setRequestHeader()</a></code> to override
+   automatic cache validation by setting request headers (e.g.,
+   <code>If-None-Match</code>, <code>If-Modified-Since</code>), in which case
+   <code>304 Not Modified</code> responses <em class=ct>must</em> be passed
+   through. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p>If the user agent implements server-driven content-negotiation it <em
    class=ct>should</em> set <code>Accept-Encoding</code> and
    <code>Accept-Charset</code> headers as appropriate. Unless set through
-   <code>setRequestHeader()</code> user agents <em class=ct>should</em> set
-   the <code>Accept</code> and <code>Accept-Language</code> headers as well.
-   If <code>Accept</code> is set by the user agent it <em class=ct>must</em>
-   have the value <code>*/*</code>. Responses <em class=ct>must</em> have the
+   <code><a href="#setrequestheader">setRequestHeader()</a></code> user
+   agents <em class=ct>should</em> set the <code>Accept</code> and
+   <code>Accept-Language</code> headers as well. If <code>Accept</code> is
+   set by the user agent it <em class=ct>must</em> have the value
+   <code>*/*</code>. Responses <em class=ct>must</em> have the
    content-encodings automatically decoded. [<cite><a
    href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p>Besides the <a href="#author-request-headers">author request headers</a>
    user agents <em class=ct>should not</em> include additional request
    headers other than those mentioned above or other than those authors are
-   not allowed to set using <code>setRequestHeader()</code>. This ensures
-   that authors have a reasonably predictable API.
+   not allowed to set using <code><a
+   href="#setrequestheader">setRequestHeader()</a></code>. This ensures that
+   authors have a reasonably predictable API.
 
   <h4 id=aborting><span class=secno>3.5.4 </span>Aborting a Request</h4>
 
