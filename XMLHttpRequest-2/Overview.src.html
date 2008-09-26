@@ -766,7 +766,12 @@ X-Test: one, two
   
   <p>The <dfn id="upload-complete-flag">upload complete flag</dfn> indicates
   is used in several algorithms to determine whether or not to dispatch an
-  event. It takes true and false as values with false as default.</p>
+  event. The flag is either true or false (default).</p>
+
+  <p>The <dfn id="upload-events-flag">upload events flag</dfn> is used in
+  the <code>send()</code> algorithm to determine whether upload progress
+  events will be dispatched for non same origin requests. The flag is either
+  true or false (default).
 
   <p>When the steps for the <code>send()</code> method say something is a
   <dfn>network error</dfn> the user agent <em class="ct">must</em> act as if
@@ -829,8 +834,9 @@ X-Test: one, two
   </ol>
   
   <p>When the steps for the <code>send()</code> method say to
-  <dfn id="switch-headers-received">switch to the HEADERS_RECEIVED state</dfn> the user agent
-  <em class="ct">must</em> act as if the following steps had been run:</p>
+  <dfn id="switch-headers-received">switch to the HEADERS_RECEIVED state</dfn>
+  the user agent <em class="ct">must</em> act as if the following steps had
+  been run:</p>
 
   <ol>
    <li><p>Synchronously switch the state to
@@ -914,6 +920,12 @@ X-Test: one, two
 
    <li><p>If <var>async</var> is <code>true</code> set the
    <span><code>send()</code> flag</span> to "true".</p></li>
+   
+   <li><p>If <var>async</var> is <code>true</code> and one or more event
+   listeners are registered on the object returned by the
+   <code>upload</code> attribute set the <span>upload events flag</span> to
+   true. Otherwise, set the <span>upload events flag</span> to
+   false.</p></li>
 
    <li>
     <p>Synchronously <span>dispatch a <code>readystatechange</code>
@@ -980,7 +992,7 @@ X-Test: one, two
    <li><p>If <var>async</var> is <code>true</code> synchronously
    <span>dispatch a progress event</span> called <code>loadstart</code> on
    the object.</p></li>
-   
+
    <li><p>If <var>async</var> is <code>true</code> and the request entity
    body is not empty <span>dispatch a progress event</span> called
    <code>loadstart</code> on the object returned by the <code>upload</code>
@@ -1073,6 +1085,7 @@ X-Test: one, two
      <li>The <span>origin</span> of the object hold by the
      <span><code>Document</code> pointer</span>.</li>
      <li>The <span>credentials flag</span>.</li>
+     <li>The <span>upload events flag</span>. <span class="note">If this flag is true it will force a preflight request.</span></li>
     </ul>
 
     <p>Handle the return values as described below.</p>
@@ -1082,8 +1095,10 @@ X-Test: one, two
     request as including them would allow a site to perform a distributed
     password search. However, user agents will include credentials in the
     request (if the user has any) as required elsewhere.</p>
-    
-    <p>Also, <span>make upload progress notifications</span>.</p>
+
+    <p>Also, <span>make upload progress notifications</span>, though only if
+    a preflight request was made.</p>
+    <!-- XXX more formal? -->
 
     <dl>
      <dt><span>status return flag</span> is "same-origin"</dt>

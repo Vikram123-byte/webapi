@@ -37,13 +37,13 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 24 September 2008</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 26 September 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080924/">http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080924/</a>
+     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080926/">http://www.w3.org/TR/2008/ED-XMLHttpRequest2-20080926/</a>
 
     <dt>Latest Version:
 
@@ -101,7 +101,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 24 September 2008 Working Draft of <code
+  <p>This is the 26 September 2008 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -928,7 +928,12 @@ X-Test: one, two
 
   <p>The <dfn id=upload-complete-flag>upload complete flag</dfn> indicates is
    used in several algorithms to determine whether or not to dispatch an
-   event. It takes true and false as values with false as default.
+   event. The flag is either true or false (default).
+
+  <p>The <dfn id=upload-events-flag>upload events flag</dfn> is used in the
+   <code><a href="#send">send()</a></code> algorithm to determine whether
+   upload progress events will be dispatched for non same origin requests.
+   The flag is either true or false (default).
 
   <p>When the steps for the <code><a href="#send">send()</a></code> method
    say something is a <dfn id=network>network error</dfn> the user agent <em
@@ -1108,6 +1113,13 @@ X-Test: one, two
    <li>
     <p>If <var>async</var> is <code>true</code> set the <a
      href="#send-flag"><code>send()</code> flag</a> to "true".
+
+   <li>
+    <p>If <var>async</var> is <code>true</code> and one or more event
+     listeners are registered on the object returned by the <code><a
+     href="#upload">upload</a></code> attribute set the <a
+     href="#upload-events-flag">upload events flag</a> to true. Otherwise,
+     set the <a href="#upload-events-flag">upload events flag</a> to false.
 
    <li>
     <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
@@ -1291,6 +1303,10 @@ X-Test: one, two
       href="#document-pointer"><code>Document</code> pointer</a>.
 
      <li>The <a href="#credentials">credentials flag</a>.
+
+     <li>The <a href="#upload-events-flag">upload events flag</a>. <span
+      class=note>If this flag is true it will force a preflight
+      request.</span>
     </ul>
 
     <p>Handle the return values as described below.</p>
@@ -1301,8 +1317,9 @@ X-Test: one, two
      search. However, user agents will include credentials in the request (if
      the user has any) as required elsewhere.</p>
 
-    <p>Also, <a href="#make-0">make upload progress notifications</a>.</p>
-
+    <p>Also, <a href="#make-0">make upload progress notifications</a>, though
+     only if a preflight request was made.</p>
+    <!-- XXX more formal? -->
     <dl>
      <dt><a href="#status0">status return flag</a> is "same-origin"
 
