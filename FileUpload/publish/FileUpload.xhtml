@@ -14,15 +14,15 @@
 <title>File Upload</title>
 <link rel="stylesheet" href="respec-w3c.css" type="text/css" />
 <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD" type="text/css" />
-<meta name="revision" content="$Id: FileUpload.xhtml,v 1.7 2008-09-23 19:56:11 arangana Exp $" />
+<meta name="revision" content="$Id: FileUpload.xhtml,v 1.8 2008-10-10 09:24:58 arangana Exp $" />
 </head>
 <body><div class="head">
 		<p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C" /></a></p>
-		<h1 class="head">File Upload</h1><h2 id="pagesubtitle">W3C Working Draft <em>19 September 2008</em></h2>
+		<h1 class="head">File Upload</h1><h2 id="pagesubtitle">W3C Working Draft <em>10 October 2008</em></h2>
 		 <dl><dt>This version:</dt><dd><a href="http://dev.w3.org/2006/webapi/FileUpload/publish/FileUpload.xhtml">dev.w3.org/2006/webapi/FileUpload/publish/FileUpload.xhtml</a></dd>
 			 <dt>Latest public version:</dt><dd><a href="http://www.w3.org/TR/file-upload/">http://www.w3.org/TR/file-upload/</a></dd>
 			 <dt>Previous version:</dt><dd><a href=""></a></dd>
-			 <dt>Editor:</dt><dd><span class="person"><a href="http://berjon.com/">Arun Ranganathan</a> (<a href="http://blog.mozilla.com/standards">Mozilla</a>) &lt;<a href="mailto:arun@mozilla~HugASpammer.com">arunATmozillaDOTcom</a>&gt;</span></dd>
+			 <dt>Editor:</dt><dd><span class="person"><a href="http://arunranga.com/">Arun Ranganathan</a> (<a href="http://blog.mozilla.com/standards">Mozilla</a>) &lt;<a href="mailto:arun@mozilla~HugASpammer.com">arunATmozillaDOTcom</a>&gt;</span></dd>
 			 <dt>Original Editor:</dt><dd><span class="person"><a href="http://berjon.com/">Robin Berjon</a> (<a href="http://expway.com/">Expway</a>) &lt;<a href="mailto:robin.berjon@expway.fr">robin.berjon@expway.fr</a>&gt;</span></dd></dl>
 		<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
@@ -41,14 +41,22 @@
     <p>
       This specification provides an <acronym title="Application Programming Interface">API</acronym>
       used to prompt the user with a file selection dialogue and obtain the data contained in files
-      on the user's file system.
+      on the user's file system.  This includes:
+		<ul>
+			<li>The ability to programmatically obtain a reference to user-selected files using the standard HTML form input mechanism, namely <code>&lt;input type="file"></code></li>
+			<li>The ability to spawn a file dialog similar to what is spawned by the <code>&lt;input type="file"> element programmatically.</code> </li>
+			<li>The ability to obtain select byte ranges within a file, or to obtain the entire file, and upload it to a server.</li>
+		</ul>
+		The section on Requirments and Use Cases [<a href="#requirements">REQ</a>] covers the motivation behind this specification.
     </p>
-    
+	
+	<p class="issue">There are several known issues in this specification, and it should be regarded as incomplete. The
+  usage of RFC2119 terminology needs to be tighter, processing requirements are
+  not properly defined everywhere, exceptions are poorly handled at the moment,
+  some terms are used but not defined, and so forth.  Furthermore, discussion about whether file manipulation methods should behave synchronously or asynchrously still is taking place.</p>
   </div>
 
   <div class="section"><h2 id="sotd">Status of this Document</h2>
-    
-
     
   <p>
     <em>This section describes the status of this document at the time of its publication.
@@ -62,13 +70,11 @@
     <p>
       This document is a First Public Working Draft. It is <strong>not an official
       publication</strong> of the <acronym title="World Wide Web Consortium">W3C</acronym>. The authors of this document are
-      the members of the <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/2006/webapi">Web <acronym title="Application Programming Interface">API</acronym>
-      Working Group</a>.
+      the members of the <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/2008/webapps">Web Applications</a> Working Group.
     </p>
     <p>
-      This document is produced by the <a href="http://www.w3.org/2006/webapi">Web <acronym title="Application Programming Interface">API</acronym>
-      <acronym title="Working Group">WG</acronym></a>, part of the
-      <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a> in
+      This document is produced by the <a href="http://www.w3.org/2008/webapps">Web <acronym title="Application Programming Interface">Applications</acronym>
+      <acronym title="Working Group">WG</acronym></a> in
       the <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.
     </p>
     <p>
@@ -107,9 +113,11 @@
 					<li><a href="#dialog-if">3. The FileDialog interface</a></li>
 					<li><a href="#FileList-if">4. The FileList interface</a></li>
 					<li><a href="#File-if">5. The File interface</a></li>
+					<li><a href="#Blob-if">5.1. The Blob Interface</a></li>
 					<li><a href="#event-files-selected">6. The '<code class="event-name">files-selected</code>' Event</a></li>
 		            <li><ul class="toc"><li><a href="#FilesSelectionEvent-if">6.1. The FilesSelectionEvent interface</a></li></ul></li>
-					<li><a href="#xhr">7. Integration with XMLHttpRequest</a></li>
+					<li><a href="#xhr">7.1. Integration with XMLHttpRequest</a></li>
+					<li><a href="#HTMLFileInputElement">7.2. Extension of HTMLInputElement</a></li>
 					<li><a href="#conform">8. Conformance</a></li>
 					<li><a href="#requirements">9. Requirements and Use Cases</a></li>
 					<li><a href="#ack">10. Acknowledgements</a></li>
@@ -124,9 +132,8 @@
       as possible a range of user input, including files that a user may wish to upload 
       to a remote server or manipulate inside a rich application. This specification 
       provides application writers with the means to trigger a file selection prompt 
-      with which the user can select one or more files. Unlike the file upload forms 
-      control available to <acronym title="HyperText Markup Language">HTML</acronym>, 
-      this <acronym title="Application Programming Interface">API</acronym> can be used for more than simply inserting a file into the content of a 
+      with which the user can select one or more files, as well as obtain the file selected via the HTML form control. 
+      This <acronym title="Application Programming Interface">API</acronym> can be used for more than simply inserting a file into the content of a 
       form being submitted but also allows client-side manipulation of the content, for 
       instance to display an image or parse an <acronym title="eXtensible Markup Language">XML</acronym>
       document from disk.
@@ -149,13 +156,18 @@
 // FileExceptionCode
 const unsigned short      <a href="#idl-defs-FileExceptionCode-NOT_FOUND_ERR">NOT_FOUND_ERR</a>         = 0;
 const unsigned short      <a href="#idl-defs-FileExceptionCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>      = 1;
+const unsigned short      <a href="#idl-defs-FileExceptionCode-TIMEOUT_ERR">TIMEOUT_ERR</a>                 = 2;
 </pre></div><div class="section"><h4 class="idl-header" id="idl-defs-FileExceptionCode">Definition Group <em>FileExceptionCode</em></h4><dl class="idl-defs"><dt id="idl-defs-FileExceptionCode-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></dt><dd>
             The file that is trying to be read does not exist. This may be due
             to it having been moved or deleted after a pointer to it was
             acquired.
           </dd><dt id="idl-defs-FileExceptionCode-NOT_READABLE_ERR"><code>NOT_READABLE_ERR</code></dt><dd>
             The file cannot be read. This may be due to permission problems.
-          </dd></dl></div>
+          </dd>
+			<dt id="idl-defs-FileExceptionCode-TIMEOUT_ERR"><code>TIMEOUT_ERR</code></dt><dd>
+			 Attempt to access this file has timed out.  This may be due to a "loop spam" attack (in which the File Dialog is made to persist till a file is chosen) that the implementation has detected and aborted.  
+			</dd>  
+		  </dl></div>
   </div>
 
   <div class="section"><h2 id="dialog-if">3. The FileDialog interface</h2>
@@ -176,8 +188,8 @@ const unsigned short      <a href="#idl-defs-FileExceptionCode-NOT_READABLE_ERR"
     <div class="boxed"><p><span class="idlTitle">The FileDialog interface</span></p><pre class="schema" title="The FileDialog interface">interface <a href="#idl-if-FileDialog">FileDialog</a> : events::EventTarget {
   void <a href="#dfn-open">open</a>();
 };</pre></div><div class="section" id="idl-if-FileDialog"><div class="section"><h4 class="idl-header" id="idl-attrs-FileDialog">Methods</h4><dl class="idl-meth"><dt id="dfn-open"><code>open</code></dt><dd><p>
-              When called, this method <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> prompt the user with a means to select one 
-              or more files. The exact manner in which the user is prompted is implementation
+             When called, this method <em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em> prompt the user with a means to select one 
+	         or more files. The exact manner in which the user is prompted is implementation
               dependent. On devices that have no file system, the user-agent <em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em> still open a
               dialogue for data acquisition, for instance one providing access to a built-in
               camera and a microphone.
@@ -253,26 +265,32 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
       the moment the file is selected and the moment it is accessed.
     </p>
 
-    <div class="boxed"><p><span class="idlTitle">The File interface</span></p><pre class="schema" title="The File interface">interface <a href="#idl-if-File">File</a> {
+    <div class="boxed"><p><span class="idlTitle">The File interface</span></p>
+	<pre class="schema" title="The File interface">interface <a href="#idl-if-File">File</a> {
 
-  readonly attribute DOMString      <a href="#dfn-filename">fileName</a>;
-  readonly attribute DOMString      <a href="#dfn-mediatype">mediaType</a>;
-  readonly attribute unsigned long  <a href="#dfn-filesize">fileSize</a>;
-  DOMString          <a href="#dfn-getdataasstring">getDataAsText</a>(in DOMString encoding)
+  readonly attribute DOMString           <a href="#dfn-filename">fileName</a>;
+  readonly attribute DOMString           <a href="#dfn-mediatype">mediaType</a>;
+  readonly attribute unsigned long long  <a href="#dfn-filesize">fileSize</a>;
+  readonly attribute Blob                <a href="#dfn-contents">contents</a>;
+
+  DOMString          <a href="#dfn-getdataasstring">getAsText</a>(in DOMString <a href="#dfn-encoding">encoding</a>)
                                         raises(FileException);
-  DOMString          <a href="#dfn-getdataasbase64">getDataAsBase64</a>()
+  DOMString          <a href="#dfn-getdataasbase64">getAsBase64</a>()
                                         raises(FileException);
-  DOMString          <a href="#dfn-getdataashexbinary">getDataAsBinary</a>()
+  DOMString          <a href="#dfn-getdataasbinary">getAsBinary</a>()
                                         raises(FileException);
   DOMString          <a href="#dfn-getasdataurl">getAsDataURL</a>()
-										raises(FileException);
-};</pre></div><div class="section" id="idl-if-File"><div class="section"><h4 class="idl-header" id="idl-meths-File">Attributes</h4><dl class="idl-attr"><dt id="dfn-filename"><code>fileName</code>
+
+};</pre>
+
+</div><div class="section" id="idl-if-File"><div class="section"><h4 class="idl-header" id="idl-meths-File">Attributes</h4>
+<dl class="idl-attr"><dt id="dfn-filename"><code>fileName</code>
       of type
       DOMString, readonly</dt><dd><p>
               The name of the file, exclusive of its path.
             </p></dd><dt id="dfn-filesize"><code>fileSize</code>
       of type
-      unsigned long, readonly</dt><dd><p>
+      unsigned long long, readonly</dt><dd><p>
               The size of the file, in bytes. Users should keep in mind that in certain
               cases this information may not be available, and that it also may
               vary as a file is being read.
@@ -280,9 +298,14 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
       of type
       DOMString, readonly</dt><dd><p>
               The media type of the file, if known to the user-agent.
-            </p><div class="ednote">
-              How does this handle null and ""? May parameters be included?
-            </div></dd></dl></div><div class="section"><h4 class="idl-header" id="idl-attrs-File">Methods</h4><dl class="idl-meth"><dt id="dfn-getdataasbase64"><code>getDataAsBase64</code></dt><dd><p>
+            </p></dd><dt id="dfn-contents"><code>contents</code>
+	  of type
+	  Blob, readonly</dt><dd><p>
+	          The "Blob" (see [<a href="#Blob-if">Blob</a>]) contents of the file, which can then be sliced into further Blobs or have asynchronous file i/o operations conducted on the Blob.
+			  </p></dd>
+			</dl></div>
+			
+			<div class="section"><h4 class="idl-header" id="idl-attrs-File">Methods</h4><dl class="idl-meth"><dt id="dfn-getdataasbase64"><code>getAsBase64</code></dt><dd><p>
               Returns the file's content encoded using Base64. An empty file returns an empty string.
             </p><div class="ednote">Need ref</div><dl><dt>No Parameters</dt><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
               The content of the file encoded in Base64.
@@ -290,7 +313,7 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
               <p>
                 All codes apply.
               </p>
-            </td></tr></table></dd></dl></dd><dt id="dfn-getdataashexbinary"><code>getDataAsHexBinary</code></dt><dd><p>
+            </td></tr></table></dd></dl></dd><dt id="dfn-getdataasbinary"><code>getAsBinary</code></dt><dd><p>
               Returns the file's content encoded using hex-binary. An empty file returns an empty string.
             </p><div class="ednote">Need ref</div><dl><dt>No Parameters</dt><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
               The content of the file encoded in hex-binary.
@@ -298,20 +321,49 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
               <p>
                 All codes apply.
               </p>
-            </td></tr></table></dd></dl></dd><dt id="dfn-getdataasstring"><code>getDataAsString</code></dt><dd><p>
-              Returns the file's content as a string. An empty file returns an empty string.
+            </td></tr></table></dd></dl></dd><dt id="dfn-getdataastext"><code>getAsText</code></dt><dd><p>
+              Returns the file's content as a string. An empty file returns an empty string.  The method is invoked with an encoding; if none is provided, UTF-8 is assumed.
             </p><div class="ednote">
               <p>
-                This has any number of issues with encoding, binary data, etc.
+                This has any number of issues with encoding, binary data, etc.  To Do: define encoding types.
               </p>
-            </div><dl><dt>No Parameters</dt><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
+            </div><dl><dt>Parameters: encoding type.  If none is provided, UTF-8 is presumed.</dt><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
               The content of the file.
             </td></tr></table></dd><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-FileException">FileException</a></td><td>
               <p>
                 All codes apply.
               </p>
-            </td></tr></table></dd></dl></dd></dl></div></div>
+            </td></tr></table></dd></dl></dd><dt id="dfn-getasdataurl"><code>getAsDataURL</code></dt><dd><p>
+			   Returns the file's content as a data: URL.
+			   </p></dd><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-FileException">FileException</a></td><td>
+              <p>
+                All codes apply.
+              </p>
+            </td></tr></table></dd>
+			
+			</dl></div></div>
   </div>
+  
+  <div class="section"><h2 id="Blob-if">5.1 The Blob Interface</h2>
+  
+  <p>This interface allows splicing the content of a single <a href="#File-if">file</a> between byte ranges, as well as asynchronous file i/o operations.
+  Spliced blobs result in other blobs, and thus using this interface a file can be split into separate data chunks, possibly for POST'ing via <code>XMLHttpRequest.</code></p>
+
+ <div class="boxed"><p><span class="idlTitle">The Blob interface</span></p>
+	<pre class="schema" title="The Blob Interface">interface Blob {
+
+	readonly attribute unsigned long long <a href="#dfn-length">length</a>;
+	
+	Blob slice(in unsigned long long <a href="#dfn-start">start</a>, in unsigned long long <a href="#dfn-length">length</a>);
+	
+	// TO DO include Google asynchronous methods here pending discussion
+	// Talk to Cameron McCormack about callbacks in WebIDL spec.
+	
+  }; </pre>
+  </div>
+  
+  <div class="ednote"><p>Need to flesh the definitions section out for Blob</p></div>
+    </div>
 
   <div class="section"><h2 id="event-files-selected">6. The 
         '<code class="event-name">files-selected</code>'
@@ -340,16 +392,24 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
     </div>
   </div>
 
-  <div class="section"><h2 id="xhr">7. Integration with XMLHttpRequest</h2>
+  <div class="section"><h2 id="xhr">7.1 Integration with XMLHttpRequest</h2>
     
-    <p>
-      
-    </p>
     <div class="ednote">
-      ToDO: determine use of BLOB API here *and* Local Store.  From Robin: The intent here is to add a method to XHR that would allow passing a File
-      object straight for upload, without needing to transfer it through memory
-      first.  
+      <p>ToDO: determine use of BLOB API here *and* Local Store.  We'll likely overload the existing send() method.<br/>  
+	  From Robin: The intent here is to add a method to XHR that would allow passing a File object straight for upload, 
+	  without needing to transfer it through memory first.</p>  
     </div>
+  </div>
+  
+  <div class="section"><h2 id="HTMLFileInputElement">7.2 Extension to HTMLInputElement</h2>
+  <p>
+  DOM Level 2 for HTML defines interfaces for standard HTML elements, including the <code>&lt;input></code> element (<code>HTMLInputElement</code>).  
+  In particular, when the <code>type</code> of an <code>HTMLInputElement</code>is "file" accessing this element via <code>getElementByID</code> and 
+  then invoking <code>file</code> should return a FileList object.  In this section, we specify this behavior. 
+  </p>
+  <div class="ednote">
+  <p class="issue">May specify an HTMLFileInputElement.  Note WHATWG's stipulation of <code>type</code> being in the <a href="http://www.whatwg.org/specs/web-apps/current-work/#file-upload-state">File Upload</a> state.</p>
+  </div>
   </div>
 
   <div class="section"><h2 id="conform">8. Conformance</h2>
@@ -410,7 +470,7 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
   </div>
 
   <div class="section"><h2 id="bibref">A. References</h2>
-    
+  <div class="ednote"><p>Add references to Opera's specification, Google's, Apple's for XHR extension, Mozilla link to mxr for nsIDOMFile, nsIDOMNSHTMLInputElement</p></div>
 
     <dl class="bibliography"><dt id="RFC2119">RFC2119</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
     <span class="person">S. Bradner</span>.</dd></dl>
