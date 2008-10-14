@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet href='WebIDL.xsl' type='text/xsl'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!--
           ******* WARNING *********************************************************
@@ -9,30 +8,36 @@
           to you should that happen.
           ******* WARNING *********************************************************
         -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:x="http://mcc.id.au/ns/local" xml:lang="en" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
 <title>File Upload</title>
 <link rel="stylesheet" href="respec-w3c.css" type="text/css" />
 <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD" type="text/css" />
-<meta name="revision" content="$Id: FileUpload.xhtml,v 1.9 2008-10-14 04:43:27 arangana Exp $" />
-<options xmlns='http://mcc.id.au/ns/local'>
-      <versions>
-        <cvs href='http://dev.w3.org/2006/webapi/FileUpload/publish/FIleUpload.xhtml'/>
-        <this href='http://www.w3.org/TR/2008/WD-FileUpload-20081010/'/>
-        <latest href='http://www.w3.org/TR/file-upload/'/>
-      </versions>
-      <editors>
-        <person homepage='http://www.arunranga.com/' email='arun@mozilla.com'>
-          <name>Arun Ranganathan</name>
-          <affiliation>Mozilla Corporation</affiliation>
-        </person>
-      </editors>
-      <maturity>ED</maturity>
-    </options>
+<meta name="revision" content="$Id: FileUpload.xhtml,v 1.10 2008-10-14 06:01:07 arangana Exp $" />
+
 </head>
+ <div class="head">
+		<p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C" /></a></p>
+		<h1 class="head">File Upload</h1><h2 id="pagesubtitle">W3C Working Draft <em>10 October 2008</em></h2>
+		 <dl><dt>This version:</dt><dd><a href="http://dev.w3.org/2006/webapi/FileUpload/publish/FileUpload.xhtml">dev.w3.org/2006/webapi/FileUpload/publish/FileUpload.xhtml</a></dd>
+			 <dt>Latest public version:</dt><dd><a href="http://www.w3.org/TR/file-upload/">http://www.w3.org/TR/file-upload/</a></dd>
+			 <dt>Previous version:</dt><dd><a href=""></a></dd>
+			 <dt>Editor:</dt><dd><span class="person"><a href="http://arunranga.com/">Arun Ranganathan</a> (<a href="http://blog.mozilla.com/standards">Mozilla</a>) &lt;<a href="mailto:arun@mozilla~HugASpammer.com">arunATmozillaDOTcom</a>&gt;</span></dd>
+			 <dt>Original Editor:</dt><dd><span class="person"><a href="http://berjon.com/">Robin Berjon</a> (<a href="http://expway.com/">Expway</a>) &lt;<a href="mailto:robin.berjon@expway.fr">robin.berjon@expway.fr</a>&gt;</span></dd></dl>
+		<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+        <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
+        (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
+        <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
+        <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and 
+        <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document  use</a> rules apply.
+       </p></div><hr />
+
+
 <body>
-<?top?>
+
   
 
   <div class="section"><h2 id="specabstract">Abstract</h2>
@@ -56,9 +61,29 @@
   </div>
   
   <?revision-note?>
+  
+  <div class="section"><h2 id="contents">Table of Contents</h2>
+    
+
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li>
+					<li><a href="#idl-if-FileException">2. The FileException exception</a></li>
+					<li><a href="#dialog-if">3. The FileDialog interface</a></li>
+					<li><a href="#FileList-if">4. The FileList interface</a></li>
+					<li><a href="#File-if">5. The File interface</a></li>
+					<li><a href="#Blob-if">5.1. The Blob Interface</a></li>
+					<li><a href="#event-files-selected">6. The '<code class="event-name">files-selected</code>' Event</a></li>
+		            <li><ul class="toc"><li><a href="#FilesSelectionEvent-if">6.1. The FilesSelectionEvent interface</a></li></ul></li>
+					<li><a href="#xhr">7.1. Integration with XMLHttpRequest</a></li>
+					<li><a href="#HTMLFileInputElement">7.2. The HTMLFileInputElement Interface</a></li>
+					<li><a href="#conform">8. Conformance</a></li>
+					<li><a href="#requirements">9. Requirements and Use Cases</a></li>
+					<li><a href="#ack">10. Acknowledgements</a></li>
+	</ul>
+	  <ul class="toc"><li><a href="#bibref">A. References</a></li></ul>
+  </div>
+
 
   <div class="section"><h2 id="sotd">Status of this Document</h2>
-  <?sotd-top public-webapps@w3.org http://lists.w3.org/Archives/Public/public-webapps/ [FileUpload]?>
   <p>
     <em>This section describes the status of this document at the time of its publication.
     Other documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the
@@ -85,12 +110,9 @@
       <a href="http://lists.w3.org/Archives/Public/public-webapi/">Archives</a> of the
       list are available.
     </p>
+	
   
   </div>
- <div id='toc' class='section'>
-      <h2>Table of Contents</h2>
-      <?toc sections appendices?>
-</div>
   <div class="section"><h2 id="introduction">1. Introduction</h2>
     
     <p>
@@ -370,7 +392,7 @@ fd.open();</pre></div><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No E
   <div class="section"><h2 id="HTMLFileInputElement">7.2 The HTMLFileInputElement Interface</h2>
   <p>
   DOM Level 2 for HTML defines interfaces for standard HTML elements, including the <code>&lt;input></code> element (<code>HTMLInputElement</code>).  
-  In particular, when the <code>type</code> of an <code>HTMLInputElement</code>is "file" accessing this element via <code>getElementByID</code> and 
+  In particular, when the <code>type</code> of an <code>HTMLInputElement</code> is "file" accessing this element via <code>getElementById</code> and 
   then invoking <code>file</code> should return a FileList object.  In this section, we specify this behavior. 
   </p>
   <div class="ednote">
