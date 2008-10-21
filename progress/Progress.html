@@ -20,17 +20,17 @@ alt="W3C" height="48" width="72"> </a>
 
 <h1 id="title">Progress events 1.0</h1>
 
-<h2 id="Editor">Editor's Draft 20 October 2008</h2>
+<h2 id="Editor">Editor's Draft 21 October 2008</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.24">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.24</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.25">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.25</a></dd>
   <dt>Latest Editor's version:</dt>
     <dd><a
       href="http://www.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.21">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.22</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.24">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.24</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -81,23 +81,20 @@ network-based events. This editor's draft does not imply any consensus of or
 endorsement by any member of the working group, and may contain minor or
 major errors.</p>
 
-<p>This version is published as a further response to comments received on
-the <a href="http://www.w3.org/TR/2008/WD-progress-events-20080521">third W3C
-Working Draft</a>. All comments are welcome and should be sent to the new
-Working Group list at <a
+<p>This version is published the Face to Face meeting of the Working Group in
+October 2008. All comments are welcome and should be sent to the new Working
+Group list at <a
 href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>. All messages
 received at this address are viewable in a <a
 href="http://lists.w3.org/Archives/Public/public-webapps/">public archive</a>
-(Please note that a different list has been used until now, so old messages
-will be <a href="http://lists.w3.org/Archives/Public/public-webapi/">archived
-there instead</a>). Given the issues raised by review of the Public Workng
-Draft this specification will hopefully be published as a Last Call Working
-draft before the end of 2008. Currently there are is at least one substantive
-issue unresolved by this specification: <span class="issue"><a
-href="http://www.w3.org/2008/webapps/track/issues/3">ISSUE-3</a>: Should
-there be an eventType defined in this specification to allow the use of
-document.createEvent</span>. There are several editorial changes expected,
-labelled as follows: <span class="todo">@@Do something</span></p>
+(Please note that a different list has been used until now, so some old
+messages are <a
+href="http://lists.w3.org/Archives/Public/public-webapi/">archived there
+instead</a>). If no new issues are raised by review of this draft the
+specification will be published as a Last Call Working draft. At the time of
+publication there are no <a
+href="http://www.w3.org/2008/webapps/track/products/5">known substantive
+issues</a>.</p>
 
 <p>This document was produced by a group operating under the <a
 href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004
@@ -163,8 +160,11 @@ document as other than work in progress.</p>
 <em>should not</em>, are used in this document in accordance with [<a
 href="#RFC2119">RFC2119</a>]. A conformant implementation of this
 specification meets all relevant requirements identified by the use of these
-terms. Except where noted otherwise, all sections of this document are
-normative, except examples which are informative.</p>
+terms. </p>
+
+<p>All sections of this document are normative, except examples, which are
+informative, and any section that begins with a statement identifying it as
+informative.</p>
 
 <p>There are three classes of conformance to this specification:</p>
 <dl>
@@ -284,7 +284,7 @@ method suits them better for any given usage.</p>
     (e.g. by user interaction or through a script call).</li>
   <li>If the Operation successfully completes, the user agent <em>must</em>
     dispatch a <code>load</code> event. </li>
-  <li>When the operation has terminated, the  user agent <em>must</em>
+  <li>When the operation has terminated, the user agent <em>must</em>
     dispatch a <code>loadend</code> event.</li>
 </ul>
 
@@ -300,6 +300,10 @@ which may be any of <code>error</code>, <code>abort</code> or
 specification [<a href="#D3E">D3E</a>], the repeated information in this
 section is informative. In the case of any conflict between the
 specifications the DOM Level 3 Events specification is normative.</p>
+
+<p><strong>Note:</strong> To create an instance of the
+<code>ProgressEvent</code> interface, use the
+<code>DocumentEvent.createEvent("ProgressEvent")</code> method call.</p>
 <dl>
   <dt><b>IDL Definition</b></dt>
     <dd>
@@ -340,23 +344,31 @@ specifications the DOM Level 3 Events specification is normative.</p>
             refers to the number of bytes to be transferred, i.e. with the
             relevant encodings applied. Where a specification has not defined
             this, conformant user agents <em>should</em> exclude headers and
-            similar overhead. <span class="example">For example, an HTTP GET
-            transaction should calculate the size of the body only, and an
-            HTTP HEAD request should calculate the size of the head. For more
-            details on HTTP see [<a href="#RFC2616">RFC2616</a>]</span>. </dd>
+            similar overhead.</dd>
+          <dd class="example"><p>For example, an HTTP GET request
+            <em>should</em> calculate the size of the body only. </p>
+            <p>Because HTTP headers can include the users password, sometimes
+            in clear text, a site that knows the size of the default headers
+            for a given implementation can determine the size of the users
+            password, which has the potential to assist in cracking it.
+            Therefore the amount of content transferred <em>should not</em>
+            be available from a HEAD request.For more details on HTTP see [<a
+            href="#RFC2616">RFC2616</a>]. </p>
+          </dd>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long long</span> <span
         class="dom-attr-name"><code>total</code></span></dt>
           <dd>Specifies the expected total number of bytes of the content
             transferred in the operation. Where the size of the transfer is
             for some reason unknown, the value of this attribute
-            <em>must</em> be zero. As with the loaded attribute, conformant
-            specifications <em>must</em> define whether headers and overhead
-            from the transaction are included in calculating this value.
-            Where there is a content-encoding or transfer-encoding this value
-            refers to the number of bytes to be transferred, i.e. with the
-            relevant encodings applied. Where a specification has not defined
-            this, conformant user agents <em>should</em> exclude headers and
+            <em>must</em> be zero. Similar to requirements for the
+            <code>loaded</code> attribute, conformant specifications
+            <em>must</em> define whether headers and overhead from the
+            transaction are included in calculating this value. Where there
+            is a content-encoding or transfer-encoding this value refers to
+            the number of bytes to be transferred, i.e. with the relevant
+            encodings applied. Where a specification has not defined this,
+            conformant user agents <em>should</em> exclude headers and
             similar overhead.</dd>
       </dl>
     </dd>
@@ -571,7 +583,7 @@ to change)</p>
    &lt;title&gt;Using Progress Events&lt;/title&gt;  
    &lt;script&gt;
     var theTransfer = new XMLHttpRequest();
-    <span class="todo">//start up the request properly</span>
+    <span class="todo">//start up the request properly...</span>
     
     theTransfer.addEventListener("progress",updateProgress,false);
     theTransfer.addEventListener("load",worky,false);
@@ -682,10 +694,26 @@ list, and welcomes corrections.</p>
 <h2 id="Change">7. Change History</h2>
 <dl>
   <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.25">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.25</a></dt>
+    <dd><ul>
+        <li>Changed the guidance on <code>loaded</code> and
+          <code>total</code> to recommend not to include HEAD in calculations
+          - <a
+          href="http://www.w3.org/2008/webapps/track/issues/4">ISSUE-4</a>
+          again.</li>
+        <li>Noted that you can use the DocumentEvent.createEvent() method
+          call - <a
+          href="http://www.w3.org/2008/webapps/track/issues/3">ISSUE-3</a></li>
+        <li>Did not make any change, as the resolution of <a
+          href="http://www.w3.org/2008/webapps/track/issues/38">ISSUE-38</a></li>
+      </ul>
+    </dd>
+  <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.24">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.24</a></dt>
     <dd><ul>
         <li>Changed the loaded and total attributes from <code>long</code> to
-          <code>long long</code> where they hadn't been updated yet.</li>
+          <code>long long</code> where they hadn't been updated yet - <a
+          href="http://www.w3.org/2008/webapps/track/issues/37">ISSUE-37</a></li>
       </ul>
     </dd>
   <dt><a
