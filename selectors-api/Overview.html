@@ -419,11 +419,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <span>scope element</span> is the same as the <a href="#context">context
    node</a>.
 
-  <p class=issue>The previous paragraph has been included to define which
-   element will be matched by the proposed <code>:scope</code> pseudo-class.
-   If and when that proposal is accepted, this will need an appropriate
-   reference.
-
   <p>The <dfn id=queryselector
    title=queryselector><code>querySelector()</code></dfn> method on the
    <code><a href="#dom-document-selector">NodeSelector</a></code> interface
@@ -537,22 +532,21 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <h2 id=examples0><span class=secno>8. </span>Examples</h2>
 
-  <p class=issue>Since removing all the NSResolver examples, this section
-   needs to reviewed and possibly expanded.
-
   <div class=example>
-   <p>The following examples make use of this sample document.</p>
+   <p>The following examples make use of this sample XHTML document.</p>
 
-   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:svg="http://www.w3.org/2000/svg"
-      xml:lang="en">
+   <pre>&lt;html xmlns="http://www.w3.org/1999/xhtml">
   &lt;head>
     &lt;title&gt;Selectors API Example&lt;/title&gt;
   &lt;/head>
   &lt;body>
-    &lt;div>&lt;svg:svg … > … &lt;/svg:svg>&lt;/div&gt;
-    &lt;p>&lt;svg:svg … > … &lt;/svg:svg>&lt;/p&gt;
-    &lt;p>&lt;svg xmlns="http://www.w3.org/2000/svg" … > … &lt;/svg>&lt;/p>
+    &lt;div id="foo"&gt;
+      &lt;p class="warning"&gt;This is a sample warning&lt;/p&gt;
+      &lt;p class="error"&gt;This is a sample error&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div id="bar"&gt;
+      &lt;p&gt;...&lt;/p&gt;
+    &lt;/div&gt;
   &lt;/body>
 &lt;/html></pre>
 
@@ -570,10 +564,13 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <pre>var x = document.querySelector("#foo, #bar");</pre>
 
    <p><var>x</var> would contain the first element in the document with an ID
-    of either <code>foo</code> or <code>bar</code> (or both).</p>
+    of either <code>foo</code> or <code>bar</code> (or both). In the sample
+    document above, it would select the <code>div</code> element with the ID
+    of <code>foo</code> because it is first in document order.</p>
 
-   <p>The methods can also be invoked on elements. In this example, the
-    method is invoked on an element that is the target of an event listener.</p>
+   <p>The methods can also be invoked on elements. In this example, assume
+    the event handler is registered on an element, and thus the method is
+    invoked on the target element of the event.</p>
 
    <pre>function handle(evt) {
   var x = evt.target.querySelector("span");
@@ -581,7 +578,16 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   // Do something with x
 }</pre>
 
-   <p>This example demonstrates how to iterate through the items in a
+   <p>Given this sample fragment that contains a list as a navigation menu:</p>
+
+   <pre>&lt;ul class="nav"&gt;
+  &lt;li&gt;&lt;a href="/"&gt;Home&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="/products"&gt;Products&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href="/about"&gt;About&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</pre>
+
+   <p>The following example selects all the <code>li</code> elements and
+    demonstrates how to iterate through the collection in a
     <code>NodeList</code>.</p>
 
    <pre>var lis = document.querySelectorAll("ul.nav&gt;li");
