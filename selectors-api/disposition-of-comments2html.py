@@ -130,13 +130,29 @@ def formatComments(lines):
     return result
 
 def dispositionOfComments(input):
-    template = """<!doctype html>
+    template = """<!DOCTYPE html>
 <html lang="en">
  <head>
   <title>Selectors API Disposition of Comments</title>
  </head>
  <body>
   <h1>Selectors API Disposition of Comments</h2>
+  <p>Issues are marked as follows:
+  <dl>
+   <dt>REJECTED</dt>
+    <dd>reviewer's comment was rejected, but reviewer didn't respond</dd>
+   <dt>AGREED</dt>
+    <dd>reviewer's comment was accepted, but reviewer didn't respond</dd>
+   <dt>PENDING FURTHER COMMENT</dt>
+    <dd>reviewer needs to comment further before issue can be addressed</dd>
+   <dt>CLOSED BY REVIEWER</dt>
+    <dd>reviewer explicitly closed the issue without disagreement</dd>
+   <dt>POTENTIAL FORMAL OBJECTION</dt>
+    <dd>reviewer disagreed with response once, but did not follow up</dd>
+   <dt>FORMAL OBJECTION</dt>
+    <dd>reviewer disagreed with all responses</dd>
+  </dl>
+  <hr>
 %s </body>
 </html>
 """
