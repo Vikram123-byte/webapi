@@ -78,10 +78,9 @@ def getCommentDetails(lines, i, number):
         except:
             break
         n += 1
-    if subject != "":
-         summary = subject
     return {
         "number": number,
+        "subject": subject,
         "summary": summary,
         "status": status,
         "commentor": commentor,
@@ -102,7 +101,7 @@ def formatComments(lines):
     comments = getCommentsDetails(lines)
     result = ""
     commentTemplate = """  <div>
-   <h2>%s</h2>%s%s
+   <h2>%s</h2>%s%s%s
    <ul>
 %s   </ul>%s
   </div>
@@ -110,13 +109,16 @@ def formatComments(lines):
     linksTemplate = """    <li><a href="%s">%s</a>%s</li>
 """
     for comment in comments:
-        heading = comment["number"] + ". " + comment["summary"]
+        heading = comment["number"] + ". " + comment["subject"]
         commentor = ""
+        summary = ""
         status = ""
         links = ""
         conclusion = ""
         if comment["commentor"]:
             commentor = "\n   <p>By: %s</p>" % comment["commentor"]
+        if comment["summary"]:
+            summary = "\n   <p>Summary: %s</p>" % comment["summary"]
         if comment["status"]:
             status = "\n   <p>Status: %s</p>" % comment["status"]
         for link in comment["links"]:
@@ -126,13 +128,14 @@ def formatComments(lines):
             links += linksTemplate % (link[0], link[0], details)
         if comment["conclusion"]:
             conclusion = "\n   <p><strong>%s</strong></p>" % comment["conclusion"]
-        result += commentTemplate % (heading, commentor, status, links, conclusion)
+        result += commentTemplate % (heading, commentor, summary, status, links, conclusion)
     return result
 
 def dispositionOfComments(input):
     template = """<!DOCTYPE html>
 <html lang="en">
  <head>
+  <meta charset="UTF-8">
   <title>Selectors API Disposition of Comments</title>
  </head>
  <body>
