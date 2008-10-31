@@ -309,11 +309,15 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   passed to the method, according to the rules for matching elements
 	   defined in Selectors [[!SELECT]].</p>
 
+<!-- (Commented out until this definition, or something like it, is needed for
+     the proposed :scope pseudo-class.)
+
 	<p>If the <span>context node</span> is a <code>Document</code> node, then
 	   the <span>scope element</span> is the <code>documentElement</code> of
 	   the given document.  If the <span>context node</span> is an
 	   <code>Element</code> node, then the <span>scope element</span> is the
 	   same as the <span>context node</span>.</p>
+-->
 
 	<p>The <dfn id="queryselector" title="queryselector"><code>querySelector()</code></dfn>
 	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
@@ -450,14 +454,25 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 		   order.</p>
 
 		<p>The methods can also be invoked on elements. In this example, assume
-		   the event handler is registered on an element, and thus the
-		   method is invoked on the target element of the event.</p>
+		   the event handler is registered on an element, and thus the method is
+		   invoked on the target element of the event.</p>
 
 		<pre>function handle(evt) {
   var x = evt.target.querySelector("span");
   ...
   // Do something with x
 }</pre>
+
+		<p>Even though the method is invoked on an element, selectors are still
+		   evaluated in the context of the entire document. In the following
+		   example, the method will still match the <code>div</code> element's
+		   child <code>p</code> element, even though the <code>body</code>
+		   element is not a descendant of the <code>div</code> element
+		   itself.</p>
+
+		<pre>var div = document.getElementById("bar");
+var p = bar.querySelector("body p");</pre>
+
 
 		<p>Given this sample fragment that contains a list as a navigation
 		   menu:</p>
