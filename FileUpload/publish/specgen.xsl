@@ -25,6 +25,7 @@
   <xsl:variable name="latest" select="$info/h:*[@id = 'versions']/h:*[@id = 'latest']"/>
   <xsl:variable name="previous-nodeset" select="$info/h:*[@id = 'versions']/h:*[contains(@class,'previous')]"/>
   <xsl:variable name="person-nodeset" select='$info/h:*[@id="editors"]/h:*[@ class="person"]'/>
+  <xsl:variable name="prev-person-nodeset" select='$info/h:*[@id="prev_editors"]/h:*[@ class="person"]'/>
   <xsl:variable name="groupinfo-nodeset" select="$info/h:*[@id = 'groupinfo']"/>
 
   <xsl:template match='/'>
@@ -168,6 +169,30 @@
         <xsl:if test="$person-nodeset">
           <dt>Editor<xsl:if test='count($person-nodeset) &gt; 1'>s</xsl:if>:</dt>
           <xsl:for-each select='$person-nodeset'>
+            <dd>
+              <xsl:choose>
+                <xsl:when test='h:*[contains(@class,"homepage")]'>
+                  <a href='{h:*[contains(@class,"homepage")]}'><xsl:value-of select='h:span[@class = "name"]'/></a>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select='h:span[@class = "name"]'/>
+                </xsl:otherwise>
+              </xsl:choose>
+              <xsl:if test='h:span[@class = "affiliation"]'>
+                <xsl:text>, </xsl:text>
+                <xsl:value-of select='h:span[@class = "affiliation"]'/>
+              </xsl:if>
+              <xsl:if test='h:*[contains(@class,"email")]'>
+                <xsl:text> &lt;</xsl:text>
+                <a href='mailto:{h:*[contains(@class,"email")]}'><xsl:value-of select='h:*[contains(@class,"email")]'/></a>
+                <xsl:text>&gt;</xsl:text>
+              </xsl:if>
+            </dd>
+          </xsl:for-each>
+        </xsl:if>
+        <xsl:if test="$prev-person-nodeset">
+          <dt>Previous Editor<xsl:if test='count($prev-person-nodeset) &gt; 1'>s</xsl:if>:</dt>
+          <xsl:for-each select='$prev-person-nodeset'>
             <dd>
               <xsl:choose>
                 <xsl:when test='h:*[contains(@class,"homepage")]'>
