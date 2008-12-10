@@ -37,7 +37,7 @@
 
    <dl>
     <dt>This Version:</dt>
-    <dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/WD-XMLHttpRequest2-[CDATE]/</a></dd>
+    <dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/ED-XMLHttpRequest2-[CDATE]/</a></dd>
 
     <dt>Latest Version:</dt>
     <dd><a href="http://www.w3.org/TR/XMLHttpRequest2/">http://www.w3.org/TR/XMLHttpRequest2/</a></dd>
@@ -644,7 +644,7 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
    <li>
     <p>For security reasons, these steps <em class="ct">should</em> be
     terminated if the <var>header</var> argument
-    <span title="case-insensitive match">case-insensitively matches</span>
+    <span title="ASCII case-insensitive">case-insensitively matches</span>
     one of the following headers:</p>
 
     <ul>
@@ -673,7 +673,7 @@ interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : 
     </ul>
 
     <p>&hellip; or if the start of the <var>header</var> argument
-    <span title="case-insensitive match">case-insensitively matches</span>
+    <span title="ASCII case-insensitive">case-insensitively matches</span>
     <code>Proxy-</code> or <code>Sec-</code> (including when the argument is
     just <code>Proxy-</code> or <code>Sec-</code>).</p>
 
@@ -1257,9 +1257,12 @@ X-Test: one, two
    <li><p>If the <span>error flag</span> is "true" return the empty sting
    and terminate these steps.</p></li>
 
-   <li><p>Return all the HTTP headers, as a single string, with each header
-   line separated by a U+000D CR U+000A LF pair excluding the status
-   line.</p></li>
+   <li><p>Return all the HTTP headers, excluding headers that
+   <span title="ASCII case-insensitive">case-insensitively match</span>
+   <code>Set-Cookie</code> or <code>Set-Cookie2</code>, as a single string,
+   with each header line separated by a U+000D CR U+000A LF pair excluding
+   the status line, and with each header name and header value separated by
+   a U+003A COLON U+0020 SPACE pair.</p></li>
   </ol>
 
   <div class="example">
@@ -1306,15 +1309,20 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li><p>If the <span>error flag</span> is "true" return <code>null</code>
    and terminate these steps.</p></li>
 
+   <li><p>If the <var>header</var> argument is a
+   <span title="ASCII case-insensitive">case-insensitive match</span> for
+   <code>Set-Cookie</code> or <code>Set-Cookie2</code> return
+   <code>null</code> and terminate these steps.</p></li>
+
    <li><p>If the <var>header</var> argument
-   <span title="case-insensitive match">case-insensitively matches</span>
+   <span title="ASCII case-insensitive">case-insensitively matches</span>
    multiple HTTP headers for the last request sent, return the values of
    these headers as a single concatenated string separated from each other
    by an U+002C COMMA followed by an U+0020 SPACE and terminate these
    steps.</p></li>
 
    <li><p>If the <var>header</var> argument
-   <span title="case-insensitive match">case-insensitively matches</span> a
+   <span title="ASCII case-insensitive">case-insensitively matches</span> a
    single HTTP header for the last request sent return the  value of that
    header and terminate these steps.</p></li>
 
