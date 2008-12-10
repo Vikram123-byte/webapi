@@ -32,13 +32,13 @@
    <h1 class=head id=the-xmlhttprequest-object>The <code
     title="">XMLHttpRequest</code> Object</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 4 September 2008</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 10 December 2008</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080904/">http://www.w3.org/TR/2008/ED-XMLHttpRequest-20080904/</a>
+     href="http://www.w3.org/TR/2008/ED-XMLHttpRequest-20081210/">http://www.w3.org/TR/2008/ED-XMLHttpRequest-20081210/</a>
 
     <dt>Latest Version:
 
@@ -114,7 +114,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 4 September 2008 Last Call Working Draft of The <code
+  <p>This is the 10 December 2008 Last Call Working Draft of The <code
    title="">XMLHttpRequest</code> Object specification. Please send comments
    to <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapi/">archived</a>)
@@ -1048,7 +1048,7 @@ X-Test: one, two
          Re-raise any exceptions the <code><var>data</var>.innerHTML</code>
          getter algorithm raises. [<cite><a
          href="#ref-html5">HTML5</a></cite>]</p>
-
+        <!-- this is completely bogus -->
         <p class=note>If the document cannot be serialized the
          <code>document.innerHTML</code> algorithm raises an
          <code>INVALID_STATE_ERR</code> exception.</p>
@@ -1402,10 +1402,13 @@ X-Test: one, two
        empty string and terminate these steps.
 
      <li>
-      <p>Return all the HTTP headers, as a single string, with each header
-       line separated by a U+000D CR U+000A LF pair excluding the status
-       line, and with each header name and header value separated by a U+003A
-       COLON U+0020 SPACE pair.
+      <p>Return all the HTTP headers, excluding headers that <a
+       href="#ascii-case-insensitive" title="ASCII
+       case-insensitive">case-insensitively match</a> <code>Set-Cookie</code>
+       or <code>Set-Cookie2</code>, as a single string, with each header line
+       separated by a U+000D CR U+000A LF pair excluding the status line, and
+       with each header name and header value separated by a U+003A COLON
+       U+0020 SPACE pair.
     </ol>
 
     <div class=example>
@@ -1450,6 +1453,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
      <li>
       <p>If the <a href="#error-flag">error flag</a> is "true" return
+       <code>null</code> and terminate these steps.
+
+     <li>
+      <p>If the <var>header</var> argument is a <a
+       href="#ascii-case-insensitive" title="ASCII
+       case-insensitive">case-insensitive match</a> for
+       <code>Set-Cookie</code> or <code>Set-Cookie2</code> return
        <code>null</code> and terminate these steps.
 
      <li>

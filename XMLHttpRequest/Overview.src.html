@@ -914,6 +914,7 @@ X-Test: one, two
         <code>null</code>. Re-raise any exceptions the
         <code><var>data</var>.innerHTML</code> getter algorithm raises.
         [<cite><span>HTML5</span></cite>]</p>
+        <!-- this is completely bogus -->
 
         <p class="note">If the document cannot be serialized the
         <code>document.innerHTML</code> algorithm raises an
@@ -1236,10 +1237,12 @@ X-Test: one, two
      <li><p>If the <span>error flag</span> is "true" return the empty string
      and terminate these steps.</p></li>
 
-     <li><p>Return all the HTTP headers, as a single string, with each
-     header line separated by a U+000D CR U+000A LF pair excluding the
-     status line, and with each header name and header value separated by a
-     U+003A COLON U+0020 SPACE pair.</p></li>
+     <li><p>Return all the HTTP headers, excluding headers that
+     <span title="ASCII case-insensitive">case-insensitively match</span>
+     <code>Set-Cookie</code> or <code>Set-Cookie2</code>, as a single
+     string, with each header line separated by a U+000D CR U+000A LF pair
+     excluding the status line, and with each header name and header value
+     separated by a U+003A COLON U+0020 SPACE pair.</p></li>
     </ol>
 
     <div class="example">
@@ -1281,6 +1284,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code> and terminate these steps.</p></li>
 
      <li><p>If the <span>error flag</span> is "true" return
+     <code>null</code> and terminate these steps.</p></li>
+
+     <li><p>If the <var>header</var> argument is a
+     <span title="ASCII case-insensitive">case-insensitive match</span> for
+     <code>Set-Cookie</code> or <code>Set-Cookie2</code> return
      <code>null</code> and terminate these steps.</p></li>
 
      <li><p>If the <var>header</var> argument
