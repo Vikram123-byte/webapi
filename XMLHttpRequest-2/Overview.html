@@ -435,8 +435,8 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
    pointer</dfn>. The associated <code>Document</code> object is the one
    returned by the <code>document</code> attribute from the object on which
    the <code title="">XMLHttpRequest()</code> constructor was invoked (a
-   <code>Window</code> object). The pointer can become "null" if the object
-   is destroyed.
+   <code>Window</code> object). The pointer can become null if the object is
+   destroyed.
 
   <p class=note>As per the conformance criteria implementations are free to
    implement this in any way they desire as long as the end results are
@@ -565,11 +565,11 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
   <p>The OPENED state has an associated <dfn id=send-flag><code>send()</code>
    flag</dfn> that indicates whether the <code><a
    href="#send">send()</a></code> method has been invoked. It can be either
-   "true" or "false" and has an initial value of "false".
+   true or false and has an initial value of false.
 
   <p>The DONE state has an associated <dfn id=error-flag>error flag</dfn>
    that indicates some type of network error or abortion. It can be either
-   "true" or "false" and has an initial value of "false".
+   true or false and has an initial value of false.
 
   <h3 id=request-metadata><span class=secno>3.4 </span>Request Metadata</h3>
 
@@ -697,10 +697,10 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
 
    <li>
     <p><a href="#abort-send-algorithm" title="abort send()">Abort the
-     <code>send()</code> algorithm</a>, set <a
-     href="#response-entity-body">response entity body</a> to "null" and
-     empty the <a href="#author-request-headers">author request headers</a>
-     list.</p>
+     <code>send()</code> algorithm</a>, set the <a
+     href="#send-flag"><code>send()</code> flag</a> to false, set <a
+     href="#response-entity-body">response entity body</a> to null and empty
+     the <a href="#author-request-headers">author request headers</a> list.</p>
 
     <p class=note>This step and the next only has effect if <code><a
      href="#send">send()</a></code> and/or <code><a
@@ -714,9 +714,8 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
 
    <li>
     <p>Switch the object to the <a href="#opened-state" title="OPENED
-     state">OPENED</a> state, set the <a
-     href="#send-flag"><code>send()</code> flag</a> to "false" and then
-     synchronously <a href="#dispatch-readystatechange-event">dispatch a
+     state">OPENED</a> state and then synchronously <a
+     href="#dispatch-readystatechange-event">dispatch a
      <code>readystatechange</code> event</a> on the object and return the
      method call.
   </ol>
@@ -754,9 +753,8 @@ interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a
      exception and terminate these steps.
 
    <li>
-    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is "true"
-     raise an <code>INVALID_STATE_ERR</code> exception and terminate these
-     steps.
+    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
+     an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
     <p>If the <var>header</var> argument does not match the <code><a
@@ -892,9 +890,8 @@ X-Test: one, two
      exception and terminate these steps.
 
    <li>
-    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is "true"
-     raise an <code>INVALID_STATE_ERR</code> exception and terminate these
-     steps.
+    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
+     an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
     <p>If the given value is <code>true</code>, set the <a
@@ -944,8 +941,8 @@ X-Test: one, two
   <ol>
    <li>
     <p>Set the <a href="#response-entity-body">response entity body</a> to
-     "null", the <a href="#error-flag">error flag</a> to "true" and empty the
-     <a href="#author-request-headers">author request headers</a> list.
+     null, the <a href="#error-flag">error flag</a> to true and empty the <a
+     href="#author-request-headers">author request headers</a> list.
 
    <li>
     <p>Synchronously switch the state to <a href="#done-state" title="DONE
@@ -983,8 +980,8 @@ X-Test: one, two
   <ol>
    <li>
     <p>Set the <a href="#response-entity-body">response entity body</a> to
-     "null", the <a href="#error-flag">error flag</a> to "true" and empty the
-     <a href="#author-request-headers">author request headers</a> list.
+     null, the <a href="#error-flag">error flag</a> to true and empty the <a
+     href="#author-request-headers">author request headers</a> list.
 
    <li>
     <p>Synchronously switch the state to <a href="#done-state" title="DONE
@@ -1107,13 +1104,12 @@ X-Test: one, two
      exception and terminate these steps.
 
    <li>
-    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is "true"
-     raise an <code>INVALID_STATE_ERR</code> exception and terminate these
-     steps.
+    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
+     an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
     <p>If <var>async</var> is <code>true</code> set the <a
-     href="#send-flag"><code>send()</code> flag</a> to "true".
+     href="#send-flag"><code>send()</code> flag</a> to true.
 
    <li>
     <p>If <var>async</var> is <code>true</code> and one or more event
@@ -1121,6 +1117,9 @@ X-Test: one, two
      href="#upload">upload</a></code> attribute set the <a
      href="#upload-events-flag">upload events flag</a> to true. Otherwise,
      set the <a href="#upload-events-flag">upload events flag</a> to false.
+
+   <li>
+    <p>Set the <a href="#error-flag">error flag</a> to false.
 
    <li>
     <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
@@ -1441,8 +1440,8 @@ X-Test: one, two
    <li>
     <p><a href="#abort-send-algorithm" title="abort send()">Abort the
      <code>send()</code> algorithm</a>, set the <a
-     href="#response-entity-body">response entity body</a> to "null", the <a
-     href="#error-flag">error flag</a> to "true" and remove any registered
+     href="#response-entity-body">response entity body</a> to null, the <a
+     href="#error-flag">error flag</a> to true and remove any registered
      request headers.
 
    <li>
@@ -1453,12 +1452,12 @@ X-Test: one, two
     <p>If the state is <a href="#unsent-state" title="UNSENT
      state">UNSENT</a>, <a href="#opened-state" title="OPENED
      state">OPENED</a> and the <a href="#send-flag"><code>send()</code>
-     flag</a> is "false", or <a href="#done-state" title="DONE
-     state">DONE</a> go to the next step.</p>
+     flag</a> is false, or <a href="#done-state" title="DONE state">DONE</a>
+     go to the next step.</p>
 
     <p>Otherwise, switch the state to <a href="#done-state" title="DONE
      state">DONE</a>, set the <a href="#send-flag"><code>send()</code>
-     flag</a> to "false" and synchronously <a
+     flag</a> to false and synchronously <a
      href="#dispatch-readystatechange-event">dispatch a
      <code>readystatechange</code> event</a> on the object.</p>
 
@@ -1497,7 +1496,7 @@ X-Test: one, two
      terminate these steps.
 
    <li>
-    <p>If the <a href="#error-flag">error flag</a> is "true" return the empty
+    <p>If the <a href="#error-flag">error flag</a> is true return the empty
      sting and terminate these steps.
 
    <li>
@@ -1554,7 +1553,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code> and terminate these steps.
 
    <li>
-    <p>If the <a href="#error-flag">error flag</a> is "true" return
+    <p>If the <a href="#error-flag">error flag</a> is true return
      <code>null</code> and terminate these steps.
 
    <li>
@@ -1625,26 +1624,26 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <p>The <dfn id=response-mime-type>response MIME type</dfn> is the MIME type
    the <code>Content-Type</code> header contains without any parameters or
-   "null" if the header could not be parsed properly or was omitted. The <dfn
-   id=override-mime-type>override MIME type</dfn> is initially "null" and can
+   null if the header could not be parsed properly or was omitted. The <dfn
+   id=override-mime-type>override MIME type</dfn> is initially null and can
    get a value if <code><a
    href="#overridemimetype">overrideMimeType()</a></code> is invoked. <dfn
    id=final-mime-type>Final MIME type</dfn> is the override MIME type unless
-   that is "null" in which case it is the response MIME type.
+   that is null in which case it is the response MIME type.
 
   <p>The <dfn id=response-charset>response charset</dfn> is the value of the
    <code>charset</code> parameter of the <code>Content-Type</code> header or
    <code>null</code> if there was no <code>charset</code> parameter or if the
    header could not be parsed properly or was omitted. The <dfn
-   id=override-charset>override charset</dfn> is initially "null" and can get
-   a value if <code title="">overrideMimeType()</code> is invoked. <dfn
+   id=override-charset>override charset</dfn> is initially null and can get a
+   value if <code title="">overrideMimeType()</code> is invoked. <dfn
    id=final-charset>Final charset</dfn> is the override charset unless that
-   is "null" in which case it is the response charset.
+   is null in which case it is the response charset.
 
   <p>The <dfn id=response-entity-body>response entity body</dfn> is the
    fragment of the <a href="#entity-body">entity body</a> received so far
    (LOADING state) or the complete entity body (DONE state). If there is no
-   entity body the response entity body is "null".
+   entity body the response entity body is null.
 
   <p>The <dfn id=text-response-entity-body>text response entity body</dfn> is
    a <code>DOMString</code> representing the <a
@@ -1653,7 +1652,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <ol>
    <li>
-    <p>If the response entity body is "null" return the empty string and
+    <p>If the response entity body is null return the empty string and
      terminate these steps.</p>
 
    <li>
@@ -1665,26 +1664,26 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      type</a>.
 
    <li>
-    <p>If <var>charset</var> is "null" and <var>mime</var> is "null",
+    <p>If <var>charset</var> is null and <var>mime</var> is null,
      <code>text/xml</code>, <code>application/xml</code> or ends in <code
      title="">+xml</code> use the rules set forth in the XML specifications
      to determine the character encoding. Let <var>charset</var> be the
      determined character encoding.
 
    <li>
-    <p>If <var>charset</var> is "null" and <var>mime</var> is
+    <p>If <var>charset</var> is null and <var>mime</var> is
      <code>text/html</code> follow the rules set forth in the HTML
      specification to determine the character encoding. Let
      <var>charset</var> be the determined character encoding. [<cite><a
      href="#ref-html5">HTML5</a></cite>]
 
    <li>
-    <p>If <var>charset</var> is "null" then, for each of the rows in the
+    <p>If <var>charset</var> is null then, for each of the rows in the
      following table, starting with the first one and going down, if the
      first bytes of <var>bytes</var> match the bytes given in the first
      column, then let <var>charset</var> be the encoding given in the cell in
      the second column of that row. If there is no match <var>charset</var>
-     remains "null".</p>
+     remains null.</p>
 
     <table>
      <thead>
@@ -1723,7 +1722,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     </table>
 
    <li>
-    <p>If <var>charset</var> is "null" let <var>charset</var> be UTF-8.
+    <p>If <var>charset</var> is null let <var>charset</var> be UTF-8.
 
    <li>
     <p>Return the result of decoding the response entity body using
@@ -1741,11 +1740,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <ol>
    <li>
-    <p>If the response entity body is "null" terminate these steps and return
+    <p>If the response entity body is null terminate these steps and return
      <code>null</code>.
 
    <li>
-    <p>If <a href="#final-mime-type">final MIME type</a> is not "null",
+    <p>If <a href="#final-mime-type">final MIME type</a> is not null,
      <code>text/html</code>, <code>text/xml</code>,
      <code>application/xml</code>, and does not end in <code
      title="">+xml</code> terminate these steps and return <code>null</code>.
@@ -1774,8 +1773,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <li>
     <p>Ensure that the <code>cookie</code> attribute on <var>document</var>
-     returns the empty string if the <span>same origin flag</span> is
-     "false".
+     returns the empty string if the <span>same origin flag</span> is false.
 
    <li>
     <p>Return <var>document</var>.
@@ -1817,7 +1815,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li>
     <p>Return a <code>ByteArray</code> object representing the <a
      href="#response-entity-body">response entity body</a> or return
-     <code>null</code> if the response entity body is "null".
+     <code>null</code> if the response entity body is null.
   </ol>
 
   <p>The <dfn id=responsetext><code>responseText</code></dfn> attribute, on
