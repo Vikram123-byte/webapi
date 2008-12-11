@@ -418,8 +418,8 @@ client.send();</code></pre>
    pointer</dfn>. The associated <code>Document</code> object is the one
    returned by the <code>document</code> attribute from the object on which
    the <code title="">XMLHttpRequest()</code> constructor was invoked (a
-   <code>Window</code> object). The pointer can become "null" if the object
-   is destroyed.
+   <code>Window</code> object). The pointer can become null if the object is
+   destroyed.
 
   <p class=note>As per the conformance criteria implementations are free to
    implement the <code>Document</code> pointer in any way they desire as long
@@ -495,7 +495,7 @@ client.send();</code></pre>
   <p>The OPENED state has an associated <dfn id=send-flag><code>send()</code>
    flag</dfn> that indicates whether the <code><a
    href="#send">send()</a></code> method has been invoked. It can be either
-   "true" or "false" and has an initial value of "false".
+   true or false and has an initial value of false.
 
   <p>The HEADERS_RECEIVED state is the state of the object when all response
    headers have been received. This state is represented by the <dfn
@@ -516,12 +516,12 @@ client.send();</code></pre>
 
   <p>The DONE state has an associated <dfn id=error-flag>error flag</dfn>
    that indicates some type of network error or abortion. It can be either
-   "true" or "false" and has an initial value of "false".
+   true or false and has an initial value of false.
 
   <p>The <dfn id=response-entity-body>response entity body</dfn> is the
    fragment of the <a href="#entity-body">entity body</a> received so far
    (LOADING state) or the complete entity body (DONE state). If there is no
-   entity body the response entity body is "null".
+   entity body the response entity body is null.
 
   <p>The <dfn id=text-response-entity-body>text response entity body</dfn> is
    a <code>DOMString</code> representing the <a
@@ -530,11 +530,11 @@ client.send();</code></pre>
 
   <ol>
    <li>
-    <p>If the response entity body is "null" return the empty string and
+    <p>If the response entity body is null return the empty string and
      terminate these steps.</p>
 
    <li>
-    <p>Let <var>charset</var> be "null".
+    <p>Let <var>charset</var> be null.
 
    <li>
     <p>If there is no <code>Content-Type</code> header or there is a
@@ -555,19 +555,19 @@ client.send();</code></pre>
 
    <li>
     <p>If the MIME type specified by the <code>Content-Type</code> header
-     contains a <code>charset</code> parameter and <var>charset</var> is
-     "null" let <var>charset</var> be the value of that parameter.</p>
+     contains a <code>charset</code> parameter and <var>charset</var> is null
+     let <var>charset</var> be the value of that parameter.</p>
 
     <p class=note>The algorithms described by the XML and HTML specifications
      already take <code>Content-Type</code> into account.</p>
 
    <li> <!-- This stuff is copied from HTML5. Thanks Hixie! -->
-    <p>If <var>charset</var> is "null" then, for each of the rows in the
+    <p>If <var>charset</var> is null then, for each of the rows in the
      following table, starting with the first one and going down, if the
      first bytes of <var>bytes</var> match the bytes given in the first
      column, then let <var>charset</var> be the encoding given in the cell in
      the second column of that row. If there is no match <var>charset</var>
-     remains "null".</p>
+     remains null.</p>
 
     <table>
      <thead>
@@ -606,7 +606,7 @@ client.send();</code></pre>
     </table>
 
    <li>
-    <p>If <var>charset</var> is "null" let <var>charset</var> be UTF-8.
+    <p>If <var>charset</var> is null let <var>charset</var> be UTF-8.
 
    <li>
     <p>Return the result of decoding the response entity body using
@@ -625,7 +625,7 @@ client.send();</code></pre>
 
   <ol>
    <li>
-    <p>If the response entity body is "null" terminate these steps and return
+    <p>If the response entity body is null terminate these steps and return
      <code>null</code>.
 
    <li>
@@ -795,8 +795,9 @@ client.send();</code></pre>
 
      <li>
       <p><a href="#abort-send-algorithm" title="abort send()">Abort the
-       <code>send()</code> algorithm</a>, set <a
-       href="#response-entity-body">response entity body</a> to "null" and
+       <code>send()</code> algorithm</a>, set the <a
+       href="#send-flag"><code>send()</code> flag</a> to false, set <a
+       href="#response-entity-body">response entity body</a> to null and
        empty the list of <a href="#author-request-headers">author request
        headers</a>.</p>
 
@@ -812,9 +813,7 @@ client.send();</code></pre>
 
      <li>
       <p>Switch the object to the <a href="#opened-state" title="OPENED
-       state">OPENED</a> state, set the <a
-       href="#send-flag"><code>send()</code> flag</a> to "false" and then
-       synchronously dispatch a <code><a
+       state">OPENED</a> state and then synchronously dispatch a <code><a
        href="#readystatechange">readystatechange</a></code> event on the
        object and return the method call.
     </ol>
@@ -855,7 +854,7 @@ client.send();</code></pre>
        <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
      <li>
-      <p>If the <a href="#send-flag"><code>send()</code> flag</a> is "true"
+      <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true
        raise an <code>INVALID_STATE_ERR</code> exception and terminate these
        steps.
 
@@ -1004,13 +1003,16 @@ X-Test: one, two
        <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
      <li>
-      <p>If the <a href="#send-flag"><code>send()</code> flag</a> is "true"
+      <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true
        raise an <code>INVALID_STATE_ERR</code> exception and terminate these
        steps.
 
      <li>
       <p>If <var>async</var> is <code>true</code> set the <a
-       href="#send-flag"><code>send()</code> flag</a> to "true".
+       href="#send-flag"><code>send()</code> flag</a> to true.
+
+     <li>
+      <p>Set the <a href="#error-flag">error flag</a> to false.
 
      <li>
       <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
@@ -1127,7 +1129,7 @@ X-Test: one, two
         <ol>
          <li>
           <p>Set the <a href="#response-entity-body">response entity body</a>
-           to "null", the <a href="#error-flag">error flag</a> to "true" and
+           to null, the <a href="#error-flag">error flag</a> to true and
            empty the list of <a href="#author-request-headers">author request
            headers</a>.
 
@@ -1161,7 +1163,7 @@ X-Test: one, two
         <ol>
          <li>
           <p>Set the <a href="#response-entity-body">response entity body</a>
-           to "null", the <a href="#error-flag">error flag</a> to "true" and
+           to null, the <a href="#error-flag">error flag</a> to true and
            empty the list of <a href="#author-request-headers">author request
            headers</a>.
 
@@ -1200,7 +1202,7 @@ X-Test: one, two
         <ol>
          <li>
           <p>Set the <a href="#response-entity-body">response entity body</a>
-           to "null", the <a href="#error-flag">error flag</a> to "true" and
+           to null, the <a href="#error-flag">error flag</a> to true and
            empty the list of <a href="#author-request-headers">author request
            headers</a>.
 
@@ -1351,9 +1353,9 @@ X-Test: one, two
      <li>
       <p><a href="#abort-send-algorithm" title="abort send()">Abort the
        <code>send()</code> algorithm</a>, set the <a
-       href="#response-entity-body">response entity body</a> to "null", the
-       <a href="#error-flag">error flag</a> to "true" and remove any
-       registered request headers.
+       href="#response-entity-body">response entity body</a> to null, the <a
+       href="#error-flag">error flag</a> to true and remove any registered
+       request headers.
 
      <li>
       <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -1363,12 +1365,12 @@ X-Test: one, two
       <p>If the state is <a href="#unsent-state" title="UNSENT
        state">UNSENT</a>, <a href="#opened-state" title="OPENED
        state">OPENED</a> and the <a href="#send-flag"><code>send()</code>
-       flag</a> is "false", or <a href="#done-state" title="DONE
+       flag</a> is false, or <a href="#done-state" title="DONE
        state">DONE</a> go to the next step.</p>
 
       <p>Otherwise, switch the state to <a href="#done-state" title="DONE
        state">DONE</a>, set the <a href="#send-flag"><code>send()</code>
-       flag</a> to "false" and synchronously dispatch a <code><a
+       flag</a> to false and synchronously dispatch a <code><a
        href="#readystatechange">readystatechange</a></code> event on the
        object.</p>
 
@@ -1398,8 +1400,8 @@ X-Test: one, two
        and terminate these steps.
 
      <li>
-      <p>If the <a href="#error-flag">error flag</a> is "true" return the
-       empty string and terminate these steps.
+      <p>If the <a href="#error-flag">error flag</a> is true return the empty
+       string and terminate these steps.
 
      <li>
       <p>Return all the HTTP headers, excluding headers that <a
@@ -1452,7 +1454,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
        <code>null</code> and terminate these steps.
 
      <li>
-      <p>If the <a href="#error-flag">error flag</a> is "true" return
+      <p>If the <a href="#error-flag">error flag</a> is true return
        <code>null</code> and terminate these steps.
 
      <li>
