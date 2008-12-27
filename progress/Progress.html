@@ -20,17 +20,17 @@ alt="W3C" height="48" width="72"> </a>
 
 <h1 id="title">Progress events 1.0</h1>
 
-<h2 id="Editor">Editor's Draft 24 November 2008</h2>
+<h2 id="Editor">Editor's Draft 28 December 2008</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.27">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.27</a></dd>
   <dt>Latest Editor's version:</dt>
     <dd><a
       href="http://www.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.25">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.25</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -58,8 +58,8 @@ use</a> rules apply.</p>
 name="abstract">Abstract</a></h2>
 
 <p>This document describes event types that can be used for monitoring the
-progress of an operation. It is primarily intended for contexts such as data
-transfer operations specified by XMLHTTPRequest [<a href="#XHR">XHR</a>], or
+progress of an operation taking place. It is primarily intended for contexts such as data
+transfer operations specified by XMLHttpRequest [<a href="#XHR">XHR</a>], or
 Media Access Events [<a href="#MAE">MAE</a>].</p>
 </div>
 <hr>
@@ -81,7 +81,7 @@ network-based events. This editor's draft does not imply any consensus of or
 endorsement by any member of the working group, and may contain minor or
 major errors.</p>
 
-<p>This version is published following a few comments on the last draft in
+<p>This version is published following comments on the last draft in
 October 2008. All comments are welcome and should be sent to the new Working
 Group list at <a
 href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>. All messages
@@ -90,13 +90,10 @@ href="http://lists.w3.org/Archives/Public/public-webapps/">public archive</a>
 (Please note that a different list was used until mid 2008, so some old
 messages are <a
 href="http://lists.w3.org/Archives/Public/public-webapi/">archived there
-instead</a>). This draft is an interim editor's draft, with further changes
-to be made and some work to be done to ensure integration of changes in
-progress. If no new issues are raised by review when those changes have been
-completed, the specification will be published as a Last Call Working draft.
-At the time of publication there are some <a
-href="http://www.w3.org/2008/webapps/track/products/5">known potentially
-substantive issues</a> although they may not be recorded yet.</p>
+instead</a>). If no new issues are raised by review of this draft, the specification will be published as a Last Call Working draft.
+At the time of publication there are <a
+href="http://www.w3.org/2008/webapps/track/products/5">no known
+substantive issues</a>.</p>
 
 <p>This document was produced by a group operating under the <a
 href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004
@@ -175,7 +172,10 @@ informative.</p>
       for some operation. A conformant specification is one which includes
       all the requirements identified in the section <a
       href="#Referring">Referring to progress events from other
-      specifications</a>.</dd>
+      specifications</a>, and implements all requirements explicitly stated
+      for specifications in normative sections of this specification. A
+      conforming specification <em>should</em> also implement all
+      recommendations made for specifications.</dd>
   <dt>User agent</dt>
     <dd>A user agent <em>must</em> implement all the requirements described
       for user agents throughout this specification in order to be a
@@ -186,7 +186,7 @@ informative.</p>
       in accordance with the definitions of those events in this
       specification, and in accordance with any additional conformance
       requirements defined by a specification which describes an operation
-      that can lead to progress events being dispatched. (Note that content
+      that can lead to progress events being dispatched. <br />(Note that content
       which meets the requirements of a specification which is not conformant
       to this specification may still be conforming content as defined for
       this specification).</dd>
@@ -278,16 +278,19 @@ Specifications <em>may</em> define default actions, and whether events bubble
 or are cancelable.</p>
 
 <p>User agents <em>must</em> implement these events such that by default the
-events do not bubble, and are not be cancelable, unless they are defined
-otherwise in the specification for which they are being fired. </p>
+events do not bubble, and are not be cancelable, unless their definitions have
+been extended to say otherwise in the specification for which they are being
+fired, in which case they <em>must</em> implement the events as defined by any
+such specification. </p>
 
 <p>Specifications <em>should</em> use the events defined in this
 specification in preference to other events (e.g. in a different namespace,
-or with a different name) that do the same thing. </p>
+or with a different name) that offer the same functionality.</p>
 
 <p>These events are in "no namespace", that is for the purposes of namespaced
-systems they use the <samp>null</samp> namespace. Two kinds of initialisation
-methods are provided: one (<code><a
+systems they use the <samp>null</samp> namespace. (For further information on
+ namespaces, see "Namespaces in XML" [<a href="#XMLNames">XMLNames</a>]). 
+Two kinds of initialisation methods are provided: one (<code><a
 href="#initProgre2">initProgressEventNS</a></code>) in which the namespace is
 <em>required</em> and <em>must</em> be <samp>null</samp> (any event in
 another namespace is not defined by this specification), and one (<code><a
@@ -706,9 +709,12 @@ to change)</p>
   proposed by WHAT-WG</dt>
     <dd>I Hickson, ed. Latest version available at <a
       href="http://www.whatwg.org/specs/web-apps/current-work/#progress0">http://www.whatwg.org/specs/web-apps/current-work/#progress0</a></dd>
-  <dt>[<a name="XHR" id="XHR">XHR</a>] XMLHTTPRequest</dt>
+  <dt>[<a name="XHR" id="XHR">XHR</a>] XMLHttpRequest</dt>
     <dd>A van Kesteren, ed.. Latest draft available at <a
       href="http://www.w3.org/TR/xmlhttprequest">http://www.w3.org/TR/xmlhttprequest</a></dd>
+  <dt>[<a name="XMLNames" id="XMLNames">XMLNames</a>] Namespaces in XML 1.0</dt>
+    <dd>T Bray et al., eds. Latest draft available at <a
+      href="http://www.w3.org/TR/xml-names">http://www.w3.org/TR/xml-names</a></dd>
 </dl>
 
 <h2 id="Acknowledg">6. Acknowledgements</h2>
@@ -737,8 +743,16 @@ list, and welcomes corrections.</p>
 <h2 id="Change">7. Change History</h2>
 <dl>
   <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.27">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.27</a>
+  <strong>(Intended basis for Last Call Working Draft)</strong></dt>
+    <dd><ul>
+        <li>Completion of changes and editorial clarifications begun in <a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26</a></li>
+      </ul>
+    </dd>
+  <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.26</a>
-  <strong>(intended basis for Last Call Working Draft)</strong></dt>
+  <strong>(Interim draft of intended basis for Last Call Working Draft)</strong></dt>
     <dd><ul>
         <li>Added stalled and suspend events - <a
           href="http://www.w3.org/2008/webapps/track/issues/78">ISSUE-78</a></li>
