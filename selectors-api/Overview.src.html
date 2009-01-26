@@ -245,8 +245,10 @@ for (var i = 0; i &lt; groups.length; i++) {
 
 	<p>Some implementations might have different levels of support for
 	   Selectors. If some implementations lack support for some selectors, then
-	   if those selectors are used, such implementations could return different
-	   results from those that do support them.</p>
+	   the use of such selectors will result in those implementations failing to
+	   return the expected results. Authors are advised to check for the DOM
+	   Exceptions thrown by these APIs and provide a fallback for graceful
+	   degradation.</p>
 
 	<h3 id="extensibility">Extensibility</h3>
 
@@ -539,6 +541,38 @@ for (var i = 0; i &lt; lis.length; i++) {
 		   DOM would also remove the element from the list and adjust the
 		   indexes of subsequent elements. That would have adverse effects upon
 		   the loop because not all selected elements would be processed.</p>
+
+		<p>In documents comprising elements from multiple namespaces, it's
+		   possible that some elements from different namespaces share the same
+		   local name. Since this API does not natively support a namespace
+		   resolution mechanism for selectors, obtaining a list of such
+		   elements from a specific namespace, excluding all others, requires
+		   an additional processing to filter the result. The following example
+		   illustrates a document containing <code>video</code> elements from
+		   both the SVG and XHTML namespaces.</p>
+		
+		<pre>&lt;svg id=&quot;svg1&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;
+               xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot;&gt;
+  &lt;video id=&quot;svgvideo1&quot; xlink:href=&quot;myvideo.ogg&quot; width=&quot;320&quot; height=&quot;240&quot;/&gt;
+  &lt;foreignObject width=&quot;100&quot; height=&quot;100&quot;&gt;
+    &lt;video id=&quot;htmlvideo1&quot; src=&quot;myvideo.ogg&quot; xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;No video1&lt;/video&gt;
+  &lt;/foreignObject&gt;
+&lt;/svg&gt;</pre>
+
+		<p>The following script demonstrates how to first select the <code>video</code>
+		   elements and then filter out the unwanted elements based on their
+		   namespace.</p>
+
+		<pre>var list = document.querySelectorAll("svg video");
+var result = new Array();
+var svgns = "http://www.w3.org/2000/svg"
+
+for(var i = 0; i < elms.length; i++) {
+  if(elms[i].namespaceURI == svgns) {
+    result.push(elms[i]);
+  }
+}</pre>
+
 	</div>
 
 	<h2 class="no-num" id="references">References</h2>
