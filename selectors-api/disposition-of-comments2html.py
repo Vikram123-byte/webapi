@@ -139,7 +139,7 @@ def dispositionOfComments(input):
   <title>Selectors API Disposition of Comments</title>
  </head>
  <body>
-  <h1>Selectors API Disposition of Comments</h2>
+  <h1>Selectors API Disposition of Comments</h1>
   <p>Issues are marked as follows:
   <dl>
    <dt>REJECTED</dt>
