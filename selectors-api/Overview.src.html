@@ -133,9 +133,9 @@
 	<p>This specification introduces two methods that take a group of selectors
 	   (often simply referred to as a selector) as an argument and return the
 	   matching elements [[!SELECT]]. With these methods, it is easier to match a
-	   set of <code>Element</code> nodes based on specific criteria. So instead
-	   of having to filter the result of a <code>getElementsByTagName()</code>
-	   call, authors can directly “filter” in the query.</p>
+	   set of <code>Element</code> nodes based on specific criteria, than
+	   having to subsequently filter the result of calling other methods like
+	   <code>getElementsByTagName()</code>.</p>
 
 	<h3 id="examples">Examples</h3>
 
@@ -367,7 +367,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   Therefore, authors are advised to avoid the use of pseudo-elements in
 	   selectors that are passed to the methods defined in this specification.</p>
 
-	<p>The implementation <em class="ct">must</em> first trim any leading or
+	<p>The implementation <em class="ct">must</em> first trim any leading and/or
 	   trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace" title="Selectors">whitespace</a>
 	   from the value of the <var>selectors</var> parameter. The implementation
 	   <em class="ct">must</em> then process the value according to
@@ -386,8 +386,8 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
 	   method <em class="ct">must</em> be static, not
-	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>.
-	   ([[!DOM-LEVEL-3-CORE]], section 1.1.1) Subsequent changes to the
+	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>
+	   ([[!DOM-LEVEL-3-CORE]], section 1.1.1). Subsequent changes to the
 	   structure of the underlying document <em class="ct">must not</em> be
 	   reflected in the <code>NodeList</code> object. This means that the object
 	   will instead contain a list of matching <code>Element</code> nodes that
@@ -421,8 +421,8 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<p>DOM3 Core defines several methods for checking for interface support,
 	   or for obtaining implementations of interfaces, using
-	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMFeatures">feature strings</a>.
-	   ([[!DOM-LEVEL-3-CORE]], section 1.3.6)  A DOM application can use these methods, each of which accept
+	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMFeatures">feature strings</a>
+	   ([[!DOM-LEVEL-3-CORE]], section 1.3.6).  A DOM application can use these methods, each of which accept
 	   <var>feature</var> and <var>version</var> parameters, using the values
 	   "<code title="">Selectors-API</code>" and "<code>1.0</code>"
 	   (respectively).</p>
@@ -470,12 +470,12 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 		<pre>var x = document.querySelector("#foo, #bar");</pre>
 
 		<p><var>x</var> would contain the first element in the document with an
-		   ID of either <code>foo</code> or <code>bar</code> (or both). In the
-		   sample document above, it would select the <code>div</code> element
-		   with the ID of <code>foo</code> because it is first in document
-		   order. The order of the selectors used in the parameter has no
-		   effect and would have the same result if the order were reversed,
-		   as in:</p>
+		   ID of either <code>foo</code> or <code>bar</code>, or <code>null</code>
+		   if there is no such element. In the sample document above, it would
+		   select the <code>div</code> element with the ID of <code>foo</code>
+		   because it is first in document order. The order of the selectors
+		   used in the parameter has no effect and would have the same result if
+		   the order were reversed, as in:</p>
 
 		<pre>var x = document.querySelector("#bar, #foo");</pre>
 
@@ -546,7 +546,7 @@ for (var i = 0; i &lt; lis.length; i++) {
 		   local name. Since this API does not natively support a namespace
 		   resolution mechanism for selectors, obtaining a list of such
 		   elements from a specific namespace, excluding all others, requires
-		   an additional processing to filter the result. The following example
+		   additional processing to filter the result. The following example
 		   illustrates a document containing <code>video</code> elements from
 		   both the SVG and XHTML namespaces.</p>
 		
