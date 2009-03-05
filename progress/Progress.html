@@ -20,11 +20,11 @@ alt="W3C" height="48" width="72"> </a>
 
 <h1 id="title">Progress events 1.0</h1>
 
-<h2 id="Editor">Editor's Draft 28 December 2008</h2>
+<h2 id="Editor">Editor's Draft 5 March 2009</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.28">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.28</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.29">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.29</a></dd>
   <dt>Latest Editor's version:</dt>
     <dd><a
       href="http://www.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html</a></dd>
@@ -38,7 +38,7 @@ alt="W3C" height="48" width="72"> </a>
 
 <p class="copyright"><a
 href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©
-2006-2008 <a href="http://www.w3.org/"><acronym
+2006-2009 <a href="http://www.w3.org/"><acronym
 title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup> (<a
 href="http://www.csail.mit.edu/"><acronym
 title="Massachusetts Institute of Technology">MIT</acronym></a>, <a
@@ -91,9 +91,11 @@ messages are <a
 href="http://lists.w3.org/Archives/Public/public-webapi/">archived there
 instead</a>). If no new issues are raised by review of this draft, the
 specification will be published as a Last Call Working draft. At the time of
-publication there are <a
-href="http://www.w3.org/2008/webapps/track/products/5">no known substantive
-issues</a>.</p>
+publication the editor believes that <a
+href="http://www.w3.org/2008/webapps/track/issues/79">issue-79</a> has been
+resolved, and that there are <a
+href="http://www.w3.org/2008/webapps/track/products/5">no other known
+substantive issues</a>.</p>
 
 <p>This document was produced by a group operating under the <a
 href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 W3C
@@ -131,6 +133,7 @@ other than work in progress.</p>
     <ul>
       <li><a href="#Example">Example 1: Using progress events in another
         specification:</a></li>
+      <li><a href="#Firing">Firing a Progress Event</a></li>
     </ul>
   </li>
   <li><a href="#Using">4. Using progress events in Web content</a> 
@@ -269,14 +272,13 @@ attached on <code>Element</code> nodes for the relevant event and on the
 capture and target phases. </p>
 
 <p>No default action is defined in this specification for these events.
-Specifications <em>may</em> define default actions, and whether events bubble
-or are cancelable.</p>
+Specifications <em>may</em> define default actions. Specifications
+<em>should</em> define whether events bubble or are cancelable. User Agents
+<em>must</em> implement the events as defined by any such specification. </p>
 
-<p>User agents <em>must</em> implement these events such that by default the
-events do not bubble, and are not cancelable, unless their definitions have
-been extended to say otherwise in the specification for which they are being
-fired, in which case they <em>must</em> implement the events as defined by any
-such specification. </p>
+<p>For a Specification which has not defined whether these events bubble or are
+cancelable, User agents <em>must</em> implement these events such that by
+default the events do not bubble, and are not cancelable.</p>
 
 <p>Specifications <em>should</em> use the events defined in this specification
 in preference to other events (e.g. in a different namespace, or with a
@@ -418,12 +420,12 @@ the DOM Level 3 Events specification is normative.</p>
               <dt><span class="dom-parameters">Parameters</span></dt>
                 <dd><dl>
                     <dt><var>typeArg</var> of type DOMString</dt>
-                      <dd>If the value of this parameter is not one of
+                      <dd>Unless the value of this parameter is one of
                         <samp>loadstart</samp>, <samp>progress</samp>,
                         <samp>stalled, suspend, error</samp>,
                         <samp>abort</samp>, <code>load</code> or
-                        <samp>loadend</samp> then this specification does not
-                        define the resulting event. Refer to the
+                        <samp>loadend</samp> this specification does not define
+                        the resulting event. Refer to the
                         <code>Event.initEvent()</code> method [<a
                         href="#D3E">D3E</a>] for further description of this
                         parameter.</dd>
@@ -450,13 +452,7 @@ the DOM Level 3 Events specification is normative.</p>
                     <dt><var>totalArg</var> of type unsigned long long</dt>
                       <dd>This specifies the total number of bytes to be
                         transferred. If lengthComputable is <var>false</var>,
-                        this <em>must</em> be zero. If any other parameter is
-                        passed, and lengthComputable is false, the user agent
-                        <em>must</em> override this and set the value to zero.
-                        If lengthComputable is <var>true</var>, and the value
-                        of this parameter is a negative number, the user agent
-                        <em>must</em> set lengthComputable to <var>false</var>
-                        and the value of total to zero. </dd>
+                        this <em>should</em> be zero.</dd>
                   </dl>
                 </dd>
             </dl>
@@ -540,6 +536,13 @@ the rate remains below 1kb/second. If no bytes are transferred for 4 seconds an
 be fired and the transfer terminated.</p>
 </div>
 
+<h3 id="Firing">3.1 Firing a Progress Event</h3>
+
+<p>Firing a Progress event means to dispatch an event [<a href="#D3E">D3E</a>]
+described in section 2 <a href="../../../../tmp/Progress.html#Progress">The
+<code>ProgressEvent</code> events</a>, with relevant further definition
+provided in the host specification, at a given target.</p>
+
 <h2 id="Using">4. Using progress events in Web content</h2>
 
 <p>Scripts may use progress events in order to provide feedback on operations
@@ -555,7 +558,8 @@ emitted as an image loads in order to fill a progress bar as it receives
 progress events. Where the size of a download is unknown or there has been no
 progress yet there is simply a block moving back and forth within the progress
 bar to indicate that there is still some kind of activity.</p>
-<pre class="example"><code>&lt;svg xmlns="http://www.w3.org/2000/svg" version="1.1"
+<pre class="example"><code>&lt;?xml version="1.1" ?&gt;
+&lt;svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      viewBox="0 0 400 400"&gt;
    
@@ -572,12 +576,12 @@ bar to indicate that there is still some kind of activity.</p>
    }           
 
    function imageLoadProgress(evt) {  
-       if (evt.lengthComputable &amp;&amp; evt.total != 0) { // we know the size, don't divide by zero
+       if (evt.lengthComputable &amp;&amp; evt.total != 0) { <strong>// size is known, not zero</strong>
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 100*evt.loaded/evt.total);
           var loadAnimation = document.getElementById('loadAnimation');
           loadAnimation.endElement();
-       } else { // we don't know the size and we need not to divide by zero
+       } else { <strong>// we don't know the size and we need not to divide by zero</strong>
           var progressBar = document.getElementById('progressBar');
           progressBar.setAttribute("width", 20);
           var loadAnimation = document.getElementById('loadAnimation');
@@ -594,20 +598,26 @@ bar to indicate that there is still some kind of activity.</p>
    }
    ]]&gt;&lt;/script&gt;
 
-   &lt;image id="myImage" xlink:href="imageA.png" width="300" height="400"/&gt;
+   &lt;image id="myImage" xlink:href="imageA.png" y="15" width="400" height="300"/&gt;
 
-   &lt;rect onclick="showImage('imageB.png')" width="120" 
-         height="30" y="400" id="button" /&gt;
+&lt;g id="button" onclick="showImage('imageB.png')"&gt;
+   &lt;rect width="120" 
+         height="30" y="350" id="button" fill="#aaa"/&gt;
+         &lt;text x="20" y="370" font-size="15"&gt;Change Image&lt;/text&gt;
+&lt;/g&gt;
 
    &lt;animate id="loadAnimation" xlink:href="#progressBar" attributeName="x" 
      by="80" dur="1s" begin="button.click" repeatCount="indefinite"/&gt;
 
    &lt;g id="meter" opacity="0"&gt;
      &lt;set attributeName="opacity" to=".7" begin="button.click" end="myImage.load"/&gt;
-     &lt;rect width="101" fill="none" height="5" x="5" y="5" stroke-width="1"/&gt;
+     &lt;rect width="101" fill="none" stroke="black" height="5"
+       x="5" y="5" stroke-width="1"/&gt;
      &lt;rect id="progressBar" fill="#444" height="4" x="5.5" y="5.5"/&gt;
   &lt;/g&gt;
 &lt;/svg&gt;</code></pre>
+
+<p><a href="ex2.svg">Download example 2</a> (requires SVG support)</p>
 
 <h4 id="Example11">Example 3: Using Progress events in an HTML document. </h4>
 
@@ -624,7 +634,7 @@ specifications and may need to change)</p>
    &lt;title&gt;Using Progress Events&lt;/title&gt;  
    &lt;script&gt;
     var theTransfer = new XMLHttpRequest();
-    <span class="todo">//start up the request properly...</span>
+    <span class="todo"><strong>//start up the request properly...</strong></span>
     
     theTransfer.addEventListener("progress",updateProgress,false);
     theTransfer.addEventListener("load",worky,false);
@@ -636,10 +646,10 @@ specifications and may need to change)</p>
    function updateProgress(evt) {  
           var progressCount = document.getElementById('progressCount');
           progressCount.child[0].data = evt.loaded;
-       if (evt.lengthComputable &amp;&amp; evt.total != 0) {                  // show progress
+       if (evt.lengthComputable &amp;&amp; evt.total != 0) {        <strong>// show progress</strong>
           var totalCount = document.getElementById('total');
           totalCount.child[0].data = evt.total;
-       } else { // we don't know the size
+       } else {       <strong>// we don't know the size</strong>
           var totalCount = document.getElementById('totalCount');
           totalCount.setAttribute("irrelevant", "irrelevant");
        }   
@@ -660,7 +670,8 @@ specifications and may need to change)</p>
 
   &lt;/head&gt;
   &lt;body&gt;
-    &lt;p id="theProgress"&gt;So far, I have loaded &lt;span id="progressCount"&gt;0&lt;/span&gt; bytes
+    &lt;p id="theProgress"&gt;So far, I have loaded 
+     &lt;span id="progressCount"&gt;0&lt;/span&gt; bytes
      &lt;span id="totalCount" irrelevant="irrelevant"&gt;of the total transfer of 
      &lt;span id="total"&gt;the total&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
   &lt;/body&gt;
@@ -740,6 +751,15 @@ list, and welcomes corrections.</p>
 
 <h2 id="Change">7. Change History</h2>
 <dl>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.28">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.29</a>
+  <strong>(Intended basis for Last Call Working Draft)</strong></dt>
+    <dd><ul>
+        <li>Improving examples, editorial fixes</li>
+        <li>Total no longer required to be clamped to zero when
+          LengthComputable is false</li>
+      </ul>
+    </dd>
   <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.27">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.27</a>
   <strong>(Intended basis for Last Call Working Draft)</strong></dt>
