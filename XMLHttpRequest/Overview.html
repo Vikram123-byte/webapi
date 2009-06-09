@@ -36,13 +36,13 @@
    <h1 class=head id=the-xmlhttprequest-object><code
     title="">XMLHttpRequest</code></h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 1 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 9 June 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090601/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090601/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090609/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090609/</a>
 
     <dt>Latest Version:
 
@@ -117,7 +117,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 1 June 2009 Editor's Draft of the <code
+  <p>This is the 9 June 2009 Editor's Draft of the <code
    title="">XMLHttpRequest</code> specification. Please send comments to <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
@@ -430,8 +430,9 @@ client.send();</code></pre>
    origin</dfn>, <dfn id=storage-mutex>storage mutex</dfn>, <dfn
    id=task>task</dfn>, <dfn id=task-source>task source</dfn>, <dfn
    id=url>URL</dfn>, <dfn id=url-character-encoding>URL character
-   encoding</dfn>, and <dfn id=queue-a-task>queue a task</dfn> are defined by
-   the HTML&nbsp;5 specification. [<cite><a
+   encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and <dfn
+   id=xml-fragment-serialization-algorithm>XML fragment serialization
+   algorithm</dfn> are defined by the HTML&nbsp;5 specification. [<cite><a
    href="#ref-html5">HTML5</a></cite>]</p>
   <!-- Things might be splitted out of HTML5 -->
 
@@ -1115,17 +1116,21 @@ X-Test: one, two
        href="#setrequestheader">setRequestHeader()</a></code> set a
        <code>Content-Type</code> request header with a value of
        <code>text/plain;charset=UTF-8</code>.</p>
+      <!-- XXX not all UAs modify Content-Type -->
 
      <dt><var>data</var> is a <code>Document</code>
 
      <dd>
-      <p>Let <var>data</var> be <code><var>data</var>.innerHTML</code> as
-       defined by section 2.5 of HTML&nbsp;5. Encode it using
+      <p>Let <var>tempdata</var> be the result of following the <a
+       href="#xml-fragment-serialization-algorithm">XML fragment
+       serialization algorithm</a> for a <code>Document</code> on
+       <var>data</var> and encode it using
        <code><var>data</var>.inputEncoding</code> or UTF-8 if
        <code><var>data</var>.inputEncoding</code> is <code>null</code>.
-       Re-raise any exceptions the <code><var>data</var>.innerHTML</code>
-       getter algorithm raises. [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
-      <!-- XXX this is completely bogus -->
+       Re-raise any exception this algorithm raises.</p>
+
+      <p>Let <var>data</var> be <var>tempdata</var>.</p>
+
       <p class=note>If the document cannot be serialized the
        <code>document.innerHTML</code> algorithm raises an
        <code>INVALID_STATE_ERR</code> exception.</p>
@@ -1134,17 +1139,20 @@ X-Test: one, two
        href="#setrequestheader">setRequestHeader()</a></code> and its value
        is not malformed, set the <code>charset</code> parameter of that
        header, by either changing the <code>charset</code> parameter (if one
-       is present) or appending one, to the encoding used to encode the
-       document.</p>
+       is present) or appending one, to the encoding used to encode
+       <var>data</var>.</p>
 
       <p>If no <code>Content-Type</code> header has been set using <code><a
        href="#setrequestheader">setRequestHeader()</a></code> set a
        <code>Content-Type</code> request header with a value of
        <code>application/xml;charset=<var>charset</var></code> where
-       <var>charset</var> is the encoding used to encode the document.</p>
+       <var>charset</var> is the encoding used to encode <var>data</var>.</p>
 
       <p class=note>Subsequent changes to the <code>Document</code> have no
        effect on what is submitted.</p>
+      <!-- XXX not all UAs modify Content-Type
+               different algorithm for HTML? -->
+      
 
      <dt><var>data</var> is not a <code>DOMString</code> or
       <code>Document</code>
@@ -1152,10 +1160,10 @@ X-Test: one, two
      <dd>
       <p>Use the stringification mechanisms of the host language on
        <var>data</var> and treat the result as if <var>data</var> is a
-       <code>DOMString</code>. Or, if this fails, act as if the
-       <var>data</var> argument is <code>null</code>.
+       <code>DOMString</code>. Re-raise any exceptions the stringification
+       mechanism raises.
      </dd>
-     <!-- XXX exceptions need to be re-raised -->
+     <!-- XXX do we need to state this? -->
     </dl>
 
     <p>If the <var>data</var> argument has been omitted, or is
