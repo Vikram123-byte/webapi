@@ -37,13 +37,13 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 10 February 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 9 June 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090210/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090210/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090609/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090609/</a>
 
     <dt>Latest Version:
 
@@ -101,7 +101,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 10 February 2009 Working Draft of <code
+  <p>This is the 9 June 2009 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -304,8 +304,7 @@
     <p>A <a href="#conforming-user-agent" title="conforming user
      agent">conforming user agent</a> <em class=ct>must</em> be a conforming
      XML processor that reports violations of namespace well-formedness.
-     [<cite><a href="#ref-xml">XML</a></cite>] [<cite><a
-     href="#ref-xmlns">XMLNS</a></cite>]
+     [<cite><a href="#ref-xml">XML</a></cite>]
   </dl>
 
   <h3 id=terminology><span class=secno>2.2 </span>Terminology</h3>
@@ -519,8 +518,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
   <p>The <code><a href="#xmlhttprequest-interface">XMLHttpRequest</a></code>
    object can be in several states. The <dfn
    id=readystate><code>readyState</code></dfn> attribute, on getting, <em
-   class=ct>must</em> return the current state of the object, which <em
-   class=ct>must</em> be one of the following values:
+   class=ct>must</em> return the current state, which <em class=ct>must</em>
+   be one of the following values:
 
   <dl>
    <dt><dfn id=unsent-state title="UNSENT state"><code>UNSENT</code></dfn>
@@ -560,17 +559,18 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
    <dd>
     <p>The data transfer has been completed or something went wrong during
-     the transfer (such as infinite redirects).
+     the transfer (e.g. infinite redirects).
   </dl>
 
-  <p>The OPENED state has an associated <dfn id=send-flag><code>send()</code>
-   flag</dfn> that indicates whether the <code><a
-   href="#send">send()</a></code> method has been invoked. It can be either
-   true or false and has an initial value of false.
+  <p>The <a href="#opened-state" title="OPENED state">OPENED</a> state has an
+   associated <dfn id=send-flag><code>send()</code> flag</dfn> that indicates
+   whether the <code><a href="#send">send()</a></code> method has been
+   invoked. It can be either true or false and has an initial value of false.
 
-  <p>The DONE state has an associated <dfn id=error-flag>error flag</dfn>
-   that indicates some type of network error or abortion. It can be either
-   true or false and has an initial value of false.
+  <p>The <a href="#done-state" title="DONE state">DONE</a> state has an
+   associated <dfn id=error-flag>error flag</dfn> that indicates some type of
+   network error or abortion. It can be either true or false and has an
+   initial value of false.
 
   <h3 id=request-metadata><span class=secno>3.4 </span>Request Metadata</h3>
 
@@ -594,8 +594,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      exception and terminate these steps.
 
    <li>
-    <p>If <var>stored method</var> <a href="#ascii-case-insensitive"
-     title="ASCII case-insensitive">case-insensitively matches</a>
+    <p>If <var>stored method</var> is an <a
+     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
      <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
      <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
      <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> <a
@@ -615,8 +615,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      href="#security-err">SECURITY_ERR</a></code> exception and terminate
      these steps.</p>
 
-    <p class=note>Allowing these methods would pose a security risk.
-     [<cite><a href="#ref-httpverbsec">HTTPVERBSEC</a></cite>]</p>
+    <p class=note>Allowing these methods poses a security risk. [<cite><a
+     href="#ref-httpverbsec">HTTPVERBSEC</a></cite>]</p>
 
    <li>
     <p><a href="#url-resolve" title="Resolve a URL">Resolve <var>stored
@@ -772,10 +772,9 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
    <li>
     <p>For security reasons, these steps <em class=ct>should</em> be
-     terminated if the <var>header</var> argument <a
-     href="#ascii-case-insensitive" title="ASCII
-     case-insensitive">case-insensitively matches</a> one of the following
-     headers:</p>
+     terminated if <var>header</var> is an <a
+     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for one
+     of the following headers:</p>
 
     <ul>
      <li><code>Accept-Charset</code>
@@ -826,11 +825,10 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      <li><code>Via</code>
     </ul>
 
-    <p>&hellip; or if the start of the <var>header</var> argument <a
-     href="#ascii-case-insensitive" title="ASCII
-     case-insensitive">case-insensitively matches</a> <code>Proxy-</code> or
-     <code>Sec-</code> (including when the argument is just
-     <code>Proxy-</code> or <code>Sec-</code>).</p>
+    <p>&hellip; or if the start of <var>header</var> is an <a
+     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
+     <code>Proxy-</code> or <code>Sec-</code> (including when
+     <var>header</var> is just <code>Proxy-</code> or <code>Sec-</code>).</p>
 
     <p class=note>The above headers are not allowed to be set as they are
      better controlled by the user agent as it knows best what value they
@@ -842,13 +840,13 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      be set.)</p>
 
    <li>
-    <p>If the <var>header</var> argument is not in the <a
+    <p>If <var>header</var> is not in the <a
      href="#author-request-headers">author request headers</a> list append
-     the <var>header</var> with its associated <var>value</var> to the list
-     and terminate these steps.
+     <var>header</var> with its associated <var>value</var> to the list and
+     terminate these steps.
 
    <li>
-    <p>If the <var>header</var> argument is in the <a
+    <p>If <var>header</var> is in the <a
      href="#author-request-headers">author request headers</a> list either
      use multiple headers, combine the values or use a combination of those
      (section 4.2, RFC 2616). [<cite><a
@@ -1448,8 +1446,8 @@ X-Test: one, two
     <p><a href="#abort-send-algorithm" title="abort send()">Abort the
      <code>send()</code> algorithm</a>, set the <a
      href="#response-entity-body">response entity body</a> to null, the <a
-     href="#error-flag">error flag</a> to true and remove any registered
-     request headers.
+     href="#error-flag">error flag</a> to true and empty the <a
+     href="#author-request-headers">author request headers</a> list.
 
    <li>
     <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -1458,15 +1456,17 @@ X-Test: one, two
    <li>
     <p>If the state is <a href="#unsent-state" title="UNSENT
      state">UNSENT</a>, <a href="#opened-state" title="OPENED
-     state">OPENED</a> and the <a href="#send-flag"><code>send()</code>
-     flag</a> is false, or <a href="#done-state" title="DONE state">DONE</a>
-     go to the next step.</p>
+     state">OPENED</a> with the <a href="#send-flag"><code>send()</code>
+     flag</a> being false, or <a href="#done-state" title="DONE
+     state">DONE</a> go to the next step.</p>
 
     <p>Otherwise, switch the state to <a href="#done-state" title="DONE
      state">DONE</a>, set the <a href="#send-flag"><code>send()</code>
-     flag</a> to false and synchronously <a
-     href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object.</p>
+     flag</a> to false and synchronously dispatch a <code><a
+     href="#readystatechange-event">readystatechange</a></code> event on the
+     object.</p>
+   </li>
+   <!-- XXX dispatch -->
 
    <li>
     <p>Switch the state to <a href="#unsent-state" title="UNSENT
@@ -1504,16 +1504,15 @@ X-Test: one, two
 
    <li>
     <p>If the <a href="#error-flag">error flag</a> is true return the empty
-     sting and terminate these steps.
+     string and terminate these steps.
 
    <li>
-    <p>Return all the HTTP headers, excluding headers that <a
-     href="#ascii-case-insensitive" title="ASCII
-     case-insensitive">case-insensitively match</a> <code>Set-Cookie</code>
-     or <code>Set-Cookie2</code>, as a single string, with each header line
-     separated by a U+000D CR U+000A LF pair excluding the status line, and
-     with each header name and header value separated by a U+003A COLON
-     U+0020 SPACE pair.
+    <p>Return all the HTTP headers, excluding headers that are an <a
+     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
+     <code>Set-Cookie</code> or <code>Set-Cookie2</code>, as a single string,
+     with each header line separated by a U+000D CR U+000A LF pair excluding
+     the status line, and with each header name and header value separated by
+     a U+003A COLON U+0020 SPACE pair.
   </ol>
 
   <div class=example>
@@ -1556,8 +1555,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      terminate these steps.
 
    <li>
-    <p>If the <var>header</var> argument does not match the <span><code><a
-     href="#field-name">field-name</a></code> production</span> return
+    <p>If <var>header</var> does not match the <code><a
+     href="#field-name">field-name</a></code> production return
      <code>null</code> and terminate these steps.
 
    <li>
@@ -1565,24 +1564,22 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code> and terminate these steps.
 
    <li>
-    <p>If the <var>header</var> argument is a <a
-     href="#ascii-case-insensitive" title="ASCII
-     case-insensitive">case-insensitive match</a> for <code>Set-Cookie</code>
-     or <code>Set-Cookie2</code> return <code>null</code> and terminate these
+    <p>If <var>header</var> is an <a href="#ascii-case-insensitive">ASCII
+     case-insensitive</a> match for <code>Set-Cookie</code> or
+     <code>Set-Cookie2</code> return <code>null</code> and terminate these
      steps.
 
    <li>
-    <p>If the <var>header</var> argument <a href="#ascii-case-insensitive"
-     title="ASCII case-insensitive">case-insensitively matches</a> multiple
-     HTTP headers for the last request sent, return the values of these
-     headers as a single concatenated string separated from each other by an
-     U+002C COMMA followed by an U+0020 SPACE and terminate these steps.
+    <p>If <var>header</var> is an <a href="#ascii-case-insensitive">ASCII
+     case-insensitive</a> match for multiple HTTP response headers, return
+     the values of these headers as a single concatenated string separated
+     from each other by a U+002C COMMA U+0020 SPACE character pair and
+     terminate these steps.
 
    <li>
-    <p>If the <var>header</var> argument <a href="#ascii-case-insensitive"
-     title="ASCII case-insensitive">case-insensitively matches</a> a single
-     HTTP header for the last request sent return the value of that header
-     and terminate these steps.
+    <p>If <var>header</var> is an <a href="#ascii-case-insensitive">ASCII
+     case-insensitive</a> match for a single HTTP response header, return the
+     value of that header and terminate these steps.
 
    <li>
     <p>Return <code>null</code>.
@@ -1773,8 +1770,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      the response entity body into a document tree following the rules from
      the XML specifications. If this fails (unsupported character encoding,
      namespace well-formedness error et cetera) terminate these steps return
-     <code>null</code>. [<cite><a href="#ref-xml">XML</a></cite>] [<cite><a
-     href="#ref-xmlns">XMLNS</a></cite>]</p>
+     <code>null</code>. [<cite><a href="#ref-xml">XML</a></cite>]</p>
 
     <p class=note>Scripts in the resulting document tree will not be
      executed, resources referenced will not be loaded and no associated XSLT
@@ -2068,10 +2064,8 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
    <dt>[<dfn id=ref-xml>XML</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/xml/">Extensible Markup Language
-    (XML) 1.0 (Fourth Edition)</a></cite>, T. Bray, J. Paoli, C.
-    Sperberg-McQueen, E. Maler, F. Yergeau, editors. W3C, September 2006.
-
-   <dt>[<dfn id=ref-xmlns>XMLNS</dfn>]
+    (XML) 1.0 (Fifth Edition)</a></cite>, T. Bray, J. Paoli, C.
+    Sperberg-McQueen, E. Maler, F. Yergeau, editors. W3C, November 2008.
 
    <dd><cite><a href="http://www.w3.org/TR/xml-names/">Namespaces in XML
     (Second Edition)</a></cite>, T. Bray, D. Hollander, A. Layman, R. Tobin,
