@@ -416,12 +416,25 @@ client.send();</code></pre>
   </dl>
 
   <h3 id=terminology><span class=secno>2.2 </span>Terminology</h3>
-  <!-- XXX define simple terms here instead of referencing them -->
+
+  <p>Comparing two strings in a <dfn id=case-sensitive>case-sensitive</dfn>
+   manner means comparing them exactly, codepoint for codepoint.
+
+  <p>Comparing two strings in an <dfn id=ascii-case-insensitive>ASCII
+   case-insensitive</dfn> manner means comparing them exactly, codepoint for
+   codepoint, except that the characters in the range U+0041 .. U+005A (i.e.
+   LATIN CAPITAL LETTER A to LATIN CAPITAL LETTER Z) and the corresponding
+   characters in the range U+0061 .. U+007A (i.e. LATIN SMALL LETTER A to
+   LATIN SMALL LETTER Z) are considered to also match.
+
+  <p><dfn id=converted-to-ascii-upercase title="converted to ASCII
+   uppercase">Converting a string to ASCII uppercase</dfn> means replacing
+   all characters in the range U+0061 .. U+007A (i.e. LATIN SMALL LETTER A to
+   LATIN SMALL LETTER Z) with the corresponding characters in the range
+   U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to LATIN CAPITAL LETTER Z).
 
   <p>The terms and algorithms <dfn id=url-fragment>&lt;fragment></dfn>, <dfn
-   id=url-scheme>&lt;scheme></dfn>, <dfn id=ascii-case-insensitive>ASCII
-   case-insensitive</dfn>, <dfn id=uppercase title=uppercase>converting a
-   string to uppercase</dfn>, <dfn id=document-base-url>document base
+   id=url-scheme>&lt;scheme></dfn>, <dfn id=document-base-url>document base
    URL</dfn>, <dfn id=event-handler-attributes-0>event handler
    attributes</dfn>, <dfn id=event-handler-event-type>event handler event
    type</dfn>, <dfn id=fully-active>fully active</dfn>, <dfn
@@ -742,8 +755,9 @@ interface <dfn id=xmlhttprequest-object>XMLHttpRequest</dfn> {
      case-insensitive</a> match for <code>CONNECT</code>,
      <code>DELETE</code>, <code>GET</code>, <code>HEAD</code>,
      <code>OPTIONS</code>, <code>POST</code>, <code>PUT</code>,
-     <code>TRACE</code>, or <code>TRACK</code> <a href="#uppercase"
-     title=uppercase>convert <var>method</var> to uppercase</a>.</p>
+     <code>TRACE</code>, or <code>TRACK</code> <a
+     href="#converted-to-ascii-upercase" title="converted to ASCII
+     uppercase">convert <var>method</var> to ASCII uppercase</a>.</p>
 
     <p class=note>If it does not match any of the above, it is passed through
      <em>literally</em>, including in the final request.</p>
@@ -752,11 +766,11 @@ interface <dfn id=xmlhttprequest-object>XMLHttpRequest</dfn> {
    M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
    <li>
-    <p>If <var>method</var> is one of <code>CONNECT</code>,
-     <code>TRACE</code>, or <code>TRACK</code> the user agent <em
-     class=ct>should</em> raise a <code><a
-     href="#security-err">SECURITY_ERR</a></code> exception and terminate
-     these steps.</p>
+    <p>If <var>method</var> is a <a href="#case-sensitive">case-sensitive</a>
+     match for <code>CONNECT</code>, <code>TRACE</code>, or
+     <code>TRACK</code> the user agent <em class=ct>should</em> raise a
+     <code><a href="#security-err">SECURITY_ERR</a></code> exception and
+     terminate these steps.</p>
 
     <p class=note>Allowing these methods poses a security risk. [<cite><a
      href="#ref-httpverbsec">HTTPVERBSEC</a></cite>]</p>
