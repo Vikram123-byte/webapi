@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8" />
+<title>File API</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+<link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD" type="text/css" />
+<link rel="stylesheet" href="respec-w3c.css" type="text/css" />
+<link rel="stylesheet" href="style.css" type="text/css" />
+<meta name="revision" content="$Id: FileAPI.xhtml,v 1.1 2009-06-11 10:00:04 arangana Exp $" />
+
+</head>
+<body>
+ <div class="head">
+		<p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C" /></a></p>
+		<h1 class="head">File API</h1><h2 id="pagesubtitle">W3C Working Draft <em>7 June 2009</em></h2>
+		 <dl><dt>This version:</dt><dd><a href="http://dev.w3.org/2006/webapi/FileUpload/publish/FileUpload.xhtml">dev.w3.org/2006/webapi/FileUpload/publish/FileUpload.xhtml</a></dd>
+			 <dt>Latest public version:</dt><dd><a href="http://www.w3.org/TR/file-upload/">http://www.w3.org/TR/file-upload/</a></dd>
+			 <dt>Previous version:</dt><dd></dd>
+			 <dt>Editor:</dt><dd><span class="person"><a href="http://arunranga.com/">Arun Ranganathan</a> (<a href="http://blog.mozilla.com/standards">Mozilla</a>) &lt;<a href="mailto:arun@mozilla~HugASpammer.com">arunATmozillaDOTcom</a>&gt;</span></dd></dl>
+		<p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+        <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
+        (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
+        <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
+        <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and 
+        <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document  use</a> rules apply.
+       </p>
+ </div>
+ 
+ <hr />
+
+  <div class="section"><h2 id="specabstract">Abstract</h2>
+    
+<p>
+      This specification provides an <acronym title="Application Programming Interface">API</acronym>
+      for representing file objects in web applications, as well as programmatically selecting them and accessing their data.  This includes:
+</p>
+		<ul>
+			<li>A <a href="#FileList-if" class="if-name">FileList</a> interface, which represents an array of individually selected files from the underlying system.
+			The user interface for selection can be invoked via pre-existing mechanisms such as <code>&lt;input type="file"></code>, i.e. when the
+			HTML <a href="http://dev.w3.org/html5/spec/Overview.html#the-input-element"><code>input</code></a>
+			element is in the <a href="http://dev.w3.org/html5/spec/Overview.html#file-upload-state">File Upload</a> state, or through the <a href="#FileDialog-if" class="if-name">FileDialog</a> interface.</li>
+			<li>A <a href="#File-if" class="if-name">File</a> interface, which includes readonly informational attributes about a file, as well as a mechanism to asynchronously obtain the file's data.</li>
+		        <li>A <a href="#FileError-if" class="if-name">FileError</a> interface, which is accessed asynchronously when error conditions need to be handled.</li>
+	                <li>A <a href="#FileDialog-if" class="if-name">FileDialog</a> interface, which asynchronously spawns a user interface for file selection on the underlying file system.
+			Additionally, this can be used for hardware-resident "on the fly" file generation, such as access to the hardware's
+			camera.</li>
+		</ul>
+		<p>The section on Requirements and Use Cases [<a href="#requirements">REQ</a>] covers the motivation behind this specification.</p>
+    <p>
+      This API is designed to be used in conjunction with other APIs on the web platform, notably: <a href="http://www.w3.org/TR/XMLHttpRequest2/" class="if-name">XMLHttpRequest</a>
+      (e.g.  with an overloaded <code>send()</code> method for File objects), the HTML5 <a href="http://dev.w3.org/html5/spec/Overview.html#dnd">Drag and Drop API</a>,
+      <a href="http://dev.w3.org/html5/spec/Overview.html#window" class="if-name">postMessage</a>, and
+      <a href="http://dev.w3.org/html5/workers/">Web Workers</a>. Additionally, it should be possible to programmatically obtain a list of files from the HTML
+      <a href="http://dev.w3.org/html5/spec/Overview.html#the-input-element"><code>input</code></a> element when it is
+      in the <a href="http://dev.w3.org/html5/spec/Overview.html#file-upload-state">File Upload state</a>; use of appropriate [DOM]DOM methods should return a <a href="#FileList-if" class="if-name">FileList</a> object,
+      from which individual <a href="#File-if" class="if-name">File</a> objects can be obtained.
+      These kinds of behaviors are defined in the appropriate affiliated specifications.
+    </p>
+    </div>
+  
+  <?revision-note?>
+  
+  <div class="section"><h2 id="contents">Table of Contents</h2>
+    
+
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li>
+					<li><a href="#FileList-if">2. The FileList interface</a></li>
+					<li><a href="#File-if">3. The File interface</a></li>
+                                        <li><a href="#FileDialog-if">4. The FileDialog interface</a></li>
+                                        <li><a href="#FileError-if">5. The FileError error</a></li>
+                                        
+			                <li><a href="#conform">6. Conformance</a></li>
+					<li><a href="#requirements">7. Requirements and Use Cases</a></li>
+					<li><a href="#ack">8. Acknowledgements</a></li>
+			                <li><a href="#bibref">9. References</a></li>
+	</ul>
+	  
+  </div>
+
+
+  <div class="section"><h2 id="sotd">Status of this Document</h2>
+  <p>
+    <em>This section describes the status of this document at the time of its publication.
+    Other documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the
+    latest revision of this technical report can be found in the 
+    <a href="http://www.w3.org/TR/"><acronym title="World Wide Web Consortium">W3C</acronym>
+    technical reports index</a> at http://www.w3.org/TR/.</em>
+  </p>
+
+    
+    <p>
+      This document is a First Public Working Draft. It is <strong>not an official
+      publication</strong> of the <acronym title="World Wide Web Consortium">W3C</acronym>. The authors of this document are
+      the members of the <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/2008/webapps">Web Applications</a> Working Group.
+    </p>
+    <p>
+      This document is produced by the <a href="http://www.w3.org/2008/webapps">Web <acronym title="Application Programming Interface">Applications</acronym>
+      <acronym title="Working Group">WG</acronym></a> in
+      the <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.
+    </p>
+    <p>
+      Web content and browser developers are encouraged to review this
+      draft. Please send comments to <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>,
+      the <acronym title="World Wide Web Consortium">W3C</acronym>'s public email list for issues related to Web <acronym title="Application Programming Interface">API</acronym>.
+      <a href="http://lists.w3.org/Archives/Public/public-webapps/">Archives</a> of the
+      list are available.
+    </p>
+	
+  
+  </div>
+  <div class="section"><h2 id="introduction">1. Introduction</h2>
+    
+    <p>
+      It is desirable for web applications to have the ability to manipulate as wide
+      as possible a range of user input, including files that a user may wish to upload 
+      to a remote server or manipulate inside a rich web application. This specification 
+     defines the basic representations for files, lists of files, errors raised by access to files, and programmatic ways to prompt file selection.  The interfaces and API defined in this specification can be used
+     with other interfaces and APIs exposed to the web platform (e.g. <a href="http://www.w3.org/TR/XMLHttpRequest2/" class="if-name">XMLHttpRequest</a>).
+    </p>
+    <p>
+    This specification may refer to other specifications, including HTML5 [HTML5], DOM3Core [DOMCORE], and some RFCs.  This specification uses the term "caller" to refer to
+    the entity invoking the API.
+    </p>
+  </div>
+
+  
+<div class="section"><h2 id="FileList-if">2. The FileList interface</h2>
+    
+    <p>
+      This interface exposes the list of files that has been selected.  When no file has been selected, the length attribute is zero.  When one or more files have been selected,
+      an array of <a href="#File-if" class="if-name">File</a> objects is created, and the length attribute reflects the number of selected files.
+    </p>
+
+    <div class="boxed"><p><span class="idlTitle">The FileList interface</span></p>
+    <pre class="schema" title="The FileList interface">
+  interface <a href="#idl-if-FileList">FileList</a> {
+  readonly attribute unsigned long  <a href="#dfn-length">length</a>;
+  [IndexGetter] <a href="#idl-if-File">File</a> <a href="#dfn-item">item</a>(in unsigned long index);
+ 
+};</pre>
+</div>
+<div class="section" id="idl-if-FileList">
+    <div class="section"><h4 class="idl-header" id="idl-attrs-FileList">Attributes</h4>
+        <dl class="idl-attr"><dt id="dfn-length"><code>length</code>
+        of type
+         unsigned long, readonly</dt>
+        <dd><p>
+              The number of files in the list. 
+        </p></dd>
+        </dl>
+    </div>
+    
+    <div class="section"><h4 class="idl-header" id="idl-meths-FileList">Methods</h4>
+    <dl class="idl-meth">
+    <dt id="dfn-item"><code>item</code></dt>
+    <dd>
+        <p>
+            Returns the <code>index</code>th item in the collection, which is a <a href="#File-if" class="if-name">File</a> object. If 
+
+              <code>index</code> is greater than or equal to the number of files in the
+              list -- namely greater than the value of <code>length-1</code>, this returns <code>null</code>.
+        </p>
+        <p> Usage: <code>var file = filelist.item(0);</code></p>
+        <p> Usage: <code>var file = fileList[0];</code></p>
+    </dd>
+    <dt>Errors</dt><dd> No errors are generated.  Invalid invocations return null for the entire <a href="#FileList-if" class="if-name">FileList</a> object.  If no files are selected (or the dialog is dismissed),
+    the <code>length</code> attribute is zero, and the <code>item</code> method
+    returns null for all indexes.</dd>
+    </dl>
+    <div class="section"><h4 class="idl-header" id="idl-params-FileList">Parameters</h4>
+    <dl class="idl-params"><dt><code>index</code> of type unsigned long</dt><dd> Index into the collection.  Valid values are from 0 to <code>length</code>-1</dd></dl>
+    </div>
+    
+    
+    </div>
+</div>
+</div> 
+
+  <div class="section"><h2 id="File-if">3. The File interface</h2>
+    
+    <p>
+      This interface describes a single file in a <a href="#FileList-if" class="if-name">FileList</a>, exposes 
+      its name and size, and provides asynchronous access to its content.
+    </p>
+    <p>
+      In order to be memory-efficient, implementations are not
+      required to load the content of files into memory as soon as they have been 
+      selected, but only when their content is required by the application. When passing a
+      <a href="#File-if" class="if-name">File</a> object to network <acronym title="Application Programming Interface">API</acronym> such as <span class="if-name">XMLHttpRequest</span> an 
+      implementation may stream the content of a file to a socket and never need 
+      to hold more than a few of its bytes in memory. Therefore the content of the file may change or cease to be available between
+      the moment the file is selected and the moment it is accessed.
+    </p>
+</div>
+    <div class="boxed"><p><span class="idlTitle">The File interface</span></p>
+	<pre class="schema" title="The File interface">interface <a href="#idl-if-File">File</a> {
+
+readonly attribute DOMString          <a href="#dfn-fileName">fileName</a>;
+readonly attribute unsigned long long <a href="#dfn-fileSize">fileSize</a>;
+
+void <a href="dfn-getAsDataURI">getAsDataURI</a>(in <a href="#dfn-FileAsText">FileAsText</a> callback, [Optional] in <a href="#dfn-FileErrorCallback">FileErrorCallback</a> errorCallback);
+void <a href="#dfn-getAsText">getAsText</a>(in <a href="#dfn-FileAsText">FileAsText</a> callback, [Optional] in DOMString <a href="#dfn-encoding">encoding</a>,  [Optional] in <a href="#dfn-FileErrorCallback">FileErrorCallback</a> errorCallback);
+};
+
+ [CallBack=FunctionOnly, NoInterfaceObject] interface <a href="#dfn-FileAsText">FileAsText</a> {
+   void handleEvent(in DOMString fileAsText);
+};
+
+
+ [CallBack=FunctionOnly, NoInterfaceObject] interface <a href="#dfn-FileErrorCallback">FileErrorCallback</a> {
+   void handleEvent(in <a href="#FileError-if">FileError</a> error);
+ };
+</pre>
+</div>
+<div class="section" id="idl-if-File">
+<div class="section"><h4 id="idl-attrs-File">Attributes</h4>
+<dl class="idl-attr">
+ <dt id="dfn-fileName"><code>fileName</code> of type <code>DOMString, readonly</code></dt>
+  <dd><p>The name of the file as a UTF8-encoded string.  There are numerous file name variations on different systems; this is merely the name of the file, without path information.</p></dd>
+ <dt id="dfn-fileSize"><code>fileSize</code> of type <code>unsigned long long, readonly</code></dt>
+  <dd><p>The size of the file in bytes.</p></dd>
+</dl>
+</div>
+<div class="section"><h4 id="idl-meths-File">Methods</h4>
+<dl class="idl-meth">
+<dt id="dfn-getAsDataURI"><code>getAsDataURI</code></dt>
+<dd><p>Asynchronously provides access to the <a href="File-if">File</a> object's data as a <a href="http://tools.ietf.org/html/rfc2397">data URL, defined in RFC 2397</a>.  Note that URL length limitations imposed by user agents
+means that not all files may be easily retrievable as data URLs.  Base64 encodings may not be appropriate for all use cases.  The actual data URL is returned to a callback function which the caller must
+define.  Additionally, an optional error callback can be provided by the caller, to determine whether there is a <a href="#FileError-if" class="if-name">FileError</a>, and handle it.  If a <a href="#FileError-if" class="if-name">FileError</a> does
+occur, this method SHOULD invoke the <a href="#dfn-FileAsText" class="if-name">FileAsText</a> callback parameter with <code>null</code> for the string value representing the file's data, and implementations SHOULD asynchronously use
+a <a href="#FileError-if" class="if-name">FileError</a> object parameter with an <code>errorCode</code> when invoking the <a href="#dfn-FileErrorCallback" class="if-name">FileErrorCallback</a> callback .</p>
+<p>Usage: <div class="boxed" id="sample-getAsDataURI"><pre>
+<code>
+ 
+ // Sample code in JavaScript
+ // Obtain fileList from &lt;input type="file"> using DOM
+ 
+ var file = fileList.files.item(0);
+ if (file &amp;&amp; file.fileSize)
+ {
+     // ... Make asynchronous call
+     
+     file.getAsDataURI(handleURI, handleError);
+ }
+// ...
+
+function handleURI(fileAsDataURI)
+{
+      if(fileAsDataURI)
+       // I can haz xhr.send(fileAsDataURI);
+      
+}
+
+//....
+
+function handleError(error)
+{
+ if(error)
+ {
+    var code = error.code;
+    // Handle error conditions
+    if(code == 8) msg("File Not Found")
+    else
+    {
+     // Handle read errors or security considerations
+    }
+ }
+}
+</code>
+</pre></div>
+</p>
+</dd>
+<dt id="dfn-getAsText"><code>getAsText</code></dt>
+<dd>
+ <p>
+  Asynchronously provides access to the <a href="#File-if">File</a> object's data as string.  If the caller does NOT specify the <code>encoding</code> as a parameter, the representation is by default a UTF-8 encoded
+  string.  The actual string is passed as a parameter to the <a href="#dfn-FileAsText" class="if-name">FileAsText</a> callback function which the caller must implement. Additionally,
+  an optional error callback can be provided by the caller, to determine if there is a
+  <a href="#FileError-if">FileError</a>, and handle it.   If a <a href="#FileError-if" class="if-name">FileError</a> does
+occur, this method SHOULD invoke the <a href="#dfn-FileAsText" class="if-name">FileAsText</a> callback parameter with <code>null</code> for the string value representing the file's data, and implementations
+SHOULD asynchronously use a <a href="#FileError-if">FileError</a> object parameter with an <code>errorCode</code> when invoking the <a href="#dfn-FileErrorCallback" class="if-name">FileErrorCallback</a> callback </p>
+<p>
+Usage: <div class="boxed" id="sample-getAsText"><pre><code>
+// Sample code in JavaScript
+ // Obtain fileList from &lt;input type="file"> using DOM
+ 
+ var file = fileList.files.item(0);
+ if (file &amp;&amp; file.fileSize)
+ {
+     // ... Make asynchronous call
+     
+     file.getAsText(handleText, "UTF-16", handleError);
+ }
+ 
+ function handleText(fileDump)
+ {
+    if(fileDump)
+    {
+      // Handle UTF-16 file dump
+      if(arunlib.regexp.isChinese(fileDump))
+      {
+         //Chinese Characters + Name validation
+      }
+      else
+      {
+        // run Hiragana charset test
+      }
+     // I can haz xhr.send(fileDump)
+    }
+ }
+ function handleError(error)
+ {
+  if(error)
+  {
+    var code = error.code;
+    // Handle error conditions
+    if(code == 8) msg("File Not Found")
+    else
+    {
+     // Handle read errors or security considerations
+    }
+  }
+ }
+</code> 
+</pre></div>
+</p>
+</dd>
+</dl>
+</div>
+<div class="section"><h4 id="idl-params-File">Parameters</h4>
+<dl class="idl-params">
+ <dt id="dfn-FileAsText"><code>FileAsText</code>, of type <code>[CallBack=FunctionOnly]</code></dt>
+ <dd>
+  <p>This is a callback function for asynchronous handling of strings representing a file's data.  In the case of the <a href="File-if" class="if-name">File</a> interface,
+  these strings are either data URLs or string encodings of a file's data.  Sample invocations in JavaScript are provided when this [NoInterfaceObject] function is called for
+  <a href="#sample-getAsText"><code>getAsText</code></a> and for <a href="#sample-getAsDataURI"><code>getAsDataURI</code></a>. These callbacks SHOULD be called asynchronously with <code>null</code>
+  if the asynchronous accessors <code><a href="#dfn-getAsText">getAsText</a></code> and <code><a href="#dfn-getAsDataURI">getAsDataURI</a></code> encounter a <a href="#FileError-if" class="if-name">FileError</a>.</p>
+ </dd>
+ <dt id="dfn-FileErrorCallback"><code>FileErrorCallback</code>, of type <code>[CallBack=FunctionOnly]</code></dt>
+ <dd>
+ <p>This is a callback function for asynchronously handling <a href="FileError-if">FileError</a> conditions.  In the case of the <a href="#File-if" class="if-name">File</a> API's asynchronous data
+ accessors, these could occur when the <a href="#File-if" class="if-name">File</a> object is initially not null, but when asynchronous data accessors encounter an error.  This can arise if the file
+ resource in question has been concurrently accessed by another application, or if permissions change.  See <a href="#FileError-if" class="if-name">FileError</a> for a definition of errors. </p>
+ </dd>
+</dl>
+</div>
+</div>
+<div class="section"><h2 id="FileDialog-if">4. The FileDialog interface</h2>
+<p>
+ It is desirable to allow the web platform to programmatically invoke a file picker dialog box which allows for multiple file selection.  This would be an enhancement to the existing mechanism in
+ HTML [HTML5] to pick files using <code>&lt;input type="file"></code>.  This interface should provide for data to be handled asynchronously, allow for multiple file selections, and report errors asynchronously.
+ This interface MAY also be used to access hardware-resident file generation mechanisms, such as a device's camera, or microphone.  Furthermore, before the file picker appears, user agents MAY elect
+to raise a user interaction layer soliciting permission.  User agents MAY determine that permissions be remembered on a per-site basis.</p>
+<p>A programmatic invocation of a file picker which also serves the purpose of accessing the hardware's file generation capabilities (e.g. camera) raises security concerns.  This API behaves asynchronously, and
+MAY be blocked before invoking callbacks in order to solicit user permission via a user interaction layer.  One example of such a user interaction layer might be a non-modal dialog box which blocks callback
+execution till permission is granted.
+If permission is NOT granted, the <a href="#FileList-if" class="if-name">FileList</a> object that is an invocation parameter of the
+<a href="#dfn-FileListDataCallback" class="if-name">FileListDataCallback</a> callback SHOULD be <code>null</code>, and the <a href="#dfn-FileErrorCallback">FileErrorCallback</a> callback
+MAY be invoked by implementations with a <a href="#FileError-if"><code>FileError</code></a> <code>errorCode</code> of <a href="#idl-defs-FileErrorCode-SECURITY_ERR"><code>SECURITY_ERR</code></a>.</p>
+<div class="ednote"><p>Suggested implementation currently is that the <a href="#FileDialog-if" class="if-name">FileDialog</a> interface is implemented as a property on the global object (e.g. <code>window.fileDialog</code>).
+The pros and cons of having a constructor (thus allowing for <code>var dialog = new FileDialog();</code> should be discussed.  Are additions of caller-defined properties to this object desirable?  Also,
+ought the language MAY be changed to SHOULD?  Flash does not ask permission before it spawns a file picker; [a big well-known webmail company] uses Flash to pick files.</p></div>
+<div class="boxed"><p><span class="idlTitle">The FileDialog Interface</span></p>
+<pre class="schema" title="The FileDialog interface">interface <a href="#idl-if-FileDialog">FileDialog</a> {
+void <a href="#dfn-open">open</a>(in <a href="#dfn-FileListDataCallback">FileListDataCallback</a> callback, [optional] in boolean <a href="#dfn-multiple">multiple</a>,
+            [optional] in DOMString <a href="#dfn-accept">accept</a>,
+            [optional] in <a href="#dfn-FileErrorCallback">FileErrorCallback</a> errorCallback);
+};
+
+[CallBack=FunctionOnly, NoInterfaceObject] interface <a href="#dfn-FileListDataCallback">FileListDataCallback</a> {
+  void handleEvent(in <a href="#FileList-if">FileList</a> files);
+};
+</pre>
+</div>
+<div class="section" id="idl-if-FileDialog"><h4 class="idl-header" id="idl-meths-FileDialog">Methods</h4>
+<dl class="idl-meth">
+<dt id="dfn-open"><code>open</code></dt>
+<dd>
+ <p>Opens a file picker user interface component, which MAY use the same user interface as the underlying platform or operating system. </p>
+ <p>The selected files are asynchronously handled via the <a href="#dfn-FileListDataCallback" class="if-name">FileListDataCallback</a> callback function, which is invoked to handle the returned
+ <a href="#FileList-if" class="if-name">FileList</a> object.</p>
+ <p>If the optional <a href="#dfn-multiple"><code>multiple</code></a>
+ boolean attribute is NOT specified as <code>true</code>, it is assumed that only one file can be selected. The default is <code>false</code> for <a href="#dfn-multiple"><code>multiple</code></a>.</p>
+ <p>The optional <a href="#dfn-accept">accept</a> invocation parameter is the same set of wildcarded substrings as defined in HTML5 [HTML5] for the
+ <a href="http://dev.w3.org/html5/spec/Overview.html#file-upload-state">File Upload</a> state of the input element, or a MIME type [RFC2046]. These wildcarded substrings MAY allow the file picker to be used to access
+ special hardware-resident file generation capabilities, such as the camera.  For example, if invoked with the ASCII string <code>"image/*</code>, an implementation
+ MAY offer users a choice between the hardware-resident camera (or any extension to the hardware) to dynamically take a picture, or to upload a JPEG, GIF, or PNG from the file system.
+ See <a href="#dfn-accept"><code>accept</code></a></p>.
+ <p>A <a href="#dfn-FileErrorCallback" class="if-name">FileErrorCallback</a> callback as an invocation parameter to <code>open</code>is optional; this usage is similar to that of the
+ <a href="#File-if" class="if-name">File</a> interface's asynchronous accessor methods <a href="#dfn-getAsDataURI"><code>getAsDataURI</code></a> and <a href="#dfn-getAsText"><code>getAsText</code></a>.</p>
+</dd>
+</dl>
+<div class="section"><h4 class="idl-header">Parameters</h4>
+<dl class="idl-params">
+ <dt id="dfn-FileListDataCallback"><code>callback</code> of type <code>FileListDataCallback</code></dt>
+ <dd><p>This callback handles the files picked by the user, and is called with a <a href="#FileList-if"><code>FileList</code></a> parameter.  If the
+ <a href="#dfn-multiple"><code>multiple</code></a> parameter is used with the <a href="#dfn-open"><code>open</code></a> method, this callback is invoked with
+ a <a href="#FileList-if" class="if-name">FileList</a> with a <a href="#dfn-length"><code>length</code></a> greater than 1. If errors occur, this callback SHOULD be called with a <code>null</code>
+ <a href="#FileList-if" class="if-name">FileList</a> object, and the caller SHOULD be able
+ to obtain the <a href="#FileError-if" class="if-name">FileError</a> object returned via the <a href="#dfn-FileErrorCallback" class="if-name">FileErrorCallback</a> callback.</p>
+ <p>
+  Usage: <div class="boxed"><pre>
+  <code>
+  // In browsers this interface is implemented as a property of the window object
+  
+   if(window.fileDialog)
+   {
+     window.fileDialog.open(pictureUploader, true, "image/*", fileDialogError)
+   }
+   
+   function pictureUploader(pickedPics)
+   {
+    
+      if(pickedPics &amp;&amp; (pickedPics.length>0))
+      {
+           for(var i=0; i&lt;pickedPics.length; i++)
+           {
+             var file = pickedPics[i];
+             if(file &amp;&amp; file.fileSize)
+             {
+             // Handle file input, validation, use accessors, etc.
+                file.getAsText(fileParser, "UTF-8", ioError)
+                // further conditions
+             }
+            
+           }
+        
+      }
+   }
+   function fileParser(fileData)
+   {
+     if(fileData)
+     {
+     // Read file, perform operations
+     // I can haz xhr.send(fileData)  
+     }
+   }
+   
+   function fileDialogError(fileDialogError)
+   {
+     if(fileDialogError) var errorcode = fileDialogError.errorCode;
+     switch(errorcode)
+     {
+     case 8:  msg("Those images could not be found. Try another?");
+     case 18: msg("You have to grant this application permission to access your pictures or camera!");
+     case 24: msg("Your images could not be read -- check your files or camera?");
+     default: msg("An error occured when trying to load pictures.");
+     }
+    
+   
+   }
+   
+  </code>
+  </pre></div>
+ </p>
+</dd>
+ <dt id="dfn-multiple"><code>multiple</code>, of type <code>[optional] boolean</code></dt>
+ <dd><p>This optional parameter is set to <code>false</code> by default, but when invoked with <code>true</code> this allows for multiple files to be selected using the file picker.
+ Unless the multiple  attribute is set to <code>true</code>, there must be no more than one file in the list of selected files.This is
+ equivalent to the <a href="http://dev.w3.org/html5/spec/Overview.html#attr-input-multiple"><code>multiple</code> attribute on the HTML &lt;input> element</a> as defined by HTML5 [HTML5].  When set to
+ <code>true</code> user agents MAY use the multiple file selection interface available on the underlying platform or operating system if one is present.</p></dd>
+ <dt id="dfn-accept"><code>accept</code>, of type <code>[optional] DOMString</code></dt>
+ <dd><p>The <code>accept</code>  attribute may be specified to provide user agents with a hint of what file types the server will be able to accept.</p>
+<p>
+If this optional parameter is used to invoke the <code>open</code> method, it must consist of a set of comma-separated tokens, each of which must be an ASCII case-insensitive match for one of the following:
+</p>
+<ul>
+<li><p>The string audio/*</p>
+    <p>Indicates that sound files are accepted.  User agents MAY invoke hardware-resident features, such as a microphone, to generate an audio file on the fly, in addition offering a picker to the underlying file system.</p></li>
+<li><p>The string video/*</p>
+    <p>Indicates that video files are accepted. User agents MAY invoke hardware-resident features, such as a camera, to generate a video file on the fly, in addition offering a picker to the underlying file system.</p></li>
+<li><p>The string image/*</p>
+    <p>Indicates that image files are accepted.  User agents MAY invoke hardware-resident features, such as a camera, to generate an image file on the fly, in addition offering a picker to the underlying file system.</p></li>
+<li><p>A valid MIME type, with no parameters</p>
+    <p>Indicates that files of the specified type are accepted. [RFC2046]</p> </li>
+</ul>
+<p>This is also the way the <a href="http://dev.w3.org/html5/spec/Overview.html#the-input-element"><code>accept</code> attribute of the HTML <code>&lt;input></code> element</a> is specified in HTML5 [HTML5].</p>
+</dd>
+ <dt id="dfn-FileErrorCallbackInFileDialog"><code>FileErrorCallback errorCallback</code></dt>
+ <dd><p>This <code>[FunctionOnly, NoInterfaceObject]</code> error handling callback has previously been defined as part of the <a href="#File-if">File</a>
+ inteface's <a href="#dfn-FileErrorCallback" class="if-name">FileErrorCallback</a> callback.  In particular, in the context of the <a href="#FileDialog-if" class="if-name">FileDialog</a> interface,
+ the callback MAY be called with a <a href="#FileError-if" class="if-name">FileError</a> <code>errorCode</code> of <a href="#idl-defs-FileErrorCode-SECURITY_ERR">SECURITY_ERR</a>, IF the
+ user interaction layer raised by implementations has been dismissed without granting permission.</p></dd>
+</dl> 
+</div>
+</div>
+</div>
+<div class="section"><h2 id="FileError-if">5. The FileError error</h2>
+    
+<p>Methods in this specification may throw an error, which are reported when asynchronous file data accessor methods invoke callbacks with FileError objects as one of their arguments.
+While this specification describes a new error interface, <code>SECURITY_ERR</code> and <code>NOT_FOUND_ERR</code> are <code>ExceptionCode</code>s that are currently defined in
+<code>DOMException</code>, itself defined in DOM Core [DOMCORE].</p>
+
+    <div class="boxed"><p><span class="idlTitle">The FileError error</span></p>
+    <pre class="schema" title="The FileError error">interface <a href="#idl-if-FileError">FileError</a> {
+  unsigned short errorCode;
+};
+// FileErrorCode
+const unsigned short      <a href="#idl-defs-FileErrorCode-NOT_FOUND_ERR">NOT_FOUND_ERR</a>         = 8;
+const unsigned short      <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>      = 24;
+const unsigned short      <a href="#idl-defs-FileErrorCode-SECURITY_ERR">SECURITY_ERR</a>                 = 18;
+</pre>
+</div>
+    
+<div class="section"><h4 class="idl-header" id="idl-defs-FileErrorCode">Definition Group <em>FileErrorCode</em></h4>
+<dl class="idl-defs"><dt id="idl-defs-FileErrorCode-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></dt>
+<dd>
+ <p>
+            The file that is trying to be read does not exist. This may be due
+            to it having been moved or deleted after a pointer to it was
+            acquired (e.g. concurrent modification with another application). This error code has been previously defined in <code>DOMException</code> [DOMCORE].
+ </p>           
+</dd>
+<dt id="idl-defs-FileErrorCode-NOT_READABLE_ERR"><code>NOT_READABLE_ERR</code></dt>
+<dd><p>
+            The file cannot be read. This may be due to permission problems that occur after a <a href="#File-if">File</a> object has been obtained (e.g. concurrent lock with another application).
+    </p>        
+</dd>
+<dt id="idl-defs-FileErrorCode-SECURITY_ERR"><code>SECURITY_ERR</code></dt>
+<dd><p>
+	       This error code has been previously defined in <code>DOMException</code> [DOMCore].  
+	       Implementations may determine when to return this error code.  Examples of when this code could be returned include "loop spam" scenarios
+               in which the <a href="FileDialog-if">FileDialog</a> interface is invoked within a non-terminating loop.  Moreover, implementations may determine
+               that certain classes of files are unsafe for access within a web application.  This error code MAY be used if the user interaction layer soliciting
+               user permission is dismissed WITHOUT granting permission.
+</p></dd>  
+</dl>
+</div>
+  </div>
+<div class="ednote">The circumstances under which SECURITY_ERR occurs may depend on other APIs using the <a href="#File-if" class="if-name">File</a> object.  A simple algorithm describing thwarting
+a persistent <a href="FileDialog-if" class="if-name">FileDialog</a> in which the user is <em>forced</em> to choose a file (e.g. within a non-terminating loop), could be useful.  Furthermore, discussion
+on whether <a href="#FileDialog-if" class="if-name">FileDialog</a> SHOULD be mitigated with a user interaction layer will determine whether SECURITY_ERR is raised (currently uses 'MAY...').
+</div> 
+<div class="section"><h2 id="conform">8. Conformance</h2>
+    
+    <p>
+      The key words "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">MUST NOT</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">REQUIRED</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHALL NOT</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">SHOULD NOT</em>",
+      "<em class="rfc2119" title="Keyword in RFC 2119 context">RECOMMENDED</em>", "<em class="rfc2119" title="Keyword in RFC 2119 context">MAY</em>", and "<em class="rfc2119" title="Keyword in RFC 2119 context">OPTIONAL</em>" in this document are to be interpreted as described in
+      RFC 2119 [<cite><a href="#RFC2119" class="bibref">RFC2119</a></cite>].
+    </p>
+    <p>
+      Unless otherwise specified immediately following the header, all sections in this
+      document — to the exclusion of examples which are all informative — are normative.
+    </p>
+  </div>
+  
+  <div class="section"><h2 id="requirements">9. Requirements and Use Cases</h2>
+	<p>This section covers what the requirements are for this API, as well as illustrates some use cases.  This version of the API does not satisfy all use cases; subsequent versions may elect to address these.</p>  
+	  <ul>
+		  <li><p>Once a user has given permission, user agents should provide the ability to read and parse data directly from a local file programmatically.</p>
+			  <ul>
+				  <li> Example: A lyrics viewer. User wants to read song lyrics from songs in his plist file.  User browses for plist file.  File is opened, 
+					  read, parsed, and presented to the user as a sortable, actionable list within a web application.  User can select songs to fetch lyrics.  User uses the 
+					  "browse for file" dialog.</li>		
+			   </ul>		  		  
+		  </li>
+		  <li><p>Data should be able to be stored locally so that it is available for later use, which is useful for offline data access for web applications.</p>
+		    <ul><li>Example: A Calendar App.  User's company has a calendar. User wants to sync local events to company calendar, marked
+  as "busy" slots (without leaking personal info).  User browses for file and selects it. The text/calendar file is parsed
+  in the browser, allowing the user to merge the files to one calendar view.
+  The user wants to then save the file back to his local calendar file. (using "Save As" ?).  The user can also send the integrated calendar file back to the server
+			calendar store asynchronously.</li></ul>
+		  
+		  </li>
+		  <li><p>User agents should provide the ability to save a local file programmatically given an amount of data and a file name.</p>
+		  <ul>
+			<li>Example: A Spreadsheet App.  User interacts with a form, and generates some input.  The form then generates a CSV (Comma Separated Variables) output
+			for the user to import into a spreadsheet, and uses "Save...".  The generated output can also be directly integrated into a web-based spreadsheet, and
+			uploaded asynchronously.</li>  
+		  </ul>
+		  </li>
+		  <li><p>User agents should provide a streamlined programmatic ability to send data from a file to a remote server that works more efficiently than form-based uploads today</p>
+			<ul>
+				<li>Example: A Video/Photo Upload App. User is able to select large files for upload, which can then be "chunk-transfered" to the server.</li>
+			</ul>  
+		  </li>
+		  <li><p>User agents should provide an API exposed to script that exposes the features above.  The user is notified by UI anytime interaction with the file
+			  system takes place, giving the user full ability to cancel or abort the transaction.  The user is notified of any file selections, and can cancel these.
+			  No invocations to these APIs occur silently without user intervention. </p></li>
+		  
+	  </ul>
+  </div>
+  <div class="section"><h2 id="ack">10. Acknowledgements</h2>
+    
+    <p>
+      Robin Berjon, Jonas Sicking, Maciej Stachowiak, Sam Weinig, Mike Smith
+    </p>
+  </div>
+
+  <div class="section"><h2 id="bibref">A. References</h2>
+  <div class="ednote"><p>Add references from Arun's refnotes</p></div>
+
+    <dl class="bibliography"><dt id="RFC2119">RFC2119</dt><dd><cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
+    <span class="person">S. Bradner</span>.</dd></dl>
+  </div>
+</body>
+</html>
