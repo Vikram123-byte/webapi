@@ -36,13 +36,13 @@
    <h1 class=head id=the-xmlhttprequest-object><code
     title="">XMLHttpRequest</code></h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 9 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 June 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090609/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090609/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090612/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090612/</a>
 
     <dt>Latest Version:
 
@@ -117,7 +117,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 9 June 2009 Editor's Draft of the <code
+  <p>This is the 12 June 2009 Editor's Draft of the <code
    title="">XMLHttpRequest</code> specification. Please send comments to <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
@@ -180,7 +180,8 @@
      <li><a href="#task-sources"><span class=secno>4.2 </span>Task
       Sources</a>
 
-     <li><a href="#constructor"><span class=secno>4.3 </span>Constructor</a>
+     <li><a href="#constructors"><span class=secno>4.3
+      </span>Constructors</a>
 
      <li><a href="#event-handler-attributes"><span class=secno>4.4
       </span>Event Handler Attributes</a>
@@ -583,7 +584,7 @@ interface <dfn id=xmlhttprequest-object>XMLHttpRequest</dfn> {
    href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code> event
    task source</a>.
 
-  <h3 id=constructor><span class=secno>4.3 </span>Constructor</h3>
+  <h3 id=constructors><span class=secno>4.3 </span>Constructors</h3>
 
   <p>When the <dfn id=xmlhttprequest-constructor title="XMLHttpRequest
    constructor"><code title="">XMLHttpRequest()</code></dfn> constructor is
@@ -1196,149 +1197,112 @@ X-Test: one, two
     <p>Set the <a href="#error-flag">error flag</a> to false.
 
    <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true run
+     these substeps:</p>
+
+    <ol>
+     <li>
+      <p><a href="#dispatch-readystatechange-event">Dispatch a
+       <code>readystatechange</code> event</a>.</p>
+
+      <p class=note>The state does not change. The event is dispatched for
+       historical reasons.</p>
+
+     <li>
+      <p>Return the <code><a href="#send">send()</a></code> method call, but
+       continue running the steps in this algorithm.
+    </ol>
+
+   <li>
+    <p>Make a request to <a href="#request-url">request URL</a>, using HTTP
+     method <a href="#request-method">request method</a>, user <a
+     href="#request-username">request username</a> (if non-null) and password
+     <a href="#request-password">request password</a> (if non-null), taking
+     into account the <a href="#request-entity-body">request entity body</a>,
+     list of <a href="#author-request-headers">author request headers</a> and
+     the rules listed at the end of this section.</p>
+
+    <p>If there are cookies to be set, run these substeps:</p>
+
+    <ol>
+     <li>
+      <p>Wait until ownership of the <a href="#storage-mutex">storage
+       mutex</a> can be taken.
+
+     <li>
+      <p>Take ownership of the <a href="#storage-mutex">storage mutex</a>.
+
+     <li>
+      <p>Update the cookies. [<cite><a
+       href="#ref-cookies=">COOKIES</a></cite>]
+
+     <li>
+      <p>Release the <a href="#storage-mutex">storage mutex</a> so that it is
+       once again free.
+    </ol>
+
     <dl>
      <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
 
      <dd>
+      <p>While making the request also follow the <a
+       href="#request-event-rules">request event rules</a>.</p>
+
+      <p>When the request is completed and has not been terminated by the <a
+       href="#request-event-rules">request event rules</a> run these
+       substeps:</p>
+      <!--
+       This cannot involve any task queue whatsoever because that would
+       mean other tasks on the task queue might get processed as well which
+       is counter to the whole idea of doing things synchronous.
+      -->
+      
       <ol>
        <li>
-        <p>Make a request to <a href="#request-url">request URL</a>, using
-         HTTP method <a href="#request-method">request method</a>, user <a
-         href="#request-username">request username</a> (if non-null) and
-         password <a href="#request-password">request password</a> (if
-         non-null), taking into account the <a
-         href="#request-entity-body">request entity body</a>, list of <a
-         href="#author-request-headers">author request headers</a> and the
-         rules listed at the end of this section.</p>
-
-        <p>If there are cookies to be set, run these substeps:</p>
-
-        <ol>
-         <li>
-          <p>Wait until ownership of the <a href="#storage-mutex">storage
-           mutex</a> can be taken.
-
-         <li>
-          <p>Take ownership of the <a href="#storage-mutex">storage
-           mutex</a>.
-
-         <li>
-          <p>Update the cookies. [<cite><a
-           href="#ref-cookies=">COOKIES</a></cite>]
-
-         <li>
-          <p>Release the <a href="#storage-mutex">storage mutex</a> so that
-           it is once again free.
-        </ol>
-
-        <p>While making the request also follow the <a
-         href="#request-event-rules">request event rules</a>.</p>
-
-        <p>When the request is completed and has not been terminated by the
-         <a href="#request-event-rules">request event rules</a> go to the
-         next step.</p>
-       </li>
-       <!--
-        This cannot involve any task queue whatsoever because that would
-        mean other tasks on the task queue might get processed as well which
-        is counter to the whole idea of doing things synchronous.
-       -->
+        <p>Switch the state to <a href="#done-state" title="DONE
+         state">DONE</a>.
 
        <li>
-        <p>If the overall algorithm has not been terminated at this stage the
-         request was successful. Run these substeps:</p>
-
-        <ol>
-         <li>
-          <p>Switch the state to <a href="#done-state" title="DONE
-           state">DONE</a>.
-
-         <li>
-          <p><a href="#dispatch-readystatechange-event">Dispatch a
-           <code>readystatechange</code> event</a>.
-        </ol>
-
-        <p class=note>The <code><a href="#send">send()</a></code> method call
-         will now be returned by virtue of this algorithm ending.</p>
+        <p><a href="#dispatch-readystatechange-event">Dispatch a
+         <code>readystatechange</code> event</a>.
       </ol>
+
+      <p class=note>The <code><a href="#send">send()</a></code> method call
+       will now be returned by virtue of this algorithm ending.</p>
 
      <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
 
      <dd>
+      <p>While processing the request, as data becomes available and when the
+       user interferes with the request, <a href="#queue-a-task" title="queue
+       a task">queue tasks</a> to follow the <a
+       href="#request-event-rules">request event rules</a> using the <a
+       href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
+       networking task source</a> as <a href="#task-source">task source</a>.</p>
+
+      <p>The <a href="#task">task</a> that is <a href="#queue-a-task"
+       title="queue a task">queued</a> by the <a
+       href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
+       networking task source</a> once the request is completed (i.e. no
+       network errors or aborting of the algorithm occurred) is to <a
+       href="#queue-a-task">queue a task</a> to run these substeps rather
+       than following the <a href="#request-event-rules">request event
+       rules</a>:</p>
+
       <ol>
        <li>
+        <p>Switch the state to <a href="#done-state" title="DONE
+         state">DONE</a>.
+
+       <li>
         <p><a href="#dispatch-readystatechange-event">Dispatch a
-         <code>readystatechange</code> event</a>.</p>
-
-        <p class=note>The state does not change. The event is dispatched for
-         historical reasons.</p>
-
-       <li>
-        <p>Return the <code><a href="#send">send()</a></code> method call,
-         but continue running the steps in this algorithm.
-
-       <li>
-        <p>Make a request to <a href="#request-url">request URL</a>, using
-         HTTP method <a href="#request-method">request method</a>, user <a
-         href="#request-username">request username</a> (if non-null) and
-         password <a href="#request-password">request password</a> (if
-         non-null), taking into account the <a
-         href="#request-entity-body">request entity body</a>, list of <a
-         href="#author-request-headers">author request headers</a> and the
-         rules listed at the end of this section.</p>
-
-        <p>If there are cookies to be set, run these substeps:</p>
-
-        <ol>
-         <li>
-          <p>Wait until ownership of the <a href="#storage-mutex">storage
-           mutex</a> can be taken.
-
-         <li>
-          <p>Take ownership of the <a href="#storage-mutex">storage
-           mutex</a>.
-
-         <li>
-          <p>Update the cookies. [<cite><a
-           href="#ref-cookies=">COOKIES</a></cite>]
-
-         <li>
-          <p>Release the <a href="#storage-mutex">storage mutex</a> so that
-           it is once again free.
-        </ol>
-
-        <p>While processing the request <a href="#queue-a-task" title="queue
-         a task">queue tasks</a>, as data becomes available and when the user
-         interferes with the request, to follow the <a
-         href="#request-event-rules">request event rules</a> using the <a
-         href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
-         networking task source</a> as <a href="#task-source">task
-         source</a>.</p>
-
-        <p>The <a href="#task">task</a> that is <a href="#queue-a-task"
-         title="queue a task">queued</a> by the <a
-         href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
-         networking task source</a> once the request is completed (i.e. no
-         network errors or aborting of the algorithm occurred) is to <a
-         href="#queue-a-task">queue a task</a> to run these substeps rather
-         than following the <a href="#request-event-rules">request event
-         rules</a>:</p>
-
-        <ol>
-         <li>
-          <p>Switch the state to <a href="#done-state" title="DONE
-           state">DONE</a>.
-
-         <li>
-          <p><a href="#dispatch-readystatechange-event">Dispatch a
-           <code>readystatechange</code> event</a>.
-        </ol>
-
-        <p class=note>The <a href="#task">task</a> for these substeps is <a
-         href="#queue-a-task" title="queue a task">queued</a> on the <a
-         href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code>
-         event task source</a>.</p>
+         <code>readystatechange</code> event</a>.
       </ol>
+
+      <p class=note>The <a href="#task">task</a> for these substeps is <a
+       href="#queue-a-task" title="queue a task">queued</a> on the <a
+       href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code>
+       event task source</a>.</p>
     </dl>
   </ol>
 
