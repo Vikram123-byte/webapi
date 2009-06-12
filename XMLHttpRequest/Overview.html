@@ -199,7 +199,11 @@
        <li><a href="#the-send-method"><span class=secno>4.6.3 </span>The
         <code title="">send()</code> method</a>
 
-       <li><a href="#the-abort-method"><span class=secno>4.6.4 </span>The
+       <li><a href="#infrastructure-for-the-send-method"><span
+        class=secno>4.6.4 </span>Infrastructure for the <code
+        title="">send()</code> method</a>
+
+       <li><a href="#the-abort-method"><span class=secno>4.6.5 </span>The
         <code title="">abort()</code> method</a>
       </ul>
 
@@ -1308,6 +1312,73 @@ X-Test: one, two
 
   <hr>
 
+  <p>If the user agent allows the user to configure a proxy it <em
+   class=ct>should</em> modify the request appropriately; i.e. connect to the
+   proxy host instead of the origin server, modify the
+   <code>Request-Line</code> and send <code>Proxy-Authorization</code>
+   headers as specified.
+
+  <p>If the user agent supports HTTP Authentication it <em
+   class=ct>should</em> consider requests originating from this object to be
+   part of the protection space that includes the accessed URIs and send
+   <code>Authorization</code> headers and handle <code>401
+   Unauthorized</code> requests appropriately. If authentication fails, and
+   <var>stored user</var> and <var>stored password</var> are not provided,
+   user agents <em class=ct>should</em> prompt the user for credentials. If
+   authentication fails, and <var>stored user</var> and <var>stored
+   password</var> are provided, user agents <em class=ct>must not</em> prompt
+   the user for credentials. [<cite><a
+   href="#ref-rfc2617">RFC2617</a></cite>]
+
+  <p class=note>Users are not prompted if credentials are provided through
+   the <code><a href="#open">open()</a></code> API so that authors can
+   implement their own user interface.
+
+  <p>If the user agent supports HTTP State Management it <em
+   class=ct>should</em> persist, discard and send cookies (as received in the
+   <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers, and
+   sent in the <code>Cookie</code> header) as applicable. [<cite><a
+   href="#ref-cookies=">COOKIES</a></cite>]
+
+  <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
+   respect <code>Cache-Control</code> request headers set by <code><a
+   href="#setrequestheader">setRequestHeader()</a></code> (e.g.,
+   <code>Cache-Control: no-cache</code> bypasses the cache). It <em
+   class=ct>must not</em> send <code>Cache-Control</code> or
+   <code>Pragma</code> request headers automatically unless the user
+   explicitly requests such behavior (e.g. by (force-)reloading the page).
+
+  <p>For <code>304 Not Modified</code> responses that are a result of a user
+   agent generated conditional request the user agent <em class=ct>must</em>
+   act as if the server gave a <code>200 OK</code> response with the
+   appropriate content. The user agent <em class=ct>must</em> allow <code><a
+   href="#setrequestheader">setRequestHeader()</a></code> to override
+   automatic cache validation by setting request headers (e.g.,
+   <code>If-None-Match</code>, <code>If-Modified-Since</code>), in which case
+   <code>304 Not Modified</code> responses <em class=ct>must</em> be passed
+   through. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]
+
+  <p>If the user agent implements server-driven content-negotiation it <em
+   class=ct>should</em> set <code>Accept-Encoding</code> and
+   <code>Accept-Charset</code> headers as appropriate. Unless set through
+   <code><a href="#setrequestheader">setRequestHeader()</a></code> user
+   agents <em class=ct>should</em> set the <code>Accept</code> and
+   <code>Accept-Language</code> headers as well. If <code>Accept</code> is
+   set by the user agent it <em class=ct>must</em> have the value
+   <code>*/*</code>. Responses <em class=ct>must</em> have the
+   content-encodings automatically decoded. [<cite><a
+   href="#ref-rfc2616">RFC2616</a></cite>]
+
+  <p>Besides the <a href="#author-request-headers">author request headers</a>
+   user agents <em class=ct>should not</em> include additional request
+   headers other than those mentioned above or other than those authors are
+   not allowed to set using <code><a
+   href="#setrequestheader">setRequestHeader()</a></code>. This ensures that
+   authors have a reasonably predictable API.
+
+  <h4 id=infrastructure-for-the-send-method><span class=secno>4.6.4
+   </span>Infrastructure for the <code title="">send()</code> method</h4>
+
   <p>While executing the request certain events can influence the behavior of
    the <code><a href="#xmlhttprequest-object">XMLHttpRequest</a></code>
    object. These are called the <dfn id=request-event-rules>request event
@@ -1486,73 +1557,7 @@ X-Test: one, two
     </ol>
   </dl>
 
-  <hr>
-
-  <p>If the user agent allows the user to configure a proxy it <em
-   class=ct>should</em> modify the request appropriately; i.e. connect to the
-   proxy host instead of the origin server, modify the
-   <code>Request-Line</code> and send <code>Proxy-Authorization</code>
-   headers as specified.
-
-  <p>If the user agent supports HTTP Authentication it <em
-   class=ct>should</em> consider requests originating from this object to be
-   part of the protection space that includes the accessed URIs and send
-   <code>Authorization</code> headers and handle <code>401
-   Unauthorized</code> requests appropriately. If authentication fails, and
-   <var>stored user</var> and <var>stored password</var> are not provided,
-   user agents <em class=ct>should</em> prompt the user for credentials. If
-   authentication fails, and <var>stored user</var> and <var>stored
-   password</var> are provided, user agents <em class=ct>must not</em> prompt
-   the user for credentials. [<cite><a
-   href="#ref-rfc2617">RFC2617</a></cite>]
-
-  <p class=note>Users are not prompted if credentials are provided through
-   the <code><a href="#open">open()</a></code> API so that authors can
-   implement their own user interface.
-
-  <p>If the user agent supports HTTP State Management it <em
-   class=ct>should</em> persist, discard and send cookies (as received in the
-   <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers, and
-   sent in the <code>Cookie</code> header) as applicable. [<cite><a
-   href="#ref-cookies=">COOKIES</a></cite>]
-
-  <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
-   respect <code>Cache-Control</code> request headers set by <code><a
-   href="#setrequestheader">setRequestHeader()</a></code> (e.g.,
-   <code>Cache-Control: no-cache</code> bypasses the cache). It <em
-   class=ct>must not</em> send <code>Cache-Control</code> or
-   <code>Pragma</code> request headers automatically unless the user
-   explicitly requests such behavior (e.g. by (force-)reloading the page).
-
-  <p>For <code>304 Not Modified</code> responses that are a result of a user
-   agent generated conditional request the user agent <em class=ct>must</em>
-   act as if the server gave a <code>200 OK</code> response with the
-   appropriate content. The user agent <em class=ct>must</em> allow <code><a
-   href="#setrequestheader">setRequestHeader()</a></code> to override
-   automatic cache validation by setting request headers (e.g.,
-   <code>If-None-Match</code>, <code>If-Modified-Since</code>), in which case
-   <code>304 Not Modified</code> responses <em class=ct>must</em> be passed
-   through. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]
-
-  <p>If the user agent implements server-driven content-negotiation it <em
-   class=ct>should</em> set <code>Accept-Encoding</code> and
-   <code>Accept-Charset</code> headers as appropriate. Unless set through
-   <code><a href="#setrequestheader">setRequestHeader()</a></code> user
-   agents <em class=ct>should</em> set the <code>Accept</code> and
-   <code>Accept-Language</code> headers as well. If <code>Accept</code> is
-   set by the user agent it <em class=ct>must</em> have the value
-   <code>*/*</code>. Responses <em class=ct>must</em> have the
-   content-encodings automatically decoded. [<cite><a
-   href="#ref-rfc2616">RFC2616</a></cite>]
-
-  <p>Besides the <a href="#author-request-headers">author request headers</a>
-   user agents <em class=ct>should not</em> include additional request
-   headers other than those mentioned above or other than those authors are
-   not allowed to set using <code><a
-   href="#setrequestheader">setRequestHeader()</a></code>. This ensures that
-   authors have a reasonably predictable API.
-
-  <h4 id=the-abort-method><span class=secno>4.6.4 </span>The <code
+  <h4 id=the-abort-method><span class=secno>4.6.5 </span>The <code
    title="">abort()</code> method</h4>
 
   <p>When the <dfn id=abort><code>abort()</code></dfn> method is invoked, the
