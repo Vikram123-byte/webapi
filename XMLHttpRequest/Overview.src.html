@@ -1024,19 +1024,8 @@ X-Test: one, two
     <span>author request headers</span> and the rules listed at the end of
     this section.</p>
 
-    <p>If there are cookies to be set, run these substeps:</p>
-        
-    <ol>
-     <li><p>Wait until ownership of the <span>storage mutex</span> can be
-     taken.</p></li>
-         
-     <li><p>Take ownership of the <span>storage mutex</span>.</p></li>
-         
-     <li><p>Update the cookies. [<cite><span>COOKIES</span></cite>]</p></li>
-
-     <li><p>Release the <span>storage mutex</span> so that it is once again
-     free.</p></li>
-    </ol>
+    <p>If there are cookies to be set, run the
+    <span>cookie steps</span>.</p>
    
     <dl>
      <dt>If the <span>asynchronous flag</span> is false</dt>
@@ -1045,7 +1034,8 @@ X-Test: one, two
       <span>request event rules</span>.</p>
 
       <p>When the request is completed and has not been terminated by the
-      <span>request event rules</span> run these substeps:</p>
+      <span>request event rules</span>:
+      <span>switch to the DONE state</span>.</p>
 
       <!--
        This cannot involve any task queue whatsoever because that would
@@ -1053,12 +1043,6 @@ X-Test: one, two
        is counter to the whole idea of doing things synchronous.
       -->
 
-      <ol>
-       <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
-
-       <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
-      </ol>
-        
       <p class="note">The <code>send()</code> method call will now be
       returned by virtue of this algorithm ending.</p>
      </dd>
@@ -1076,17 +1060,12 @@ X-Test: one, two
       <span title="queue a task">queued</span> by the
       <span><code>XMLHttpRequest</code> networking task source</span> once
       the request is completed (i.e. no network errors or aborting of the
-      algorithm occurred) is to <span>queue a task</span> to run these
-      substeps rather than following the
-      <span>request event rules</span>:</p>
+      algorithm occurred) is to <span>queue a task</span> to
+      <span>switch to the DONE state</span> (rather than following the
+      <span>request event rules</span>).</p>
 
-      <ol>
-       <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
-
-       <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
-      </ol>
-        
-      <p class="note">The <span>task</span> for these substeps is 
+      <p class="note">The <span>task</span> to
+      <span>switch to the DONE state</span>
       <span title="queue a task">queued</span> on the
       <span><code>XMLHttpRequest</code> event task source</span>.</p>
      </dd>
@@ -1161,6 +1140,22 @@ X-Test: one, two
   
 
   <h4>Infrastructure for the <code title="">send()</code> method</h4>
+
+  <p>The <dfn>cookie steps</dfn> are as follows:</p>
+  
+  <ol>
+   <li><p>Wait until ownership of the <span>storage mutex</span> can be
+   taken.</p></li>
+         
+   <li><p>Take ownership of the <span>storage mutex</span>.</p></li>
+         
+   <li><p>Update the cookies. [<cite><span>COOKIES</span></cite>]</p></li>
+
+   <li><p>Release the <span>storage mutex</span> so that it is once again
+   free.</p></li>
+  </ol>
+  
+  <hr>
   
   <p>The <dfn>request event rules</dfn> are as follows:</p>
 
@@ -1287,7 +1282,21 @@ X-Test: one, two
    <span>dispatch a <code>readystatechange</code> event</span>.</p></li>
   </ol>
   
+  <hr>
+
+  <p>When it is said to
+  <dfn id="switch-done">switch to the DONE state</dfn> run these steps:</p>
   
+  <ol>
+   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
+
+   <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
+  </ol>
+  
+  <p class="note">In case the <span>asynchronous flag</span> is true the
+  whole set of steps is <span title="queue a task">queued</span> so the
+  event does not need to be.</p>
+
 
   <h4>The <code title="">abort()</code> method</h4>
 

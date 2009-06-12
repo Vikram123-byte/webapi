@@ -1226,24 +1226,8 @@ X-Test: one, two
      list of <a href="#author-request-headers">author request headers</a> and
      the rules listed at the end of this section.</p>
 
-    <p>If there are cookies to be set, run these substeps:</p>
-
-    <ol>
-     <li>
-      <p>Wait until ownership of the <a href="#storage-mutex">storage
-       mutex</a> can be taken.
-
-     <li>
-      <p>Take ownership of the <a href="#storage-mutex">storage mutex</a>.
-
-     <li>
-      <p>Update the cookies. [<cite><a
-       href="#ref-cookies=">COOKIES</a></cite>]
-
-     <li>
-      <p>Release the <a href="#storage-mutex">storage mutex</a> so that it is
-       once again free.
-    </ol>
+    <p>If there are cookies to be set, run the <a href="#cookie-steps">cookie
+     steps</a>.</p>
 
     <dl>
      <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
@@ -1253,24 +1237,14 @@ X-Test: one, two
        href="#request-event-rules">request event rules</a>.</p>
 
       <p>When the request is completed and has not been terminated by the <a
-       href="#request-event-rules">request event rules</a> run these
-       substeps:</p>
+       href="#request-event-rules">request event rules</a>: <a
+       href="#switch-done">switch to the DONE state</a>.</p>
       <!--
        This cannot involve any task queue whatsoever because that would
        mean other tasks on the task queue might get processed as well which
        is counter to the whole idea of doing things synchronous.
       -->
       
-      <ol>
-       <li>
-        <p>Switch the state to <a href="#done-state" title="DONE
-         state">DONE</a>.
-
-       <li>
-        <p><a href="#dispatch-readystatechange-event">Dispatch a
-         <code>readystatechange</code> event</a>.
-      </ol>
-
       <p class=note>The <code><a href="#send">send()</a></code> method call
        will now be returned by virtue of this algorithm ending.</p>
 
@@ -1289,21 +1263,12 @@ X-Test: one, two
        href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
        networking task source</a> once the request is completed (i.e. no
        network errors or aborting of the algorithm occurred) is to <a
-       href="#queue-a-task">queue a task</a> to run these substeps rather
-       than following the <a href="#request-event-rules">request event
-       rules</a>:</p>
+       href="#queue-a-task">queue a task</a> to <a href="#switch-done">switch
+       to the DONE state</a> (rather than following the <a
+       href="#request-event-rules">request event rules</a>).</p>
 
-      <ol>
-       <li>
-        <p>Switch the state to <a href="#done-state" title="DONE
-         state">DONE</a>.
-
-       <li>
-        <p><a href="#dispatch-readystatechange-event">Dispatch a
-         <code>readystatechange</code> event</a>.
-      </ol>
-
-      <p class=note>The <a href="#task">task</a> for these substeps is <a
+      <p class=note>The <a href="#task">task</a> to <a
+       href="#switch-done">switch to the DONE state</a> <a
        href="#queue-a-task" title="queue a task">queued</a> on the <a
        href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code>
        event task source</a>.</p>
@@ -1378,6 +1343,26 @@ X-Test: one, two
 
   <h4 id=infrastructure-for-the-send-method><span class=secno>4.6.4
    </span>Infrastructure for the <code title="">send()</code> method</h4>
+
+  <p>The <dfn id=cookie-steps>cookie steps</dfn> are as follows:
+
+  <ol>
+   <li>
+    <p>Wait until ownership of the <a href="#storage-mutex">storage mutex</a>
+     can be taken.
+
+   <li>
+    <p>Take ownership of the <a href="#storage-mutex">storage mutex</a>.
+
+   <li>
+    <p>Update the cookies. [<cite><a href="#ref-cookies=">COOKIES</a></cite>]
+
+   <li>
+    <p>Release the <a href="#storage-mutex">storage mutex</a> so that it is
+     once again free.
+  </ol>
+
+  <hr>
 
   <p>The <dfn id=request-event-rules>request event rules</dfn> are as
    follows:
@@ -1540,6 +1525,24 @@ X-Test: one, two
      href="#dispatch-readystatechange-event">dispatch a
      <code>readystatechange</code> event</a>.
   </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn id=switch-done>switch to the DONE state</dfn>
+   run these steps:
+
+  <ol>
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p><a href="#dispatch-readystatechange-event">Dispatch a
+     <code>readystatechange</code> event</a>.
+  </ol>
+
+  <p class=note>In case the <a href="#asynchronous-flag">asynchronous
+   flag</a> is true the whole set of steps is <a href="#queue-a-task"
+   title="queue a task">queued</a> so the event does not need to be.
 
   <h4 id=the-abort-method><span class=secno>4.6.5 </span>The <code
    title="">abort()</code> method</h4>
