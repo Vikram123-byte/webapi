@@ -1379,10 +1379,8 @@ X-Test: one, two
   <h4 id=infrastructure-for-the-send-method><span class=secno>4.6.4
    </span>Infrastructure for the <code title="">send()</code> method</h4>
 
-  <p>While executing the request certain events can influence the behavior of
-   the <code><a href="#xmlhttprequest-object">XMLHttpRequest</a></code>
-   object. These are called the <dfn id=request-event-rules>request event
-   rules</dfn>:
+  <p>The <dfn id=request-event-rules>request event rules</dfn> are as
+   follows:
 
   <dl class=switch>
    <dt>If the response is an HTTP redirect
@@ -1400,142 +1398,27 @@ X-Test: one, two
      and also requires users to be notified of certain kinds of automatic
      redirections.</p>
     <!-- XXX HTTP needs fixing here -->
-    <p>Otherwise, run these steps:</p>
-
-    <ol>
-     <li>
-      <p>Set the <a href="#response-entity-body">response entity body</a> to
-       null.
-
-     <li>
-      <p>Set the the <a href="#error-flag">error flag</a> to true.
-
-     <li>
-      <p>Empty the list of <a href="#author-request-headers">author request
-       headers</a>.
-
-     <li>
-      <p>Switch the state to <a href="#done-state" title="DONE
-       state">DONE</a>.
-
-     <li>
-      <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
-       raise a <code><a href="#network-err">NETWORK_ERR</a></code> exception
-       and terminate the overall set of steps.
-
-     <li>
-      <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
-       href="#queue-a-task">queue a task</a> to <a
-       href="#dispatch-readystatechange-event">dispatch a
-       <code>readystatechange</code> event</a>.
-
-     <li>
-      <p>Terminate the overall set of steps.
-    </ol>
-
-    <p class=note>It is likely that a future version of this specification
-     will dispatch an <code>error</code> event here as well.</p>
+    <p>Otherwise, this is a <a href="#network-error">network error</a>.</p>
 
    <dt>If the user cancels the download
 
    <dd>
-    <p>Run these steps:</p>
-
-    <ol>
-     <li>
-      <p>Set the <a href="#response-entity-body">response entity body</a> to
-       null.
-
-     <li>
-      <p>Set the the <a href="#error-flag">error flag</a> to true.
-
-     <li>
-      <p>Empty the list of <a href="#author-request-headers">author request
-       headers</a>.
-
-     <li>
-      <p>Switch the state to <a href="#done-state" title="DONE
-       state">DONE</a>.
-
-     <li>
-      <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
-       raise a <code><a href="#abort-err">ABORT_ERR</a></code> exception and
-       terminate the overall set of steps.
-
-     <li>
-      <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
-       href="#queue-a-task">queue a task</a> to <a
-       href="#dispatch-readystatechange-event">dispatch a
-       <code>readystatechange</code> event</a>.
-
-     <li>
-      <p>Terminate the overall set of steps.
-    </ol>
-
-    <p class=note>It is likely that a future version of this specification
-     will dispatch an <code><a href="#abort">abort</a></code> event here as
-     well.</p>
-
-   <dt>In case of network errors
+    <p>This is an <a href="#abort-error">abort error</a>.
 
    <dd>
-    <p>In case of DNS errors, timeout, TLS negotiation failure, or other type
-     of network errors, do not request user interaction and run these steps:</p>
+    <p>In case of DNS errors, TLS negotiation failure, or other type of
+     network errors, this is a <a href="#network-error">network error</a>. Do
+     not request any kind of user interaction.</p>
 
     <p class=note>This does not include HTTP responses that indicate some
      type of error, such as HTTP status code 410.</p>
-
-    <ol>
-     <li>
-      <p>Set the <a href="#response-entity-body">response entity body</a> to
-       null.
-
-     <li>
-      <p>Set the the <a href="#error-flag">error flag</a> to true.
-
-     <li>
-      <p>Empty the list of <a href="#author-request-headers">author request
-       headers</a>.
-
-     <li>
-      <p>Switch the state to <a href="#done-state" title="DONE
-       state">DONE</a>.
-
-     <li>
-      <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
-       raise a <code><a href="#network-err">NETWORK_ERR</a></code> exception
-       and terminate the overall set of steps.
-
-     <li>
-      <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
-       href="#queue-a-task">queue a task</a> to <a
-       href="#dispatch-readystatechange-event">dispatch a
-       <code>readystatechange</code> event</a>.
-
-     <li>
-      <p>Terminate the overall set of steps.
-    </ol>
-
-    <p class=note>It is likely that a future version of this specification
-     will dispatch an <code>error</code> event here as well.</p>
 
    <dt>Once all HTTP headers have been received and the <a
     href="#asynchronous-flag">asynchronous flag</a> is true
 
    <dd>
-    <p>If all HTTP headers have been received, while receiving the message
-     body (if any), run these steps:</p>
-
-    <ol>
-     <li>
-      <p>Switch the state to <a href="#headers-received-state"
-       title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a>.
-
-     <li>
-      <p><a href="#queue-a-task">Queue a task</a> to <a
-       href="#dispatch-readystatechange-event">dispatch a
-       <code>readystatechange</code> event</a>.
-    </ol>
+    <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
+     state</a>.
 
    <dt>Once the first byte (or more) of the response entity body has been
     received and the <a href="#asynchronous-flag">asynchronous flag</a> is
@@ -1545,17 +1428,117 @@ X-Test: one, two
     href="#asynchronous-flag">asynchronous flag</a> is true
 
    <dd>
-    <ol>
-     <li>
-      <p>Switch the state to <a href="#loading-state" title="LOADING
-       state">LOADING</a>.
-
-     <li>
-      <p><a href="#queue-a-task">Queue a task</a> to <a
-       href="#dispatch-readystatechange-event">dispatch a
-       <code>readystatechange</code> event</a>.
-    </ol>
+    <p><a href="#switch-loading">Switch to the LOADING state</a> and once the
+     complete resource has been downloaded go to the next step.
   </dl>
+
+  <hr>
+
+  <p>When something is said to be a <dfn id=network-error>network error</dfn>
+   run these steps:
+
+  <ol>
+   <li>
+    <p>Set the <a href="#response-entity-body">response entity body</a> to
+     null.
+
+   <li>
+    <p>Set the the <a href="#error-flag">error flag</a> to true.
+
+   <li>
+    <p>Empty the list of <a href="#author-request-headers">author request
+     headers</a>.
+
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     raise a <code><a href="#network-err">NETWORK_ERR</a></code> exception
+     and terminate the overall set of steps.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
+     href="#queue-a-task">queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+
+   <li>
+    <p>Terminate the overall set of steps.
+  </ol>
+
+  <p class=note>It is likely that a future version of this specification will
+   dispatch an <code>error</code> event here as well.
+
+  <hr>
+
+  <p>When something is said to be an <dfn id=abort-error>abort error</dfn>
+   run these steps:
+
+  <ol>
+   <li>
+    <p>Set the <a href="#response-entity-body">response entity body</a> to
+     null.
+
+   <li>
+    <p>Set the the <a href="#error-flag">error flag</a> to true.
+
+   <li>
+    <p>Empty the list of <a href="#author-request-headers">author request
+     headers</a>.
+
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     raise a <code><a href="#abort-err">ABORT_ERR</a></code> exception and
+     terminate the overall set of steps.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
+     href="#queue-a-task">queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+
+   <li>
+    <p>Terminate the overall set of steps.
+  </ol>
+
+  <p class=note>It is likely that a future version of this specification will
+   dispatch an <code><a href="#abort">abort</a></code> event here as well.
+
+  <hr>
+
+  <p>When it is said to <dfn id=switch-headers-received>switch to the
+   HEADERS_RECEIVED state</dfn> run these steps:
+
+  <ol>
+   <li>
+    <p>Switch the state to <a href="#headers-received-state"
+     title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+  </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn id=switch-loading>switch to the LOADING
+   state</dfn> run these steps:
+
+  <ol>
+   <li>
+    <p>Switch the state to <a href="#loading-state" title="LOADING
+     state">LOADING</a>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+  </ol>
 
   <h4 id=the-abort-method><span class=secno>4.6.5 </span>The <code
    title="">abort()</code> method</h4>
