@@ -36,13 +36,13 @@
    <h1 class=head id=the-xmlhttprequest-object><code
     title="">XMLHttpRequest</code></h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 13 June 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090612/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090612/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090613/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090613/</a>
 
     <dt>Latest Version:
 
@@ -117,7 +117,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 12 June 2009 Editor's Draft of the <code
+  <p>This is the 13 June 2009 Editor's Draft of the <code
    title="">XMLHttpRequest</code> specification. Please send comments to <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
@@ -469,7 +469,7 @@ client.send();</code></pre>
    <code>readystatechange</code> event</dfn> means that an event with the
    name <code>readystatechange</code>, with no namespace, which does not
    bubble and is not cancelable, and which uses the <code>Event</code>
-   interface, <em class=ct>must</em> be dispatched at the <code><a
+   interface, is to be dispatched at the <code><a
    href="#xmlhttprequest-object">XMLHttpRequest</a></code> object.
 
   <h3 id=extensibility><span class=secno>2.3 </span>Extensibility</h3>
@@ -992,8 +992,6 @@ interface <dfn id=xmlhttprequest-object>XMLHttpRequest</dfn> {
 
      <li><code>Accept-Encoding</code>
 
-     <li><code>Authorization</code>
-
      <li><code>Connection</code>
 
      <li><code>Content-Length</code>
@@ -1281,17 +1279,21 @@ X-Test: one, two
    <code>Request-Line</code> and send <code>Proxy-Authorization</code>
    headers as specified.
 
-  <p>If the user agent supports HTTP Authentication it <em
-   class=ct>should</em> consider requests originating from this object to be
-   part of the protection space that includes the accessed URIs and send
+  <p>If the user agent supports HTTP Authentication and
+   <code>Authorization</code> is not in the list of <a
+   href="#author-request-headers">author request headers</a>, it <em
+   class=ct>should</em> consider requests originating from the <code><a
+   href="#xmlhttprequest-object">XMLHttpRequest</a></code> object to be part
+   of the protection space that includes the accessed URIs and send
    <code>Authorization</code> headers and handle <code>401
    Unauthorized</code> requests appropriately. If authentication fails, and
-   <var>stored user</var> and <var>stored password</var> are not provided,
-   user agents <em class=ct>should</em> prompt the user for credentials. If
-   authentication fails, and <var>stored user</var> and <var>stored
-   password</var> are provided, user agents <em class=ct>must not</em> prompt
-   the user for credentials. [<cite><a
-   href="#ref-rfc2617">RFC2617</a></cite>]
+   <span>request username and <a href="#request-password">request
+   password</a> are both null, user agents <em class=ct>should</em> prompt
+   the user for credentials. If authentication fails, and <a
+   href="#request-username">request username</a> and <a
+   href="#request-password">request password</a> are provided, user agents
+   <em class=ct>must not</em> prompt the user for credentials. [<cite><a
+   href="#ref-rfc2617">RFC2617</a></cite>]</span>
 
   <p class=note>Users are not prompted if credentials are provided through
    the <code><a href="#open">open()</a></code> API so that authors can
@@ -1591,14 +1593,14 @@ X-Test: one, two
        <code>readystatechange</code> event</a>.
     </ol>
 
+    <p class=note>It is likely that a future version of this specification
+     will dispatch an <code title="">abort</code> event here.</p>
+
    <li>
     <p>Switch the state to <a href="#unsent-state" title="UNSENT
      state">UNSENT</a>.</p>
 
     <p class=note>No <code>readystatechange</code> event is dispatched.</p>
-
-    <p class=note>It is likely that a future version of this specification
-     will dispatch an <code title="">abort</code> event here.</p>
   </ol>
 
   <h3 id=response><span class=secno>4.7 </span>Response</h3>
