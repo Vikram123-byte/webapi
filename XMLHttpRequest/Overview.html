@@ -1232,10 +1232,6 @@ X-Test: one, two
       <p>While making the request also follow the <a
        href="#same-origin-request-event-rules">same-origin request event
        rules</a>.</p>
-
-      <p>When the request is completed and has not been terminated by the <a
-       href="#same-origin-request-event-rules">same-origin request event
-       rules</a>: <a href="#switch-done">switch to the DONE state</a>.</p>
       <!--
        This cannot involve any task queue whatsoever because that would
        mean other tasks on the task queue might get processed as well which
@@ -1255,22 +1251,6 @@ X-Test: one, two
        rules</a> using the <a
        href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
        networking task source</a> as <a href="#task-source">task source</a>.</p>
-
-      <p>The <a href="#task">task</a> that is <a href="#queue-a-task"
-       title="queue a task">queued</a> by the <a
-       href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
-       networking task source</a> once the request is completed (i.e. no
-       network errors or aborting of the algorithm occurred) is to <a
-       href="#queue-a-task">queue a task</a> to <a href="#switch-done">switch
-       to the DONE state</a> (rather than following the <a
-       href="#same-origin-request-event-rules">same-origin request event
-       rules</a>).</p>
-
-      <p class=note>The <a href="#task">task</a> to <a
-       href="#switch-done">switch to the DONE state</a> <a
-       href="#queue-a-task" title="queue a task">queued</a> on the <a
-       href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code>
-       event task source</a>.</p>
     </dl>
   </ol>
 
@@ -1411,15 +1391,26 @@ X-Test: one, two
     <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
      state</a>.
 
-   <dt>Once the first byte (or more) of the response entity body has been
-    received and the <a href="#asynchronous-flag">asynchronous flag</a> is
-    true
+   <dt>Once the first byte (or more) of the <a
+    href="#response-entity-body">response entity body</a> has been received
+    and the <a href="#asynchronous-flag">asynchronous flag</a> is true
 
-   <dt>If there is no response entity body and the <a
-    href="#asynchronous-flag">asynchronous flag</a> is true
+   <dt>If there is no <a href="#response-entity-body">response entity
+    body</a> and the <a href="#asynchronous-flag">asynchronous flag</a> is
+    true
 
    <dd>
     <p><a href="#switch-loading">Switch to the LOADING state</a>.
+
+   <dt>Once the whole <a href="#response-entity-body">response entity
+    body</a> has been received
+
+   <dt>If there is no <a href="#response-entity-body">response entity
+    body</a> and the state is <a href="#loading-state" title="LOADING
+    state">LOADING</a>.
+
+   <dd>
+    <p><a href="#switch-done">Switch to the DONE state</a>.
   </dl>
 
   <hr>
@@ -1540,7 +1531,14 @@ X-Test: one, two
     <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
 
    <li>
-    <p><a href="#dispatch-readystatechange-event">Dispatch a
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
+     href="#queue-a-task">queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
      <code>readystatechange</code> event</a>.
   </ol>
 
@@ -1617,7 +1615,7 @@ X-Test: one, two
    (typically <code>200</code> for a successful request). Otherwise, if not
    available, the user agent <em class=ct>must</em> raise an
    <code>INVALID_STATE_ERR</code> exception.</p>
-  <!-- XXX define in terms of states -->
+  <!-- XXX needs a better definition; take error flag + states into account -->
 
   <h4 id=the-statustext-attribute><span class=secno>4.7.2 </span>The <code
    title="">statusText</code> attribute</h4>
@@ -1627,7 +1625,7 @@ X-Test: one, two
    after the status code). Otherwise, if not available (request is not
    initiated for instance), the user agent <em class=ct>must</em> raise an
    <code>INVALID_STATE_ERR</code> exception.</p>
-  <!-- XXX define in terms of states -->
+  <!-- XXX needs a better definition; take error flag + states into account -->
 
   <h4 id=the-getresponseheader-method><span class=secno>4.7.3 </span>The
    <code title="">getResponseHeader()</code> method</h4>
