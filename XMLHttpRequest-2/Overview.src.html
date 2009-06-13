@@ -1,9 +1,4 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- XXXX
- * response member values in case of non same-origin
- * merging better XMLHttpRequest Level 1 definitions
- * fixing request stuff
--->
 <html lang="en-US">
  <head>
   <title>XMLHttpRequest Level 2</title>
@@ -14,16 +9,20 @@
    div.example { margin-left:1em; padding-left:1em; border-left:double; color:#222; background:#fcfcfc }
    .note { margin-left:2em; font-weight:bold; font-style:italic; color:#008000 }
    p.note::before { content:"Note: " }
-   .issue { padding:.5em; border:solid #f00 }
-   p.issue::before { content:"Issue: " }
+   .XXX { padding:.5em; border:solid #f00 }
+   p.XXX::before { content:"Issue: " }
    dl.switch { padding-left:2em }
-   dl.switch dt { text-indent:-1.5em }
-   dl.switch dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
+   dl.switch > dt { text-indent:-1.5em }
+   dl.switch > dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
    em.ct { text-transform:lowercase; font-variant:small-caps; font-style:normal }
    dfn { font-weight:bold; font-style:normal }
    code { color:orangered }
    code :link, code :visited { color:inherit }
-   h1 code, h2 code, h3 code { color:inherit; background:inherit; font:inherit }
+   hr:not(.top) { display:block; background:none; border:none; padding:0; margin:2em 0; height:auto }
+   table { border-collapse:collapse; border-style:hidden hidden none hidden }
+   table thead { border-bottom:solid }
+   table tbody th:first-child { border-left:solid }
+   table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
   </style>
   <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-[STATUS]">
  </head>
@@ -170,7 +169,7 @@
 
   <dl>
    <dt>Cross-Origin Resource Sharing</dt>
-   
+
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
    <em class="ct">must</em> support the algorithms of the
    Cross-Origin Resource Sharing specification.
@@ -210,10 +209,10 @@
    [<cite><span>RFC2616</span></cite>]</p></dd>
 
    <dt>Web IDL</dt>
-   
-   <dd>A <span>conforming user agent</span> <em class="ct">must</em> also be
-   a conforming implementation of the IDL fragments in this specification,
-   as described in the Web IDL specification.
+
+   <dd><p>A <span>conforming user agent</span> <em class="ct">must</em> also
+   be a conforming implementation of the IDL fragments in this
+   specification, as described in the Web IDL specification.
    [<cite><span>WebIDL</span></cite>]
 
    <dt>XML</dt>
@@ -227,16 +226,42 @@
 
   <h3 id="terminology">Terminology</h3>
 
+  <p>Comparing two strings in a
+  <dfn id="case-sensitive">case-sensitive</dfn> manner means comparing them
+  exactly, codepoint for codepoint.</p>
+
+  <p>Comparing two strings in an
+  <dfn id="ascii-case-insensitive">ASCII case-insensitive</dfn> manner means
+  comparing them exactly, codepoint for codepoint, except that the
+  characters in the range U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to
+  LATIN CAPITAL LETTER Z) and the corresponding characters in the range
+  U+0061 .. U+007A (i.e. LATIN SMALL LETTER A to LATIN SMALL LETTER Z) are
+  considered to also match.</p>
+
+  <p><dfn id="converted-to-ascii-upercase" title="converted to ASCII uppercase">Converting a string to ASCII uppercase</dfn>
+  means replacing all characters in the range U+0061 .. U+007A (i.e.
+  LATIN SMALL LETTER A to LATIN SMALL LETTER Z) with the corresponding
+  characters in the range U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to
+  LATIN CAPITAL LETTER Z).</p>
+
   <p>The terms and algorithms
   <dfn id="url-fragment">&lt;fragment></dfn>,
   <dfn id="url-scheme">&lt;scheme></dfn>,
-  <dfn id="ascii-case-insensitive">ASCII case-insensitive</dfn>,
-  <dfn id="uppercase" title="uppercase">converting a string to uppercase</dfn>,
-  <dfn id="event-handler-attribute">event handler DOM attribute</dfn>,
-  <dfn id="url-base">base URL</dfn>,
+  <dfn id="document-base-url">document base URL</dfn>,
+  <dfn id="event-handler-attributes-0">event handler attributes</dfn>,
+  <dfn id="event-handler-event-type">event handler event type</dfn>,
+  <dfn id="fully-active">fully active</dfn>,
+  <dfn id="function"><code>Function</code></dfn>,
   <dfn id="origin">origin</dfn>,
-  <dfn id="same-origin">same origin</dfn>, and
-  <dfn id="url-resolve">resolve a URL</dfn>
+  <dfn id="resolve-a-url">resolve a URL</dfn>,
+  <dfn id="same-origin">same origin</dfn>,
+  <dfn id="storage-mutex">storage mutex</dfn>,
+  <dfn id="task">task</dfn>,
+  <dfn id="task-source">task source</dfn>,
+  <dfn id="url">URL</dfn>,
+  <dfn id="url-character-encoding">URL character encoding</dfn>,
+  <dfn id="queue-a-task">queue a task</dfn>, and
+  <dfn id="xml-fragment-serialization-algorithm">XML fragment serialization algorithm</dfn>
   are defined by the HTML&nbsp;5 specification.
   [<cite><span>HTML5</span></cite>]</p>
 
@@ -246,18 +271,22 @@
   and <dfn><code>field-value</code></dfn> are used as described in section
   4.2 of RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
 
-  <p>The terms <dfn id="status-flag">status flag</dfn> and
-  <dfn id="cross-origin-request">cross-origin request</dfn> are defined by
-  the Cross-Origin Resource Sharing specification.
+  <p><dfn><code>userinfo</code></dfn> is used as described in section 3.2.1
+  of RFC 3986. [<cite><span>RFC3986</span></cite>]</p>
+
+  <p>The terms <dfn id="cross-origin-request">cross-origin request</dfn> and
+  <dfn id="cross-origin-request-status">cross-origin request status </dfn>
+  are defined by the Cross-Origin Resource Sharing specification.
   [<cite><span>CORS</span></cite>]
 
   <p>To <dfn id="dispatch-readystatechange-event">dispatch a
   <code>readystatechange</code> event</dfn> means that an event with the
   name <code>readystatechange</code>, with no namespace, which does not
   bubble and is not cancelable, and which uses the <code>Event</code>
-  interface, <em class="ct">must</em> be dispatched at the given object.</p>
-  
-  <p class="issue">To
+  interface, is to be dispatched at the <code>XMLHttpRequest</code>
+  object.</p>
+
+  <p class="XXX">To
   <dfn id="dispatch-progress-event" title="dispatch a progress event">dispatch
   a progress event called <var>e</var></dfn> means&hellip;
   [<cite><span>PE</span></cite>]</p>
@@ -268,34 +297,35 @@
   <p>Extensions of the API defined by this specification are <em>strongly
   discouraged</em>. User agents, Working Groups and other interested parties
   should discuss extensions on a relevant public forum, preferably
-  <a href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.</p>
+  <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>.</p>
 
 
-  <h2 id="xmlhttprequest">The <code title="">XMLHttpRequest</code> Object</h2>
+  <h2>The <code title="">XMLHttpRequest</code> Interface</h2>
 
   <p>The <code>XMLHttpRequest</code> object can be used by scripts to
-  programmatically connect to their originating server via HTTP.</p>
+  programmatically connect to servers via HTTP.</p>
 
   <pre class="idl">[NoInterfaceObject]
-interface <dfn id="xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</dfn> : EventTarget {
+interface <dfn id="xmlhttprequesteventtarget">XMLHttpRequestEventTarget</dfn> : EventTarget {
   // <a href="#event-handler-attributes">event handler attributes</a>
-           attribute EventListener <span>onabort</span>;
-           attribute EventListener <span>onerror</span>;
-           attribute EventListener <span>onload</span>;
-           attribute EventListener <span>onloadstart</span>;
-           attribute EventListener <span>onprogress</span>;
+           attribute <span>Function</span> <span>onloadstart</span>;
+           attribute <span>Function</span> <span>onprogress</span>;
+           attribute <span>Function</span> <span>onabort</span>;
+           attribute <span>Function</span> <span>onerror</span>;
+           attribute <span>Function</span> <span>onload</span>;
+           attribute <span>Function</span> <span>onloadend</span>;
 };
 
-interface <dfn id="xmlhttprequestupload-interface">XMLHttpRequestUpload</dfn> : <span>XMLHttpRequestEventTarget</span> {
+interface <dfn id="xmlhttprequestupload">XMLHttpRequestUpload</dfn> : <span>XMLHttpRequestEventTarget</span> {
   // for future use
 };
 
-[Constructor]
-interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHttpRequestEventTarget</span> {
+[<span title="XMLHttpRequest constructor">Constructor</span>]
+interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEventTarget</span> {
   // <a href="#event-handler-attributes">event handler attributes</a>
-           attribute EventListener <span>onreadystatechange</span>;
+           attribute <span>Function</span> <span>onreadystatechange</span>;
 
-  // <a href="#ready-states">ready states</a>
+  // <a href="#states">states</a>
   const unsigned short <span title="UNSENT state">UNSENT</span> = 0;
   const unsigned short <span title="OPENED state">OPENED</span> = 1;
   const unsigned short <span title="HEADERS_RECEIVED state">HEADERS_RECEIVED</span> = 2;
@@ -303,15 +333,13 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
   const unsigned short <span title="DONE state">DONE</span> = 4;
   readonly attribute unsigned short <span>readyState</span>;
 
-  // <a href="#request-metadata">request metadata</a>
+  // <a href="#request">request</a>
            attribute boolean <span>withCredentials</span>;
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
   void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
   void <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
-  
-  // <a href="#request">request</a>
   readonly attribute <span>XMLHttpRequestUpload</span> <span>upload</span>;
   void <span>send</span>();
   void <span>send</span>(in ByteArray <var>data</var>);
@@ -319,107 +347,134 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
   void <span>send</span>(in Document <var>data</var>);
   void <span>abort</span>();
 
-  // <a href="#response-metadata">response metadata</a>
-  DOMString <span>getAllResponseHeaders</span>();
-  DOMString <span>getResponseHeader</span>(in DOMString <var>header</var>);
+  // <a href="#response">response</a>
   readonly attribute unsigned short <span>status</span>;
   readonly attribute DOMString <span>statusText</span>;
-  
-  // <a href="#response-body">response body</a>
+  DOMString <span>getResponseHeader</span>(in DOMString <var>header</var>);
+  DOMString <span>getAllResponseHeaders</span>();
   void <span>overrideMimeType</span>(<var>mime</var>);
   readonly attribute ByteArray <span>responseBody</span>;
   readonly attribute DOMString <span>responseText</span>;
   readonly attribute Document <span>responseXML</span>;
 };</pre>
 
-  <p>The <code>EventTarget</code> interface is defined by the DOM Level 2
-  Events specification. [<cite><span>DOM2Events</span></cite>]</p>
+
+  <h3>Origin and Base URL</h3>
+
+  <p>Each <code>XMLHttpRequest</code> object has an associated
+  <dfn id="xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</dfn>
+  and an
+  <dfn id="xmlhttprequest-base-url"><code>XMLHttpRequest</code> base URL</dfn>.
+
+  <p>This specification defines their values when the global object is
+  represented by the <code>Window</code> object. When the
+  <code>XMLHttpRequest</code> object used in other contexts their values
+  will have to be defined as appropriate for that context. That is
+  considered to be out of scope for this specification.</p>
+
+  <hr>
+
+  <p>In environments where the global object is represented by the
+  <code>Window</code> object the <code>XMLHttpRequest</code> object has an
+  associated
+  <dfn id="xmlhttprequest-document"><code>XMLHttpRequest</code> <code>Document</code></dfn>
+  which is the <code>Document</code> object associated with the
+  <code>Window</code> object for which the <code>XMLHttpRequest</code>
+  interface object was created.</p>
+
+  <p class="note">The
+  <span><code>XMLHttpRequest</code> <code>Document</code></span> is used to
+  determine the <span><code>XMLHttpRequest</code> origin</span> and
+  <span><code>XMLHttpRequest</code> base URL</span> at a later stage.</p>
+
+  <!-- XXX what happens if the document is not fully active?
+           e.g. should the constructor throw?
+  -->
 
 
-  <h3 id="constructor">Constructor</h3>
+  <h3>Task Sources</h3>
 
-  <!-- new XMLHttpRequest(method, url, body, listener) -->
+  <p>The following <span title="task source">task sources</span> are used by
+  this specification:</p>
 
-  <p>Objects implementing the <code title="">Window</code> interface
-  <em class="ct">must</em> provide the following constructor:
-  <code title="">XMLHttpRequest()</code>.</p>
+  <dl>
+   <dt>The <dfn><code>XMLHttpRequest</code> event task source</dfn></dt>
 
-  <div class="example">
-   <p>In ECMAScript this can be used as follows:</p>
+   <dd>This <span>task source</span> is used for events that are to be
+   asynchronously dispatched.</dd>
 
-   <pre><code>var client = new XMLHttpRequest();</code></pre>
-  </div>
+   <dt>The <dfn><code>XMLHttpRequest</code> networking task source</dfn></dt>
 
-  <p>When the <code title="">XMLHttpRequest()</code> constructor is invoked
-  a persistent pointer to the associated <code title="">Document</code>
-  object is stored on the newly created object. This is the
-  <dfn title="Document pointer" id="document-pointer"><code>Document</code>
-  pointer</dfn>. The associated <code>Document</code> object is the one
-  returned by the <code>document</code> attribute from the object on which
-  the <code title="">XMLHttpRequest()</code> constructor was invoked (a
-  <code>Window</code> object). The pointer can become null if the
-  object is destroyed.</p>
-  
-  <p class="note">As per the conformance criteria implementations are free
-  to implement this in any way they desire as long as the end results are
-  identical to those given by the English prose.</p>
+   <dd>This <span>task source</span> is used for network activity.</dd>
+  </dl>
 
-  <div class="example">
-   <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
-   object <var><code>client</code></var> will have a pointer to
-   <var><code>iframe.document</code></var> in the following example:</p>
+  <p>Unless otherwise stated the <span>task source</span> used for all tasks
+  <span title="queue a task">queued</span> in this specification is the
+  <span><code>XMLHttpRequest</code> event task source</span>.</p>
 
-   <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
-  </div>
-  
-  <p>The <span>origin</span> of an <code>XMLHttpRequest</code> object is the
-  <span>origin</span> of the associated <code>Document</code> object
-  returned by the <span><code>Document</code> pointer</span>.</p>
+
+  <h3 id="constructors">Constructors</h3>
+
+  <p>When the
+  <dfn id="xmlhttprequest-constructor" title="XMLHttpRequest constructor"><code title="">XMLHttpRequest()</code></dfn>
+  constructor is invoked, the user agent <em class="ct">must</em> return a
+  new <code>XMLHttpRequest</code> object.</p>
 
 
   <h3 id="event-handler-attributes">Event Handler Attributes</h3>
 
-  <p>The event handler attributes listed below <em class="ct">must</em> be
-  supported on objects implementing an interface that inherits from
-  <code>XMLHttpRequestEventTarget</code>. Event handler attributes are
-  <span title="event handler DOM attribute">event handler DOM
-  attributes</span>.</p>
+  <p>The following are the
+  <span>event handler attributes</span> (and their corresponding
+  <span title="event handler event type">event handler event types</span>)
+  that <em class="ct">must</em> be supported on objects implementing an
+  interface that inherits from <code>XMLHttpRequestEventTarget</code> as
+  DOM attributes:</p>
 
-  <dl>
-   <dt><dfn id="onabort"><code>onabort</code></dfn></dt>
-   <dd><p><em class="ct">Must</em> be invoked whenever an
-   <code title="abort-event">abort</code> event is targeted at the
-   object.</p></dd>
+  <table>
+   <thead>
+    <tr>
+     <th><span title="event handler attributes">event handler attribute</span>
+     <th><span>event handler event type</span>
+   <tbody>
+    <tr>
+     <td><dfn id="onloadstart"><code>onloadstart</code></dfn>
+     <td><code>loadstart</code>
+    <tr>
+     <td><dfn id="onprogress"><code>onprogress</code></dfn>
+     <td><code>progress</code>
+    <tr>
+     <td><dfn id="onabort"><code>onabort</code></dfn>
+     <td><code title="abort-event">abort</code>
+    <tr>
+     <td><dfn id="onerror"><code>onerror</code></dfn>
+     <td><code>error</code>
+    <tr>
+     <td><dfn id="onload"><code>onload</code></dfn>
+     <td><code>load</code>
+    <tr>
+     <td><dfn id="onloadend"><code>onloadend</code></dfn>
+     <td><code>loadend</code>
+  </table>
 
-   <dt><dfn id="onerror"><code>onerror</code></dfn></dt>
-   <dd><p><em class="ct">Must</em> be invoked whenever an <code>error</code>
-   event is targeted at the object.</p></dd>
+  <p>The following is the
+  <span title="event handler attributes">event handler attribute</span> (and
+  its corresponding <span>event handler event type</span>) that
+  <em class="ct">must</em> be supported as DOM attribute solely by the
+  <code>XMLHttpRequest</code> object:</p>
 
-   <dt><dfn id="onload"><code>onload</code></dfn></dt>
-   <dd><p><em class="ct">Must</em> be invoked whenever a <code>load</code>
-   event is targeted at the object.</p></dd>
-
-   <dt><dfn id="onloadstart"><code>onloadstart</code></dfn></dt>
-   <dd><p><em class="ct">Must</em> be invoked whenever a
-   <code>loadstart</code> event is targeted at the object.</p></dd>
-
-   <dt><dfn id="onprogress"><code>onprogress</code></dfn></dt>
-   <dd><p><em class="ct">Must</em> be invoked whenever a
-   <code>progress</code> event is targeted at the object.</p></dd>
-  </dl>
-
-  <p>The following event handler attribute <em class="ct">must</em> be
-  supported on objects implementing the <code>XMLHttpRequest</code>
-  interface:</p>
-
-  <dl>
-   <dt><dfn id="onreadystatechange"><code>onreadystatechange</code></dfn></dt>
-   <dd><p><em class="ct">Must</em> be invoked whenever a
-   <code>readystatechange</code> event is targeted at the object.</p></dd>
-  </dl>
+  <table>
+   <thead>
+    <tr>
+     <th><span title="event handler attributes">event handler attribute</span>
+     <th><span>event handler event type</span>
+   <tbody>
+    <tr>
+     <td><dfn id="onreadystatechange"><code>onreadystatechange</code></dfn>
+     <td><code>readystatechange</code></td>
+  </table>
 
 
-  <h3 id="ready-states">Ready States</h3>
+  <h3 id="states">States</h3>
 
   <p>The <code>XMLHttpRequest</code> object can be in several states. The
   <dfn id="readystate"><code>readyState</code></dfn> attribute, on getting,
@@ -430,23 +485,18 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
    <dt><dfn id="unsent-state" title="UNSENT state"><code>UNSENT</code></dfn>
    (numeric value 0)</dt>
    <dd><p>The object has been constructed.</p></dd>
-   
+
    <dt><dfn id="opened-state" title="OPENED state"><code>OPENED</code></dfn>
    (numeric value 1)</dt>
    <dd><p>The <code>open()</code> method has been successfully invoked.
    During this state request headers can be set using
    <code>setRequestHeader()</code> and the request can be made using the
    <code>send()</code> method.</p></dd>
-   
+
    <dt><dfn id="headers-received-state" title="HEADERS_RECEIVED state"><code>HEADERS_RECEIVED</code></dfn>
    (numeric value 2)</dt>
-   <dd>
-    <p>All HTTP headers have been received. Several response members of the
-    object are now available.</p>
-
-    <p class="note">For non same origin requests the object will never be in
-    this state.</p>
-   </dd>
+   <dd><p>All HTTP headers have been received. Several response members of
+   the object are now available.</p></dd>
 
    <dt><dfn id="loading-state" title="LOADING state"><code>LOADING</code></dfn>
    (numeric value 3)</dt>
@@ -469,33 +519,93 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
   of false.</p>
 
 
-  <h3 id="request-metadata">Request Metadata</h3>
+  <h3 id="request">Request</h3>
 
-  <p>This section defines the various members of the
-  <code>XMLHttpRequest</code> object that can be used to initialize a
-  network request.</p>
+  <p>The <code>XMLHttpRequest</code> object holds the following request
+  metadata variables:</p>
+
+  <dl>
+   <dt>The <dfn>asynchronous flag</dfn></dt>
+   <dd>A flag that is either true or false that indicates whether the
+   request is done asynchronously.</dd>
+
+   <dt>The <dfn>request method</dfn></dt>
+   <dd>The method used in the request.</dd>
+
+   <dt>The <dfn>request URL</dfn></dt>
+   <dd>The <span>URL</span> used in the request.</dd>
+
+   <dt>The <dfn>request username</dfn></dt>
+   <dd>The username used in the request or null if there is no
+   username.</dd>
+
+   <dt>The <dfn>request password</dfn></dt>
+   <dd>The password used in the request or null if there is no
+   password.</dd>
+
+   <dt>The <dfn id="author-request-headers">author request headers</dfn></dt>
+   <dd>A list consisting of HTTP header name/value pairs to be used in the
+   request.</p>
+
+   <dt>The <dfn>request entity body</dfn></dt>
+   <dd>The <span>entity body</span> used in the request.</dd>
+
+   <dt>The <dfn>credentials flag</dfn></dt>
+   <dd>Indicates whether a cross-origin request will include cookie and HTTP
+   authentication data.</dd>
+
+   <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
+   <dd>Used to determine whether to send upload progress events.</dd>
+
+   <dt>The <dfn id="upload-events-flag">upload events flag</dfn></dt>
+   <dd>Used to determine whether to send upload progress events for
+   cross-origin requests.</dd>
+  </dl>
+
+  <p>The <code>XMLHttpRequest</code> object also has an associated
+  <code>XMLHttpRequestUpload</code> object.</p>
+
+
+  <h4>The <code title="">open()</code> method</h4>
 
   <p>When the <dfn id="open" title="open"><code>open(<var>method</var>,
   <var>url</var>, <var>async</var>, <var>user</var>,
   <var>password</var>)</code></dfn> method is invoked, the user agent
-  <em class="ct">must</em> act as if it had run the following steps (unless
-  otherwise indicated):</p>
+  <em class="ct">must</em> run these steps (unless otherwise indicated):</p>
 
   <ol>
-   <li><p>Let <var>stored method</var> be the <var>method</var>
-   argument.</p></li>
+   <li>
+    <p>If the <code>XMLHttpRequest</code> object has an associated
+    <span><code>XMLHttpRequest</code> <code>Document</code></span> run
+    these substeps:</p>
 
-   <li><p>If <var>stored method</var> does not match the <span>Method
-   token</span> raise a <code>SYNTAX_ERR</code> exception and terminate
-   these steps.</p></li>
+    <ol>
+     <li><p>If the
+     <span><code>XMLHttpRequest</code> <code>Document</code></span> is not
+     <span>fully active</span> raise an <code>INVALID_STATE_ERR</code>
+     exception and terminate the overall set of steps.</p></li>
+
+     <li><p>Let <span><code>XMLHttpRequest</code> base URL</span> be the
+     <span>document base URL</span> of the
+     <span><code>XMLHttpRequest</code> <code>Document</code></span>.</p></li>
+
+     <li><p>Let <span><code>XMLHttpRequest</code> origin</span> be the
+     <span>origin</span> of the
+     <span><code>XMLHttpRequest</code> <code>Document</code></span>.</p></li>
+    </ol>
+   </li>
+
+   <li><p>If <var>method</var> does not match the
+   <span>Method token</span> production raise a <code>SYNTAX_ERR</code>
+   exception and terminate these steps.</p></li>
 
    <li>
-    <p>If <var>stored method</var> is an
+    <p>If <var>method</var> is an
     <span>ASCII case-insensitive</span> match for
     <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
     <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code>
-    <span title="uppercase">convert <var>stored method</var> to uppercase</span>.</p>
+    <span title="converted to ASCII uppercase">convert <var>method</var> to ASCII uppercase</span>.</p>
 
     <p class="note">If it does not match any of the above, it is passed
     through <em>literally</em>, including in the final request.</p>
@@ -504,137 +614,170 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
    M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
    <li>
-    <p>If <var>stored method</var> is one of <code>CONNECT</code>,
-    <code>TRACE</code>, or <code>TRACK</code> the user agent
-    <em class="ct">should</em> raise a <code>SECURITY_ERR</code> exception
-    and terminate these steps.</p>
+    <p>If <var>method</var> is a <span>case-sensitive</span> match for
+    <code>CONNECT</code>, <code>TRACE</code>, or <code>TRACK</code> the
+    user agent <em class="ct">should</em> raise a <code>SECURITY_ERR</code>
+    exception and terminate these steps.</p>
 
     <p class="note">Allowing these methods poses a security risk.
     [<cite><span>HTTPVERBSEC</span></cite>]</p>
    </li>
 
-   <li><p><span title="Resolve a URL">Resolve <var>stored url</var></span>
-   with the <span><code>Document</code> pointer</span> being the associated
-   <var>document</var> and UTF-8 being the <var>encoding</var> of that
-   <var>document</var>. If the <span>resolve a URL</span> algorithm returns
-   an error raise a <code>SYNTAX_ERR</code> exception and terminate these
-   steps.</p></li>
+   <li><p>Let <var title="">url</var> be a <span>URL</span>.</p></li>
+
+   <li><p>Let <span>URL character encoding</span> of <var title="">url</var>
+   be UTF-8.</p></li>
+
+   <li><p><span title="Resolve a URL">Resolve <var title="">url</var></span>
+   relative to the <span><code>XMLHttpRequest</code> base URL</span>.
+   If the algorithm returns an error raise a <code>SYNTAX_ERR</code>
+   exception and terminate these steps.</p></li>
 
    <!-- Presto and Gecko override the encoding. WebKit does not. Trident
    does not support non-ASCII URLs. This matters for the <query> component,
    see HTML5. -->
 
-   <li><p>Drop <code>&lt;fragment></code> from
-   <var>stored url</var>.</p></li>
+   <li><p>Drop <code>&lt;fragment></code> from <var title="">url</var>.</p></li>
 
-   <li><p>If <var>stored url</var> contains an unsupported
-   <code>&lt;scheme></code> raise a <code>NOT_SUPPORTED_ERR</code> and
-   terminate these steps.</p></li>
+   <li><p>If <var title="">url</var> contains an unsupported <code>&lt;scheme></code>
+   raise a <code>NOT_SUPPORTED_ERR</code> and terminate these
+   steps.</p></li>
 
    <li><p>If the <code>"user:password"</code> format in the
-   <code>userinfo</code> production defined in section 3.2.1 of RFC 3986 is
-   not supported for the relevant scheme and <var>stored url</var> contains
-   this format raise a <code>SYNTAX_ERR</code> and terminate these steps.
-   [<cite><span>RFC3986</span></cite>]</p></li>
+   <code>userinfo</code> production is not supported for the relevant scheme
+   and <var title="">url</var> contains this format raise a
+   <code>SYNTAX_ERR</code> and terminate these steps.</p></li>
 
-   <li><p>If <var>stored url</var> contains the <code>"user:password"</code>
-   format let <var>stored user</var> be the user part and <var>stored
-   password</var> be the password part.</p></li>
+   <li><p>If <var title="">url</var> contains the <code>"user:password"</code>
+   format let <var>temp user</var> be the user part and
+   <var>temp password</var> be the password part.</p></li>
 
-   <li><p>If <var>stored url</var> just contains the <code>"user"</code>
-   format let <var>stored user</var> be the user part.</p></li>
+   <li><p>If <var title="">url</var> just contains the <code>"user"</code>
+   format let <var>temp user</var> be the user part.</p></li>
 
    <li class="note"><p>The previous level of this specification raised a
-   <code>SECURITY_ERR</code> at this place in case of a non same origin
-   <var>stored url</var>. This specification supports non same origin
-   requests and therefore this exception is no longer raised here.</p></li>
+   <code>SECURITY_ERR</code> at this place in case of a non
+   <span>same origin</span> <var>stored url</var>. This specification
+   supports non <span>same origin</span> requests and therefore this
+   exception is no longer raised.</p></li>
 
    <li><p>Let <var>async</var> be the value of the <var>async</var> argument
    or <code>true</code> if it was omitted.</p></li>
 
-   <li><p>If the <var>user</var> argument was not omitted, and its syntax
-   does not match that specified by the relevant authentication scheme, raise
-   a <code>SYNTAX_ERR</code> exception and terminate these steps.</p></li>
-
    <li>
-    <p>If the <var>user</var> argument was not omitted and is not
-    <code>null</code>, let <var>stored user</var> be <var>user</var>.</p>
+    <p>If the <var>user</var> argument was not omitted follow these sub
+    steps:</p>
 
-    <p class="note">This step overrides any user that may have been set by
-    the <var>url</var> argument.</p>
+    <ol>
+     <li><p>If the syntax of <var>user</var> does not match the syntax
+     specified by the relevant authentication scheme, raise a
+     <code>SYNTAX_ERR</code> exception and terminate the overall set of
+     steps.</p></li>
+
+     <li><p>If <var>user</var> is <code>null</code> let <var>temp user</var>
+     be null.</p></li>
+
+     <li><p>Otherwise let <var>temp user</var> be <var>user</var>.</p></li>
+    </ol>
+
+    <p class="note">These steps override anything that may have been set by
+    the <var title="">url</var> argument.</p>
    </li>
 
-   <li><p>If the <var>user</var> argument was not omitted and is
-   <code>null</code> remove <var>stored user</var>.</p></li>
-
-   <li><p>If the <var>password</var> argument was not omitted and its syntax
-   does not match that specified by the relevant authentication scheme raise
-   a <code>SYNTAX_ERR</code> exception and terminate these steps.</p></li>
-
-   <li><p>If the <var>password</var> argument was not omitted and is not
-   <code>null</code>, let <var>stored password</var> be
-   <var>password</var>.</p></li>
-
-   <li><p>If the <var>password</var> argument was not omitted and is
-   <code>null</code> remove <var>stored password</var>.</p></li>
-
    <li>
-    <p><span title="abort send()">Abort the <code>send()</code>
-    algorithm</span>, set the <span><code>send()</code> flag</span> to
-    false, set <span>response entity body</span> to null and empty the
-    <span>author request headers</span> list.</p>
+    <p>If the <var>password</var> argument was not omitted follow these sub
+    steps:</p>
 
-    <p class="note">This step and the next only has effect if
-    <code>send()</code> and/or <code>setRequestHeader()</code> has been
-    used.</p>
+    <ol>
+     <li><p>If the syntax of <var>password</var> does not match the syntax
+     specified by the relevant authentication scheme, raise a
+     <code>SYNTAX_ERR</code> exception and terminate the overall set of
+     steps.</p></li>
+
+     <li><p>If <var>password</var> is <code>null</code> let
+     <var>temp password</var> be null.</p></li>
+
+     <li><p>Otherwise let <var>temp password</var> be
+     <var>password</var>.</p></li>
+    </ol>
+
+    <p class="note">These steps override anything that may have been set by
+    the <var title="">url</var> argument.</p>
    </li>
+
+   <li><p><span title="abort send()">Abort the <code>send()</code> algorithm</span>.</p></li>
 
    <li><p>The user agent <em class="ct">should</em> cancel any network
    activity for which the object is responsible.</p></li>
    <!-- we can hardly require it... -->
 
-   <li><p>Switch the object to the <span title="OPENED state">OPENED</span>
-   state and then synchronously
-   <span>dispatch a <code>readystatechange</code> event</span> on the object
-   and return the method call.</p></li>
+   <li>
+    <p>Set variables associated with the object as follows:</p>
+
+    <ul>
+     <li><p>Set the <span><code>send()</code> flag</span> to false.</p></li>
+
+     <li><p>Set <span>response entity body</span> to null.</p></li>
+
+     <li><p>Empty the list of <span>author request headers</span>.</p>
+
+     <li><p>Set the <span>request method</span> to <var>method</var>.</p></li>
+
+     <li><p>Set the <span>request URL</span> to <var title="">url</var>.</p></li>
+
+     <li><p>Set the <span>request username</span> to <var>temp user</var>.</p></li>
+
+     <li><p>Set the <span>request password</span> to <var>temp password</var>.</p></li>
+
+     <li><p>Set the <span>asynchronous flag</span> to true if <var>async</var> is
+     <code>true</code>. Otherwise set it to false.</p></li>
+    </ul>
+   </li>
+
+   <li><p>Switch the the state to
+   <span title="OPENED state">OPENED</span>.</p></li>
+
+   <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
   </ol>
 
-  <p>The object has an associated list of <dfn id="author-request-headers">author request headers</dfn>
-  consisting of HTTP header name/value pairs. The
-  <dfn id="setrequestheader" title="setRequestHeader"><code>setRequestHeader(<var>header</var>)</code></dfn>
-  method can be used to set new request headers and append to request
-  headers already in the list.</p>
+
+  <h4>The <code title="">setRequestHeader()</code> method</h4>
+
+  <!-- XXX authors
+  The <code>setRequestHeader()</code> method can be used to set new request
+    headers and append to request headers already in the list.</p>
+  -->
 
   <p>As indicated in the algorithm below certain headers cannot be set and
   are left up to the user agent. In addition there are certain other headers
   the user agent will take control of if they are not set by the author as
   indicated at the end of the <code>send()</code> method section.</p>
 
-  <p class="note">The <code>setRequestHeader()</code> method appends a value
-  if the header given as argument is already part of the <span>author
-  request headers</span> list.</p>
+  <p class="note">The <code>setRequestHeader()</code> method appends a
+  value if the HTTP header given as argument is already part of the
+  <span>author request headers</span> list.</p>
 
-  <p class="note">For non same origin requests using the HTTP
+  <p class="note">For non <span>same origin</span> requests using the HTTP
   <code>GET</code> method a preflight request is made when headers other
   than <code>Accept</code> and <code>Accept-Language</code> are set.</p>
 
-  <p>When <code>setRequestHeader()</code> is invoked, the user agent
-  <em class="ct">must</em> follow the following steps (unless otherwise
-  indicated):</p>
+  <p>When the
+  <dfn id="setrequestheader" title="setrequestheader"><code>setRequestHeader(<var>header</var>,
+  <var>value</var>)</code></dfn> method is invoked, the user agent
+  <em class="ct">must</em> run these steps (unless otherwise indicated):</p>
 
   <ol>
-   <li><p>If the state of the object is not
-   <span title="OPENED state">OPENED</span> raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
+   <li><p>If the state is not <span title="OPENED state">OPENED</span> raise
+   an <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
    <li><p>If the <span><code>send()</code> flag</span> is true raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>If the <var>header</var> argument does not match the
-   <code>field-name</code> production raise a <code>SYNTAX_ERR</code>
-   exception and terminate these steps.</p></li>
+   <li><p>If <var>header</var> does not match the <code>field-name</code>
+   production raise a <code>SYNTAX_ERR</code> exception and terminate these
+   steps.</p></li>
 
    <li>
     <p>If the <var>value</var> argument does not match the
@@ -656,7 +799,6 @@ interface <dfn id="xmlhttprequest-interface">XMLHttpRequest</dfn> : <span>XMLHtt
      <li><code>Accept-Encoding</code></li>
      <li><code>Access-Control-Request-Headers</code></li> <!-- new in xhr2 -->
      <li><code>Access-Control-Request-Method</code></li> <!-- new in xhr2 -->
-     <li><code>Authorization</code></li>
      <li><code>Connection</code></li>
      <li><code>Content-Length</code></li>
      <li><code>Cookie</code></li>
@@ -719,19 +861,19 @@ client.send();
 X-Test: one, two
 ...</code></pre>
   </div>
-  
-  <p>The <dfn>credentials flag</dfn> takes the values true and false, true
-  by default, and indicates whether a non <span>same origin</span> request
-  includes cookie and HTTP authentication data. It is used during the
-  <code>send()</code> algorithm.</p>
-  
-  <p>When the <code>withCredentials</code> attribute is set, the following
-  algorithm <em class="ct">must</em> be followed:</p>
-  
+
+
+  <h4>The <code title="">withCredentials</code> attribute</h4>
+
+  <p>The <dfn id="withcredentials"><code>withCredentials</code></dfn>
+  attribute controls the <span>credentials flag</span>.</p>
+
+  <p>When the <code>withCredentials</code> attribute is set, the user agent
+  <em class="ct">must</em> run these steps:</p>
+
   <ol>
-   <li><p>If the state of the object is not
-   <span title="OPENED state">OPENED</span> raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
+   <li><p>If the state is not <span title="OPENED state">OPENED</span> raise
+   an <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
    <li><p>If the <span><code>send()</code> flag</span> is true raise an
@@ -742,154 +884,21 @@ X-Test: one, two
    <span>credentials flag</span> to true. Otherwise, set the
    <span>credentials flag</span> to false.</p></li>
   </ol>
-  
+
   <p>On getting, the <code>withCredentials</code> attribute
   <em class="ct">must</em> return <code>true</code> if the
   <span>credentials flag</span> is true, and <code>false</code> if the
   <span>credentials flag</span> is false.</p>
 
-  <h3 id="request">Request</h3>
+
+  <h4>The <code title="">upload</code> attribute</h4>
+
+  <p>The <dfn id="upload"><code>upload</code></dfn> attribute, on getting,
+  <em class="ct">must</em> return the associated
+  <code>XMLHttpRequestUpload</code> object.</p>
 
 
-  <h4>Tracking Upload Progress</h4>
-  
-  <p>To track the progress of data being uploaded through the
-  <code>send()</code> method the <code title="">XMLHttpRequest</code> object
-  offers an <dfn id="upload"><code>upload</code></dfn> attribute. On
-  getting, this attribute <em class="ct">must</em> return an object
-  implementing the <code>XMLHttpRequestUpload</code> interface. This object
-  can be used to register event listeners on which will be triggered during
-  the upload process.</p>
-
-
-  <h4>Request Variables and Algorithms</h4>
-
-  <p>The <dfn>current request URL</dfn> is initially <var>stored url</var>
-  (as set by the <code>open()</code> method) and is updated as described in
-  the <code>send()</code> algorithm.</p>
-  
-  <p>The <dfn id="upload-complete-flag">upload complete flag</dfn> indicates
-  is used in several algorithms to determine whether or not to dispatch an
-  event. The flag is either true or false (default).</p>
-
-  <p>The <dfn id="upload-events-flag">upload events flag</dfn> is used in
-  the <code>send()</code> algorithm to determine whether upload progress
-  events will be dispatched for non same origin requests. The flag is either
-  true or false (default).
-
-  <p>When the steps for the <code>send()</code> method say something is a
-  <dfn>network error</dfn> the user agent <em class="ct">must</em> act as if
-  the following steps had been run:</p>
-
-  <ol>
-   <li><p>Set the <span>response entity body</span> to null, the
-   <span>error flag</span> to true and empty the <span>author request
-   headers</span> list.</p></li>
-
-   <li><p>Synchronously switch the state to
-   <span title="DONE state">DONE</span>.</p></li>
-
-   <li><p>If <var>async</var> is set to <code>false</code> raise a
-   <code>NETWORK_ERR</code> exception and terminate the overall
-   algorithm.</p></li>
-
-   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-   event</span> on the object.</p></li>
-
-   <li><p>Synchronously <span>dispatch a progress event</span> called
-   <code>error</code> on the object.</p></li>
-   
-   <li><p>If the <span>upload complete flag</span> is false, set the flag
-   to true and synchronously <span>dispatch a progress event</span> called
-   <code>error</code> on the object returned by the <code>upload</code>
-   attribute.</p></li>
-
-   <li><p>Terminate the overall algorithm.</p></li>
-  </ol>
-  
-  <p>When the steps for the <code>send()</code> method say something is an
-  <dfn>abort error</dfn> the user agent <em class="ct">must</em> act as if
-  the following steps had been run:</p>
-  
-  <ol>
-   <li><p>Set the <span>response entity body</span> to null, the
-   <span>error flag</span> to true and empty the <span>author request
-   headers</span> list.</p></li>
-
-   <li><p>Synchronously switch the state to
-   <span title="DONE state">DONE</span>.</p></li>
-
-   <li><p>If <var>async</var> is set to <code>false</code> raise an
-   <code>ABORT_ERR</code> exception and terminate the overall
-   algorithm.</p></li>
-
-   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-   event</span> on the object.</p></li>
-
-   <li><p>Synchronously <span>dispatch a progress event</span> called
-   <code title="abort-event">abort</code> on the object.</p></li>
-       
-   <li><p>If the <span>upload complete flag</span> is false, set the flag
-   to true and synchronously <span>dispatch a progress event</span> called
-   <code title="abort-event">abort</code> on the object returned by the
-   <code>upload</code> attribute.</p></li>
-
-   <li><p>Terminate the overall algorithm.</p></li>
-  </ol>
-  
-  <p>When the steps for the <code>send()</code> method say to
-  <dfn id="switch-headers-received">switch to the HEADERS_RECEIVED state</dfn>
-  the user agent <em class="ct">must</em> act as if the following steps had
-  been run:</p>
-
-  <ol>
-   <li><p>Synchronously switch the state to
-   <span title="HEADERS_RECEIVED state">HEADERS_RECEIVED</span>.</p></li>
-
-   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-   event</span> on the object.</p></li>
-  </ol>
-
-  <p>When the steps for the <code>send()</code> method say to
-  <dfn id="switch-loading">switch to the LOADING state</dfn> the user agent
-  <em class="ct">must</em> act as if the following steps had been run:</p>
-  
-  <ol>
-   <li><p>Synchronously switch the state to
-   <span title="LOADING state">LOADING</span>.</p></li>
-
-   <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-   event</span> on the object.</p></li>
-  </ol>
-  
-  <p>When the steps for the <code>send()</code> method say to <dfn>make
-  progress notifications</dfn> user agents <em class="ct">must</em>, while
-  the download is progressing and <var>async</var> is <code>true</code>,
-  <span>dispatch a progress event</span> called
-  <code>progress</code> at the object about every 50ms or for
-  every byte received, whichever is <em>least</em> frequent.</p>
-  
-  <p>When the steps for the <code>send()</code> method say to <dfn>make
-  upload progress notifications</dfn> user agents <em class="ct">must</em>,
-  if <var>async</var> is <code>true</code>, follow these rules:</p>
-
-  <ul>
-   <li><p>While the request entity body is being uploaded and the
-   <span>upload complete flag</span> is false,
-   <span>dispatch a progress event</span> called <code>progress</code> at
-   the object returned by the <code>upload</code> attribute every about
-   every 50ms or for every byte transmitted, whichever is
-   <em>least</em> frequent.</p></li>
-
-   <li><p>If the request entity body has been successfully uploaded and the
-   <span>upload complete flag</span> is still false, set the flag to true
-   and synchronously <span>dispatch a progress event</span> called
-   <code>load</code> at the object returned by the <code>upload</code>
-   attribute.</p></li>
-  </ul>
-
-
-  <h4>Initiating a Request</h4>
+  <h4>The <code title="">send()</code> method</h4>
 
   <p>The
   <dfn id="send" title="send"><code>send(<var>data</var>)</code></dfn>
@@ -900,10 +909,9 @@ X-Test: one, two
   <code title="">send()</code> with a non-<code>null</code> <var>data</var>
   argument.</p>
 
-  <p>When invoked, the user agent <em class="ct">must</em> act as if it had
-  run the following steps (unless otherwise noted). Note that this algorithm
-  might get aborted if the <code>open()</code> or <code>abort()</code>
-  method is invoked. When the
+  <p>When invoked, the user agent <em class="ct">must</em> run these steps
+  (unless otherwise noted). This algorithm might get aborted if the
+  <code>open()</code> or <code>abort()</code> method is invoked. When the
   <dfn title="abort send()" id="abort-send-algorithm"><code>send()</code>
   algorithm is aborted</dfn> the user agent <em class="ct">must</em>
   terminate the algorithm after finishing the step it is on.</p>
@@ -913,35 +921,17 @@ X-Test: one, two
   done asynchronously) and only after the method call has returned.</p>
 
   <ol>
-   <li><p>If the state of the object is not
-   <span title="OPENED state">OPENED</span> raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
+   <li><p>If the state is not <span title="OPENED state">OPENED</span> raise
+   an <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
    <li><p>If the <span><code>send()</code> flag</span> is true raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>If <var>async</var> is <code>true</code> set the
-   <span><code>send()</code> flag</span> to true.</p></li>
+   <li>
+    <!-- XXX this step does not match XHR1 -->
    
-   <li><p>If <var>async</var> is <code>true</code> and one or more event
-   listeners are registered on the object returned by the
-   <code>upload</code> attribute set the <span>upload events flag</span> to
-   true. Otherwise, set the <span>upload events flag</span> to
-   false.</p></li>
-
-   <li><p>Set the <span>error flag</span> to false.</p></li>
-
-   <li>
-    <p>Synchronously <span>dispatch a <code>readystatechange</code>
-    event</span> on the object.</p>
-
-    <p class="note">The state of the object does not change. The event is
-    dispatched for historical reasons.</p>
-   </li>
-
-   <li>
     <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
     act as if the <var>data</var> argument is <code>null</code>.</p>
 
@@ -951,8 +941,13 @@ X-Test: one, two
 
     <dl class="switch">
      <dt><var>data</var> is a <code>ByteArray</code></dt>
-     <dd><p>Use <var>data</var> literally for transmission.</p></dd>
-    
+     <dd>
+      <p class="XXX">This will be done in terms of the File API in due
+      course.</p>
+
+      <p>Use <var>data</var> literally for transmission.</p>
+     </dd>
+
      <dt><var>data</var> is a <code>DOMString</code></dt>
      <dd><p>Encode <var>data</var> using UTF-8 for transmission.</p></dd>
 
@@ -974,7 +969,7 @@ X-Test: one, two
       request header with a value of
       <code>application/xml;charset=<var>charset</var></code> where
       <var>charset</var> is the encoding used to encode the document.</p>
-      
+
       <p class="note">Subsequent changes to the <code>Document</code> have
       no effect on what is submitted.</p>
      </dd>
@@ -990,155 +985,169 @@ X-Test: one, two
     <p>If the <var>data</var> argument has been omitted, or is
     <code>null</code>, no entity body is used in the request.</p>
    </li>
-   
+
+   <li><p>If the <span>asynchronous flag</span> is false release the
+   <span>storage mutex</span>.</p></li>
+
+   <li><p>If the <span>asynchronous flag</span> is true and one or more
+   event listeners are registered on the <code>XMLHttpRequestUpload</code>
+   object set the <span>upload events flag</span> to true. Otherwise, set
+   the <span>upload events flag</span> to false.</p></li>
+
+   <li><p>Set the <span>error flag</span> to false.</p></li>
+
    <li><p>Set the <span>upload complete flag</span> to true if there is no
-   request entity body or if the request entity is empty. Otherwise, set the
+   <span>request entity body</span> or if the
+   <span>request entity body</span> is empty. Otherwise, set the
    <span>upload complete flag</span> to false.</p></li>
 
-   <li><p>If <var>async</var> is <code>true</code> synchronously
-   <span>dispatch a progress event</span> called <code>loadstart</code> on
-   the object.</p></li>
-
-   <li><p>If <var>async</var> is <code>true</code> and the request entity
-   body is not empty <span>dispatch a progress event</span> called
-   <code>loadstart</code> on the object returned by the <code>upload</code>
-   attribute.</p></li>
-
-   <li><p>If <var>async</var> is <code>true</code> return the
-   <code>send()</code> method call. (Do not terminate the steps in the
-   algorithm though.)</p></li>
-
    <li>
-    <p>If the <span>current request URL</span> and the value of the
-    <code>baseURI</code> attribute of the
-    <span><code>Document</code> pointer</span> are <span>same origin</span>
-    this is a <dfn>same origin request</dfn>. Make a request to the
-    <span>current request URL</span> using HTTP method
-    <var>stored method</var>, user <var>stored user</var> (if provided),
-    password <var>stored password</var> (if provided), taking into account
-    the entity body, list of request headers and the rules listed directly
-    after this set of steps. <span>Make progress notifications</span>,
-    <span>make upload progress notifications</span>, and follow the list of
-    request rules:</p>
-
-    <dl class="switch">
-     <dt>If the response is an HTTP redirect</dt>
-     <dd>
-      <p>If the redirect violates security or infinite loop precautions or
-      the scheme is not supported this is a <span>network error</span>.</p>
-
-      <p>Otherwise, run the following set of steps:</p>
-
-      <ol>
-       <li><p>Set the <span>current request URL</span> to the new
-       location.</p></li>
-
-       <li><p>If the <span>current request URL</span> and the value of the
-       <code>baseURI</code> attribute of the
-       <span><code>Document</code> pointer</span> are
-       <span>same origin</span> follow the redirect while observing the
-       request rules for <span title="same-origin request">same origin
-       requests</span>.</p></li>
-
-       <li><p>Otherwise, follow the steps for a
-       <span>non same origin request</span> terminating this one.</p></li>
-      </ol>
-
-      <p class="note">HTTP places requirements on the user agent regarding the
-      preservation of the request method and entity body during redirects, and
-      also requires users to be notified of certain kinds of automatic
-      redirections.</p>
-      <!-- Arguably HTTP should be fixed for the latter case. No browser
-      follows that as far as I know. -->
-     </dd>
-
-     <dt>If the user cancels the download</dt>
-
-     <dd><p>This is an <span>abort error</span>.</p></dd>
-
-
-     <dt>If there is a network error</dt>
-
-     <dd>
-      <p>In case of DNS errors, TLS negotiation failure, or other type of
-      network errors, this is a <span>network error</span>. Do not request
-      any kind of user interaction.
-     
-      <p class="note">This does not include HTTP responses that indicate
-      some type of error, such as HTTP status code 410.</p>
-     </dd>
-
-     <dt>Once all HTTP headers have been received</dt>
-     <dd><p><span>Switch to the HEADERS_RECEIVED state</span>.</p></dd>
-
-     <dt>Once the first byte (or more) of the response entity body has been
-     received</dt>
-     <dt>If there is no response entity body</dt>
-
-     <dd><p><span>Switch to the LOADING state</span> and once the complete
-     resource has been downloaded go to the next step.</p></dd>
-    </dl>
-
-    <p>Otherwise, if it is non same origin this is a <dfn>non same origin
-    request</dfn>. Make a <span>cross-origin request</span>, passing these
-    as parameters:</p>
-
-    <ul>
-     <li>The <span>current request URL</span>.
-     <li>The <var>stored method</var>.
-     <li>The list of request headers.
-     <li>The entity body.
-     <li>The <span>origin</span> of the object hold by the
-     <span><code>Document</code> pointer</span>.</li>
-     <li>The <span>credentials flag</span>.</li>
-     <li>The <span>upload events flag</span>. <span class="note">If this flag is true it will force a preflight request.</span></li>
-    </ul>
-
-    <p>Handle the returned <span>status flag</span> as described below.</p>
-
-    <p class="note">The <var>stored user</var> and <var>stored
-    password</var> variables are always ignored as part of a non same origin
-    request as including them would allow a site to perform a distributed
-    password search. However, user agents will include credentials in the
-    request (if the user has any) as required elsewhere.</p>
-
-    <p>Also, <span>make upload progress notifications</span>, though only if
-    a preflight request was made.</p>
-    <!-- XXX more formal? -->
-
-    <dl>
-     <dt><span>status flag</span> is <i>network</i></dt>
-     <dd><p>This is a <span>network error</span>.</p></dd>
-
-     <dt><span>status flag</span> is <i title="">abort</i></dt>
-     <dd><p>This is an <span>abort error</span>.</p></dd>
-
-     <dt><span>status flag</span> is <i>success</i></dt>
-     <dd><p><span>Switch to the HEADERS_RECEIVED state</span>,
-     <span>make progress notifications</span>, and
-     <span>switch to the LOADING state</span> once the first byte (or more)
-     of the response entity body has been received or if there is no
-     response entity body. Once the resource has been received completely go
-     to the next step.</p></dd>
-    </dl>
-   </li>
-
-   <li>
-    <p>When the request has successfully completed loading, run the
-    following steps:</p>
+    <p>If the <span>asynchronous flag</span> is true run these substeps:</p>
 
     <ol>
-     <li><p>Synchronously switch the state to
-     <span title="DONE state">DONE</span>.</p></li>
+     <li><p>Set the <span><code>send()</code> flag</span> to true.</p></li>
 
-     <li><p>Synchronously <span>dispatch a <code>readystatechange</code>
-     event</span> on the object.</p></li>
+     <li>
+      <p><span>Dispatch a <code>readystatechange</code> event</span>.</p>
 
-     <li><p>Synchronously <span>dispatch a progress event</span> called
-     <code>load</code> on the object.</p></li>
+      <p class="note">The state does not change. The event is dispatched for
+      historical reasons.</p>
+     </li>
+
+     <li><p><span>Dispatch a progress event</span> called <code>loadstart</code>.</p></li>
+
+     <li><p>If the <span>upload complete flag</span> is false
+     <span>dispatch a progress event</span> called <code>loadstart</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+
+     <li><p>Return the <code>send()</code> method call, but continue running
+     the steps in this algorithm.</p></li>
     </ol>
    </li>
+
+   <li>
+    <dl class="switch">
+     <dt>If the <span><code>XMLHttpRequest</code> origin</span> and the
+     <span>request URL</span> are <span>same origin</span></dt>
+
+     <dd>
+      <p>These are the <dfn>same-origin request steps</dfn>.</p>
+
+      <p>Make a request to <span>request URL</span>, using HTTP method
+      <span>request method</span>, user <span>request username</span> (if
+      non-null) and password <span>request password</span> (if non-null),
+      taking into account the <span>request entity body</span>, list of
+      <span>author request headers</span> and the rules listed at the end of
+      this section.</p>
+
+      <p>If there are cookies to be set, run the
+      <span>cookie steps</span>.</p>
+
+      <dl class="switch">
+       <dt>If the <span>asynchronous flag</span> is false</dt>
+       <dd>
+        <p>While making the request also follow the
+        <span>same-origin request event rules</span>.</p>
+
+        <!--
+         This cannot involve any task queue whatsoever because that would
+         mean other tasks on the task queue might get processed as well
+         which is counter to the whole idea of doing things synchronous.
+        -->
+
+        <p class="note">The <code>send()</code> method call will now be
+        returned by virtue of this algorithm ending.</p>
+       </dd>
+
+       <dt>If the <span>asynchronous flag</span> is true</dt>
+       <dd>
+        <p><span>Make progress notifications</span>.</p>
+
+        <p><span>Make upload progress notifications</span>.</p>
+
+        <p>While processing the request, as data becomes available and when
+        the user interferes with the request,
+        <span title="queue a task">queue tasks</span> to follow the
+        <span>same-origin request event rules</span> using the
+        <span><code>XMLHttpRequest</code> networking task source</span> as
+        <span>task source</span>.</p>
+       </dd>
+      </dl>
+     </dd>
+
+     <dt>Otherwise</dt>
+     <dd>
+      <p>These are the <dfn>cross-origin request steps</dfn>.</p>
+
+      <p>Make a <span>cross-origin request</span>, passing these as
+      parameters:</p>
+
+      <dl>
+       <dt>request URL</dt>
+       <dd>The <span>request URL</span>.</dd>
+
+       <dt>request method</dt>
+       <dd>The <span>request method</span>.</dd>
+
+       <dt>custom request headers</dt>
+       <dd>The list of <span>author request headers</span>.</dd>
+
+       <dt>request entity body</dt>
+       <dd>The <span>request entity body</span>.</dd>
+
+       <dt>source origin</dt>
+       <dd>The <span><code>XMLHttpRequest</code> origin</span>.</dd>
+
+       <dt>credentials flag</dt>
+       <dd>The <span>credentials flag</span>.</dd>
+
+       <dt>force preflight flag</dt>
+       <dd>The <span>upload events flag</span>.</dd>
+      </dl>
+
+      <p class="note"><span>Request username</span> and
+      <span>request password</span> are always ignored as part of a
+      <span>cross-origin request</span>; including them would allow a site
+      to perform a distributed password search. However, user agents will
+      include credentials in the request (if the user has any) as required
+      elsewhere.</p>
+
+      <p>If there are cookies to be set, run the
+      <span>cookie steps</span>.</p>
+
+      <dl class="switch">
+       <dt>If the <span>asynchronous flag</span> is false</dt>
+       <dd>
+        <p>While making the request also follow the
+        <span>cross-origin request event rules</span>.</p>
+
+        <!--
+         This cannot involve any task queue whatsoever because that would
+         mean other tasks on the task queue might get processed as well
+         which is counter to the whole idea of doing things synchronous.
+        -->
+
+        <p class="note">The <code>send()</code> method call will now be
+        returned by virtue of this algorithm ending.</p>
+
+       </dd>
+
+       <dt>If the <span>asynchronous flag</span> is true</dt>
+       <dd>
+        <p>While processing the request, as data becomes available and when
+        the user interferes with the request,
+        <span title="queue a task">queue tasks</span> to follow the
+        <span>cross-origin request event rules</span> using the
+        <span><code>XMLHttpRequest</code> networking task source</span> as
+        <span>task source</span>.</p>
+       </dd>
+      </dl>
+     </dd>
+    </dl>
+   </li>
   </ol>
+
+  <hr>
 
   <p>If the user agent allows the user to configure a proxy it
   <em class="ct">should</em> modify the request appropriately; i.e., connect
@@ -1146,16 +1155,17 @@ X-Test: one, two
   <code>Request-Line</code> and send <code>Proxy-Authorization</code>
   headers as specified.</p>
 
-  <p>If the user agent supports HTTP Authentication it
-  <em class="ct">should</em> consider requests originating from this object
+  <p>If the user agent supports HTTP Authentication and
+  <code>Authorization</code> is not in the list of
+  <span>author request headers</span>, it <em class="ct">should</em>
+  consider requests originating from the <code>XMLHttpRequest</code> object
   to be part of the protection space that includes the accessed URIs and
-  send <code>Authorization</code> headers and handle <code>401
-  Unauthorized</code> requests appropriately. If authentication fails,
-  <var>stored user</var> and <var>stored password</var> are not
-  provided, and the request is <span>same origin</span>, user agents
-  <em class="ct">should</em> prompt the users for credentials. If
-  authentication fails, and <var>stored user</var> and
-  <var>stored password</var> are provided, user agents
+  send <code>Authorization</code> headers and handle
+  <code>401 Unauthorized</code> requests appropriately. If authentication
+  fails, and <span>request username</var> and <span>request password</span>
+  are both null, user agents <em class="ct">should</em> prompt the user for
+  credentials. If authentication fails, and <span>request username</span>
+  and <span>request password</span> are provided, user agents
   <em class="ct">must not</em> prompt the user for credentials.
   [<cite><span>RFC2617</span></cite>]</p>
 
@@ -1168,7 +1178,7 @@ X-Test: one, two
   <em class="ct">should</em> persist, discard and send cookies (as received
   in the <code>Set-Cookie</code> and <code>Set-Cookie2</code> response
   headers, and sent in the <code>Cookie</code> header) as applicable.
-  [<cite><span>RFC2965</span></cite>]</p>
+  [<cite><span>COOKIES</span></cite>]</p>
 
   <p>If the user agent implements a HTTP cache it <em class="ct">should</em>
   respect <code>Cache-Control</code> request headers set by the
@@ -1177,7 +1187,7 @@ X-Test: one, two
   <code>Cache-Control</code> or <code>Pragma</code> request headers
   automatically unless the user explicitly requests such behavior
   (<abbr>e.g.</abbr>, by (force-)reloading the page).</p>
-  
+
   <p>For <code>304 Not
   Modified</code> responses that are a result of a user agent generated
   conditional request the user agent <em class="ct">must</em> act as if the
@@ -1206,20 +1216,352 @@ X-Test: one, two
   a reasonably predictable API.</p>
 
 
-  <h4>Aborting a Request</h4>
+  <h4>Infrastructure for the <code title="">send()</code> method</h4>
 
-  <p>When the <dfn id="abort"><code>abort()</code></dfn> method is invoked,
-  the user agent <em class="ct">must</em> act as if it had run the following
-  steps (unless otherwise noted):</p>
+  <p>The <dfn>cookie steps</dfn> are as follows:</p>
 
   <ol>
-   <li><p><span title="abort send()">Abort the <code>send()</code> algorithm</span>,
-   set the <span>response entity body</span> to null, the
-   <span>error flag</span> to true and empty the
-   <span>author request headers</span> list.</p></li>
+   <li><p>Wait until ownership of the <span>storage mutex</span> can be
+   taken.</p></li>
+
+   <li><p>Take ownership of the <span>storage mutex</span>.</p></li>
+
+   <li><p>Update the cookies. [<cite><span>COOKIES</span></cite>]</p></li>
+
+   <li><p>Release the <span>storage mutex</span> so that it is once again
+   free.</p></li>
+  </ol>
+
+  <hr>
+
+  <p>The <dfn>same-origin request event rules</dfn> are as follows:</p>
+
+  <dl class="switch">
+   <dt>If the response is an HTTP redirect</dt>
+   <dd>
+    <p>If the redirect violates security or infinite loop precautions or
+    the scheme is not supported this is a <span>network error</span>.</p>
+
+    <p>Otherwise, run these steps:</p>
+
+    <ol>
+     <li><p>Set the <span>request URL</span> to the <span>URL</span>
+     conveyed by the <code>Location</code> header.</p></li>
+
+     <li><p>If the <span><code>XMLHttpRequest</code> origin</span> and
+     <span>request URL</span> are <span>same origin</span> follow the
+     redirect while observing the
+     <span>same-origin request event rules</span>.</p></li>
+
+     <li><p>Otherwise, follow the <span>cross-origin request steps</span>
+     and terminate the steps for this algorithm.</p></li>
+    </ol>
+
+    <p class="note">HTTP places requirements on the user agent regarding the
+    preservation of the <span>request method</span> and
+    <span>request entity body</span> during redirects, and also requires
+    users to be notified of certain kinds of automatic redirections.</p>
+    <!-- XXX HTTP needs fixing here -->
+   </dd>
+
+   <dt>If the user cancels the download</dt>
+   <dd><p>This is an <span>abort error</span>.</p></dd>
+
+   <dt>In case of network errors</dt>
+   <dd>
+    <p>In case of DNS errors, TLS negotiation failure, or other type of
+    network errors, this is a <span>network error</span>. Do not request any
+    kind of user interaction.</p>
+
+    <p class="note">This does not include HTTP responses that indicate
+    some type of error, such as HTTP status code 410.</p>
+   </dd>
+
+   <dt>Once all HTTP headers have been received and the
+   <span>asynchronous flag</span> is true</dt>
+   <dd><p><span>Switch to the HEADERS_RECEIVED state</span>.</p></dd>
+
+   <dt>Once the first byte (or more) of the
+   <span>response entity body</span> has been received and the
+   <span>asynchronous flag</span> is true</dt>
+   <dt>If there is no <span>response entity body</span> and the
+   <span>asynchronous flag</span> is true</dt>
+   <dd><p><span>Switch to the LOADING state</span>.</p></dd>
+   
+   <dt>Once the whole <span>response entity body</span> has been
+   received</dt>
+   <dt>If there is no <span>response entity body</span> and the
+   <span>asynchronous flag</span> is false or the state is
+   <span title="LOADING state">LOADING</span></dt>
+   <dd><p><span>Switch to the DONE state</span>.</p></dd>
+  </dl>
+
+  <hr>
+
+  <p>The <dfn>cross-origin request event rules</dfn> are as follows:</p>
+
+  <dl class="switch">
+   <dt>If the <span>cross-origin request status</span> is
+   <i>preflight complete</i></dt>
+   <dd><p><span>Make upload progress notifications</span>.</p></dd>
+
+   <dt>If the <span>cross-origin request status</span> is
+   <i title="">network error</i></dt>
+   <dd><p>This is a <span>network error</span>.</p></dd>
+
+   <dt>If the <span>cross-origin request status</span> is
+   <i title="">abort error</i></dt>
+   <dd><p>This is an <span>abort error</span>.</p></dd>
+
+   <dt>Once all HTTP headers have been received, the
+   <span>cross-origin request status</span> is <i>success</i>, and the
+   <span>asynchronous flag</span> is true</dt>
+   <dd>
+    <p><span>Switch to the HEADERS_RECEIVED state</span>.</p>
+
+    <p><span>Make progress notifications</span>.</p>
+   </dd>
+
+   <dt>Once the first byte (or more) of the
+   <span>response entity body</span> has been received, the
+   <span>cross-origin request status</span> is <i>success</i>, and the
+   <span>asynchronous flag</span> is true</dt>
+   <dt>If there is no <span>response entity body</span>, the
+   <span>cross-origin request status</span> is <i>success</i>, and the
+   <span>asynchronous flag</span> is true</dt>
+   <dd><p><span>Switch to the LOADING state</span>.</p></dd>
+   
+   <dt>Once the whole <span>response entity body</span> has been received
+   and the <span>cross-origin request status</span> is <i>success</i></dt>
+   <dt>If there is no <span>response entity body</span>, the
+   <span>cross-origin request status</span> is <i>success</i>, and the 
+   <span>asynchronous flag</span> is false or the state is
+   <span title="LOADING state">LOADING</span></dt>
+   <dd><p><span>Switch to the DONE state</span>.</p></dd>   
+  </dl>
+
+  <hr>
+
+  <p>When something is said to be a <dfn>network error</dfn> run these
+  steps:</p>
+
+  <ol>
+   <li><p>Set the <span>response entity body</span> to null.</p></li>
+
+   <li><p>Set the the <span>error flag</span> to true.</p></li>
+
+   <li><p>Empty the list of <span>author request headers</span>.</p></li>
+
+   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
+
+   <li><p>If the <span>asynchronous flag</span> is false raise a
+   <code>NETWORK_ERR</code> exception and terminate the overall set of
+   steps.</p></li>
+
+   <li>
+    <p><span>Queue a task</span> to <span>dispatch a <code>readystatechange</code> event</span>.</p>
+
+    <p class="note">At this point it is clear that the
+    <span>asynchronous flag</span> is true.</p>
+   </li>
+
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>error</code>.</p></li>
+
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
+
+   <li>
+    <p>If the <span>upload complete flag</span> is false, follow these
+    substeps:</p>
+
+    <ol>
+     <li><p>Set the <span>upload complete flag</span> to true.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>error</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>loadend</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+    </ol>
+   </li>
+
+   <li><p>Terminate the overall algorithm.</p></li>
+  </ol>
+
+  <hr>
+
+  <p>When something is said to be an <dfn>abort error</dfn> run these
+  steps:</p>
+
+  <ol>
+   <li><p>Set the <span>response entity body</span> to null.</p></li>
+
+   <li><p>Set the the <span>error flag</span> to true.</p></li>
+
+   <li><p>Empty the list of <span>author request headers</span>.</p></li>
+
+   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
+
+   <li><p>If the <span>asynchronous flag</span> is false raise a
+   <code>ABORT_ERR</code> exception and terminate the overall set of
+   steps.</p></li>
+
+   <li>
+    <p><span>Queue a task</span> to <span>dispatch a <code>readystatechange</code> event</span>.</p>
+
+    <p class="note">At this point it is clear that the
+    <span>asynchronous flag</span> is true.</p>
+   </li>
+
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code title="abort-event">abort</code>.</p></li>
+
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
+
+   <li>
+    <p>If the <span>upload complete flag</span> is false, follow these
+    substeps:</p>
+
+    <ol>
+     <li><p>Set the <span>upload complete flag</span> to true.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code title="abort-event">abort</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>loadend</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+    </ol>
+   </li>
+
+   <li><p>Terminate the overall algorithm.</p></li>
+  </ol>
+
+  <hr>
+
+  <p>When it is said to
+  <dfn id="switch-headers-received">switch to the HEADERS_RECEIVED state</dfn>
+  run these steps:</p>
+
+  <ol>
+   <li><p>Switch the state to <span title="HEADERS_RECEIVED state">HEADERS_RECEIVED</span>.</p></li>
+
+   <li><p><span>Queue a task</span> to
+   <span>dispatch a <code>readystatechange</code> event</span>.</p></li>
+  </ol>
+
+  <hr>
+
+  <p>When it is said to
+  <dfn id="switch-loading">switch to the LOADING state</dfn> run these
+  steps:</p>
+
+  <ol>
+   <li><p>Switch the state to <span title="LOADING state">LOADING</span>.</p></li>
+
+   <li><p><span>Queue a task</span> to
+   <span>dispatch a <code>readystatechange</code> event</span>.</p></li>
+  </ol>
+
+  <hr>
+
+  <p>When it is said to
+  <dfn id="switch-done">switch to the DONE state</dfn> run these steps:</p>
+
+  <ol>
+   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
+
+   <li>
+    <p>If the <span>asynchronous flag</span> is false run these
+    substeps:</p>
+   
+    <ol>
+     <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
+
+     <li><p><span>Dispatch a progress event</span> called <code>load</code>.</p></li>
+
+     <li><p><span>Dispatch a progress event</span> called <code>loadend</code>.</p></li>
+    </ol>
+   </li>
+
+   <li>
+    <p>If the <span>asynchronous flag</span> is true run these
+    substeps:</p>
+   
+    <ol>
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a <code>readystatechange</code> event</span>.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>load</code>.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
+    </ol>
+   </li>
+  </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn>make progress notifications</dfn>, while the
+  download is progressing, <span>queue a task</span> to
+  <span>dispatch a progress event</span> called <code>progress</code>
+  about every 50ms or for every byte received, whichever is <em>least</em>
+  frequent.</p>
+
+  <hr>
+
+  <p>When it is said to <dfn>make upload progress notifications</dfn> run
+  these steps:</p>
+
+  <ul>
+   <li><p>While the request entity body is being uploaded and the
+   <span>upload complete flag</span> is false,
+   <span>queue a task</span> to
+   <span>dispatch a progress event</span> called <code>progress</code> at
+   the <code>XMLHttpRequestUpload</code> object about every 50ms or for
+   every byte transmitted, whichever is <em>least</em> frequent.</p></li>
+
+   <li>
+    <p>If the <span>request entity body</span> has been successfully
+    uploaded and the <span>upload complete flag</span> is still false, run
+    these substeps:</p>
+
+    <ol>
+     <li><p>Set the <span>upload complete flag</span> to true.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>load</code>
+     at the <code>XMLHttpRequestUpload</code> object.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>loadend</code>
+     at the <code>XMLHttpRequestUpload</code> object.</p></li>
+    </ol>
+   </li>
+  </ul>
+
+  <!-- XXX successfully uploaded? -->
+
+
+  <h4>The <code title="">abort()</code> method</h4>
+
+  <p>When the <dfn id="abort"><code>abort()</code></dfn> method is invoked,
+  the user agent <em class="ct">must</em> run these steps (unless otherwise
+  noted):</p>
+
+  <ol>
+   <li><p><span title="abort send()">Abort the <code>send()</code> algorithm</span>.</p></li>
 
    <li><p>The user agent <em class="ct">should</em> cancel any network
    activity for which the object is responsible.</p></li>
+
+   <li><p>Set the <span>response entity body</span> to null.</p></li>
+
+   <li><p>Set the <span>error flag</span> to true.</p></li>
+
+   <li><p>Empty the list of <span>author request headers</span>.</p></li>
 
    <li>
     <p>If the state is <span title="UNSENT state">UNSENT</span>,
@@ -1227,34 +1569,71 @@ X-Test: one, two
     <span><code>send()</code> flag</span> being false, or
     <span title="DONE state">DONE</span> go to the next step.</p>
 
-    <p>Otherwise, switch the state to <span title="DONE state">DONE</span>,
-    set the <span><code>send()</code> flag</span> to false and synchronously
-    dispatch a <code>readystatechange</code> event on the object.</p>
+    <p>Otherwise run these substeps:</p>
+
+    <ol>
+     <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
+
+     <li><p>Set the <span><code>send()</code> flag</span> to false.</p></li>
+
+     <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
+
+     <li><p><span>Dispatch a progress event</span> called <code title="abort-event">abort</code>.</p></li>
+
+     <li><p><span>Dispatch a progress event</span> called <code>loadend</code>.</p></li>
+
+     <li>
+      <p>If the <span>upload complete flag</span> is false run these
+      substeps:</p>
+
+      <ol>
+       <li><p>Set the <span>upload complete flag</span> to true.</p></li>
+
+       <li><p><span>Dispatch a progress event</span> called <code title="abort-event">abort</code>
+       on the <code>XMLHttpRequestUpload</code> object.</p></li>
+
+       <li><p><span>Dispatch a progress event</span> called <code>loadend</code>
+       on the <code>XMLHttpRequestUpload</code> object.</p></li>
+      </ol>
+     </li>
+    </ol>
    </li>
-   <!-- XXX dispatch -->
 
+   <li>
+    <p>Switch the state to <span title="UNSENT state">UNSENT</span>.</p>
 
-   <li><p>Switch the state to <span title="UNSENT state">UNSENT</span>. (Do
-   not dispatch a <code>readystatechange</code> event.)</p></li>
-   
-   <li><p>Synchronously <span>dispatch a progress event</span> called
-   <code title="abort-event">abort</code> on the object.</p></li>
-   
-   <li><p>If the <span>upload complete flag</span> is false, set the flag to
-   true and synchronously <span>dispatch a progress event</span> called
-   <code title="abort-event">abort</code> on the object returned by the
-   <code>upload</code> attribute.</p></li>
+    <p class="note">No <code>readystatechange</code> event is dispatched.</p>
+   </li>
   </ol>
 
 
-  <h3 id="response-metadata">Response Metadata</h3>
 
-  <p>The
-  <dfn id="getallresponseheaders"><code>getAllResponseHeaders()</code></dfn>
-  method provides access to all response headers as a single string. When
-  invoked, the user agent <em class="ct">must</em> act as if it had run the
-  following steps:</p>
+  <h3 id="response">Response</h3>
 
+
+  <h4>The <code title="">status</code> attribute</h4>
+
+  <p>The <dfn id="status"><code>status</code></dfn> attribute
+  <em class="ct">must</em> return the result of running these steps:</p>
+
+  <ol>
+   <li><p>If the state is <span title="UNSENT state">UNSENT</span> or
+   <span title="OPENED state">OPENED</span> raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the <span>error flag</span> is true return <code>0</code> and
+   terminate these steps.</p></li>
+   
+   <li><p>Return the HTTP status code.</p></li>
+  </ol> 
+
+
+  <h4>The <code title="">statusText</code> attribute</h4>
+
+  <p>The <dfn id="statustext"><code>statusText</code></dfn> attribute
+  <em class="ct">must</em> return the result of running these steps:</p>
+  
   <ol>
    <li><p>If the state is <span title="UNSENT state">UNSENT</span> or
    <span title="OPENED state">OPENED</span> raise an
@@ -1263,46 +1642,16 @@ X-Test: one, two
 
    <li><p>If the <span>error flag</span> is true return the empty string and
    terminate these steps.</p></li>
-
-   <li><p>Return all the HTTP headers, excluding headers that are an
-   <span>ASCII case-insensitive</span> match for <code>Set-Cookie</code> or
-   <code>Set-Cookie2</code>, as a single string, with each header line
-   separated by a U+000D CR U+000A LF pair excluding the status line, and
-   with each header name and header value separated by a
-   U+003A COLON U+0020 SPACE pair.</p></li>
+   
+   <li><p>Return the HTTP status text.</p></li>
   </ol>
 
-  <div class="example">
-   <pre><code>// The following script:
-var client = new XMLHttpRequest();
-client.open("GET", "test.txt", true);
-client.send();
-client.onreadystatechange = function() {
- if(this.readyState == 2) {
-  print(this.getAllResponseHeaders());
- }
-}
 
-// ...should output something similar to the following text:
-Date: Sun, 24 Oct 2004 04:58:38 GMT
-Server: Apache/1.3.31 (Unix)
-Keep-Alive: timeout=15, max=99
-Connection: Keep-Alive
-Transfer-Encoding: chunked
-Content-Type: text/plain; charset=utf-8</code></pre>
-  </div>
+  <h4>The <code title="">getResponseHeader()</code> method</h4>
 
-  <p class="note">The Cross-Origin Resource Sharing specification filters
-  the headers that are exposed by <code>getAllResponseHeaders()</code> for
-  non <span>same-origin</span> requests.
-  [<cite><span>CORS</span></cite>]</p>
-
-
-  <p>The
+  <p>When the
   <dfn id="getresponseheader" title="getresponseheader"><code>getResponseHeader(<var>header</var>)</code></dfn>
-  method returns the value of a response header given by the
-  <var>header</var> argument. When invoked, the user agent
-  <em class="ct">must</em> act as if it had run the following steps:</p>
+  is invoked, the user agent <em class="ct">must</em> run these steps:</p>
 
   <ol>
    <li><p>If the state is <span title="UNSENT state">UNSENT</span> or
@@ -1352,30 +1701,62 @@ client.onreadystatechange = function() {
 // ...should output something similar to the following text:
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
-  
-  <p>The <dfn id="status"><code>status</code></dfn> attribute, on getting
-  and if available, <em class="ct">must</em> return the HTTP status code
-  sent by the server (typically <code>200</code> for a successful request).
-  If not available, the user agent <em class="ct">must</em> raise
-  an <code>INVALID_STATE_ERR</code> exception.</p>
-
-  <p>The <dfn id="statustext"><code>statusText</code></dfn> attribute, on
-  getting and if available, <em class="ct">must</em> return the HTTP status
-  text sent by the server (appears after the status code). If not
-  available (request is not initiated for instance), the user agent
-  <em class="ct">must</em> raise an <code>INVALID_STATE_ERR</code>
-  exception.</p>
 
 
-  <h3 id="response-body">Response Body</h3>
-  
-  <p>The following subsection defines various variables and algorithms
-  important to the response body. The subsection after that defines the
-  members of the <code>XMLHttpRequest</code> object relevant to the response
-  body.</p>
-  
-  <h4>Definitions</h4>
-  
+  <h4>The <code title="">getAllResponseHeaders()</code> method</h4>
+
+  <p>When the
+  <dfn id="getallresponseheaders"><code>getAllResponseHeaders()</code></dfn>
+  method is invoked, the user agent <em class="ct">must</em> run the
+  following steps:</p>
+
+  <ol>
+   <li><p>If the state is <span title="UNSENT state">UNSENT</span> or
+   <span title="OPENED state">OPENED</span> raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the <span>error flag</span> is true return the empty string and
+   terminate these steps.</p></li>
+
+   <li><p>Return all the HTTP headers, excluding headers that are an
+   <span>ASCII case-insensitive</span> match for <code>Set-Cookie</code> or
+   <code>Set-Cookie2</code>, as a single string, with each header line
+   separated by a U+000D CR U+000A LF pair excluding the status line, and
+   with each header name and header value separated by a
+   U+003A COLON U+0020 SPACE pair.</p></li>
+  </ol>
+
+  <div class="example">
+   <pre><code>// The following script:
+var client = new XMLHttpRequest();
+client.open("GET", "test.txt", true);
+client.send();
+client.onreadystatechange = function() {
+ if(this.readyState == 2) {
+  print(this.getAllResponseHeaders());
+ }
+}
+
+// ...should output something similar to the following text:
+Date: Sun, 24 Oct 2004 04:58:38 GMT
+Server: Apache/1.3.31 (Unix)
+Keep-Alive: timeout=15, max=99
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+Content-Type: text/plain; charset=utf-8</code></pre>
+  </div>
+
+  <p class="note">The Cross-Origin Resource Sharing specification filters
+  the headers that are exposed by <code>getAllResponseHeaders()</code> for
+  non <span>same-origin</span> requests.
+  [<cite><span>CORS</span></cite>]</p>
+
+
+  <h4>Response Entity Body</h4>
+
+  <!-- XXX carefully study this -->
+
   <p>The <dfn id="response-mime-type">response MIME type</dfn> is the MIME
   type the <code>Content-Type</code> header contains without any
   parameters or null if the header could not be parsed properly or was
@@ -1409,7 +1790,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    terminate these steps.</p>
 
    <li><p>Let <var>charset</var> be the <span>final charset</span>.</p></li>
-   
+
    <li><p>Let <var>mime</var> be the <span>final MIME type</span>.</p></li>
 
    <li><p>If <var>charset</var> is null and <var>mime</var> is null,
@@ -1495,7 +1876,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     parser with scripting disabled and then terminate this algorithm.
     [<cite><span>HTML5</span></cite>]</p>
    </li>
-   
+
    <li>
     <p>Otherwise, let <var>document</var> be an object implementing the
     <code>Document</code> interface that represents the result of parsing
@@ -1517,41 +1898,48 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   </ol>
 
 
-  <h4>Response Body Members</h4>
+  <h4>The <code title="">overrideMimeType()</code> method</h4>
 
   <p>When the
   <dfn id="overridemimetype" title="overridemimetype"><code>overrideMimeType(<var>mime</var>)</code></dfn>
-  method is invoked, the user agent <em class="ct">must</em> act as if it
-  had run the following steps:</p>
-  
+  method is invoked, the user agent <em class="ct">must</em> run the
+  following steps:</p>
+
   <ol>
    <li><p>If parsing <var>mime</var> analogously to the value of the
    <code>Content-Type</code> headers fails raise a <code>SYNTAX_ERR</code>
    exception and abort this algorithm.</p></li>
-   
+
    <li><p>If a MIME type (without any parameters) is successfully parsed set
    <span>override MIME type</span> to that MIME type.</p></li>
-   
+
    <li><p>If a <code>charset</code> parameter is successfully parsed set
    <span>override charset</span> to its value.</p></li>
   </ol>
 
 
+  <h4>The <code title="">responseBody</code> attribute</h4>
+
+  <p class="XXX">This will be done in terms of the File API in due
+  course.</p>
+
   <p>The <dfn id="responsebody"><code>responseBody</code></dfn> attribute,
   on getting, <em class="ct">must</em> return the result of running the
   following steps:</p>
-  
+
   <ol>
    <li><p>If the state is not <span title="LOADING state">LOADING</span> or
    <span title="DONE state">DONE</span> raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
-   
+
    <li><p>Return a <code>ByteArray</code> object representing the
    <span>response entity body</span> or return <code>null</code> if the
    response entity body is null.</p></li>
   </ol>
 
+
+  <h4>The <code title="">responseText</code> attribute</h4>
 
   <p>The <dfn id="responsetext"><code>responseText</code></dfn> attribute,
   on getting, <em class="ct">must</em> return the result of running the
@@ -1566,6 +1954,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   </ol>
 
 
+  <h4>The <code title="">responseXML</code> attribute</h4>
+
   <p>The <dfn id="responsexml"><code>responseXML</code></dfn> attribute, on
   getting, <em class="ct">must</em> return the result of running the
   following steps:</p>
@@ -1576,7 +1966,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <li><p>Return the <span>document response entity body</span>.</p></li>
   </ol>
-  
+
   <p class="note">The <code>responseXML</code> attribute has XML in its name
   for historical reasons. It also returns documents created using an HTML
   parser.</p>
@@ -1586,7 +1976,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <p>The following events are dispatched on <code>XMLHttpRequest</code>
   and/or <code>XMLHttpRequestUpload</code> objects:</p>
-  
+
   <table>
    <thead>
     <tr>
@@ -1596,6 +1986,22 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     </tr>
    </thead>
    <tbody>
+    <tr>
+     <td><dfn id="readystatechange-event"><code>readystatechange</code></dfn></td>
+     <td><code>Event</code></td>
+     <td>The <code>readyState</code> attribute changes and at some seemingly
+     arbitrary times for historical reasons.</td>
+    </tr>
+    <tr>
+     <td><dfn id="loadstart-event"><code>loadstart</code></dfn></td>
+     <td><code>ProgressEvent</code></td>
+     <td>When the request starts.</td>
+    </tr>
+    <tr>
+     <td><dfn id="progress-event"><code>progress</code></dfn></td>
+     <td><code>ProgressEvent</code></td>
+     <td>While loading and sending data.</td>
+    </tr>
     <tr>
      <td><dfn id="abort-event" title="abort-event"><code>abort</code></dfn></td>
      <td><code>ProgressEvent</code></td>
@@ -1613,21 +2019,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <td>When the request has successfully completed.</td>
     </tr>
     <tr>
-     <td><dfn id="loadstart-event"><code>loadstart</code></dfn></td>
+     <td><dfn id="loadend-event"><code>loadend</code></dfn></td>
      <td><code>ProgressEvent</code></td>
-     <td>When the request starts.</td>
-    </tr>
-    <tr>
-     <td><dfn id="progress-event"><code>progress</code></dfn></td>
-     <td><code>ProgressEvent</code></td>
-     <td>While loading and sending data.</td>
-    </tr>
-    <tr>
-     <td><dfn id="readystatechange-event"><code>readystatechange</code></dfn></td>
-     <td><code>Event</code></td>
-     <td>The <code>readyState</code> attribute changes and at some seemingly
-     arbitrary times for historical reasons.</td>
-    </tr>
+     <td>When the request has completed (either in success or failure).</td>
    </tbody>
   </table>
 
@@ -1640,7 +2034,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   which is defined in DOM Level 3 Core. In addition this specification
   extends the <code>ExceptionCode</code> group with several new
   constants as indicated below. [<cite><span>DOM3Core</span></cite>]</p>
-  
+
   <p class="note">Thus, exceptions used by this specification and not
   defined in this section are defined by DOM Level 3 Core.</p>
 
@@ -1660,7 +2054,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
 
   <p>The <dfn id="abort-err"><code>ABORT_ERR</code></dfn> exception is
   raised when the user aborts a request in synchronous requests.</p>
-  
+
   <p class="note">These exceptions might be folded into an update of
   DOM Level 3 Core in due course, as they are appropriate for other API
   specifications as well.</p>
@@ -1668,11 +2062,20 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
 
   <h2 class="no-num" id="references">References</h2>
 
-  <!--
-  <p>Unless marked "Non-normative" these references are normative.
-  -->
+  <p>Unless marked "Non-normative" these references are normative.</p>
 
   <dl>
+   <dt>[<dfn id="ref-cookies=">COOKIES</dfn>]</dt>
+   <dd><cite><a href="http://ietf.org/rfc/rfc2109">HTTP State Management
+   Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, February
+   1997.</dd>
+   <dd><cite><a href="http://ietf.org/rfc/rfc2965">HTTP State Management
+   Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, October
+   2000.</dd>
+
+   <!-- XXX These specs do not match reality. Also, the latter obsoletes the
+   former -->
+
    <dt>[<dfn id="ref-cors">CORS</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/waf/access-control/">Cross-Origin
    Resource Sharing</a></cite> (work in progress), A. van Kesteren, editor.
@@ -1737,11 +2140,6 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    Hostetler, S. Lawrence, P. Leach, A. Luotonen, L. Stewart, editors. IETF,
    June 1999.</dd>
 
-   <dt>[<dfn id="ref-rfc2965">RFC2965</dfn>]</dt>
-   <dd><cite><a href="http://ietf.org/rfc/rfc2965">HTTP State Management
-   Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, October
-   2000.</dd>
-
    <dt>[<dfn id="ref-rfc3986">RFC3986</dfn>]</dt>
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource Identifier
    (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding, L. Masinter,
@@ -1765,6 +2163,8 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    editors. W3C, August 2006.</dd>
   </dl>
 
+
+
   <h2 class="no-num" id="acknowledgments">Acknowledgments</h2>
 
   <p>The editor would like to thank
@@ -1783,11 +2183,12 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
 
   for their contributions to this specification.</p>
 
-  <p>Thanks also to all who have contributed to The
-  <code>XMLHttpRequest</code> Object specification.</p>
+  <p>Thanks also to all who have contributed to the
+  <code title="">XMLHttpRequest</code> specification.</p>
 
   <p>Thanks also to all those who have helped to improve this specification
   by sending suggestions and corrections. (Please, keep bugging us with your
   issues!)</p>
  </body>
 </html>
+

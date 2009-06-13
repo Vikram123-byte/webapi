@@ -1,9 +1,4 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- XXXX
- * response member values in case of non same-origin
- * merging better XMLHttpRequest Level 1 definitions
- * fixing request stuff
--->
 
 <html lang=en-US>
  <head>
@@ -16,16 +11,20 @@
    div.example { margin-left:1em; padding-left:1em; border-left:double; color:#222; background:#fcfcfc }
    .note { margin-left:2em; font-weight:bold; font-style:italic; color:#008000 }
    p.note::before { content:"Note: " }
-   .issue { padding:.5em; border:solid #f00 }
-   p.issue::before { content:"Issue: " }
+   .XXX { padding:.5em; border:solid #f00 }
+   p.XXX::before { content:"Issue: " }
    dl.switch { padding-left:2em }
-   dl.switch dt { text-indent:-1.5em }
-   dl.switch dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
+   dl.switch > dt { text-indent:-1.5em }
+   dl.switch > dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
    em.ct { text-transform:lowercase; font-variant:small-caps; font-style:normal }
    dfn { font-weight:bold; font-style:normal }
    code { color:orangered }
    code :link, code :visited { color:inherit }
-   h1 code, h2 code, h3 code { color:inherit; background:inherit; font:inherit }
+   hr:not(.top) { display:block; background:none; border:none; padding:0; margin:2em 0; height:auto }
+   table { border-collapse:collapse; border-style:hidden hidden none hidden }
+   table thead { border-bottom:solid }
+   table tbody th:first-child { border-left:solid }
+   table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
   </style>
   <link href="http://www.w3.org/StyleSheets/TR/W3C-ED" rel=stylesheet>
 
@@ -37,13 +36,13 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 9 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 13 June 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090609/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090609/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090613/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090613/</a>
 
     <dt>Latest Version:
 
@@ -101,7 +100,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 9 June 2009 Working Draft of <code
+  <p>This is the 13 June 2009 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -158,46 +157,77 @@
       </span>Extensibility</a>
     </ul>
 
-   <li><a href="#xmlhttprequest"><span class=secno>3 </span>The <code
-    title="">XMLHttpRequest</code> Object</a>
+   <li><a href="#the-xmlhttprequest-interface"><span class=secno>3 </span>The
+    <code title="">XMLHttpRequest</code> Interface</a>
     <ul class=toc>
-     <li><a href="#constructor"><span class=secno>3.1 </span>Constructor</a>
+     <li><a href="#origin-and-base-url"><span class=secno>3.1 </span>Origin
+      and Base URL</a>
 
-     <li><a href="#event-handler-attributes"><span class=secno>3.2
+     <li><a href="#task-sources"><span class=secno>3.2 </span>Task
+      Sources</a>
+
+     <li><a href="#constructors"><span class=secno>3.3
+      </span>Constructors</a>
+
+     <li><a href="#event-handler-attributes"><span class=secno>3.4
       </span>Event Handler Attributes</a>
 
-     <li><a href="#ready-states"><span class=secno>3.3 </span>Ready
-      States</a>
+     <li><a href="#states"><span class=secno>3.5 </span>States</a>
 
-     <li><a href="#request-metadata"><span class=secno>3.4 </span>Request
-      Metadata</a>
-
-     <li><a href="#request"><span class=secno>3.5 </span>Request</a>
+     <li><a href="#request"><span class=secno>3.6 </span>Request</a>
       <ul class=toc>
-       <li><a href="#tracking-upload-progress"><span class=secno>3.5.1
-        </span>Tracking Upload Progress</a>
+       <li><a href="#the-open-method"><span class=secno>3.6.1 </span>The
+        <code title="">open()</code> method</a>
 
-       <li><a href="#request-variables-and-algorithms"><span
-        class=secno>3.5.2 </span>Request Variables and Algorithms</a>
+       <li><a href="#the-setrequestheader-method"><span class=secno>3.6.2
+        </span>The <code title="">setRequestHeader()</code> method</a>
 
-       <li><a href="#initiating-a-request"><span class=secno>3.5.3
-        </span>Initiating a Request</a>
+       <li><a href="#the-withcredentials-attribute"><span class=secno>3.6.3
+        </span>The <code title="">withCredentials</code> attribute</a>
 
-       <li><a href="#aborting-a-request"><span class=secno>3.5.4
-        </span>Aborting a Request</a>
+       <li><a href="#the-upload-attribute"><span class=secno>3.6.4 </span>The
+        <code title="">upload</code> attribute</a>
+
+       <li><a href="#the-send-method"><span class=secno>3.6.5 </span>The
+        <code title="">send()</code> method</a>
+
+       <li><a href="#infrastructure-for-the-send-method"><span
+        class=secno>3.6.6 </span>Infrastructure for the <code
+        title="">send()</code> method</a>
+
+       <li><a href="#the-abort-method"><span class=secno>3.6.7 </span>The
+        <code title="">abort()</code> method</a>
       </ul>
 
-     <li><a href="#response-metadata"><span class=secno>3.6 </span>Response
-      Metadata</a>
-
-     <li><a href="#response-body"><span class=secno>3.7 </span>Response
-      Body</a>
+     <li><a href="#response"><span class=secno>3.7 </span>Response</a>
       <ul class=toc>
-       <li><a href="#definitions"><span class=secno>3.7.1
-        </span>Definitions</a>
+       <li><a href="#the-status-attribute"><span class=secno>3.7.1 </span>The
+        <code title="">status</code> attribute</a>
 
-       <li><a href="#response-body-members"><span class=secno>3.7.2
-        </span>Response Body Members</a>
+       <li><a href="#the-statustext-attribute"><span class=secno>3.7.2
+        </span>The <code title="">statusText</code> attribute</a>
+
+       <li><a href="#the-getresponseheader-method"><span class=secno>3.7.3
+        </span>The <code title="">getResponseHeader()</code> method</a>
+
+       <li><a href="#the-getallresponseheaders-method"><span
+        class=secno>3.7.4 </span>The <code
+        title="">getAllResponseHeaders()</code> method</a>
+
+       <li><a href="#response-entity-body0"><span class=secno>3.7.5
+        </span>Response Entity Body</a>
+
+       <li><a href="#the-overridemimetype-method"><span class=secno>3.7.6
+        </span>The <code title="">overrideMimeType()</code> method</a>
+
+       <li><a href="#the-responsebody-attribute"><span class=secno>3.7.7
+        </span>The <code title="">responseBody</code> attribute</a>
+
+       <li><a href="#the-responsetext-attribute"><span class=secno>3.7.8
+        </span>The <code title="">responseText</code> attribute</a>
+
+       <li><a href="#the-responsexml-attribute"><span class=secno>3.7.9
+        </span>The <code title="">responseXML</code> attribute</a>
       </ul>
 
      <li><a href="#events"><span class=secno>3.8 </span>Events summary</a>
@@ -293,10 +323,11 @@
 
    <dt>Web IDL
 
-   <dd>A <a href="#conforming-user-agent">conforming user agent</a> <em
-    class=ct>must</em> also be a conforming implementation of the IDL
-    fragments in this specification, as described in the Web IDL
-    specification. [<cite><a href="#ref-webidl">WebIDL</a></cite>]
+   <dd>
+    <p>A <a href="#conforming-user-agent">conforming user agent</a> <em
+     class=ct>must</em> also be a conforming implementation of the IDL
+     fragments in this specification, as described in the Web IDL
+     specification. [<cite><a href="#ref-webidl">WebIDL</a></cite>]
 
    <dt>XML
 
@@ -309,14 +340,36 @@
 
   <h3 id=terminology><span class=secno>2.2 </span>Terminology</h3>
 
+  <p>Comparing two strings in a <dfn id=case-sensitive>case-sensitive</dfn>
+   manner means comparing them exactly, codepoint for codepoint.
+
+  <p>Comparing two strings in an <dfn id=ascii-case-insensitive>ASCII
+   case-insensitive</dfn> manner means comparing them exactly, codepoint for
+   codepoint, except that the characters in the range U+0041 .. U+005A (i.e.
+   LATIN CAPITAL LETTER A to LATIN CAPITAL LETTER Z) and the corresponding
+   characters in the range U+0061 .. U+007A (i.e. LATIN SMALL LETTER A to
+   LATIN SMALL LETTER Z) are considered to also match.
+
+  <p><dfn id=converted-to-ascii-upercase title="converted to ASCII
+   uppercase">Converting a string to ASCII uppercase</dfn> means replacing
+   all characters in the range U+0061 .. U+007A (i.e. LATIN SMALL LETTER A to
+   LATIN SMALL LETTER Z) with the corresponding characters in the range
+   U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to LATIN CAPITAL LETTER Z).
+
   <p>The terms and algorithms <dfn id=url-fragment>&lt;fragment></dfn>, <dfn
-   id=url-scheme>&lt;scheme></dfn>, <dfn id=ascii-case-insensitive>ASCII
-   case-insensitive</dfn>, <dfn id=uppercase title=uppercase>converting a
-   string to uppercase</dfn>, <dfn id=event-handler-attribute>event handler
-   DOM attribute</dfn>, <dfn id=url-base>base URL</dfn>, <dfn
-   id=origin>origin</dfn>, <dfn id=same-origin>same origin</dfn>, and <dfn
-   id=url-resolve>resolve a URL</dfn> are defined by the HTML&nbsp;5
-   specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
+   id=url-scheme>&lt;scheme></dfn>, <dfn id=document-base-url>document base
+   URL</dfn>, <dfn id=event-handler-attributes-0>event handler
+   attributes</dfn>, <dfn id=event-handler-event-type>event handler event
+   type</dfn>, <dfn id=fully-active>fully active</dfn>, <dfn
+   id=function><code>Function</code></dfn>, <dfn id=origin>origin</dfn>, <dfn
+   id=resolve-a-url>resolve a URL</dfn>, <dfn id=same-origin>same
+   origin</dfn>, <dfn id=storage-mutex>storage mutex</dfn>, <dfn
+   id=task>task</dfn>, <dfn id=task-source>task source</dfn>, <dfn
+   id=url>URL</dfn>, <dfn id=url-character-encoding>URL character
+   encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and <dfn
+   id=xml-fragment-serialization-algorithm>XML fragment serialization
+   algorithm</dfn> are defined by the HTML&nbsp;5 specification. [<cite><a
+   href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
    RFC 2616. <dfn id=method-token>Method token</dfn> is used as described in
@@ -325,56 +378,60 @@
    id=field-value><code>field-value</code></dfn> are used as described in
    section 4.2 of RFC 2616. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
-  <p>The terms <dfn id=status-flag>status flag</dfn> and <dfn
-   id=cross-origin-request>cross-origin request</dfn> are defined by the
-   Cross-Origin Resource Sharing specification. [<cite><a
+  <p><dfn id=userinfo><code>userinfo</code></dfn> is used as described in
+   section 3.2.1 of RFC 3986. [<cite><a
+   href="#ref-rfc3986">RFC3986</a></cite>]
+
+  <p>The terms <dfn id=cross-origin-request>cross-origin request</dfn> and
+   <dfn id=cross-origin-request-status>cross-origin request status </dfn> are
+   defined by the Cross-Origin Resource Sharing specification. [<cite><a
    href="#ref-cors">CORS</a></cite>]
 
   <p>To <dfn id=dispatch-readystatechange-event>dispatch a
    <code>readystatechange</code> event</dfn> means that an event with the
    name <code><a href="#readystatechange-event">readystatechange</a></code>,
    with no namespace, which does not bubble and is not cancelable, and which
-   uses the <code>Event</code> interface, <em class=ct>must</em> be
-   dispatched at the given object.
+   uses the <code>Event</code> interface, is to be dispatched at the <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object.
 
-  <p class=issue>To <dfn id=dispatch-progress-event title="dispatch a
-   progress event">dispatch a progress event called <var>e</var></dfn>
-   means&hellip; [<cite><a href="#ref-pe">PE</a></cite>]
+  <p class=XXX>To <dfn id=dispatch-progress-event title="dispatch a progress
+   event">dispatch a progress event called <var>e</var></dfn> means&hellip;
+   [<cite><a href="#ref-pe">PE</a></cite>]
 
   <h3 id=extensibility><span class=secno>2.3 </span>Extensibility</h3>
 
   <p>Extensions of the API defined by this specification are <em>strongly
    discouraged</em>. User agents, Working Groups and other interested parties
    should discuss extensions on a relevant public forum, preferably <a
-   href="mailto:public-webapi@w3.org">public-webapi@w3.org</a>.
+   href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>.
 
-  <h2 id=xmlhttprequest><span class=secno>3 </span>The <code
-   title="">XMLHttpRequest</code> Object</h2>
+  <h2 id=the-xmlhttprequest-interface><span class=secno>3 </span>The <code
+   title="">XMLHttpRequest</code> Interface</h2>
 
-  <p>The <code><a href="#xmlhttprequest-interface">XMLHttpRequest</a></code>
-   object can be used by scripts to programmatically connect to their
-   originating server via HTTP.
+  <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object can
+   be used by scripts to programmatically connect to servers via HTTP.
 
   <pre class=idl>[NoInterfaceObject]
-interface <dfn id=xmlhttprequesteventtarget-interface>XMLHttpRequestEventTarget</dfn> : EventTarget {
+interface <dfn id=xmlhttprequesteventtarget>XMLHttpRequestEventTarget</dfn> : EventTarget {
   // <a href="#event-handler-attributes">event handler attributes</a>
-           attribute EventListener <a href="#onabort">onabort</a>;
-           attribute EventListener <a href="#onerror">onerror</a>;
-           attribute EventListener <a href="#onload">onload</a>;
-           attribute EventListener <a href="#onloadstart">onloadstart</a>;
-           attribute EventListener <a href="#onprogress">onprogress</a>;
+           attribute <a href="#function">Function</a> <a href="#onloadstart">onloadstart</a>;
+           attribute <a href="#function">Function</a> <a href="#onprogress">onprogress</a>;
+           attribute <a href="#function">Function</a> <a href="#onabort">onabort</a>;
+           attribute <a href="#function">Function</a> <a href="#onerror">onerror</a>;
+           attribute <a href="#function">Function</a> <a href="#onload">onload</a>;
+           attribute <a href="#function">Function</a> <a href="#onloadend">onloadend</a>;
 };
 
-interface <dfn id=xmlhttprequestupload-interface>XMLHttpRequestUpload</dfn> : <a href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a> {
+interface <dfn id=xmlhttprequestupload>XMLHttpRequestUpload</dfn> : <a href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a> {
   // for future use
 };
 
-[Constructor]
-interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a> {
+[<a href="#xmlhttprequest-constructor" title="XMLHttpRequest constructor">Constructor</a>]
+interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a> {
   // <a href="#event-handler-attributes">event handler attributes</a>
-           attribute EventListener <a href="#onreadystatechange">onreadystatechange</a>;
+           attribute <a href="#function">Function</a> <a href="#onreadystatechange">onreadystatechange</a>;
 
-  // <a href="#ready-states">ready states</a>
+  // <a href="#states">states</a>
   const unsigned short <a href="#unsent-state" title="UNSENT state">UNSENT</a> = 0;
   const unsigned short <a href="#opened-state" title="OPENED state">OPENED</a> = 1;
   const unsigned short <a href="#headers-received-state" title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a> = 2;
@@ -382,144 +439,178 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
   const unsigned short <a href="#done-state" title="DONE state">DONE</a> = 4;
   readonly attribute unsigned short <a href="#readystate">readyState</a>;
 
-  // <a href="#request-metadata">request metadata</a>
-           attribute boolean <span>withCredentials</span>;
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
-  void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
-  
   // <a href="#request">request</a>
-  readonly attribute <a href="#xmlhttprequestupload-interface">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
+           attribute boolean <a href="#withcredentials">withCredentials</a>;
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>, in boolean <var>async</var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
+  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
+  void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  readonly attribute <a href="#xmlhttprequestupload">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
   void <a href="#send">send</a>();
   void <a href="#send">send</a>(in ByteArray <var>data</var>);
   void <a href="#send">send</a>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
   void <a href="#send">send</a>(in Document <var>data</var>);
   void <a href="#abort">abort</a>();
 
-  // <a href="#response-metadata">response metadata</a>
-  DOMString <a href="#getallresponseheaders">getAllResponseHeaders</a>();
-  DOMString <a href="#getresponseheader">getResponseHeader</a>(in DOMString <var>header</var>);
+  // <a href="#response">response</a>
   readonly attribute unsigned short <a href="#status">status</a>;
   readonly attribute DOMString <a href="#statustext">statusText</a>;
-  
-  // <a href="#response-body">response body</a>
+  DOMString <a href="#getresponseheader">getResponseHeader</a>(in DOMString <var>header</var>);
+  DOMString <a href="#getallresponseheaders">getAllResponseHeaders</a>();
   void <a href="#overridemimetype">overrideMimeType</a>(<var>mime</var>);
   readonly attribute ByteArray <a href="#responsebody">responseBody</a>;
   readonly attribute DOMString <a href="#responsetext">responseText</a>;
   readonly attribute Document <a href="#responsexml">responseXML</a>;
 };</pre>
 
-  <p>The <code>EventTarget</code> interface is defined by the DOM Level 2
-   Events specification. [<cite><a
-   href="#ref-dom2events">DOM2Events</a></cite>]
+  <h3 id=origin-and-base-url><span class=secno>3.1 </span>Origin and Base URL</h3>
 
-  <h3 id=constructor><span class=secno>3.1 </span>Constructor</h3>
-  <!-- new XMLHttpRequest(method, url, body, listener) -->
+  <p>Each <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object
+   has an associated <dfn
+   id=xmlhttprequest-origin><code>XMLHttpRequest</code> origin</dfn> and an
+   <dfn id=xmlhttprequest-base-url><code>XMLHttpRequest</code> base
+   URL</dfn>.
 
-  <p>Objects implementing the <code title="">Window</code> interface <em
-   class=ct>must</em> provide the following constructor: <code
-   title="">XMLHttpRequest()</code>.
+  <p>This specification defines their values when the global object is
+   represented by the <code>Window</code> object. When the <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object used in other
+   contexts their values will have to be defined as appropriate for that
+   context. That is considered to be out of scope for this specification.
 
-  <div class=example>
-   <p>In ECMAScript this can be used as follows:</p>
+  <hr>
 
-   <pre><code>var client = new XMLHttpRequest();</code></pre>
-  </div>
+  <p>In environments where the global object is represented by the
+   <code>Window</code> object the <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object has an associated
+   <dfn id=xmlhttprequest-document><code>XMLHttpRequest</code>
+   <code>Document</code></dfn> which is the <code>Document</code> object
+   associated with the <code>Window</code> object for which the <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> interface object was
+   created.
 
-  <p>When the <code title="">XMLHttpRequest()</code> constructor is invoked a
-   persistent pointer to the associated <code title="">Document</code> object
-   is stored on the newly created object. This is the <dfn
-   id=document-pointer title="Document pointer"><code>Document</code>
-   pointer</dfn>. The associated <code>Document</code> object is the one
-   returned by the <code>document</code> attribute from the object on which
-   the <code title="">XMLHttpRequest()</code> constructor was invoked (a
-   <code>Window</code> object). The pointer can become null if the object is
-   destroyed.
+  <p class=note>The <a
+   href="#xmlhttprequest-document"><code>XMLHttpRequest</code>
+   <code>Document</code></a> is used to determine the <a
+   href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a> and
+   <a href="#xmlhttprequest-base-url"><code>XMLHttpRequest</code> base
+   URL</a> at a later stage.</p>
+  <!-- XXX what happens if the document is not fully active?
+           e.g. should the constructor throw?
+  -->
 
-  <p class=note>As per the conformance criteria implementations are free to
-   implement this in any way they desire as long as the end results are
-   identical to those given by the English prose.
+  <h3 id=task-sources><span class=secno>3.2 </span>Task Sources</h3>
 
-  <div class=example>
-   <p>If <var><code>iframe</code></var> is a <code title="">Window</code>
-    object <var><code>client</code></var> will have a pointer to
-    <var><code>iframe.document</code></var> in the following example:</p>
+  <p>The following <a href="#task-source" title="task source">task
+   sources</a> are used by this specification:
 
-   <pre><code>var client = new iframe.XMLHttpRequest()</code></pre>
-  </div>
+  <dl>
+   <dt>The <dfn
+    id=xmlhttprequest-event-task-source><code>XMLHttpRequest</code> event
+    task source</dfn>
 
-  <p>The <a href="#origin">origin</a> of an <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> object is the
-   <a href="#origin">origin</a> of the associated <code>Document</code>
-   object returned by the <a href="#document-pointer"><code>Document</code>
-   pointer</a>.
+   <dd>This <a href="#task-source">task source</a> is used for events that
+    are to be asynchronously dispatched.
 
-  <h3 id=event-handler-attributes><span class=secno>3.2 </span>Event Handler
+   <dt>The <dfn
+    id=xmlhttprequest-networking-task-source><code>XMLHttpRequest</code>
+    networking task source</dfn>
+
+   <dd>This <a href="#task-source">task source</a> is used for network
+    activity.
+  </dl>
+
+  <p>Unless otherwise stated the <a href="#task-source">task source</a> used
+   for all tasks <a href="#queue-a-task" title="queue a task">queued</a> in
+   this specification is the <a
+   href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code> event
+   task source</a>.
+
+  <h3 id=constructors><span class=secno>3.3 </span>Constructors</h3>
+
+  <p>When the <dfn id=xmlhttprequest-constructor title="XMLHttpRequest
+   constructor"><code title="">XMLHttpRequest()</code></dfn> constructor is
+   invoked, the user agent <em class=ct>must</em> return a new <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object.
+
+  <h3 id=event-handler-attributes><span class=secno>3.4 </span>Event Handler
    Attributes</h3>
 
-  <p>The event handler attributes listed below <em class=ct>must</em> be
-   supported on objects implementing an interface that inherits from <code><a
-   href="#xmlhttprequesteventtarget-interface">XMLHttpRequestEventTarget</a></code>.
-   Event handler attributes are <a href="#event-handler-attribute"
-   title="event handler DOM attribute">event handler DOM attributes</a>.
+  <p>The following are the <a href="#event-handler-attributes-0">event
+   handler attributes</a> (and their corresponding <a
+   href="#event-handler-event-type" title="event handler event type">event
+   handler event types</a>) that <em class=ct>must</em> be supported on
+   objects implementing an interface that inherits from <code><a
+   href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a></code> as
+   DOM attributes:
 
-  <dl>
-   <dt><dfn id=onabort><code>onabort</code></dfn>
+  <table>
+   <thead>
+    <tr>
+     <th><a href="#event-handler-attributes-0" title="event handler
+      attributes">event handler attribute</a>
 
-   <dd>
-    <p><em class=ct>Must</em> be invoked whenever an <code
-     title=abort-event><a href="#abort-event">abort</a></code> event is
-     targeted at the object.
+     <th><a href="#event-handler-event-type">event handler event type</a>
 
-   <dt><dfn id=onerror><code>onerror</code></dfn>
+   <tbody>
+    <tr>
+     <td><dfn id=onloadstart><code>onloadstart</code></dfn>
 
-   <dd>
-    <p><em class=ct>Must</em> be invoked whenever an <code><a
-     href="#error-event">error</a></code> event is targeted at the object.
+     <td><code><a href="#loadstart-event">loadstart</a></code>
 
-   <dt><dfn id=onload><code>onload</code></dfn>
+    <tr>
+     <td><dfn id=onprogress><code>onprogress</code></dfn>
 
-   <dd>
-    <p><em class=ct>Must</em> be invoked whenever a <code><a
-     href="#load-event">load</a></code> event is targeted at the object.
+     <td><code><a href="#progress-event">progress</a></code>
 
-   <dt><dfn id=onloadstart><code>onloadstart</code></dfn>
+    <tr>
+     <td><dfn id=onabort><code>onabort</code></dfn>
 
-   <dd>
-    <p><em class=ct>Must</em> be invoked whenever a <code><a
-     href="#loadstart-event">loadstart</a></code> event is targeted at the
-     object.
+     <td><code title=abort-event><a href="#abort-event">abort</a></code>
 
-   <dt><dfn id=onprogress><code>onprogress</code></dfn>
+    <tr>
+     <td><dfn id=onerror><code>onerror</code></dfn>
 
-   <dd>
-    <p><em class=ct>Must</em> be invoked whenever a <code><a
-     href="#progress-event">progress</a></code> event is targeted at the
-     object.
-  </dl>
+     <td><code><a href="#error-event">error</a></code>
 
-  <p>The following event handler attribute <em class=ct>must</em> be
-   supported on objects implementing the <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> interface:
+    <tr>
+     <td><dfn id=onload><code>onload</code></dfn>
 
-  <dl>
-   <dt><dfn id=onreadystatechange><code>onreadystatechange</code></dfn>
+     <td><code><a href="#load-event">load</a></code>
 
-   <dd>
-    <p><em class=ct>Must</em> be invoked whenever a <code><a
-     href="#readystatechange-event">readystatechange</a></code> event is
-     targeted at the object.
-  </dl>
+    <tr>
+     <td><dfn id=onloadend><code>onloadend</code></dfn>
 
-  <h3 id=ready-states><span class=secno>3.3 </span>Ready States</h3>
+     <td><code><a href="#loadend-event">loadend</a></code>
+  </table>
 
-  <p>The <code><a href="#xmlhttprequest-interface">XMLHttpRequest</a></code>
-   object can be in several states. The <dfn
-   id=readystate><code>readyState</code></dfn> attribute, on getting, <em
-   class=ct>must</em> return the current state, which <em class=ct>must</em>
-   be one of the following values:
+  <p>The following is the <a href="#event-handler-attributes-0" title="event
+   handler attributes">event handler attribute</a> (and its corresponding <a
+   href="#event-handler-event-type">event handler event type</a>) that <em
+   class=ct>must</em> be supported as DOM attribute solely by the <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object:
+
+  <table>
+   <thead>
+    <tr>
+     <th><a href="#event-handler-attributes-0" title="event handler
+      attributes">event handler attribute</a>
+
+     <th><a href="#event-handler-event-type">event handler event type</a>
+
+   <tbody>
+    <tr>
+     <td><dfn id=onreadystatechange><code>onreadystatechange</code></dfn>
+
+     <td><code><a href="#readystatechange-event">readystatechange</a></code>
+  </table>
+
+  <h3 id=states><span class=secno>3.5 </span>States</h3>
+
+  <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object can
+   be in several states. The <dfn id=readystate><code>readyState</code></dfn>
+   attribute, on getting, <em class=ct>must</em> return the current state,
+   which <em class=ct>must</em> be one of the following values:
 
   <dl>
    <dt><dfn id=unsent-state title="UNSENT state"><code>UNSENT</code></dfn>
@@ -543,10 +634,7 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
    <dd>
     <p>All HTTP headers have been received. Several response members of the
-     object are now available.</p>
-
-    <p class=note>For non same origin requests the object will never be in
-     this state.</p>
+     object are now available.
 
    <dt><dfn id=loading-state title="LOADING state"><code>LOADING</code></dfn>
     (numeric value 3)
@@ -572,35 +660,110 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    network error or abortion. It can be either true or false and has an
    initial value of false.
 
-  <h3 id=request-metadata><span class=secno>3.4 </span>Request Metadata</h3>
+  <h3 id=request><span class=secno>3.6 </span>Request</h3>
 
-  <p>This section defines the various members of the <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> object that can
-   be used to initialize a network request.
+  <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object
+   holds the following request metadata variables:
+
+  <dl>
+   <dt>The <dfn id=asynchronous-flag>asynchronous flag</dfn>
+
+   <dd>A flag that is either true or false that indicates whether the request
+    is done asynchronously.
+
+   <dt>The <dfn id=request-method>request method</dfn>
+
+   <dd>The method used in the request.
+
+   <dt>The <dfn id=request-url>request URL</dfn>
+
+   <dd>The <a href="#url">URL</a> used in the request.
+
+   <dt>The <dfn id=request-username>request username</dfn>
+
+   <dd>The username used in the request or null if there is no username.
+
+   <dt>The <dfn id=request-password>request password</dfn>
+
+   <dd>The password used in the request or null if there is no password.
+
+   <dt>The <dfn id=author-request-headers>author request headers</dfn>
+
+   <dd>A list consisting of HTTP header name/value pairs to be used in the
+    request.
+
+   <dt>The <dfn id=request-entity-body>request entity body</dfn>
+
+   <dd>The <a href="#entity-body">entity body</a> used in the request.
+
+   <dt>The <dfn id=credentials-flag>credentials flag</dfn>
+
+   <dd>Indicates whether a cross-origin request will include cookie and HTTP
+    authentication data.
+
+   <dt>The <dfn id=upload-complete-flag>upload complete flag</dfn>
+
+   <dd>Used to determine whether to send upload progress events.
+
+   <dt>The <dfn id=upload-events-flag>upload events flag</dfn>
+
+   <dd>Used to determine whether to send upload progress events for
+    cross-origin requests.
+  </dl>
+
+  <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object
+   also has an associated <code><a
+   href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+
+  <h4 id=the-open-method><span class=secno>3.6.1 </span>The <code
+   title="">open()</code> method</h4>
 
   <p>When the <dfn id=open title=open><code>open(<var>method</var>,
    <var>url</var>, <var>async</var>, <var>user</var>,
    <var>password</var>)</code></dfn> method is invoked, the user agent <em
-   class=ct>must</em> act as if it had run the following steps (unless
-   otherwise indicated):
+   class=ct>must</em> run these steps (unless otherwise indicated):
 
   <ol>
    <li>
-    <p>Let <var>stored method</var> be the <var>method</var> argument.
+    <p>If the <code><a href="#xmlhttprequest">XMLHttpRequest</a></code>
+     object has an associated <a
+     href="#xmlhttprequest-document"><code>XMLHttpRequest</code>
+     <code>Document</code></a> run these substeps:</p>
+
+    <ol>
+     <li>
+      <p>If the <a
+       href="#xmlhttprequest-document"><code>XMLHttpRequest</code>
+       <code>Document</code></a> is not <a href="#fully-active">fully
+       active</a> raise an <code>INVALID_STATE_ERR</code> exception and
+       terminate the overall set of steps.
+
+     <li>
+      <p>Let <a href="#xmlhttprequest-base-url"><code>XMLHttpRequest</code>
+       base URL</a> be the <a href="#document-base-url">document base URL</a>
+       of the <a href="#xmlhttprequest-document"><code>XMLHttpRequest</code>
+       <code>Document</code></a>.
+
+     <li>
+      <p>Let <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+       origin</a> be the <a href="#origin">origin</a> of the <a
+       href="#xmlhttprequest-document"><code>XMLHttpRequest</code>
+       <code>Document</code></a>.
+    </ol>
 
    <li>
-    <p>If <var>stored method</var> does not match the <a
-     href="#method-token">Method token</a> raise a <code>SYNTAX_ERR</code>
-     exception and terminate these steps.
+    <p>If <var>method</var> does not match the <a href="#method-token">Method
+     token</a> production raise a <code>SYNTAX_ERR</code> exception and
+     terminate these steps.
 
    <li>
-    <p>If <var>stored method</var> is an <a
-     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
-     <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
-     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
-     <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code> <a
-     href="#uppercase" title=uppercase>convert <var>stored method</var> to
-     uppercase</a>.</p>
+    <p>If <var>method</var> is an <a href="#ascii-case-insensitive">ASCII
+     case-insensitive</a> match for <code>CONNECT</code>,
+     <code>DELETE</code>, <code>GET</code>, <code>HEAD</code>,
+     <code>OPTIONS</code>, <code>POST</code>, <code>PUT</code>,
+     <code>TRACE</code>, or <code>TRACK</code> <a
+     href="#converted-to-ascii-upercase" title="converted to ASCII
+     uppercase">convert <var>method</var> to ASCII uppercase</a>.</p>
 
     <p class=note>If it does not match any of the above, it is passed through
      <em>literally</em>, including in the final request.</p>
@@ -609,21 +772,27 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
    <li>
-    <p>If <var>stored method</var> is one of <code>CONNECT</code>,
-     <code>TRACE</code>, or <code>TRACK</code> the user agent <em
-     class=ct>should</em> raise a <code><a
-     href="#security-err">SECURITY_ERR</a></code> exception and terminate
-     these steps.</p>
+    <p>If <var>method</var> is a <a href="#case-sensitive">case-sensitive</a>
+     match for <code>CONNECT</code>, <code>TRACE</code>, or
+     <code>TRACK</code> the user agent <em class=ct>should</em> raise a
+     <code><a href="#security-err">SECURITY_ERR</a></code> exception and
+     terminate these steps.</p>
 
     <p class=note>Allowing these methods poses a security risk. [<cite><a
      href="#ref-httpverbsec">HTTPVERBSEC</a></cite>]</p>
 
    <li>
-    <p><a href="#url-resolve" title="Resolve a URL">Resolve <var>stored
-     url</var></a> with the <a href="#document-pointer"><code>Document</code>
-     pointer</a> being the associated <var>document</var> and UTF-8 being the
-     <var>encoding</var> of that <var>document</var>. If the <a
-     href="#url-resolve">resolve a URL</a> algorithm returns an error raise a
+    <p>Let <var title="">url</var> be a <a href="#url">URL</a>.
+
+   <li>
+    <p>Let <a href="#url-character-encoding">URL character encoding</a> of
+     <var title="">url</var> be UTF-8.
+
+   <li>
+    <p><a href="#resolve-a-url" title="Resolve a URL">Resolve <var
+     title="">url</var></a> relative to the <a
+     href="#xmlhttprequest-base-url"><code>XMLHttpRequest</code> base
+     URL</a>. If the algorithm returns an error raise a
      <code>SYNTAX_ERR</code> exception and terminate these steps.
    </li>
    <!-- Presto and Gecko override the encoding. WebKit does not. Trident
@@ -631,81 +800,86 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    see HTML5. -->
 
    <li>
-    <p>Drop <code><a href="#url-fragment">&lt;fragment></a></code> from
-     <var>stored url</var>.
+    <p>Drop <code><a href="#url-fragment">&lt;fragment></a></code> from <var
+     title="">url</var>.
 
    <li>
-    <p>If <var>stored url</var> contains an unsupported <code><a
+    <p>If <var title="">url</var> contains an unsupported <code><a
      href="#url-scheme">&lt;scheme></a></code> raise a
      <code>NOT_SUPPORTED_ERR</code> and terminate these steps.
 
    <li>
-    <p>If the <code>"user:password"</code> format in the
-     <code>userinfo</code> production defined in section 3.2.1 of RFC 3986 is
-     not supported for the relevant scheme and <var>stored url</var> contains
-     this format raise a <code>SYNTAX_ERR</code> and terminate these steps.
-     [<cite><a href="#ref-rfc3986">RFC3986</a></cite>]
+    <p>If the <code>"user:password"</code> format in the <code><a
+     href="#userinfo">userinfo</a></code> production is not supported for the
+     relevant scheme and <var title="">url</var> contains this format raise a
+     <code>SYNTAX_ERR</code> and terminate these steps.
 
    <li>
-    <p>If <var>stored url</var> contains the <code>"user:password"</code>
-     format let <var>stored user</var> be the user part and <var>stored
+    <p>If <var title="">url</var> contains the <code>"user:password"</code>
+     format let <var>temp user</var> be the user part and <var>temp
      password</var> be the password part.
 
    <li>
-    <p>If <var>stored url</var> just contains the <code>"user"</code> format
-     let <var>stored user</var> be the user part.
+    <p>If <var title="">url</var> just contains the <code>"user"</code>
+     format let <var>temp user</var> be the user part.
 
    <li class=note>
     <p>The previous level of this specification raised a <code><a
      href="#security-err">SECURITY_ERR</a></code> at this place in case of a
-     non same origin <var>stored url</var>. This specification supports non
-     same origin requests and therefore this exception is no longer raised
-     here.
+     non <a href="#same-origin">same origin</a> <var>stored url</var>. This
+     specification supports non <a href="#same-origin">same origin</a>
+     requests and therefore this exception is no longer raised.
 
    <li>
     <p>Let <var>async</var> be the value of the <var>async</var> argument or
      <code>true</code> if it was omitted.
 
    <li>
-    <p>If the <var>user</var> argument was not omitted, and its syntax does
-     not match that specified by the relevant authentication scheme, raise a
-     <code>SYNTAX_ERR</code> exception and terminate these steps.
+    <p>If the <var>user</var> argument was not omitted follow these sub
+     steps:</p>
+
+    <ol>
+     <li>
+      <p>If the syntax of <var>user</var> does not match the syntax specified
+       by the relevant authentication scheme, raise a <code>SYNTAX_ERR</code>
+       exception and terminate the overall set of steps.
+
+     <li>
+      <p>If <var>user</var> is <code>null</code> let <var>temp user</var> be
+       null.
+
+     <li>
+      <p>Otherwise let <var>temp user</var> be <var>user</var>.
+    </ol>
+
+    <p class=note>These steps override anything that may have been set by the
+     <var title="">url</var> argument.</p>
 
    <li>
-    <p>If the <var>user</var> argument was not omitted and is not
-     <code>null</code>, let <var>stored user</var> be <var>user</var>.</p>
+    <p>If the <var>password</var> argument was not omitted follow these sub
+     steps:</p>
 
-    <p class=note>This step overrides any user that may have been set by the
-     <var>url</var> argument.</p>
+    <ol>
+     <li>
+      <p>If the syntax of <var>password</var> does not match the syntax
+       specified by the relevant authentication scheme, raise a
+       <code>SYNTAX_ERR</code> exception and terminate the overall set of
+       steps.
 
-   <li>
-    <p>If the <var>user</var> argument was not omitted and is
-     <code>null</code> remove <var>stored user</var>.
+     <li>
+      <p>If <var>password</var> is <code>null</code> let <var>temp
+       password</var> be null.
 
-   <li>
-    <p>If the <var>password</var> argument was not omitted and its syntax
-     does not match that specified by the relevant authentication scheme
-     raise a <code>SYNTAX_ERR</code> exception and terminate these steps.
+     <li>
+      <p>Otherwise let <var>temp password</var> be <var>password</var>.
+    </ol>
 
-   <li>
-    <p>If the <var>password</var> argument was not omitted and is not
-     <code>null</code>, let <var>stored password</var> be
-     <var>password</var>.
-
-   <li>
-    <p>If the <var>password</var> argument was not omitted and is
-     <code>null</code> remove <var>stored password</var>.
+    <p class=note>These steps override anything that may have been set by the
+     <var title="">url</var> argument.</p>
 
    <li>
     <p><a href="#abort-send-algorithm" title="abort send()">Abort the
-     <code>send()</code> algorithm</a>, set the <a
-     href="#send-flag"><code>send()</code> flag</a> to false, set <a
-     href="#response-entity-body">response entity body</a> to null and empty
-     the <a href="#author-request-headers">author request headers</a> list.</p>
-
-    <p class=note>This step and the next only has effect if <code><a
-     href="#send">send()</a></code> and/or <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> has been used.</p>
+     <code>send()</code> algorithm</a>.
 
    <li>
     <p>The user agent <em class=ct>should</em> cancel any network activity
@@ -714,19 +888,56 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
    <!-- we can hardly require it... -->
 
    <li>
-    <p>Switch the object to the <a href="#opened-state" title="OPENED
-     state">OPENED</a> state and then synchronously <a
-     href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object and return the
-     method call.
+    <p>Set variables associated with the object as follows:</p>
+
+    <ul>
+     <li>
+      <p>Set the <a href="#send-flag"><code>send()</code> flag</a> to false.
+
+     <li>
+      <p>Set <a href="#response-entity-body">response entity body</a> to
+       null.
+
+     <li>
+      <p>Empty the list of <a href="#author-request-headers">author request
+       headers</a>.</p>
+
+     <li>
+      <p>Set the <a href="#request-method">request method</a> to
+       <var>method</var>.
+
+     <li>
+      <p>Set the <a href="#request-url">request URL</a> to <var
+       title="">url</var>.
+
+     <li>
+      <p>Set the <a href="#request-username">request username</a> to
+       <var>temp user</var>.
+
+     <li>
+      <p>Set the <a href="#request-password">request password</a> to
+       <var>temp password</var>.
+
+     <li>
+      <p>Set the <a href="#asynchronous-flag">asynchronous flag</a> to true
+       if <var>async</var> is <code>true</code>. Otherwise set it to false.
+    </ul>
+
+   <li>
+    <p>Switch the the state to <a href="#opened-state" title="OPENED
+     state">OPENED</a>.
+
+   <li>
+    <p><a href="#dispatch-readystatechange-event">Dispatch a
+     <code>readystatechange</code> event</a>.
   </ol>
 
-  <p>The object has an associated list of <dfn
-   id=author-request-headers>author request headers</dfn> consisting of HTTP
-   header name/value pairs. The <dfn id=setrequestheader
-   title=setRequestHeader><code>setRequestHeader(<var>header</var>)</code></dfn>
-   method can be used to set new request headers and append to request
-   headers already in the list.
+  <h4 id=the-setrequestheader-method><span class=secno>3.6.2 </span>The <code
+   title="">setRequestHeader()</code> method</h4>
+  <!-- XXX authors
+  The <code>setRequestHeader()</code> method can be used to set new request
+    headers and append to request headers already in the list.</p>
+  -->
 
   <p>As indicated in the algorithm below certain headers cannot be set and
    are left up to the user agent. In addition there are certain other headers
@@ -736,29 +947,30 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
   <p class=note>The <code><a
    href="#setrequestheader">setRequestHeader()</a></code> method appends a
-   value if the header given as argument is already part of the <a
+   value if the HTTP header given as argument is already part of the <a
    href="#author-request-headers">author request headers</a> list.
 
-  <p class=note>For non same origin requests using the HTTP <code>GET</code>
-   method a preflight request is made when headers other than
-   <code>Accept</code> and <code>Accept-Language</code> are set.
+  <p class=note>For non <a href="#same-origin">same origin</a> requests using
+   the HTTP <code>GET</code> method a preflight request is made when headers
+   other than <code>Accept</code> and <code>Accept-Language</code> are set.
 
-  <p>When <code><a href="#setrequestheader">setRequestHeader()</a></code> is
-   invoked, the user agent <em class=ct>must</em> follow the following steps
-   (unless otherwise indicated):
+  <p>When the <dfn id=setrequestheader
+   title=setrequestheader><code>setRequestHeader(<var>header</var>,
+   <var>value</var>)</code></dfn> method is invoked, the user agent <em
+   class=ct>must</em> run these steps (unless otherwise indicated):
 
   <ol>
    <li>
-    <p>If the state of the object is not <a href="#opened-state"
-     title="OPENED state">OPENED</a> raise an <code>INVALID_STATE_ERR</code>
-     exception and terminate these steps.
+    <p>If the state is not <a href="#opened-state" title="OPENED
+     state">OPENED</a> raise an <code>INVALID_STATE_ERR</code> exception and
+     terminate these steps.
 
    <li>
     <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>If the <var>header</var> argument does not match the <code><a
+    <p>If <var>header</var> does not match the <code><a
      href="#field-name">field-name</a></code> production raise a
      <code>SYNTAX_ERR</code> exception and terminate these steps.
 
@@ -786,8 +998,6 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
 
      <li><code>Access-Control-Request-Method</code></li>
      <!-- new in xhr2 -->
-
-     <li><code>Authorization</code>
 
      <li><code>Connection</code>
 
@@ -835,9 +1045,8 @@ interface <dfn id=xmlhttprequest-interface>XMLHttpRequest</dfn> : <a href="#xmlh
      should have. Header names starting with <code>Sec-</code> are not
      allowed to be set to allow new headers to be minted in the future that
      are guaranteed not to come from <code><a
-     href="#xmlhttprequest-interface">XMLHttpRequest</a></code>. (Older
-     clients would however still be vulnerable as they allow such headers to
-     be set.)</p>
+     href="#xmlhttprequest">XMLHttpRequest</a></code>. (Older clients would
+     however still be vulnerable as they allow such headers to be set.)</p>
 
    <li>
     <p>If <var>header</var> is not in the <a
@@ -873,20 +1082,20 @@ X-Test: one, two
 ...</code></pre>
   </div>
 
-  <p>The <dfn id=credentials-flag>credentials flag</dfn> takes the values
-   true and false, true by default, and indicates whether a non <a
-   href="#same-origin">same origin</a> request includes cookie and HTTP
-   authentication data. It is used during the <code><a
-   href="#send">send()</a></code> algorithm.
+  <h4 id=the-withcredentials-attribute><span class=secno>3.6.3 </span>The
+   <code title="">withCredentials</code> attribute</h4>
 
-  <p>When the <code>withCredentials</code> attribute is set, the following
-   algorithm <em class=ct>must</em> be followed:
+  <p>The <dfn id=withcredentials><code>withCredentials</code></dfn> attribute
+   controls the <a href="#credentials-flag">credentials flag</a>.
+
+  <p>When the <code><a href="#withcredentials">withCredentials</a></code>
+   attribute is set, the user agent <em class=ct>must</em> run these steps:
 
   <ol>
    <li>
-    <p>If the state of the object is not <a href="#opened-state"
-     title="OPENED state">OPENED</a> raise an <code>INVALID_STATE_ERR</code>
-     exception and terminate these steps.
+    <p>If the state is not <a href="#opened-state" title="OPENED
+     state">OPENED</a> raise an <code>INVALID_STATE_ERR</code> exception and
+     terminate these steps.
 
    <li>
     <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
@@ -898,186 +1107,22 @@ X-Test: one, two
      the <a href="#credentials-flag">credentials flag</a> to false.
   </ol>
 
-  <p>On getting, the <code>withCredentials</code> attribute <em
+  <p>On getting, the <code><a
+   href="#withcredentials">withCredentials</a></code> attribute <em
    class=ct>must</em> return <code>true</code> if the <a
    href="#credentials-flag">credentials flag</a> is true, and
    <code>false</code> if the <a href="#credentials-flag">credentials flag</a>
    is false.
 
-  <h3 id=request><span class=secno>3.5 </span>Request</h3>
+  <h4 id=the-upload-attribute><span class=secno>3.6.4 </span>The <code
+   title="">upload</code> attribute</h4>
 
-  <h4 id=tracking-upload-progress><span class=secno>3.5.1 </span>Tracking
-   Upload Progress</h4>
+  <p>The <dfn id=upload><code>upload</code></dfn> attribute, on getting, <em
+   class=ct>must</em> return the associated <code><a
+   href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
-  <p>To track the progress of data being uploaded through the <code><a
-   href="#send">send()</a></code> method the <code
-   title="">XMLHttpRequest</code> object offers an <dfn
-   id=upload><code>upload</code></dfn> attribute. On getting, this attribute
-   <em class=ct>must</em> return an object implementing the <code><a
-   href="#xmlhttprequestupload-interface">XMLHttpRequestUpload</a></code>
-   interface. This object can be used to register event listeners on which
-   will be triggered during the upload process.
-
-  <h4 id=request-variables-and-algorithms><span class=secno>3.5.2
-   </span>Request Variables and Algorithms</h4>
-
-  <p>The <dfn id=current-request-url>current request URL</dfn> is initially
-   <var>stored url</var> (as set by the <code><a
-   href="#open">open()</a></code> method) and is updated as described in the
-   <code><a href="#send">send()</a></code> algorithm.
-
-  <p>The <dfn id=upload-complete-flag>upload complete flag</dfn> indicates is
-   used in several algorithms to determine whether or not to dispatch an
-   event. The flag is either true or false (default).
-
-  <p>The <dfn id=upload-events-flag>upload events flag</dfn> is used in the
-   <code><a href="#send">send()</a></code> algorithm to determine whether
-   upload progress events will be dispatched for non same origin requests.
-   The flag is either true or false (default).
-
-  <p>When the steps for the <code><a href="#send">send()</a></code> method
-   say something is a <dfn id=network-error>network error</dfn> the user
-   agent <em class=ct>must</em> act as if the following steps had been run:
-
-  <ol>
-   <li>
-    <p>Set the <a href="#response-entity-body">response entity body</a> to
-     null, the <a href="#error-flag">error flag</a> to true and empty the <a
-     href="#author-request-headers">author request headers</a> list.
-
-   <li>
-    <p>Synchronously switch the state to <a href="#done-state" title="DONE
-     state">DONE</a>.
-
-   <li>
-    <p>If <var>async</var> is set to <code>false</code> raise a <code><a
-     href="#network-err">NETWORK_ERR</a></code> exception and terminate the
-     overall algorithm.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-progress-event">dispatch a progress
-     event</a> called <code><a href="#error-event">error</a></code> on the
-     object.
-
-   <li>
-    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
-     false, set the flag to true and synchronously <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#error-event">error</a></code> on the object returned by
-     the <code><a href="#upload">upload</a></code> attribute.
-
-   <li>
-    <p>Terminate the overall algorithm.
-  </ol>
-
-  <p>When the steps for the <code><a href="#send">send()</a></code> method
-   say something is an <dfn id=abort-error>abort error</dfn> the user agent
-   <em class=ct>must</em> act as if the following steps had been run:
-
-  <ol>
-   <li>
-    <p>Set the <a href="#response-entity-body">response entity body</a> to
-     null, the <a href="#error-flag">error flag</a> to true and empty the <a
-     href="#author-request-headers">author request headers</a> list.
-
-   <li>
-    <p>Synchronously switch the state to <a href="#done-state" title="DONE
-     state">DONE</a>.
-
-   <li>
-    <p>If <var>async</var> is set to <code>false</code> raise an <code><a
-     href="#abort-err">ABORT_ERR</a></code> exception and terminate the
-     overall algorithm.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-progress-event">dispatch a progress
-     event</a> called <code title=abort-event><a
-     href="#abort-event">abort</a></code> on the object.
-
-   <li>
-    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
-     false, set the flag to true and synchronously <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code title=abort-event><a href="#abort-event">abort</a></code> on the
-     object returned by the <code><a href="#upload">upload</a></code>
-     attribute.
-
-   <li>
-    <p>Terminate the overall algorithm.
-  </ol>
-
-  <p>When the steps for the <code><a href="#send">send()</a></code> method
-   say to <dfn id=switch-headers-received>switch to the HEADERS_RECEIVED
-   state</dfn> the user agent <em class=ct>must</em> act as if the following
-   steps had been run:
-
-  <ol>
-   <li>
-    <p>Synchronously switch the state to <a href="#headers-received-state"
-     title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a>.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object.
-  </ol>
-
-  <p>When the steps for the <code><a href="#send">send()</a></code> method
-   say to <dfn id=switch-loading>switch to the LOADING state</dfn> the user
-   agent <em class=ct>must</em> act as if the following steps had been run:
-
-  <ol>
-   <li>
-    <p>Synchronously switch the state to <a href="#loading-state"
-     title="LOADING state">LOADING</a>.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object.
-  </ol>
-
-  <p>When the steps for the <code><a href="#send">send()</a></code> method
-   say to <dfn id=make-progress-notifications>make progress
-   notifications</dfn> user agents <em class=ct>must</em>, while the download
-   is progressing and <var>async</var> is <code>true</code>, <a
-   href="#dispatch-progress-event">dispatch a progress event</a> called
-   <code><a href="#progress-event">progress</a></code> at the object about
-   every 50ms or for every byte received, whichever is <em>least</em>
-   frequent.
-
-  <p>When the steps for the <code><a href="#send">send()</a></code> method
-   say to <dfn id=make-upload-progress-notifications>make upload progress
-   notifications</dfn> user agents <em class=ct>must</em>, if
-   <var>async</var> is <code>true</code>, follow these rules:
-
-  <ul>
-   <li>
-    <p>While the request entity body is being uploaded and the <a
-     href="#upload-complete-flag">upload complete flag</a> is false, <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#progress-event">progress</a></code> at the object
-     returned by the <code><a href="#upload">upload</a></code> attribute
-     every about every 50ms or for every byte transmitted, whichever is
-     <em>least</em> frequent.
-
-   <li>
-    <p>If the request entity body has been successfully uploaded and the <a
-     href="#upload-complete-flag">upload complete flag</a> is still false,
-     set the flag to true and synchronously <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#load-event">load</a></code> at the object returned by
-     the <code><a href="#upload">upload</a></code> attribute.
-  </ul>
-
-  <h4 id=initiating-a-request><span class=secno>3.5.3 </span>Initiating a
-   Request</h4>
+  <h4 id=the-send-method><span class=secno>3.6.5 </span>The <code
+   title="">send()</code> method</h4>
 
   <p>The <dfn id=send title=send><code>send(<var>data</var>)</code></dfn>
    method initiates the request and its optional argument provides the <a
@@ -1088,10 +1133,10 @@ X-Test: one, two
    <code title="">send()</code> with a non-<code>null</code> <var>data</var>
    argument.
 
-  <p>When invoked, the user agent <em class=ct>must</em> act as if it had run
-   the following steps (unless otherwise noted). Note that this algorithm
-   might get aborted if the <code><a href="#open">open()</a></code> or
-   <code><a href="#abort">abort()</a></code> method is invoked. When the <dfn
+  <p>When invoked, the user agent <em class=ct>must</em> run these steps
+   (unless otherwise noted). This algorithm might get aborted if the <code><a
+   href="#open">open()</a></code> or <code><a
+   href="#abort">abort()</a></code> method is invoked. When the <dfn
    id=abort-send-algorithm title="abort send()"><code>send()</code> algorithm
    is aborted</dfn> the user agent <em class=ct>must</em> terminate the
    algorithm after finishing the step it is on.
@@ -1102,34 +1147,13 @@ X-Test: one, two
 
   <ol>
    <li>
-    <p>If the state of the object is not <a href="#opened-state"
-     title="OPENED state">OPENED</a> raise an <code>INVALID_STATE_ERR</code>
-     exception and terminate these steps.
+    <p>If the state is not <a href="#opened-state" title="OPENED
+     state">OPENED</a> raise an <code>INVALID_STATE_ERR</code> exception and
+     terminate these steps.
 
    <li>
     <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
-
-   <li>
-    <p>If <var>async</var> is <code>true</code> set the <a
-     href="#send-flag"><code>send()</code> flag</a> to true.
-
-   <li>
-    <p>If <var>async</var> is <code>true</code> and one or more event
-     listeners are registered on the object returned by the <code><a
-     href="#upload">upload</a></code> attribute set the <a
-     href="#upload-events-flag">upload events flag</a> to true. Otherwise,
-     set the <a href="#upload-events-flag">upload events flag</a> to false.
-
-   <li>
-    <p>Set the <a href="#error-flag">error flag</a> to false.
-
-   <li>
-    <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a> on the object.</p>
-
-    <p class=note>The state of the object does not change. The event is
-     dispatched for historical reasons.</p>
 
    <li>
     <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
@@ -1143,7 +1167,9 @@ X-Test: one, two
      <dt><var>data</var> is a <code>ByteArray</code>
 
      <dd>
-      <p>Use <var>data</var> literally for transmission.
+      <p class=XXX>This will be done in terms of the File API in due course.</p>
+
+      <p>Use <var>data</var> literally for transmission.</p>
 
      <dt><var>data</var> is a <code>DOMString</code>
 
@@ -1186,188 +1212,198 @@ X-Test: one, two
      <code>null</code>, no entity body is used in the request.</p>
 
    <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     release the <a href="#storage-mutex">storage mutex</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true and
+     one or more event listeners are registered on the <code><a
+     href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object set
+     the <a href="#upload-events-flag">upload events flag</a> to true.
+     Otherwise, set the <a href="#upload-events-flag">upload events flag</a>
+     to false.
+
+   <li>
+    <p>Set the <a href="#error-flag">error flag</a> to false.
+
+   <li>
     <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
-     true if there is no request entity body or if the request entity is
-     empty. Otherwise, set the <a href="#upload-complete-flag">upload
-     complete flag</a> to false.
+     true if there is no <a href="#request-entity-body">request entity
+     body</a> or if the <a href="#request-entity-body">request entity
+     body</a> is empty. Otherwise, set the <a
+     href="#upload-complete-flag">upload complete flag</a> to false.
 
    <li>
-    <p>If <var>async</var> is <code>true</code> synchronously <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#loadstart-event">loadstart</a></code> on the object.
-
-   <li>
-    <p>If <var>async</var> is <code>true</code> and the request entity body
-     is not empty <a href="#dispatch-progress-event">dispatch a progress
-     event</a> called <code><a href="#loadstart-event">loadstart</a></code>
-     on the object returned by the <code><a href="#upload">upload</a></code>
-     attribute.
-
-   <li>
-    <p>If <var>async</var> is <code>true</code> return the <code><a
-     href="#send">send()</a></code> method call. (Do not terminate the steps
-     in the algorithm though.)
-
-   <li>
-    <p>If the <a href="#current-request-url">current request URL</a> and the
-     value of the <code>baseURI</code> attribute of the <a
-     href="#document-pointer"><code>Document</code> pointer</a> are <a
-     href="#same-origin">same origin</a> this is a <dfn
-     id=same-origin-request>same origin request</dfn>. Make a request to the
-     <a href="#current-request-url">current request URL</a> using HTTP method
-     <var>stored method</var>, user <var>stored user</var> (if provided),
-     password <var>stored password</var> (if provided), taking into account
-     the entity body, list of request headers and the rules listed directly
-     after this set of steps. <a href="#make-progress-notifications">Make
-     progress notifications</a>, <a
-     href="#make-upload-progress-notifications">make upload progress
-     notifications</a>, and follow the list of request rules:</p>
-
-    <dl class=switch>
-     <dt>If the response is an HTTP redirect
-
-     <dd>
-      <p>If the redirect violates security or infinite loop precautions or
-       the scheme is not supported this is a <a href="#network-error">network
-       error</a>.</p>
-
-      <p>Otherwise, run the following set of steps:</p>
-
-      <ol>
-       <li>
-        <p>Set the <a href="#current-request-url">current request URL</a> to
-         the new location.
-
-       <li>
-        <p>If the <a href="#current-request-url">current request URL</a> and
-         the value of the <code>baseURI</code> attribute of the <a
-         href="#document-pointer"><code>Document</code> pointer</a> are <a
-         href="#same-origin">same origin</a> follow the redirect while
-         observing the request rules for <span title="same-origin
-         request">same origin requests</span>.
-
-       <li>
-        <p>Otherwise, follow the steps for a <a
-         href="#non-same-origin-request">non same origin request</a>
-         terminating this one.
-      </ol>
-
-      <p class=note>HTTP places requirements on the user agent regarding the
-       preservation of the request method and entity body during redirects,
-       and also requires users to be notified of certain kinds of automatic
-       redirections.</p>
-      <!-- Arguably HTTP should be fixed for the latter case. No browser
-      follows that as far as I know. -->
-      
-
-     <dt>If the user cancels the download
-
-     <dd>
-      <p>This is an <a href="#abort-error">abort error</a>.
-
-     <dt>If there is a network error
-
-     <dd>
-      <p>In case of DNS errors, TLS negotiation failure, or other type of
-       network errors, this is a <a href="#network-error">network error</a>.
-       Do not request any kind of user interaction.
-
-      <p class=note>This does not include HTTP responses that indicate some
-       type of error, such as HTTP status code 410.</p>
-
-     <dt>Once all HTTP headers have been received
-
-     <dd>
-      <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
-       state</a>.
-
-     <dt>Once the first byte (or more) of the response entity body has been
-      received
-
-     <dt>If there is no response entity body
-
-     <dd>
-      <p><a href="#switch-loading">Switch to the LOADING state</a> and once
-       the complete resource has been downloaded go to the next step.
-    </dl>
-
-    <p>Otherwise, if it is non same origin this is a <dfn
-     id=non-same-origin-request>non same origin request</dfn>. Make a <a
-     href="#cross-origin-request">cross-origin request</a>, passing these as
-     parameters:</p>
-
-    <ul>
-     <li>The <a href="#current-request-url">current request URL</a>.
-
-     <li>The <var>stored method</var>.
-
-     <li>The list of request headers.
-
-     <li>The entity body.
-
-     <li>The <a href="#origin">origin</a> of the object hold by the <a
-      href="#document-pointer"><code>Document</code> pointer</a>.
-
-     <li>The <a href="#credentials-flag">credentials flag</a>.
-
-     <li>The <a href="#upload-events-flag">upload events flag</a>. <span
-      class=note>If this flag is true it will force a preflight
-      request.</span>
-    </ul>
-
-    <p>Handle the returned <a href="#status-flag">status flag</a> as
-     described below.</p>
-
-    <p class=note>The <var>stored user</var> and <var>stored password</var>
-     variables are always ignored as part of a non same origin request as
-     including them would allow a site to perform a distributed password
-     search. However, user agents will include credentials in the request (if
-     the user has any) as required elsewhere.</p>
-
-    <p>Also, <a href="#make-upload-progress-notifications">make upload
-     progress notifications</a>, though only if a preflight request was made.</p>
-    <!-- XXX more formal? -->
-    <dl>
-     <dt><a href="#status-flag">status flag</a> is <i>network</i>
-
-     <dd>
-      <p>This is a <a href="#network-error">network error</a>.
-
-     <dt><a href="#status-flag">status flag</a> is <i title="">abort</i>
-
-     <dd>
-      <p>This is an <a href="#abort-error">abort error</a>.
-
-     <dt><a href="#status-flag">status flag</a> is <i>success</i>
-
-     <dd>
-      <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
-       state</a>, <a href="#make-progress-notifications">make progress
-       notifications</a>, and <a href="#switch-loading">switch to the LOADING
-       state</a> once the first byte (or more) of the response entity body
-       has been received or if there is no response entity body. Once the
-       resource has been received completely go to the next step.
-    </dl>
-
-   <li>
-    <p>When the request has successfully completed loading, run the following
-     steps:</p>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true run
+     these substeps:</p>
 
     <ol>
      <li>
-      <p>Synchronously switch the state to <a href="#done-state" title="DONE
-       state">DONE</a>.
+      <p>Set the <a href="#send-flag"><code>send()</code> flag</a> to true.
 
      <li>
-      <p>Synchronously <a href="#dispatch-readystatechange-event">dispatch a
-       <code>readystatechange</code> event</a> on the object.
+      <p><a href="#dispatch-readystatechange-event">Dispatch a
+       <code>readystatechange</code> event</a>.</p>
+
+      <p class=note>The state does not change. The event is dispatched for
+       historical reasons.</p>
 
      <li>
-      <p>Synchronously <a href="#dispatch-progress-event">dispatch a progress
-       event</a> called <code><a href="#load-event">load</a></code> on the
+      <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+       called <code><a href="#loadstart-event">loadstart</a></code>.
+
+     <li>
+      <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+       false <a href="#dispatch-progress-event">dispatch a progress event</a>
+       called <code><a href="#loadstart-event">loadstart</a></code> on the
+       <code><a href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code>
        object.
+
+     <li>
+      <p>Return the <code><a href="#send">send()</a></code> method call, but
+       continue running the steps in this algorithm.
     </ol>
+
+   <li>
+    <dl class=switch>
+     <dt>If the <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+      origin</a> and the <a href="#request-url">request URL</a> are <a
+      href="#same-origin">same origin</a>
+
+     <dd>
+      <p>These are the <dfn id=same-origin-request-steps>same-origin request
+       steps</dfn>.</p>
+
+      <p>Make a request to <a href="#request-url">request URL</a>, using HTTP
+       method <a href="#request-method">request method</a>, user <a
+       href="#request-username">request username</a> (if non-null) and
+       password <a href="#request-password">request password</a> (if
+       non-null), taking into account the <a
+       href="#request-entity-body">request entity body</a>, list of <a
+       href="#author-request-headers">author request headers</a> and the
+       rules listed at the end of this section.</p>
+
+      <p>If there are cookies to be set, run the <a
+       href="#cookie-steps">cookie steps</a>.</p>
+
+      <dl class=switch>
+       <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+
+       <dd>
+        <p>While making the request also follow the <a
+         href="#same-origin-request-event-rules">same-origin request event
+         rules</a>.</p>
+        <!--
+         This cannot involve any task queue whatsoever because that would
+         mean other tasks on the task queue might get processed as well
+         which is counter to the whole idea of doing things synchronous.
+        -->
+        
+        <p class=note>The <code><a href="#send">send()</a></code> method call
+         will now be returned by virtue of this algorithm ending.</p>
+
+       <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
+
+       <dd>
+        <p><a href="#make-progress-notifications">Make progress
+         notifications</a>.</p>
+
+        <p><a href="#make-upload-progress-notifications">Make upload progress
+         notifications</a>.</p>
+
+        <p>While processing the request, as data becomes available and when
+         the user interferes with the request, <a href="#queue-a-task"
+         title="queue a task">queue tasks</a> to follow the <a
+         href="#same-origin-request-event-rules">same-origin request event
+         rules</a> using the <a
+         href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
+         networking task source</a> as <a href="#task-source">task
+         source</a>.</p>
+      </dl>
+
+     <dt>Otherwise
+
+     <dd>
+      <p>These are the <dfn id=cross-origin-request-steps>cross-origin
+       request steps</dfn>.</p>
+
+      <p>Make a <a href="#cross-origin-request">cross-origin request</a>,
+       passing these as parameters:</p>
+
+      <dl>
+       <dt>request URL
+
+       <dd>The <a href="#request-url">request URL</a>.
+
+       <dt>request method
+
+       <dd>The <a href="#request-method">request method</a>.
+
+       <dt>custom request headers
+
+       <dd>The list of <a href="#author-request-headers">author request
+        headers</a>.
+
+       <dt>request entity body
+
+       <dd>The <a href="#request-entity-body">request entity body</a>.
+
+       <dt>source origin
+
+       <dd>The <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+        origin</a>.
+
+       <dt>credentials flag
+
+       <dd>The <a href="#credentials-flag">credentials flag</a>.
+
+       <dt>force preflight flag
+
+       <dd>The <a href="#upload-events-flag">upload events flag</a>.
+      </dl>
+
+      <p class=note><a href="#request-username">Request username</a> and <a
+       href="#request-password">request password</a> are always ignored as
+       part of a <a href="#cross-origin-request">cross-origin request</a>;
+       including them would allow a site to perform a distributed password
+       search. However, user agents will include credentials in the request
+       (if the user has any) as required elsewhere.</p>
+
+      <p>If there are cookies to be set, run the <a
+       href="#cookie-steps">cookie steps</a>.</p>
+
+      <dl class=switch>
+       <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+
+       <dd>
+        <p>While making the request also follow the <a
+         href="#cross-origin-request-event-rules">cross-origin request event
+         rules</a>.</p>
+        <!--
+         This cannot involve any task queue whatsoever because that would
+         mean other tasks on the task queue might get processed as well
+         which is counter to the whole idea of doing things synchronous.
+        -->
+        
+        <p class=note>The <code><a href="#send">send()</a></code> method call
+         will now be returned by virtue of this algorithm ending.</p>
+
+       <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
+
+       <dd>
+        <p>While processing the request, as data becomes available and when
+         the user interferes with the request, <a href="#queue-a-task"
+         title="queue a task">queue tasks</a> to follow the <a
+         href="#cross-origin-request-event-rules">cross-origin request event
+         rules</a> using the <a
+         href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
+         networking task source</a> as <a href="#task-source">task
+         source</a>.</p>
+      </dl>
+    </dl>
   </ol>
+
+  <hr>
 
   <p>If the user agent allows the user to configure a proxy it <em
    class=ct>should</em> modify the request appropriately; i.e., connect to
@@ -1375,17 +1411,21 @@ X-Test: one, two
    <code>Request-Line</code> and send <code>Proxy-Authorization</code>
    headers as specified.
 
-  <p>If the user agent supports HTTP Authentication it <em
-   class=ct>should</em> consider requests originating from this object to be
-   part of the protection space that includes the accessed URIs and send
+  <p>If the user agent supports HTTP Authentication and
+   <code>Authorization</code> is not in the list of <a
+   href="#author-request-headers">author request headers</a>, it <em
+   class=ct>should</em> consider requests originating from the <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object to be part of the
+   protection space that includes the accessed URIs and send
    <code>Authorization</code> headers and handle <code>401
-   Unauthorized</code> requests appropriately. If authentication fails,
-   <var>stored user</var> and <var>stored password</var> are not provided,
-   and the request is <a href="#same-origin">same origin</a>, user agents <em
-   class=ct>should</em> prompt the users for credentials. If authentication
-   fails, and <var>stored user</var> and <var>stored password</var> are
-   provided, user agents <em class=ct>must not</em> prompt the user for
-   credentials. [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]
+   Unauthorized</code> requests appropriately. If authentication fails, and
+   <span>request username and <a href="#request-password">request
+   password</a> are both null, user agents <em class=ct>should</em> prompt
+   the user for credentials. If authentication fails, and <a
+   href="#request-username">request username</a> and <a
+   href="#request-password">request password</a> are provided, user agents
+   <em class=ct>must not</em> prompt the user for credentials. [<cite><a
+   href="#ref-rfc2617">RFC2617</a></cite>]</span>
 
   <p class=note>Users are not prompted if credentials are provided through
    the <code><a href="#open">open()</a></code> API so that authors can
@@ -1396,7 +1436,7 @@ X-Test: one, two
    class=ct>should</em> persist, discard and send cookies (as received in the
    <code>Set-Cookie</code> and <code>Set-Cookie2</code> response headers, and
    sent in the <code>Cookie</code> header) as applicable. [<cite><a
-   href="#ref-rfc2965">RFC2965</a></cite>]
+   href="#ref-cookies=">COOKIES</a></cite>]
 
   <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
    respect <code>Cache-Control</code> request headers set by the <code><a
@@ -1435,23 +1475,474 @@ X-Test: one, two
    href="#setrequestheader">setRequestHeader()</a></code>. This ensures that
    authors have a reasonably predictable API.
 
-  <h4 id=aborting-a-request><span class=secno>3.5.4 </span>Aborting a Request</h4>
+  <h4 id=infrastructure-for-the-send-method><span class=secno>3.6.6
+   </span>Infrastructure for the <code title="">send()</code> method</h4>
+
+  <p>The <dfn id=cookie-steps>cookie steps</dfn> are as follows:
+
+  <ol>
+   <li>
+    <p>Wait until ownership of the <a href="#storage-mutex">storage mutex</a>
+     can be taken.
+
+   <li>
+    <p>Take ownership of the <a href="#storage-mutex">storage mutex</a>.
+
+   <li>
+    <p>Update the cookies. [<cite><a href="#ref-cookies=">COOKIES</a></cite>]
+
+   <li>
+    <p>Release the <a href="#storage-mutex">storage mutex</a> so that it is
+     once again free.
+  </ol>
+
+  <hr>
+
+  <p>The <dfn id=same-origin-request-event-rules>same-origin request event
+   rules</dfn> are as follows:
+
+  <dl class=switch>
+   <dt>If the response is an HTTP redirect
+
+   <dd>
+    <p>If the redirect violates security or infinite loop precautions or the
+     scheme is not supported this is a <a href="#network-error">network
+     error</a>.</p>
+
+    <p>Otherwise, run these steps:</p>
+
+    <ol>
+     <li>
+      <p>Set the <a href="#request-url">request URL</a> to the <a
+       href="#url">URL</a> conveyed by the <code>Location</code> header.
+
+     <li>
+      <p>If the <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+       origin</a> and <a href="#request-url">request URL</a> are <a
+       href="#same-origin">same origin</a> follow the redirect while
+       observing the <a href="#same-origin-request-event-rules">same-origin
+       request event rules</a>.
+
+     <li>
+      <p>Otherwise, follow the <a
+       href="#cross-origin-request-steps">cross-origin request steps</a> and
+       terminate the steps for this algorithm.
+    </ol>
+
+    <p class=note>HTTP places requirements on the user agent regarding the
+     preservation of the <a href="#request-method">request method</a> and <a
+     href="#request-entity-body">request entity body</a> during redirects,
+     and also requires users to be notified of certain kinds of automatic
+     redirections.</p>
+    <!-- XXX HTTP needs fixing here -->
+
+   <dt>If the user cancels the download
+
+   <dd>
+    <p>This is an <a href="#abort-error">abort error</a>.
+
+   <dt>In case of network errors
+
+   <dd>
+    <p>In case of DNS errors, TLS negotiation failure, or other type of
+     network errors, this is a <a href="#network-error">network error</a>. Do
+     not request any kind of user interaction.</p>
+
+    <p class=note>This does not include HTTP responses that indicate some
+     type of error, such as HTTP status code 410.</p>
+
+   <dt>Once all HTTP headers have been received and the <a
+    href="#asynchronous-flag">asynchronous flag</a> is true
+
+   <dd>
+    <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
+     state</a>.
+
+   <dt>Once the first byte (or more) of the <a
+    href="#response-entity-body">response entity body</a> has been received
+    and the <a href="#asynchronous-flag">asynchronous flag</a> is true
+
+   <dt>If there is no <a href="#response-entity-body">response entity
+    body</a> and the <a href="#asynchronous-flag">asynchronous flag</a> is
+    true
+
+   <dd>
+    <p><a href="#switch-loading">Switch to the LOADING state</a>.
+
+   <dt>Once the whole <a href="#response-entity-body">response entity
+    body</a> has been received
+
+   <dt>If there is no <a href="#response-entity-body">response entity
+    body</a> and the <a href="#asynchronous-flag">asynchronous flag</a> is
+    false or the state is <a href="#loading-state" title="LOADING
+    state">LOADING</a>
+
+   <dd>
+    <p><a href="#switch-done">Switch to the DONE state</a>.
+  </dl>
+
+  <hr>
+
+  <p>The <dfn id=cross-origin-request-event-rules>cross-origin request event
+   rules</dfn> are as follows:
+
+  <dl class=switch>
+   <dt>If the <a href="#cross-origin-request-status">cross-origin request
+    status</a> is <i>preflight complete</i>
+
+   <dd>
+    <p><a href="#make-upload-progress-notifications">Make upload progress
+     notifications</a>.
+
+   <dt>If the <a href="#cross-origin-request-status">cross-origin request
+    status</a> is <i title="">network error</i>
+
+   <dd>
+    <p>This is a <a href="#network-error">network error</a>.
+
+   <dt>If the <a href="#cross-origin-request-status">cross-origin request
+    status</a> is <i title="">abort error</i>
+
+   <dd>
+    <p>This is an <a href="#abort-error">abort error</a>.
+
+   <dt>Once all HTTP headers have been received, the <a
+    href="#cross-origin-request-status">cross-origin request status</a> is
+    <i>success</i>, and the <a href="#asynchronous-flag">asynchronous
+    flag</a> is true
+
+   <dd>
+    <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
+     state</a>.</p>
+
+    <p><a href="#make-progress-notifications">Make progress
+     notifications</a>.</p>
+
+   <dt>Once the first byte (or more) of the <a
+    href="#response-entity-body">response entity body</a> has been received,
+    the <a href="#cross-origin-request-status">cross-origin request
+    status</a> is <i>success</i>, and the <a
+    href="#asynchronous-flag">asynchronous flag</a> is true
+
+   <dt>If there is no <a href="#response-entity-body">response entity
+    body</a>, the <a href="#cross-origin-request-status">cross-origin request
+    status</a> is <i>success</i>, and the <a
+    href="#asynchronous-flag">asynchronous flag</a> is true
+
+   <dd>
+    <p><a href="#switch-loading">Switch to the LOADING state</a>.
+
+   <dt>Once the whole <a href="#response-entity-body">response entity
+    body</a> has been received and the <a
+    href="#cross-origin-request-status">cross-origin request status</a> is
+    <i>success</i>
+
+   <dt>If there is no <a href="#response-entity-body">response entity
+    body</a>, the <a href="#cross-origin-request-status">cross-origin request
+    status</a> is <i>success</i>, and the <a
+    href="#asynchronous-flag">asynchronous flag</a> is false or the state is
+    <a href="#loading-state" title="LOADING state">LOADING</a>
+
+   <dd>
+    <p><a href="#switch-done">Switch to the DONE state</a>.
+  </dl>
+
+  <hr>
+
+  <p>When something is said to be a <dfn id=network-error>network error</dfn>
+   run these steps:
+
+  <ol>
+   <li>
+    <p>Set the <a href="#response-entity-body">response entity body</a> to
+     null.
+
+   <li>
+    <p>Set the the <a href="#error-flag">error flag</a> to true.
+
+   <li>
+    <p>Empty the list of <a href="#author-request-headers">author request
+     headers</a>.
+
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     raise a <code><a href="#network-err">NETWORK_ERR</a></code> exception
+     and terminate the overall set of steps.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.</p>
+
+    <p class=note>At this point it is clear that the <a
+     href="#asynchronous-flag">asynchronous flag</a> is true.</p>
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#error-event">error</a></code>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#loadend-event">loadend</a></code>.
+
+   <li>
+    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+     false, follow these substeps:</p>
+
+    <ol>
+     <li>
+      <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
+       true.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#error-event">error</a></code> on the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#loadend-event">loadend</a></code> on the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+    </ol>
+
+   <li>
+    <p>Terminate the overall algorithm.
+  </ol>
+
+  <hr>
+
+  <p>When something is said to be an <dfn id=abort-error>abort error</dfn>
+   run these steps:
+
+  <ol>
+   <li>
+    <p>Set the <a href="#response-entity-body">response entity body</a> to
+     null.
+
+   <li>
+    <p>Set the the <a href="#error-flag">error flag</a> to true.
+
+   <li>
+    <p>Empty the list of <a href="#author-request-headers">author request
+     headers</a>.
+
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     raise a <code><a href="#abort-err">ABORT_ERR</a></code> exception and
+     terminate the overall set of steps.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.</p>
+
+    <p class=note>At this point it is clear that the <a
+     href="#asynchronous-flag">asynchronous flag</a> is true.</p>
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code title=abort-event><a href="#abort-event">abort</a></code>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#loadend-event">loadend</a></code>.
+
+   <li>
+    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+     false, follow these substeps:</p>
+
+    <ol>
+     <li>
+      <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
+       true.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code title=abort-event><a href="#abort-event">abort</a></code> on the
+       <code><a href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code>
+       object.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#loadend-event">loadend</a></code> on the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+    </ol>
+
+   <li>
+    <p>Terminate the overall algorithm.
+  </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn id=switch-headers-received>switch to the
+   HEADERS_RECEIVED state</dfn> run these steps:
+
+  <ol>
+   <li>
+    <p>Switch the state to <a href="#headers-received-state"
+     title="HEADERS_RECEIVED state">HEADERS_RECEIVED</a>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+  </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn id=switch-loading>switch to the LOADING
+   state</dfn> run these steps:
+
+  <ol>
+   <li>
+    <p>Switch the state to <a href="#loading-state" title="LOADING
+     state">LOADING</a>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.
+  </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn id=switch-done>switch to the DONE state</dfn>
+   run these steps:
+
+  <ol>
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false run
+     these substeps:</p>
+
+    <ol>
+     <li>
+      <p><a href="#dispatch-readystatechange-event">Dispatch a
+       <code>readystatechange</code> event</a>.
+
+     <li>
+      <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+       called <code><a href="#load-event">load</a></code>.
+
+     <li>
+      <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+       called <code><a href="#loadend-event">loadend</a></code>.
+    </ol>
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true run
+     these substeps:</p>
+
+    <ol>
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-readystatechange-event">dispatch a
+       <code>readystatechange</code> event</a>.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#load-event">load</a></code>.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#loadend-event">loadend</a></code>.
+    </ol>
+  </ol>
+
+  <hr>
+
+  <p>When it is said to <dfn id=make-progress-notifications>make progress
+   notifications</dfn>, while the download is progressing, <a
+   href="#queue-a-task">queue a task</a> to <a
+   href="#dispatch-progress-event">dispatch a progress event</a> called
+   <code><a href="#progress-event">progress</a></code> about every 50ms or
+   for every byte received, whichever is <em>least</em> frequent.
+
+  <hr>
+
+  <p>When it is said to <dfn id=make-upload-progress-notifications>make
+   upload progress notifications</dfn> run these steps:
+
+  <ul>
+   <li>
+    <p>While the request entity body is being uploaded and the <a
+     href="#upload-complete-flag">upload complete flag</a> is false, <a
+     href="#queue-a-task">queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#progress-event">progress</a></code> at the <code><a
+     href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object
+     about every 50ms or for every byte transmitted, whichever is
+     <em>least</em> frequent.
+
+   <li>
+    <p>If the <a href="#request-entity-body">request entity body</a> has been
+     successfully uploaded and the <a href="#upload-complete-flag">upload
+     complete flag</a> is still false, run these substeps:</p>
+
+    <ol>
+     <li>
+      <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
+       true.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#load-event">load</a></code> at the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#loadend-event">loadend</a></code> at the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+    </ol>
+  </ul>
+  <!-- XXX successfully uploaded? -->
+
+  <h4 id=the-abort-method><span class=secno>3.6.7 </span>The <code
+   title="">abort()</code> method</h4>
 
   <p>When the <dfn id=abort><code>abort()</code></dfn> method is invoked, the
-   user agent <em class=ct>must</em> act as if it had run the following steps
-   (unless otherwise noted):
+   user agent <em class=ct>must</em> run these steps (unless otherwise
+   noted):
 
   <ol>
    <li>
     <p><a href="#abort-send-algorithm" title="abort send()">Abort the
-     <code>send()</code> algorithm</a>, set the <a
-     href="#response-entity-body">response entity body</a> to null, the <a
-     href="#error-flag">error flag</a> to true and empty the <a
-     href="#author-request-headers">author request headers</a> list.
+     <code>send()</code> algorithm</a>.
 
    <li>
     <p>The user agent <em class=ct>should</em> cancel any network activity
      for which the object is responsible.
+
+   <li>
+    <p>Set the <a href="#response-entity-body">response entity body</a> to
+     null.
+
+   <li>
+    <p>Set the <a href="#error-flag">error flag</a> to true.
+
+   <li>
+    <p>Empty the list of <a href="#author-request-headers">author request
+     headers</a>.
 
    <li>
     <p>If the state is <a href="#unsent-state" title="UNSENT
@@ -1460,40 +1951,89 @@ X-Test: one, two
      flag</a> being false, or <a href="#done-state" title="DONE
      state">DONE</a> go to the next step.</p>
 
-    <p>Otherwise, switch the state to <a href="#done-state" title="DONE
-     state">DONE</a>, set the <a href="#send-flag"><code>send()</code>
-     flag</a> to false and synchronously dispatch a <code><a
-     href="#readystatechange-event">readystatechange</a></code> event on the
-     object.</p>
-   </li>
-   <!-- XXX dispatch -->
+    <p>Otherwise run these substeps:</p>
+
+    <ol>
+     <li>
+      <p>Switch the state to <a href="#done-state" title="DONE
+       state">DONE</a>.
+
+     <li>
+      <p>Set the <a href="#send-flag"><code>send()</code> flag</a> to false.
+
+     <li>
+      <p><a href="#dispatch-readystatechange-event">Dispatch a
+       <code>readystatechange</code> event</a>.
+
+     <li>
+      <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+       called <code title=abort-event><a
+       href="#abort-event">abort</a></code>.
+
+     <li>
+      <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+       called <code><a href="#loadend-event">loadend</a></code>.
+
+     <li>
+      <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+       false run these substeps:</p>
+
+      <ol>
+       <li>
+        <p>Set the <a href="#upload-complete-flag">upload complete flag</a>
+         to true.
+
+       <li>
+        <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+         called <code title=abort-event><a
+         href="#abort-event">abort</a></code> on the <code><a
+         href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+
+       <li>
+        <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+         called <code><a href="#loadend-event">loadend</a></code> on the
+         <code><a
+         href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+      </ol>
+    </ol>
 
    <li>
     <p>Switch the state to <a href="#unsent-state" title="UNSENT
-     state">UNSENT</a>. (Do not dispatch a <code><a
-     href="#readystatechange-event">readystatechange</a></code> event.)
+     state">UNSENT</a>.</p>
 
-   <li>
-    <p>Synchronously <a href="#dispatch-progress-event">dispatch a progress
-     event</a> called <code title=abort-event><a
-     href="#abort-event">abort</a></code> on the object.
-
-   <li>
-    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
-     false, set the flag to true and synchronously <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code title=abort-event><a href="#abort-event">abort</a></code> on the
-     object returned by the <code><a href="#upload">upload</a></code>
-     attribute.
+    <p class=note>No <code><a
+     href="#readystatechange-event">readystatechange</a></code> event is
+     dispatched.</p>
   </ol>
 
-  <h3 id=response-metadata><span class=secno>3.6 </span>Response Metadata</h3>
+  <h3 id=response><span class=secno>3.7 </span>Response</h3>
 
-  <p>The <dfn
-   id=getallresponseheaders><code>getAllResponseHeaders()</code></dfn> method
-   provides access to all response headers as a single string. When invoked,
-   the user agent <em class=ct>must</em> act as if it had run the following
-   steps:
+  <h4 id=the-status-attribute><span class=secno>3.7.1 </span>The <code
+   title="">status</code> attribute</h4>
+
+  <p>The <dfn id=status><code>status</code></dfn> attribute <em
+   class=ct>must</em> return the result of running these steps:
+
+  <ol>
+   <li>
+    <p>If the state is <a href="#unsent-state" title="UNSENT
+     state">UNSENT</a> or <a href="#opened-state" title="OPENED
+     state">OPENED</a> raise an <code>INVALID_STATE_ERR</code> exception and
+     terminate these steps.
+
+   <li>
+    <p>If the <a href="#error-flag">error flag</a> is true return
+     <code>0</code> and terminate these steps.
+
+   <li>
+    <p>Return the HTTP status code.
+  </ol>
+
+  <h4 id=the-statustext-attribute><span class=secno>3.7.2 </span>The <code
+   title="">statusText</code> attribute</h4>
+
+  <p>The <dfn id=statustext><code>statusText</code></dfn> attribute <em
+   class=ct>must</em> return the result of running these steps:
 
   <ol>
    <li>
@@ -1507,45 +2047,15 @@ X-Test: one, two
      string and terminate these steps.
 
    <li>
-    <p>Return all the HTTP headers, excluding headers that are an <a
-     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
-     <code>Set-Cookie</code> or <code>Set-Cookie2</code>, as a single string,
-     with each header line separated by a U+000D CR U+000A LF pair excluding
-     the status line, and with each header name and header value separated by
-     a U+003A COLON U+0020 SPACE pair.
+    <p>Return the HTTP status text.
   </ol>
 
-  <div class=example>
-   <pre><code>// The following script:
-var client = new XMLHttpRequest();
-client.open("GET", "test.txt", true);
-client.send();
-client.onreadystatechange = function() {
- if(this.readyState == 2) {
-  print(this.getAllResponseHeaders());
- }
-}
+  <h4 id=the-getresponseheader-method><span class=secno>3.7.3 </span>The
+   <code title="">getResponseHeader()</code> method</h4>
 
-// ...should output something similar to the following text:
-Date: Sun, 24 Oct 2004 04:58:38 GMT
-Server: Apache/1.3.31 (Unix)
-Keep-Alive: timeout=15, max=99
-Connection: Keep-Alive
-Transfer-Encoding: chunked
-Content-Type: text/plain; charset=utf-8</code></pre>
-  </div>
-
-  <p class=note>The Cross-Origin Resource Sharing specification filters the
-   headers that are exposed by <code><a
-   href="#getallresponseheaders">getAllResponseHeaders()</a></code> for non
-   <span>same-origin</span> requests. [<cite><a
-   href="#ref-cors">CORS</a></cite>]
-
-  <p>The <dfn id=getresponseheader
+  <p>When the <dfn id=getresponseheader
    title=getresponseheader><code>getResponseHeader(<var>header</var>)</code></dfn>
-   method returns the value of a response header given by the
-   <var>header</var> argument. When invoked, the user agent <em
-   class=ct>must</em> act as if it had run the following steps:
+   is invoked, the user agent <em class=ct>must</em> run these steps:
 
   <ol>
    <li>
@@ -1606,27 +2116,62 @@ client.onreadystatechange = function() {
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
 
-  <p>The <dfn id=status><code>status</code></dfn> attribute, on getting and
-   if available, <em class=ct>must</em> return the HTTP status code sent by
-   the server (typically <code>200</code> for a successful request). If not
-   available, the user agent <em class=ct>must</em> raise an
-   <code>INVALID_STATE_ERR</code> exception.
+  <h4 id=the-getallresponseheaders-method><span class=secno>3.7.4 </span>The
+   <code title="">getAllResponseHeaders()</code> method</h4>
 
-  <p>The <dfn id=statustext><code>statusText</code></dfn> attribute, on
-   getting and if available, <em class=ct>must</em> return the HTTP status
-   text sent by the server (appears after the status code). If not available
-   (request is not initiated for instance), the user agent <em
-   class=ct>must</em> raise an <code>INVALID_STATE_ERR</code> exception.
+  <p>When the <dfn
+   id=getallresponseheaders><code>getAllResponseHeaders()</code></dfn> method
+   is invoked, the user agent <em class=ct>must</em> run the following steps:
 
-  <h3 id=response-body><span class=secno>3.7 </span>Response Body</h3>
+  <ol>
+   <li>
+    <p>If the state is <a href="#unsent-state" title="UNSENT
+     state">UNSENT</a> or <a href="#opened-state" title="OPENED
+     state">OPENED</a> raise an <code>INVALID_STATE_ERR</code> exception and
+     terminate these steps.
 
-  <p>The following subsection defines various variables and algorithms
-   important to the response body. The subsection after that defines the
-   members of the <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> object relevant
-   to the response body.
+   <li>
+    <p>If the <a href="#error-flag">error flag</a> is true return the empty
+     string and terminate these steps.
 
-  <h4 id=definitions><span class=secno>3.7.1 </span>Definitions</h4>
+   <li>
+    <p>Return all the HTTP headers, excluding headers that are an <a
+     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
+     <code>Set-Cookie</code> or <code>Set-Cookie2</code>, as a single string,
+     with each header line separated by a U+000D CR U+000A LF pair excluding
+     the status line, and with each header name and header value separated by
+     a U+003A COLON U+0020 SPACE pair.
+  </ol>
+
+  <div class=example>
+   <pre><code>// The following script:
+var client = new XMLHttpRequest();
+client.open("GET", "test.txt", true);
+client.send();
+client.onreadystatechange = function() {
+ if(this.readyState == 2) {
+  print(this.getAllResponseHeaders());
+ }
+}
+
+// ...should output something similar to the following text:
+Date: Sun, 24 Oct 2004 04:58:38 GMT
+Server: Apache/1.3.31 (Unix)
+Keep-Alive: timeout=15, max=99
+Connection: Keep-Alive
+Transfer-Encoding: chunked
+Content-Type: text/plain; charset=utf-8</code></pre>
+  </div>
+
+  <p class=note>The Cross-Origin Resource Sharing specification filters the
+   headers that are exposed by <code><a
+   href="#getallresponseheaders">getAllResponseHeaders()</a></code> for non
+   <span>same-origin</span> requests. [<cite><a
+   href="#ref-cors">CORS</a></cite>]
+
+  <h4 id=response-entity-body0><span class=secno>3.7.5 </span>Response Entity
+   Body</h4>
+  <!-- XXX carefully study this -->
 
   <p>The <dfn id=response-mime-type>response MIME type</dfn> is the MIME type
    the <code>Content-Type</code> header contains without any parameters or
@@ -1784,13 +2329,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Return <var>document</var>.
   </ol>
 
-  <h4 id=response-body-members><span class=secno>3.7.2 </span>Response Body
-   Members</h4>
+  <h4 id=the-overridemimetype-method><span class=secno>3.7.6 </span>The <code
+   title="">overrideMimeType()</code> method</h4>
 
   <p>When the <dfn id=overridemimetype
    title=overridemimetype><code>overrideMimeType(<var>mime</var>)</code></dfn>
-   method is invoked, the user agent <em class=ct>must</em> act as if it had
-   run the following steps:
+   method is invoked, the user agent <em class=ct>must</em> run the following
+   steps:
 
   <ol>
    <li>
@@ -1806,6 +2351,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>If a <code>charset</code> parameter is successfully parsed set <a
      href="#override-charset">override charset</a> to its value.
   </ol>
+
+  <h4 id=the-responsebody-attribute><span class=secno>3.7.7 </span>The <code
+   title="">responseBody</code> attribute</h4>
+
+  <p class=XXX>This will be done in terms of the File API in due course.
 
   <p>The <dfn id=responsebody><code>responseBody</code></dfn> attribute, on
    getting, <em class=ct>must</em> return the result of running the following
@@ -1824,6 +2374,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <code>null</code> if the response entity body is null.
   </ol>
 
+  <h4 id=the-responsetext-attribute><span class=secno>3.7.8 </span>The <code
+   title="">responseText</code> attribute</h4>
+
   <p>The <dfn id=responsetext><code>responseText</code></dfn> attribute, on
    getting, <em class=ct>must</em> return the result of running the following
    steps:
@@ -1838,6 +2391,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Return the <a href="#text-response-entity-body">text response entity
      body</a>.
   </ol>
+
+  <h4 id=the-responsexml-attribute><span class=secno>3.7.9 </span>The <code
+   title="">responseXML</code> attribute</h4>
 
   <p>The <dfn id=responsexml><code>responseXML</code></dfn> attribute, on
    getting, <em class=ct>must</em> return the result of running the following
@@ -1860,9 +2416,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <h3 id=events><span class=secno>3.8 </span>Events summary</h3>
 
   <p>The following events are dispatched on <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> and/or <code><a
-   href="#xmlhttprequestupload-interface">XMLHttpRequestUpload</a></code>
-   objects:
+   href="#xmlhttprequest">XMLHttpRequest</a></code> and/or <code><a
+   href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> objects:
 
   <table>
    <thead>
@@ -1874,6 +2429,28 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <th>Dispatched when&hellip;
 
    <tbody>
+    <tr>
+     <td><dfn id=readystatechange-event><code>readystatechange</code></dfn>
+
+     <td><code>Event</code>
+
+     <td>The <code><a href="#readystate">readyState</a></code> attribute
+      changes and at some seemingly arbitrary times for historical reasons.
+
+    <tr>
+     <td><dfn id=loadstart-event><code>loadstart</code></dfn>
+
+     <td><code>ProgressEvent</code>
+
+     <td>When the request starts.
+
+    <tr>
+     <td><dfn id=progress-event><code>progress</code></dfn>
+
+     <td><code>ProgressEvent</code>
+
+     <td>While loading and sending data.
+
     <tr>
      <td><dfn id=abort-event title=abort-event><code>abort</code></dfn>
 
@@ -1897,26 +2474,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <td>When the request has successfully completed.
 
     <tr>
-     <td><dfn id=loadstart-event><code>loadstart</code></dfn>
+     <td><dfn id=loadend-event><code>loadend</code></dfn>
 
      <td><code>ProgressEvent</code>
 
-     <td>When the request starts.
-
-    <tr>
-     <td><dfn id=progress-event><code>progress</code></dfn>
-
-     <td><code>ProgressEvent</code>
-
-     <td>While loading and sending data.
-
-    <tr>
-     <td><dfn id=readystatechange-event><code>readystatechange</code></dfn>
-
-     <td><code>Event</code>
-
-     <td>The <code><a href="#readystate">readyState</a></code> attribute
-      changes and at some seemingly arbitrary times for historical reasons.
+     <td>When the request has completed (either in success or failure).
   </table>
 
   <h3 id=exceptions><span class=secno>3.9 </span>Exceptions</h3>
@@ -1953,11 +2515,22 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
    as well.
 
   <h2 class=no-num id=references>References</h2>
-  <!--
+
   <p>Unless marked "Non-normative" these references are normative.
-  -->
 
   <dl>
+   <dt>[<dfn id="ref-cookies=">COOKIES</dfn>]
+
+   <dd><cite><a href="http://ietf.org/rfc/rfc2109">HTTP State Management
+    Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, February
+    1997.
+
+   <dd><cite><a href="http://ietf.org/rfc/rfc2965">HTTP State Management
+    Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, October
+    2000.</dd>
+   <!-- XXX These specs do not match reality. Also, the latter obsoletes the
+   former -->
+
    <dt>[<dfn id=ref-cors>CORS</dfn>]
 
    <dd><cite><a
@@ -2038,12 +2611,6 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
     Hostetler, S. Lawrence, P. Leach, A. Luotonen, L. Stewart, editors. IETF,
     June 1999.
 
-   <dt>[<dfn id=ref-rfc2965>RFC2965</dfn>]
-
-   <dd><cite><a href="http://ietf.org/rfc/rfc2965">HTTP State Management
-    Mechanism</a></cite>, D. Kristol, L. Montulli, editors. IETF, October
-    2000.
-
    <dt>[<dfn id=ref-rfc3986>RFC3986</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource
@@ -2079,9 +2646,8 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
    Stachowiak, Martin Hassman, Mohamed Zergaoui, Olli Pettay, and Rune
    Halvorsen for their contributions to this specification.
 
-  <p>Thanks also to all who have contributed to The <code><a
-   href="#xmlhttprequest-interface">XMLHttpRequest</a></code> Object
-   specification.
+  <p>Thanks also to all who have contributed to the <code
+   title="">XMLHttpRequest</code> specification.
 
   <p>Thanks also to all those who have helped to improve this specification
    by sending suggestions and corrections. (Please, keep bugging us with your
