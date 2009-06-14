@@ -36,13 +36,13 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 13 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 14 June 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090613/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090613/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090614/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090614/</a>
 
     <dt>Latest Version:
 
@@ -100,7 +100,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 13 June 2009 Working Draft of <code
+  <p>This is the 14 June 2009 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -361,14 +361,14 @@
    URL</dfn>, <dfn id=event-handler-attributes-0>event handler
    attributes</dfn>, <dfn id=event-handler-event-type>event handler event
    type</dfn>, <dfn id=fully-active>fully active</dfn>, <dfn
-   id=function><code>Function</code></dfn>, <dfn id=origin>origin</dfn>, <dfn
-   id=resolve-a-url>resolve a URL</dfn>, <dfn id=same-origin>same
-   origin</dfn>, <dfn id=storage-mutex>storage mutex</dfn>, <dfn
-   id=task>task</dfn>, <dfn id=task-source>task source</dfn>, <dfn
-   id=url>URL</dfn>, <dfn id=url-character-encoding>URL character
-   encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and <dfn
-   id=xml-fragment-serialization-algorithm>XML fragment serialization
-   algorithm</dfn> are defined by the HTML&nbsp;5 specification. [<cite><a
+   id=function><code>Function</code></dfn>, <dfn id=dom-innerhtml
+   title=dom-innerHTML><code>innerHTML</code></dfn>, <dfn
+   id=origin>origin</dfn>, <dfn id=resolve-a-url>resolve a URL</dfn>, <dfn
+   id=same-origin>same origin</dfn>, <dfn id=storage-mutex>storage
+   mutex</dfn>, <dfn id=task>task</dfn>, <dfn id=task-source>task
+   source</dfn>, <dfn id=url>URL</dfn>, <dfn id=url-character-encoding>URL
+   character encoding</dfn>, and <dfn id=queue-a-task>queue a task</dfn> are
+   defined by the HTML&nbsp;5 specification. [<cite><a
    href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
@@ -1155,7 +1155,7 @@ X-Test: one, two
     <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
-   <li>
+   <li> <!-- XXX this step does not match XHR1 -->
     <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
      act as if the <var>data</var> argument is <code>null</code>.</p>
 
@@ -1179,17 +1179,18 @@ X-Test: one, two
      <dt><var>data</var> is a <code>Document</code>
 
      <dd>
-      <p>Let <var>data</var> be <code><var>data</var>.innerHTML</code> as
-       defined by section 2.5 of HTML&nbsp;5. Encode it using
+      <p>Let <var>tempdata</var> be the result of getting the <code
+       title=dom-innerHTML><a href="#dom-innerhtml">innerHTML</a></code>
+       attribute on the <var>data</var> object and encode it using
        <code><var>data</var>.inputEncoding</code> or UTF-8 if
        <code><var>data</var>.inputEncoding</code> is <code>null</code>.
-       Re-raise any exceptions the <code><var>data</var>.innerHTML</code>
-       getter algorithm raises. [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
+       Re-raise any exception this raises.</p>
 
-      <p class=note>If the document cannot be serialized the
-       <code>document.innerHTML</code> algorithm raises an
-       <code>INVALID_STATE_ERR</code> exception.</p>
+      <p class=note>If the document cannot be serialized an
+       <code>INVALID_STATE_ERR</code> exception is raised.</p>
 
+      <p>Let <var>data</var> be <var>tempdata</var>.</p>
+      <!-- XXX1 difference -->
       <p>If no <code>Content-Type</code> header has been set using <code><a
        href="#setrequestheader">setRequestHeader()</a></code> set a
        <code>Content-Type</code> request header with a value of
