@@ -15,7 +15,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>DataCache and HTTP Interceptor API</title>
-    <meta name='revision' content='$Id: Overview.xml,v 1.1 2009-07-15 20:09:59 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.xml,v 1.2 2009-07-15 22:33:46 nmehta3 Exp $'/>
     <link rel='stylesheet' href='DataCache.css' type='text/css'/>
     <script src='section-links.js' type='application/ecmascript'/>
     <script src='dfn.js' type='application/ecmascript'/>
@@ -51,8 +51,8 @@
     <div class='section'>
       <h2>Abstract</h2>
       <p>
-        This document defines APIs for seamless on-line/off-line HTTP cache
-        and for intercepting HTTP requests.
+        This document defines APIs for dynamically and statically serving
+        off-line representations of HTTP resources.
       </p>
 
       <?revision-note?>
@@ -60,7 +60,7 @@
 
     <div class='section'>
       <h2>Status of this Document</h2>
-      <?sotd-top public-webapps@w3.org http://lists.w3.org/Archives/Public/public-webapps/ [WebIDL]?>
+      <?sotd-top public-webapps@w3.org http://lists.w3.org/Archives/Public/public-webapps/ [DataCache]?>
       <p>
         This document is produced by the
         <a href='http://www.w3.org/2008/webapps/'>Web Applications Working Group</a>, part of the
@@ -86,30 +86,44 @@
 
         <p>
           Web applications often encounter seemingly random disconnections
-          or network slow downs, which deteriorates application responsiveness
+          or network slowdowns, which deteriorates application responsiveness
           and availability, and, therefore, user experience. Special mobile 
           applications for specific mobile device platforms are developed in a 
-          fat client-server architecture to work around this problem and are 
+          fat client-server architecture to work around these problems and are 
           used with special programs that synchronize data with the server.
         </p>
         <p>
-          DataCaches provide a user agent solution to improve application 
-          availability and responsiveness by hoarding and subsequently 
-          supplying application data. One primitive defined by this specification
-          is a programmable HTTP cache that can be manipulated by a Web application. 
-          Another primitive introduced by this specification, called HTTP interceptor,
-          offers applications a way to intercept HTTP requests, e.g., GET or PUT. 
-          Using these two primitives, applications can locally cache required data, 
+          This specification provides constructs, called data caches and HTTP
+          interceptors, for statically and dynamically served, off-line
+          representations of resources, respectively. This specification provides
+          a user agent solution to improve application availability and
+          responsiveness by hoarding and subsequently supplying application data. 
+        </p>
+        
+        <p>
+          Data cache is a programmable HTTP cache that can be manipulated by
+          a Web application to store and serve static off-line representations
+          of resources. HTTP interceptor offers applications a way to produce
+          dynamic off-line representations  of resources by intercepting HTTP
+          requests, e.g., GET or PUT.
+        </p>
+        
+        <p>
+          Using these two constructs, applications can locally cache required data, 
           complete requests to HTTP resources whether or not the requests can be 
           serviced immediately by a remote server, and later replay locally 
-          satisfied requests to the server. This enables embedded HTTP serving 
-          inside user agents and Web applications, thus simplifying the task of 
-          creating applications in low connectivity conditions.
+          satisfied requests to the server. This enables responsive and robust
+          Web applications in low connectivity conditions.
         </p>
+        
         <p>
-          Existing applications can continue to use their data the same way 
-          regardless of DataCache. New applications can be design for improved 
-          responsiveness to benefit from DataCache.
+          As the constructs are transparently pressed into action by the user 
+          agent, depending on system conditions, existing applications can be 
+          used unchanged in environments that are not affected by network
+          unreliability. New applications can be designed for improved
+          responsiveness using constructs specified here. New applications
+          seamlessly switch between on-line and off-line operation
+          without needing explicit user action.
         </p>
       </div>
 
@@ -258,30 +272,28 @@
         <h2>Terminology</h2>
 
         <p>
-          <dfn id="capture">Capture</dfn> is the process of storing the 
-          representation of a resource into a persistent data cache.
+          A resource is <dfn id="capture">captured</dfn> when it is identified
+          to a persistent data cache.
         </p>
         
         <p>
-          A <dfn id="managed">managed resource</dfn> is one whose HTTP 
-          <cite><a href="#ref-RFC2616">[RFC2616]</a></cite> URL is captured and 
-          requires programmatic interception.
+          A <dfn id="managed">managed resource</dfn> is one whose URL is captured.
         </p>
         
         <p>
-          A <dfn id="static">static response</dfn> is one that is generated 
-          directly from a captured representation of a resource.
+          A <dfn id="static">static representation</dfn> is one that is generated 
+          directly by the user agent from its internal storage.
         </p>
         
         <p>
-          A <dfn id="dynamic">dynamic response</dfn> is one that is generated 
+          A <dfn id="dynamic">dynamic representation</dfn> is one that is generated 
           programmatically by using application-supplied logic.
         </p>		
         
         <p>
           <dfn id="offline">Transparent off-line data access and manipulation</dfn>  
-          means to locally generate a <a class="dfnref" href="static">static</a> 
-          or a <a class="dfnref" href="dynamic">dynamic</a> 
+          means to locally generate a <a class="dfnref" href="#static">static</a> 
+          or a <a class="dfnref" href="#dynamic">dynamic</a> 
           response for HTTP requests to captured  resources.
         </p>
         <p>
@@ -292,31 +304,30 @@
       <div id="cache" class="section">
         <h2>DataCache and HTTP Interception</h2>
         <p>
-          This section describes a language with which interfaces can be defined
-          in a language independent manner.
-        </p>
-
-        <p>
-          This specification enables a client-side interceptor for HTTP 
-          requests to <a class="dfnref" href="capture">managed resources</a> and 
-          allows user agents to process such requests in one of three ways: 
+          This specification provides APIs to applications for identifying
+          <a class="dfnref" href="#capture">managed resources</a> to a user
+          agent and to specify <a class="dfnref" href="#static">static</a> 
+          and <a class="dfnref" href="#dynamic">dynamic</a> 
+          representations for these resources. A user agent processes
+          requests to <a class="dfnref" href="#capture">managed resources</a>
+          in one of three ways: 
         </p>
         <ol>
           <li>
             <a class="dfnref" href="#intercept-policy">intercept</a> - 
             immediately invoke an interceptor program to obtain a 
-            <a class="dfnref" href="#dynamic">dynamic response</a>
+            <a class="dfnref" href="#dynamic">dynamic representation</a>
           </li>
           <li>
             <a class="dfnref" href="#review-policy">review</a> - 
             relay the request to the server to obtain a 
-            <a class="dfnref" href="#dynamic">dynamic response</a> and 
-            notify an interceptor program when that response is available
+            <a class="dfnref" href="#dynamic">dynamic representation</a> and 
+            notify an interceptor program when that representation is available
           </li>
           <li>
             <a class="dfnref" href="#serve-policy">serve</a> - 
-            respond with the <a class="dfnref" href="#static">static</a> 
-            representation of the requested resource
+            respond with the <a class="dfnref" href="#static">static
+            representation</a>  of the requested resource
           </li>
         </ol>
         
@@ -328,29 +339,29 @@
           can be used for any HTTP method on resources that require interception. 
           Both policies improve availability and responsiveness. However, both 
           may affect data freshness. The 
-          <a class="dfnref" href="#review-policy">review policy</a> is 
-          useful for any unsafe HTTP method but can only be used when the user agent 
+          <a class="dfnref" href="#review-policy">review policy</a> can be used 
+          for any unsafe HTTP method but can only be used when the user agent 
           is able to communicate over the network. This policy improves data freshness 
-          at the cost of reduced responsiveness. User agents may otherwise choose 
-          freely from among these options, e.g., using information about the battery 
-          condition, network state, or a user preference.
+          at the cost of reduced responsiveness. User agents may choose 
+          freely from among these options, e.g., using information about the system 
+          condition, e.g., network state or battery power level, or a user preference.
         </p>
 
         <div id='http-cache' class='section'>
           <h3>Programmable HTTP Cache</h3>
 
+		  <p>
+			This specification enables a Web application to pre-fetch 
+			representations of a set of programmatically determined 
+			resources and later serve these representations statically in response 
+			to requests to those resources. It removes the lack of 
+		    predictability about the availability of cached resources.
+  		  </p>
+
 		  <div id="datacache-intro" class="section">
 		    <h4>Introduction</h4>			
 		    <div class="norm">This section is non-normative.</div>
-		
-			<p>
-			  This specification enables a Web application to pre-fetch 
-			  representations of a set of programmatically determined 
-			  resources and later serve these representations in response 
-			  to requests to those resources. It removes the lack of 
-			  predictability about the availability of cached resources.
-			</p>
-		
+				
 			<p>
 			  The standard HTTP caches built in to existing user agents 
 			  are under no obligation to locally store a cacheable resource 
@@ -376,8 +387,9 @@
 dataCache.capture('/app/layout.plist');</x:codeblock>
 			  <p>
 			    Later, when any page requests that preference list either 
-			    through page navigation or an XMLHttpRequest, the user agent 
-			    can serve it from that data cache:
+			    through page navigation or an XMLHttpRequest 
+			    <cite><a href="#ref-XMLHttpRequest">XMLHttpRequest</a></cite>, 
+			    the user agent can serve it from that data cache:
 			  </p>
 			  <x:codeblock language="es">var req = new XMLHttpRequest;
 req.open('GET', '/app/layout.plist');
@@ -389,7 +401,7 @@ req.send();</x:codeblock>
 		      An application can obtain a 
 		      <a class="idltype" href="#DataCache"><code>DataCache</code></a> 
 		      object from a <code>Window</code> or other similar object. An unsecure 
-		      data cache stores non-<a class="dfnref" href="#secure">secure resources</a>.
+		      data cache cannot store <a class="dfnref" href="#secure">secure resources</a>.
 		    </p>
 		
 			<div class="example">			
@@ -400,15 +412,15 @@ req.send();</x:codeblock>
 		    </div>
 
 		    <p>
-		      Applications may also use secure data caches to 
-		      <a class="dfnref" href="#capture">capture</a> 
+		      Applications may also use secure data caches for 
 		      <a class="dfnref" href="#secure">secure resources</a>. 
 		      Access is restricted by the presence of a previously identified
 		      required cookie in the current browsing context. Applications
 		      only identify the name of the required cookie, not its value,
 		      at the time of opening the cache, whereupon the then current
 		      value of the required cookie is recorded in the data cache and
-		      used in all future attempts to open that data cache.
+		      used in all future attempts to open that data cache as well as
+		      to serve requests for managed resources.
 		    </p>
 		
 			<div class="example">
@@ -430,7 +442,7 @@ req.send();</x:codeblock>
 			</p>
 		
 			<p>
-			  Each <i>origin</i> has an associated set of data caches. Each
+			  Each <i>origin</i> <cite><a href="#ref-HTML5">[HTML5]</a></cite> has an associated set of data caches. Each
 			  data cache has a name and an optional authorization cookie used
 			  to limit access to data in that cache. There is no way to
 			  enumerate the data caches available for an <i>origin</i> from this
@@ -457,12 +469,13 @@ req.send();</x:codeblock>
 			    an existing data cache with the given <var>name</var> provided
 			    that if the optional <var>cookieName</var> is specified, then
 			    the cookie used in the existing data cache matches the named
-			    cookie in the current browsing context, or
+			    cookie in the <i>current browsing context</i> <cite><a href="#ref-HTML5">[HTML5]</a></cite>, or
 			  </li> 
 			  <li>
 			    a new data cache with the given <var>name</var> and if the optional
-			    <var>cookieName</var> is specified, then the cookie from the current
-			    browsing context for <var>cookieName</var>
+			    <var>cookieName</var> is specified, then the cookie from the 
+			    <i>current browsing context</i> <cite><a href="#ref-HTML5">[HTML5]</a></cite>
+			    for <var>cookieName</var>
 			  </li> 
 		    </ul>
 		
@@ -487,8 +500,8 @@ req.send();</x:codeblock>
 		    <div>
 			  <x:codeblock language="idl">interface <dfn id="DataCache">DataCache</dfn> { 
   // Actions
-  void <a href="#datacache-capture">capture</a>(in DOMString name, [optional in] DOMString interceptibleMethods, [optional in] <a href="#CaptureCallback">CaptureCallback</a> callback);
-  void <a href="#datacache-captureText">captureText</a>(in DOMString name, in DOMString content, [optional in] DOMString contentType, [optional in] DOMString interceptibleMethods, [optional in] <a href="#CaptureCallback">CaptureCallback</a> callback));
+  void <a href="#datacache-capture">capture</a>(in DOMString name, [optional in] DOMString dynamicMethods, [optional in] <a href="#CaptureCallback">CaptureCallback</a> callback);
+  void <a href="#datacache-captureText">captureText</a>(in DOMString name, in DOMString content, [optional in] DOMString contentType, [optional in] DOMString dynamicMethods, [optional in] <a href="#CaptureCallback">CaptureCallback</a> callback));
   void <a href="#datacache-destroy">destroy</a>();
   
   // Queries
@@ -508,8 +521,8 @@ interface <dfn id="CaptureCallback">CaptureCallback</dfn> {
 		    <p>
 		      The representation of a resource identified by the <var>url</var> parameter
 		      can be asynchronously <a class="dfnref" href="#capture">captured</a> in a data
-		      cache in one of two ways <dfn id="datacache-capture"><code>capture(url, interceptibleMethods, callback)</code></dfn>
-		      and <dfn id="datacache-captureText"><code>captureText(url, body, contentType, interceptibleMethods, callback)</code></dfn>.
+		      cache in one of two ways <dfn id="datacache-capture"><code>capture(url, dynamicMethods, callback)</code></dfn>
+		      and <dfn id="datacache-captureText"><code>captureText(url, body, contentType, dynamicMethods, callback)</code></dfn>.
 		      In the first method the user agent asynchronously attempts to 
 		      obtain the network representation of the identified resource. 
 		      In the second method, the user agent asynchronously attempts to 
@@ -531,16 +544,16 @@ interface <dfn id="CaptureCallback">CaptureCallback</dfn> {
 			<p>
 			  For either <a class="idltype" href="#datacache-capture"><code>capture</code></a> or 
 			  <a class="idltype" href="#datacache-captureText"><code>captureText</code></a> method, 
-			  <var>interceptibleMethods</var> may be optionally specified to enable 
-			  programmatic interception and <a class="dfnref" href="#dynamic">dynamic response</a>
+			  <var>dynamicMethods</var> may be optionally specified to enable 
+			  programmatic interception and <a class="dfnref" href="#dynamic">dynamic representation</a>
 			  generation. This parameter consists of a comma separated list of
 			  HTTP methods that can be intercepted for local processing. An
 			  empty string is allowed for this parameter. If the parameter uses
 			  characters disallowed by the <code>Method</code> production of HTTP 
 			  <cite><a href="#ref-RFC2616">[RFC2616]</a></cite>, then the method
 			  must raise a <code>SYNTAX_ERR</code> exception. If the resource
-			  identified by <var>url</var> exists in the data cache and  <var>interceptibleMethods</var>
-			  is not provided, then the user agent must retain the existing set of interceptible methods. </p>
+			  identified by <var>url</var> exists in the data cache and  <var>dynamicMethods</var>
+			  is not provided, then the user agent must retain the existing set of dynamic methods. </p>
 		
 			<p>
 			  If a server keeps a stateful session with the client, it can track
@@ -592,7 +605,8 @@ interface <dfn id="CaptureCallback">CaptureCallback</dfn> {
 			  must raise the <code>INVALID_STATE_ERR</code> exception. If the
 			  resource does not exist in the data cache, then the method must raise
 			  the <code>NOT_FOUND_ERR</code> exception. If the content-type of the
-			  resource is not one of <code>text</code> or <code>application/xml</code>,
+			  resource does not match <code>text/*</code>, <code>application/xml</code>,
+			  or <code>application/*\+xml</code>
 			  then the method must raise the <code>NOT_SUPPORTED_ERR</code> exception.
 			</p>
 			
@@ -713,10 +727,9 @@ interface <dfn id="CaptureCallback">CaptureCallback</dfn> {
 		
 		    <p>
 		      If the request to <a class="dfnref" href="#capture">capture</a>
-		      a resource identifies a set of methods that can be locally
-		      satisfied, then the user agent will obtain a <a class="dfnref" href="#dynamic">dynamic response</a>
-		      to requests for that resource for those methods from an
-		      interceptor even if the server cannot be reached.
+		      a resource identifies a set of dynamic methods, then the user agent 
+		      will provide a <a class="dfnref" href="#dynamic">dynamic representation</a> 
+		      in response to requests with those methods for that captured resource.
 		    </p>
 
 		    <div class="example">				
@@ -833,7 +846,7 @@ window.interceptors['/app/'] = {
 			<p>
 			  The <dfn id="interceptors"><code>interceptors</code></dfn>
 			  attribute on the <code>Window</code> and <code>WorkerUtils</code>
-			  <a href="ref-WebWorkers">[Web Workers]</a>interfaces represents an associative array of 
+			  <a href="ref-WebWorkers">[Web Workers]</a> interfaces represents an associative array of 
 			  <a class="idltype" href="#Interceptor"><code>Interceptor</code></a> objects. The 
 			  index of an <a class="idltype" href="#Interceptor"><code>Interceptor</code></a> 
 			  object is its namespace, which is the path prefix within the 
@@ -871,7 +884,7 @@ interface <dfn id="ReviewHandler">ReviewHandler</dfn> {
 			  <a class="dfnref" href="#managed">managed resource</a> in the 
 			  namespace of this <code><a class="idltype" href="#Interceptor">Interceptor</a></code>.
 			  The algorithm for intercepting requests is described in 
-			  <a class="dfnref" href="#intercept-algorithm">Section 3.4.1</a>.
+			  <a class="dfnref" href="#intercept-algorithm">Section 4.2.4.1</a>.
 			</p>
 			
 			<p>
@@ -881,7 +894,7 @@ interface <dfn id="ReviewHandler">ReviewHandler</dfn> {
 			  <a class="dfnref" href="#managed">managed resource</a> in the
 			  namespace of this <code><a class="idltype" href="#Interceptor">Interceptor</a></code>.
 			  The algorithm for propagating response is described in 
-			  <a class="dfnref" href="#review-algorithm">Section 3.4.2</a>.
+			  <a class="dfnref" href="#review-algorithm">Section 4.2.4.2</a>.
 			</p>
 			
 			<p>
@@ -1267,6 +1280,11 @@ interface <dfn id="HttpInteraction">HttpInteraction</dfn> : <a href="#HttpReques
 			<dd>
 			  <cite><a href="http://www.w3.org/TR/DOM-Level-3-Core">Document Object Model (DOM) Level 3 Core Specification</a></cite>, 
 			  A. Le Hors (eds.), et al. W3C, April 2004.
+			</dd>
+		    <dt><dfn id="ref-HTML5">[HTML5]</dfn></dt>
+			<dd>
+			  <cite><a href="http://www.w3.org/TR/HTML5">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>, 
+			  Ian Hickson, editor, W3C Working Draft, April 2009.
 			</dd>
 			<dt><dfn id="ref-RFC2109">[RFC2109]</dfn></dt>
 			<dd>
