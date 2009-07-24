@@ -32,9 +32,12 @@
     .firstOfType > p { background-color: red }
     .lastOfType > p { background-color: red }
     .empty > .isEmpty { color: red; }
-    html { background-color: red; }
+	.any-namespace div { background-color: red; }
+	.no-namespace div { background-color: red; }
 
+    html { background-color: red; }
     html.nopass .pass { display: none; }
+
   </style>
   <style type="text/test" id="test">
     /* :target selector */
@@ -191,6 +194,11 @@
     .plus .t1, .plus .t2 { background-color: white; }
     .plus .t1 + .unitTest + .unitTest { background-color: lime; }
     .plus .t1:hover + .unitTest + .unitTest { background-color: red; }
+
+    /* Namespace syntax tests */
+	.any-namespace *|div { background-color: lime; }
+	.no-namespace |div { background-color: lime; }
+
   </style>
   <style type="text/test" id="error">
     .blox16:not(.blox15[foo="blox14"]) { background-color: red; }
@@ -231,12 +239,57 @@
 		if ( window.location.hash.indexOf("target") == -1 )
 			window.location.hash = "#target";
 
+		var nsTestFragment = document.createDocumentFragment();
+		var anyNS = document.createElement("div")
+		anyNS.className = "test any-namespace";
+		var noNS = document.createElement("div")
+		noNS.className = "test no-namespace";
+
+		nsTestFragment.appendChild(anyNS)
+		nsTestFragment.appendChild(noNS)
+		var div1 = document.createElement("div");
+		var div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		var div3 = document.createElementNS("", "div");
+		var div4 = document.createElementNS("http://www.example.org/ns", "div");
+
+		div1.setAttribute("title", "Any namespace selector, HTML element")
+		div2.setAttribute("title", "Any namespace selector, XHTML element")
+		div3.setAttribute("title", "Any namespace selector, element in no namespace")
+		div4.setAttribute("title", "Any namespace selector, element in other namespace")
+
+		anyNS.appendChild(div1);
+		anyNS.appendChild(div2);
+		anyNS.appendChild(div3);
+		anyNS.appendChild(div4);
+
+		div1 = document.createElement("div");
+		div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		div3 = document.createElementNS("", "div");
+		div4 = document.createElementNS("http://www.example.org/ns", "div");
+
+		div1.setAttribute("title", "No namespace selector, HTML element")
+		div2.setAttribute("title", "No namespace selector, XHTML element")
+		div3.setAttribute("title", "No namespace selector, element in no namespace")
+		div4.setAttribute("title", "No namespace selector, element in other namespace")
+
+		noNS.appendChild(div1);
+		noNS.appendChild(div2);
+		noNS.appendChild(div3);
+		noNS.appendChild(div4);
+
 		var root = document.getElementById("root");
 		var root2 = document.getElementById("root2");
 		var root3 = document.getElementById("root3");
 		var results = [];
 		var tests = 0, passed = 0;
 		var cache = {};
+
+		root.appendChild(anyNS.cloneNode(true));
+//		root.appendChild(noNS.cloneNode(true));
+//		root2.appendChild(anyNS.cloneNode(true));
+//		root2.appendChild(noNS.cloneNode(true));
+//		root3.appendChild(anyNS.cloneNode(true));
+//		root3.appendChild(noNS.cloneNode(true));
 
 		var cssElem = document.getElementById("test");
 		var css = (cssElem.innerHTML || cssElem.textContent || cssElem.innerText).split("\n");
@@ -396,7 +449,10 @@
 	
 					try {
 						var found = root.querySelectorAll(query);
-	
+						if (query == ".any-namespace *|div") {
+							alert(found.length);
+						}
+
 						for ( var f = 0; f < found.length; f++ ) {
 							found[f].style.backgroundColor = color;
 						}
@@ -406,7 +462,7 @@
 						assert(expect && pass, type + ".querySelectorAll: " + query);
 					} catch(e){
 						var pass = !expect && typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR || false;
-						assert(pass, type + ".querySelectorAll: " + query);
+						assert(pass, type + ".querySelectorAll: " + query + ", e.code = " + e.code);
 					}
 
 					if ( expect ) {
