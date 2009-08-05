@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD" type="text/css" />
 <link rel="stylesheet" href="respec-w3c.css" type="text/css" />
 <link rel="stylesheet" href="style.css" type="text/css" />
-<meta name="revision" content="$Id: FileAPI.xhtml,v 1.2 2009-08-04 21:02:01 arangana Exp $" />
+<meta name="revision" content="$Id: FileAPI.xhtml,v 1.3 2009-08-05 07:48:53 arangana Exp $" />
 
 </head>
 <body>
@@ -371,7 +371,7 @@ function handleURL(url, error)
 </dd>
 <dt id="dfn-splice"><code>splice</code></dt><dd>
  <p>
- Extracts a subset of the <a href="#FileData-if" class="if-name">FileData</a> between <code>offset</code> and <code>length</code>, and asynchronously returns this byte-ranged subset of the original file as a new <a href="#FileData-if" class="if-name">FileData</a> object using the <a href="#dfn-FileDataContent">FileDataContent</a> callback, which also handles errors.  If an error occurs, implementations MUST call the <a href="#dfn-FileDataContent">FileDataContent</a> callback with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileDataContent</a> callback function with the new<a href="#FileData-if" class="if-name"> FileData</a> object as an argument (using the appropriate encoding) and with a <code><a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a></code> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
+ Extracts a subset of the <a href="#FileData-if" class="if-name">FileData</a> between <code>offset</code> and <code>length</code>, and asynchronously returns this byte-ranged subset of the original file as a new <a href="#FileData-if" class="if-name">FileData</a> object using the <a href="#dfn-FileDataContent">FileDataContent</a> callback, which also handles errors.  If an error occurs, implementations MUST call the <a href="#dfn-FileDataContent">FileDataContent</a> callback with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileDataContent</a> callback function with the new<a href="#FileData-if" class="if-name"> FileData</a> object as an argument (using the appropriate encoding) and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
  <div class="ednote">Something should be said about multiple splice calls using the same FileDataContent callback.</div>
 <div class="section">
 Usage:
@@ -410,7 +410,7 @@ function handleSplices(fileData, error)
 <dd>
   <p>Cancels all pending asynchronous accessor calls, perhaps because they are taking too long; this call will typically be used in conjunction with timeout calls. When this method is called, implementations MUST call 
   the appropriate callback (either <a href="#dfn-FileContent">FileContent</a>  or <a href="#dfn-FileDataContent">FileDataContent</a>, depending on the pending asynchronous accessor method) with <code>null</code> for the data argument 
-  (string or <a href="#FileData-if" class="if-name">FileData</a> object, depending on the pending asynchronous accessor method) and <code><a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a></code> on the 
+  (string or <a href="#FileData-if" class="if-name">FileData</a> object, depending on the pending asynchronous accessor method) and <a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a> on the 
   <a href="#dfn-FileError" class="if-name">FileError</a> argument of the respective callback.</p>
 </dd>
 </dl>
@@ -426,7 +426,6 @@ function handleSplices(fileData, error)
  <p>This is a callback function for asynchronous handling of <a href="#FileData-if" class="if-name">FileData</a> objects that are coined as a result of the <a href="#dfn-splice"><code>splice</code></a> call.  This callback MUST be called asynchronously with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument if the asynchronous data accessors encounter a <a href="#FileError-if" class="if-name">FileError</a> while called, OR if <a href="#dfn-cancelReads"><code>cancelReads</code></a> is called before the callback is called. When called with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument, this callback MUST be called with a meaningful <a href="#FileError-if" class="if-name">FileError</a> error code that is NOT <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a>. If the callback is successful, it MUST be called with a valid <a href="#FileData-if" class="if-name">FileData</a> object argument, and a <a href="#FileError-if" class="if-name">FileError</a> argument with an error code of <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a>.
  
  </p>
- <div class="ednote">Something should be said about multiple splice calls using the same FileDataContent callback.</div>
  </dd>
   <dt id="dfn-encoding"><code>encoding</code>, of type <code>DOMString [optional]</code></dt>
   <dd>
@@ -553,12 +552,12 @@ const unsigned short <a href="#idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a>
 <div class="section">
 <h2 id="fileurl-if">6. The filedata:// scheme</h2>
 <p>This section defines a scheme for a short-lived and unique URL, generated by the <a href="#FileData-if" class="if-name">FileData</a> object's asynchronous <a href="#dfn-getAsURL"><code>getAsURL</code></a> data accessor. The URL can be used in web content, and MUST be processed by conforming implementations just as HTTP URLs are, using HTTP status codes [<a href="#HTTP">HTTP</a>].</p>
-<div class="ednote">The processing model is problematic.  If we use HTTP response codes, that could be a protocol violation, since those codes shouldn't be used outside of HTTP. However, returning these status codes would allow applications to behave as they do under HTTP, particularly when resources are not found, etc.</div>
+<div class="ednote">The processing model is problematic.  HTTP response codes shouldn't be used outside of HTTP. However, returning these status codes would allow applications to behave as they do under HTTP, particularly when resources are not found, etc.</div>
 <h3 id="filedataABNF">ABNF of filedata URL Scheme</h3>
 <p>This section uses the Augmented Backus-Naur Form (ABNF), defined in [<a href="#ABNF">RFC2234</a>]. All filedata:// URLs MUST follow this ABNF.</p>
 
-<div class="section">
-<pre class="schema">
+<div class="boxed">
+<pre>
 filedata = scheme &quot;://&quot; UUID 
 
 ; UUID refers to a UUID in its canonical form, used without the urn: namespace, and is defined in [<a href="#UUID">RFC4122</a>]
@@ -599,7 +598,7 @@ hexDigit =
 <div class="ednote">Caveats about the HTTP processing model.</div>
 <h3 id="processingModel">Processing Model for filedata:// URLs</h3>
 <div class="section">
-<div class="ednote">This section needs more discussion with the WG.  In particular, it seems that some status codes (200 OK, 404 Not Found, 5xx (Errors)) are going to be useful.</div>
+<div class="ednote">Some status codes (200 OK, 404 Not Found, 5xx (Errors)) are going to be useful.</div>
 </div>
 </div>
 </div>
