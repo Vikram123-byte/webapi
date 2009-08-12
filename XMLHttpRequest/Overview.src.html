@@ -387,7 +387,13 @@ client.send();</code></pre>
   <p>The <code>XMLHttpRequest</code> object can be used by scripts to
   programmatically connect to their originating server via HTTP.</p>
 
-  <pre class="idl">[<span title="XMLHttpRequest constructor">Constructor</span>] interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> {
+  <pre class="idl">[NoInterfaceObject]
+interface <dfn id="xmlhttprequesteventtarget">XMLHttpRequestEventTarget</dfn> : EventTarget {
+  // for future use
+};
+
+[<span title="XMLHttpRequest constructor">Constructor</span>]
+interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEventTarget</span> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <span>Function</span> <span>onreadystatechange</span>;
 
@@ -402,12 +408,12 @@ client.send();</code></pre>
   // <a href="#request">request</a>
   void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>);
   void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>);
-  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>);
-  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>, [Null=Null, Undefined=Null] DOMString <var>password</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
   void <span>setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);
   void <span>send</span>();
-  void <span>send</span>([AllowAny, Null=Null, Undefined=Null] in DOMString <var>data</var>); <!-- XXX undefined="undefined"? -->
   void <span>send</span>(Document <var>data</var>);
+  void <span>send</span>([AllowAny] DOMString? <var>data</var>);
   void <span>abort</span>();
 
   // <a href="#response">response</a>
@@ -417,9 +423,7 @@ client.send();</code></pre>
   DOMString <span>getAllResponseHeaders</span>();
   readonly attribute DOMString <span>responseText</span>;
   readonly attribute Document <span>responseXML</span>;
-};
-
-<span>XMLHttpRequest</span> implements <span>EventTarget</span>;</pre>
+};</pre>
 
 
   <h3>Origin and Base URL</h3>
