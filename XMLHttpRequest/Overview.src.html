@@ -387,9 +387,7 @@ client.send();</code></pre>
   <p>The <code>XMLHttpRequest</code> object can be used by scripts to
   programmatically connect to their originating server via HTTP.</p>
 
-  <pre class="idl">[<span title="XMLHttpRequest constructor">Constructor</span>,
- Implements=EventTarget]
-interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> {
+  <pre class="idl">[<span title="XMLHttpRequest constructor">Constructor</span>] interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <span>Function</span> <span>onreadystatechange</span>;
 
@@ -402,24 +400,26 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> {
   readonly attribute unsigned short <span>readyState</span>;
 
   // <a href="#request">request</a>
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var title="">url</var>);
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var title="">url</var>, in boolean <var>async</var>);
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var title="">url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var title="">url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
-  void <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>, [Null=Null, Undefined=Null] DOMString <var>password</var>);
+  void <span>setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);
   void <span>send</span>();
-  void <span>send</span>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
-  void <span>send</span>(in Document <var>data</var>);
+  void <span>send</span>([AllowAny, Null=Null, Undefined=Null] in DOMString <var>data</var>); <!-- XXX undefined="undefined"? -->
+  void <span>send</span>(Document <var>data</var>);
   void <span>abort</span>();
 
   // <a href="#response">response</a>
   readonly attribute unsigned short <span>status</span>;
   readonly attribute DOMString <span>statusText</span>;
-  DOMString <span>getResponseHeader</span>(in DOMString <var>header</var>);
+  DOMString <span>getResponseHeader</span>(DOMString <var>header</var>);
   DOMString <span>getAllResponseHeaders</span>();
   readonly attribute DOMString <span>responseText</span>;
   readonly attribute Document <span>responseXML</span>;
-};</pre>
+};
+
+<span>XMLHttpRequest</span> implements <span>EventTarget</span>;</pre>
 
 
   <h3>Origin and Base URL</h3>
@@ -969,16 +969,6 @@ X-Test: one, two
       <!-- XXX not all UAs modify Content-Type
                different algorithm for HTML? -->
      </dd>
-
-     <dt><var>data</var> is not a <code>DOMString</code> or
-     <code>Document</code></dt>
-
-     <dd><p>Use the stringification mechanisms of the host language on
-     <var>data</var> and treat the result as if <var>data</var> is a
-     <code>DOMString</code>. Re-raise any exceptions the stringification
-     mechanism raises.</p></dd>
-
-     <!-- XXX do we need to state this? -->
     </dl>
 
     <p>If the <var>data</var> argument has been omitted, or is
@@ -1339,7 +1329,7 @@ X-Test: one, two
 
   <p>The <dfn id="status"><code>status</code></dfn> attribute
   <em class="ct">must</em> return the result of running these steps:</p>
-  
+
   <ol>
    <li><p>If the state is <span title="UNSENT state">UNSENT</span> or
    <span title="OPENED state">OPENED</span> raise an
@@ -1350,7 +1340,7 @@ X-Test: one, two
    terminate these steps.</p></li>
    
    <li><p>Return the HTTP status code.</p></li>
-  </ol> 
+  </ol>
 
 
   <h4>The <code title="">statusText</code> attribute</h4>

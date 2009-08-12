@@ -36,13 +36,13 @@
    <h1 class=head id=the-xmlhttprequest-object><code
     title="">XMLHttpRequest</code></h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 14 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 August 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090614/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090614/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090812/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20090812/</a>
 
     <dt>Latest Version:
 
@@ -117,7 +117,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 14 June 2009 Editor's Draft of the <code
+  <p>This is the 12 August 2009 Editor's Draft of the <code
    title="">XMLHttpRequest</code> specification. Please send comments to <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
@@ -492,9 +492,7 @@ client.send();</code></pre>
    via HTTP.
 
   <pre
-   class=idl>[<a href="#xmlhttprequest-constructor" title="XMLHttpRequest constructor">Constructor</a>,
- Implements=EventTarget]
-interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> {
+   class=idl>[<a href="#xmlhttprequest-constructor" title="XMLHttpRequest constructor">Constructor</a>] interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <a href="#function">Function</a> <a href="#onreadystatechange">onreadystatechange</a>;
 
@@ -507,24 +505,26 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> {
   readonly attribute unsigned short <a href="#readystate">readyState</a>;
 
   // <a href="#request">request</a>
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var title="">url</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var title="">url</var>, in boolean <var>async</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var title="">url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var title="">url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
-  void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>, [Null=Null, Undefined=Null] DOMString <var>password</var>);
+  void <a href="#setrequestheader">setRequestHeader</a>(DOMString <var>header</var>, DOMString <var>value</var>);
   void <a href="#send">send</a>();
-  void <a href="#send">send</a>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
-  void <a href="#send">send</a>(in Document <var>data</var>);
+  void <a href="#send">send</a>([AllowAny, Null=Null, Undefined=Null] in DOMString <var>data</var>); <!-- XXX undefined="undefined"? -->
+  void <a href="#send">send</a>(Document <var>data</var>);
   void <a href="#abort">abort</a>();
 
   // <a href="#response">response</a>
   readonly attribute unsigned short <a href="#status">status</a>;
   readonly attribute DOMString <a href="#statustext">statusText</a>;
-  DOMString <a href="#getresponseheader">getResponseHeader</a>(in DOMString <var>header</var>);
+  DOMString <a href="#getresponseheader">getResponseHeader</a>(DOMString <var>header</var>);
   DOMString <a href="#getallresponseheaders">getAllResponseHeaders</a>();
   readonly attribute DOMString <a href="#responsetext">responseText</a>;
   readonly attribute Document <a href="#responsexml">responseXML</a>;
-};</pre>
+};
+
+<a href="#xmlhttprequest">XMLHttpRequest</a> implements <span>EventTarget</span>;</pre>
 
   <h3 id=origin-and-base-url><span class=secno>4.1 </span>Origin and Base URL</h3>
 
@@ -1166,17 +1166,6 @@ X-Test: one, two
       <!-- XXX not all UAs modify Content-Type
                different algorithm for HTML? -->
       
-
-     <dt><var>data</var> is not a <code>DOMString</code> or
-      <code>Document</code>
-
-     <dd>
-      <p>Use the stringification mechanisms of the host language on
-       <var>data</var> and treat the result as if <var>data</var> is a
-       <code>DOMString</code>. Re-raise any exceptions the stringification
-       mechanism raises.
-     </dd>
-     <!-- XXX do we need to state this? -->
     </dl>
 
     <p>If the <var>data</var> argument has been omitted, or is
