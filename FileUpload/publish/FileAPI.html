@@ -7,14 +7,14 @@
 <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD" type="text/css" />
 <link rel="stylesheet" href="respec-w3c.css" type="text/css" />
 <link rel="stylesheet" href="style.css" type="text/css" />
-<meta name="revision" content="$Id: FileAPI.html,v 1.2 2009-08-05 07:48:35 arangana Exp $" />
+<meta name="revision" content="$Id: FileAPI.html,v 1.3 2009-08-12 13:05:58 arangana Exp $" />
 
 </head>
 <body>
  <div class="head">
 		<p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C" /></a></p>
 		<h1 class="head">File API</h1>
-		<h2 id="pagesubtitle">W3C Working Draft <em>1 August 2009</em></h2>
+		<h2 id="pagesubtitle">W3C Working Draft <em>12 August 2009</em></h2>
 		 <dl><dt>This version:</dt>
 		 <dd><a href="http://dev.w3.org/2006/webapi/FileUpload/publish/FileAPI.html">http://dev.w3.org/2006/webapi/FileUpload/publish/FileAPI.html</a></dd>
 			 <dt>Latest public version:</dt><dd><a href="http://www.w3.org/TR/file-upload/">http://www.w3.org/TR/file-upload/</a></dd>
@@ -40,14 +40,14 @@
       for representing file objects in web applications, as well as programmatically selecting them and accessing their data.  This includes:
 </p>
 		<ul>
-			<li>A <a href="#FileList-if" class="if-name">FileList</a> interface, which represents an array of individually selected files from the underlying system.
+			<li>A <a href="#FileList-if" class="if-name">FileList</a> sequence, which represents an array of individually selected files from the underlying system.
 			The user interface for selection can be invoked via <code>&lt;input type=&quot;file&quot;&gt;</code>, i.e. when the
 			<code>input</code>
-			element [<a href="#HTML5">HTML5</a>] is in the <a href="#FileUpload">File Upload</a> state, or through the <a href="#FileDialog-if" class="if-name">FileDialog</a> interface.</li>
-			<li>A <a href="#FileData-if" class="if-name">FileData</a> interface, which provides asynchronous data accessors for file data via callback methods.</li>
+			element [<a href="#HTML5">HTML5</a>] is in the <a href="#FileUpload">File Upload</a> state.</li>
+		  <li>A <a href="#FileData-if" class="if-name">FileData</a> interface, which provides asynchronous data accessors for file data via callback methods.</li>
           <li>A <a href="#File-if" class="if-name">File</a> interface, which includes readonly informational attributes about a file such as its name and its mediatype.</li>
-          <li>A <a href="#FileError-if" class="if-name">FileError</a> interface, which defines the error codes used by this specification.</li>
-        </ul>
+          <li>A <a href="#FileError-if" class="if-name">FileError</a> interface and a <a href="#FileException-if" class="if-name">FileException</a> exception, which define error conditions used by this specification.</li>
+    </ul>
 	<p>The section on Requirements and Use Cases [<a href="#requirements">REQ</a>] covers the motivation behind this specification.</p>
     <p>
       This API is designed to be used in conjunction with other APIs on the web platform, notably: <a href="#XHR2" class="if-name">XMLHttpRequest</a>
@@ -65,16 +65,17 @@
     
 
     <ul class="toc"><li><a href="#introduction">1. Introduction</a></li>
-					<li><a href="#FileList-if">2. The FileList interface</a></li>
+					<li><a href="#FileList-if">2. The FileList sequence</a></li>
                                         <li><a href="#FileData-if">3. The FileData interface</a></li>
 					<li><a href="#File-if">4. The File interface</a></li>
-                                        <li><a href="#FileErrpr-if">5. The FileError interface</a></li>
-      <li><a href="FileURL-if">6. The filedata:// scheme</a></li>
+                                        <li><a href="#FileError-if">5. The FileError interface</a></li>
+                                        <li><a href="#FileException-if">6. The FileException exception</a></li>
+      <li><a href="#filedataurl-if">7. The filedata: URL scheme</a></li>
                                         
-			                <li><a href="#conform">7. Conformance</a></li>
-					<li><a href="#requirements">8. Requirements and Use Cases</a></li>
-					<li><a href="#ack">9. Acknowledgements</a></li>
-			                <li><a href="#bibref">10. References</a></li>
+			                <li><a href="#conform">8. Conformance</a></li>
+					<li><a href="#requirements">9. Requirements and Use Cases</a></li>
+					<li><a href="#ack">10. Acknowledgements</a></li>
+			                <li><a href="#bibref">A. References</a></li>
 	</ul>
 	  
 </div>
@@ -126,91 +127,47 @@
   </div>
 
   
-<div class="section"><h2 id="FileList-if">2. The FileList interface</h2>
+<div class="section">
+  <h2 id="FileList-if">2. The FileList sequence</h2>
     
     <p>
-      This interface exposes the list of files that has been selected.  If no file has been selected, the length attribute is zero.  When one or more files have been selected,
-      an array of <a href="#File-if" class="if-name">File</a> objects is created, and the length attribute reflects the number of selected files.
-    </p>
+    This sequence parameterized type exposes the list of files that have been selected.  </p>
 
-    <div class="boxed"><p><span class="idlTitle">The FileList interface</span></p>
-    <pre class="schema" title="The FileList interface">
-  interface <a href="#idl-if-FileList">FileList</a> {
-  
-   readonly attribute unsigned long <a href="#dfn-length">length</a>;
-   [IndexGetter] <a href="#idl-if-File">File</a> <a href="#dfn-item">item</a>(in unsigned long index);
- 
-};</pre>
-</div>
-<div class="section" id="idl-if-FileList">
-    <div class="section"><h4 class="idl-header" id="idl-attrs-FileList">Attributes</h4>
-        <dl class="idl-attr"><dt id="dfn-length"><code>length</code>
-        of type
-         unsigned long, readonly</dt>
-        <dd><p>
-              The number of files in the list. 
-        </p></dd>
-        </dl>
-    </div>
+    <div class="boxed"><p><span class="idlTitle">The FileList Sequence</span></p>
+   <pre class="schema" title="The FileList Sequence">
+   typedef sequence&lt;File&gt; FileList;
+   </pre>
+  </div>
+        <p>Sample Usage: <code>if(fileList.length > 0) var file = fileList[0];</code></p>
     
-    <div class="section"><h4 class="idl-header" id="idl-meths-FileList">Methods</h4>
-    <dl class="idl-meth">
-    <dt id="dfn-item"><code>item</code></dt>
-    <dd>
-        <p>
-            Returns the <code>index</code>th item in the collection, which is a <a href="#File-if" class="if-name">File</a> object. If 
+</div>
 
-              <code>index</code> is greater than or equal to the number of files in the
-              list -- namely greater than the value of <code>length-1</code>, this returns <code>null</code>.
-        </p>
-        <p> Usage: <code>var file = filelist.item(0);</code></p>
-        <p> Usage: <code>var file = fileList[0];</code></p>
-    </dd> 
-   
-    </dl>
-    <div class="section">
-    <h4 class="idl-header">Parameters</h4>
-     <dl class="idl-params"><dt><code>index</code> of type unsigned long</dt><dd> Index into the collection.  Valid values are from 0 to <code>length</code>-1.</dd></dl>
-   </div>
-    
-    
-    </div>
-</div>
-</div> 
 <div class="section"><h2 id="FileData-if">3. The FileData interface</h2>
 <p>This interface represents the raw data of a file object, and includes asynchronous data accessor methods as well as a readonly property for the data's size, in bytes.  The <a href="#File-if" class="if-name">File</a>
 interface inherits from this interface. </p>
 </div>
 <div class="boxed"><p><span class="idlTitle">The FileData interface</span></p>
     <pre class="schema" title="The FileData interface">
-interface <a href="#idl-if-FileData">FileData</a> {
+interface <a href="#FileData-if">FileData</a> {
 
  readonly attribute unsigned long long <a href="#dfn-size">size</a>;
+ readonly attribute DOMString <a href="#dfn-url">url</a>;
  
- void <a href="#dfn-getAsDataURL">getAsDataURL</a>(in <a href="#dfn-FileContent">FileContent</a> callback<a href="#dfn-FileErrorCallback"></a>);
- void <a href="#dfn-getAsText">getAsText</a>(in <a href="#dfn-FileContent">FileContent</a> callback, [Optional] in DOMString <a href="#dfn-encoding">encoding</a>);
- void <a href="#dfn-getAsBinary">getAsBinary</a>(in <a href="#dfn-FileContent">FileContent</a> callback);
- void <a href="#dfn-getAsBase64">getAsBase64</a>(in <a href="#dfn-FileContent">FileContent</a> callback);
- void <a href="#dfn-getAsURL">getAsURL</a>(in <a href="#dfn-FIleContent">FileContent</a> callback);
- void <a href="#dfn-splice">splice</a>(in long long <a href="#dfn-offset">offset</a>, in long long <a href="#dfn-length">length</a>, in <a href="#dfn-FileDataContent">FileDataContent</a> callback);
- void <a href="#dfn-cancelReads">cancelReads</a>();
+ void     <a href="#dfn-getAsDataURL">getAsDataURL</a>(in <a href="#FileContent-if">FileContent</a> <a href="#dfn-fcCallback">fcCallback</a>);
+ void     <a href="#dfn-getAsText">getAsText</a>(in <a href="#FileContent-if">FileContent</a> <a href="#dfn-fcCallback">fcCallback</a>, [Optional] in DOMString <a href="#dfn-encoding">encoding</a>);
+ void     <a href="#dfn-getAsBinaryString">getAsBinaryString</a>(in <a href="#FileContent-if">FileContent</a> <a href="#dfn-fcCallback">fcCallback</a>);
+ void     <a href="#dfn-getAsBase64">getAsBase64</a>(in <a href="#FileContent-if">FileContent</a> <a href="#dfn-fcCallback">fcCallback</a>);
+ <a href="#FileData-if">FileData</a> <a href="#dfn-slice">slice</a>(in long long <a href="#dfn-offset">offset</a>, in long long <a href="#dfn-length">length</a>); // throws FileException
+ void     <a href="#dfn-cancelReads">cancelReads</a>();
 
 };
 
 
 
 
-[CallBack=FunctionOnly, NoInterfaceObject] interface <a href="#dfn-FileContent">FileContent</a> {  
+<span id="FileContent-if">[CallBack=FunctionOnly, NoInterfaceObject] interface FileContent</span> {  
 
  void handleEvent(in DOMString fileContent, in <a href="#dfn-FileError">FileError</a> error);
-
-};
-
-
- 
-[CallBack=FunctionOnly, NoInterfaceObject] interface <a href="#dfn-FileDataContent">FileDataContent</a> {
-
- void handleEvent(in <a href="#FileData-if">FileData</a> fileData, in <a href="#dfn-errorCode">FileError</a> error);
 
 };
 
@@ -219,20 +176,23 @@ interface <a href="#idl-if-FileData">FileData</a> {
 <div class="section"><h4 id="idl-attribs-FileData">Attributes</h4>
 <dl class="idl-attr">
 <dt id="dfn-size"><code>size</code> of type <code>unsigned long long, readonly</code></dt>
-  <dd><p>The size of the file in bytes.</p></dd></dl>
+  <dd><p>The size of the file in bytes.</p></dd>
+<dt id="dfn-url"><code>url</code> of type <code>DOMString, readonly</code></dt>  
+  <dd><p>The <a href="#filedataurl-if" class="if-name">filedata:</a> URL representing the <a href="#FileData-if" class="if-name">FileData</a> object.</p></dd>  
+</dl>
 </div>
 <div class="section"><h4 id="idl-meths-File">Methods</h4>
 <dl class="idl-meth">
 <dt id="dfn-getAsDataURL"><code>getAsDataURL</code></dt>
 <dd>
-<p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a <em>data URL</em> [<a href="#DataURL">RFC2397</a>] using the <a href="#dfn-FileContent">FileContent</a> callback method, which also handles errors.  If an error occurs, implementations MUST call the callback with <code>null</code> for the string argument and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> argument. If the call is successful, implementations MUST call the callback function with a string argument that is a valid data URL [<a href="#DataURL">RFC2397</a>], and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> object. URL length limitations in different user-agents limit the use of this call. User-agents SHOULD provide data URL representations of a <a href="#FileData-if" class="if-name">FileData</a> object's contents subject to their own URL length limitations, and provide <code>null</code> for the string argument to the callback if this is not possible, along with a <a href="#FileError-if" class="if-name">FileError</a> object with the appropriate error code (in this case, <a href="#idl-defs-FileErrorCode-ENCODING_ERR">ENCODING_ERR</a>; other error conditions exist as well).</p>
+<p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a <em>data URL</em> [<a href="#DataURL">RFC2397</a>] using the <a href="#FileContent-if">FileContent</a> callback method, which also handles errors.  Implementations MUST queue the <a href="#FileContent-if">FileContent</a> callback by adding it to the <em>task queue</em> of the relevant <em>event loop</em> [<a href="#HTML5">HTML5</a>]. If an error occurs, implementations MUST call the callback with <code>null</code> for the string argument and provide the appropriate <a href="#dfn-code">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> argument. If the call is successful, implementations MUST call the callback function with a string argument that is a valid data URL [<a href="#DataURL">RFC2397</a>], and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> object. URL length limitations in different user-agents limit the use of this call. User-agents SHOULD provide data URL representations of a <a href="#FileData-if" class="if-name">FileData</a> object's contents subject to their own URL length limitations, and provide <code>null</code> for the string argument to the callback if this is not possible, along with a <a href="#FileError-if" class="if-name">FileError</a> object with the appropriate error code (in this case <a href="idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>;  other error conditions exist as well).</p>
 <div class="section">Usage: <div class="boxed" id="sample-getAsDataURL">
   <pre>
 <code>
 // Sample code in JavaScript
 // Obtain fileList from &lt;input type=&quot;file&quot;&gt; using DOM
  
-var file = fileList.files.item(0);
+var file = fileList.files[0];
 if (file)
 {
   // ... Make asynchronous call
@@ -255,8 +215,8 @@ function handleURL(fileAsDataURL, error)
  }
  else
  {
-   status = error.errorCode;
-   if(status = error.NOT_READABLE_ERROR)
+   eMsg = error.code;
+   if(eMsg == error.NOT_READABLE_ERROR)
    {
     dump(&quot;File Not Readable&quot;);
     // Use another asynchronous getter
@@ -273,14 +233,14 @@ function handleURL(fileAsDataURL, error)
 <dt id="dfn-getAsText"><code>getAsText</code></dt>
 <dd>
  <p>
-  Asynchronously returns the <a href="#FileData-if">FileData</a> object's data as a string using the <a href="#dfn-FileContent">FileContent</a> callback method, which also handles errors. The caller can specify an optional <code>encoding</code> argument.  If the caller does NOT provide the optional <code>encoding</code> parameter, implementations SHOULD attempt to determine the best possible encoding to use. If implementations cannot make a determination of what encoding to use, implementations MUST assume a UTF-8 encoding. For character sequences that cannot be encoded as UTF-8, implementations MUST provide the U+FFFD Replacement Character [<a href="#Unicode">Unicode</a>].  If an error occurs, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>; implementations MAY also use <a href="#idl-defs-FileErrorCode-ENCODING_ERR">ENCODING_ERR</a>). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a string argument (using the appropriate encoding) and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
+  Asynchronously returns the <a href="#FileData-if">FileData</a> object's data as a string using the <a href="#FileContent-if">FileContent</a> callback method, which also handles errors. Implementations MUST queue the <a href="#FileContent-if">FileContent</a> callback by adding it to the <em>task queue</em> of the relevant <em>event loop</em> [<a href="#HTML5">HTML5</a>]. The caller can specify an optional <code>encoding</code> argument.  If the caller does NOT provide the optional <code>encoding</code> argument, implementations SHOULD attempt to determine the best possible encoding to use. If implementations cannot make a determination of what encoding to use, implementations MUST assume UTF-8 when decoding the file data as a string. For characters that cannot be decoded as UTF-8, implementations MUST use the U+FFFD Replacement Character [<a href="#Unicode">Unicode</a>].  If the caller does specify a valid encoding to use, implementations SHOULD attempt to decode the file using the encoding that the caller has specified (e.g. "UTF-16" as in the sample <a href="#sample-getAsText"><code>getAsText</code> code snippet in JavaScript</a>); characters that are not valid for that encoding type MUST be interpreted as a U+FFFD Replacement Character [<a href="#Unicode">UNICODE</a>]. If an error occurs, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-code">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>). If the call is successful, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a string argument (using the appropriate encoding) and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
 <div class="section">
 Usage: <div class="boxed" id="sample-getAsText">
 <pre><code>
 // Sample code in JavaScript
 // Obtain fileList from &lt;input type=&quot;file&quot;&gt; using DOM
  
-var file = fileList.files.item(0);
+var file = fileList.files[0];
 if (file)
 {
  // ... Make asynchronous call
@@ -303,7 +263,7 @@ function handleText(fileDump, error)
   else
   {
  
-    // run Hiragana charset test
+    // run CJK-ISO charset test
  
   }
  
@@ -315,7 +275,7 @@ function handleText(fileDump, error)
   var code = error.code;
   
   // Handle error conditions
-  if(code == error.ENCODING_ERR) msg(&quot;Pick Another Text File&quot;)
+  if(code == error.NOT_READABLE_ERR) msg(&quot;Pick Another Text File&quot;)
   else
   {
    // Handle read errors or security considerations
@@ -327,14 +287,19 @@ function handleText(fileDump, error)
 </div>
 </div>
 </dd>
-<dt id="dfn-getAsBinary"><code>getAsBinary</code></dt><dd>
-  <p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a binary string using the <a href="#dfn-FileContent">FileContent</a> callback method, which also handles errors. If an error occurs, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a> or <a href="#idl-defs-FileErrorCode-ENCODING_ERR">ENCODING_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a string argument (using the appropriate encoding) and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError </a>argument. </p>
+<dt id="dfn-getAsBinaryString"><code>getAsBinaryString</code></dt><dd>
+  <p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a <em>binary string</em> using the <a href="#FileContent-if">FileContent</a> callback method, which also handles errors. Implementations MUST queue the <a href="#FileContent-if">FileContent</a> callback by adding it to the <em>task queue</em> of the relevant <em>event loop</em> [<a href="#HTML5">HTML5</a>]. If an error occurs, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-code">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a <em>binary string</em> and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError </a>argument. A binary string MUST be such that each byte is represented by a number in the range [0..255] (e.g. &quot;€&quot; is represented 128). Implementations MUST NOT return a character that is NOT in the range [0..255].
+  <div class="ednote">Should the spec. say anything about multi-byte (variable-width) encodings? Could mandate that each byte is encoded as a three-digit sequence e.g. '007 234 ...' for byte sequence '00000111 1101010' (without whitespace obviously). Though this may make byte-parsing easy (&quot;groups of 3&quot;) it bloats string size.</div>  
+  </p>
 </dd>
+
 <dt id="dfn-getAsBase64"><code>getAsBase64</code></dt><dd>
-  <p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a Base64-encoded binary string using the <a href="#dfn-FileContent">FileContent</a> callback method, which also handles errors. If an error occurs, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a> or <a href="#idl-defs-FileErrorCode-ENCODING_ERR">ENCODING_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a string argument (using the appropriate encoding) and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
+  <p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a Base64-encoded string [<a href="#RFC4648">RFC4648</a>] using the <a href="#FileContent-if">FileContent</a> callback method, which also handles errors. Implementations MUST queue the <a href="#FileContent-if">FileContent</a> callback by adding it to the <em>task queue</em> of the relevant <em>event loop</em> [<a href="#HTML5">HTML5</a>]. If an error occurs, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-code">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a string argument  (the file's data encoded as Base64) and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
 </dd>
-<dt id="dfn-getAsURL"><code>getAsURL</code></dt><dd>
-  <p>Asynchronously returns the <a href="#FileData-if" class="if-name">FileData</a> object's data as a <a href="#fileurl-if" class="if-name">filedata://</a> URL using the <a href="#dfn-FileContent">FileContent</a> callback method, which also handles errors. Unlike the other methods, when this method is called, it MUST return a different <a href="#fileurl-if" class="if-name">filedata://</a> URL each time for the file resource in question by coining a new UUID at each call. If an error occurs, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback with <code>null</code> for the string argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a>; other error conditions exist as well, and implementations MAY choose to use <a href="#idl-defs-FileErrorCode-SECURITY_ERR">SECURITY_ERR</a> in some cases as a result of this call). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback function with the <a href="#FileData-if" class="if-name">FileData</a> object's data as a string argument representing a valid <a href="#fileurl-if" class="if-name">filedata://</a> URL and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument.</p>
+
+<dt id="dfn-slice"><code>slice</code></dt><dd>
+ <p>
+ Extracts a subset of the <a href="#FileData-if" class="if-name">FileData</a> between <code>offset</code> and <code>length</code>, and returns this byte-ranged subset of the original file as a new <a href="#FileData-if" class="if-name">FileData</a> object. This method throws a <a href="#FileException-if" class="if-name">FileException</a>.</p>
 <div class="section">
 Usage:
 <div class="boxed">
@@ -342,104 +307,57 @@ Usage:
 // Sample code in JavaScript
 // Obtain fileList from &lt;input type=&quot;file&quot;&gt; using DOM
  
-var file = fileList.files.item(0);
-if (file)
-{
- // ... Make asynchronous call
-     
- file.getAsURL(handleURL);
-}
-function handleURL(url, error)
-{
- if(url)
- {
-   var img = new Image();
-   img.src = url;
-   
-   // Other stuff...
-   
- }
- else
- {
-   // error conditions
- }
-}
-
-</code></pre>
-</div>
-</div>  
-</dd>
-<dt id="dfn-splice"><code>splice</code></dt><dd>
- <p>
- Extracts a subset of the <a href="#FileData-if" class="if-name">FileData</a> between <code>offset</code> and <code>length</code>, and asynchronously returns this byte-ranged subset of the original file as a new <a href="#FileData-if" class="if-name">FileData</a> object using the <a href="#dfn-FileDataContent">FileDataContent</a> callback, which also handles errors.  If an error occurs, implementations MUST call the <a href="#dfn-FileDataContent">FileDataContent</a> callback with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument, and provide the appropriate <a href="#dfn-errorCode">error code</a> to the callback using the <a href="#FileError-if" class="if-name">FileError</a> object argument (e.g. <a href="idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a>; other error conditions exist as well). If the call is successful, implementations MUST call the <a href="#dfn-FileContent">FileDataContent</a> callback function with the new<a href="#FileData-if" class="if-name"> FileData</a> object as an argument and with a <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> error code on the <a href="#FileError-if" class="if-name">FileError</a> argument. </p>
- <div class="ednote">Something should be said about multiple splice calls using the same FileDataContent callback.</div>
-<div class="section">
-Usage:
-<div class="boxed"><pre><code>
-// Sample code in JavaScript
-// Obtain fileList from &lt;input type=&quot;file&quot;&gt; using DOM
- 
-var file = fileList.files.item(0);
+var file = fileList.files[0];
 
 if(file)
 {
- file.splice(0, file.size/2, handleSplices);
-}
-function handleSplices(fileData, error)
-{
- if(fileData)
- {
-   // Can call asynchronous data accessors
-   
-   // Can use xhr.send(fileData) (pending update to xhr2)
+ try {
+ filePart = file.slice(0, file.size/2);
  }
- else
+ catch(e)
  {
-  if(error.errorCode = error.SPLICE_ERR)
+  if(e.code == e.SLICE_ERR)
   {
-   
-   // Determine if this file can be spliced
-   
+	   // Slice err occurred
+
   }
+  else
+   // Other errs
  }
 }
-</code></pre></div>
+</code></pre>
+</div>
 </div> 
 </dd>
 <dt id="dfn-cancelReads"><code>cancelReads</code></dt>
 <dd>
-  <p>Cancels all pending asynchronous accessor calls, perhaps because they are taking too long; this call will typically be used in conjunction with timeout calls. When this method is called, implementations MUST call 
-  the appropriate callback (either <a href="#dfn-FileContent">FileContent</a>  or <a href="#dfn-FileDataContent">FileDataContent</a>, depending on the pending asynchronous accessor method) with <code>null</code> for the data argument 
-  (string or <a href="#FileData-if" class="if-name">FileData</a> object, depending on the pending asynchronous accessor method) and <a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a> on the 
-  <a href="#dfn-FileError" class="if-name">FileError</a> argument of the respective callback.</p>
+  <p>Cancels all pending asynchronous accessor calls; this call will typically be used in conjunction with timeout calls. When this method is called, implementations MUST call 
+  the appropriate callback (e.g. <a href="#FileContent-if">FileContent</a>) with <code>null</code> for the string argument and <a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a> on the 
+  <a href="#dfn-FileError" class="if-name">FileError</a> argument of the respective callback. If a <a href="#dfn-slice"><code>slice</code></a> call is pending, it will MUST throw a FileException.</p>
 </dd>
 </dl>
 <div class="section"><h4 id="idl-params-File">Parameters</h4>
 <dl class="idl-params">
- <dt id="dfn-FileContent"><code>FileContent</code>, of type <code>[CallBack=FunctionOnly]</code></dt>
+ <dt id="dfn-fcCallback"><code>fcCallback</code>, of type <code>[CallBack=FunctionOnly] <a href="#FileContent-if" class="if-name">FileContent</a></code></dt>
  <dd>
-  <p>This is a callback function for asynchronous handling of strings representing a file's data.  These strings are either data URLs [<a href="#DataURL">DataURL</a>], <a href="#filedata-if" class="if-name">filedata://</a> URLs, or string encodings of a file's data.   This callback MUST be called asynchronously with <code>null</code>
+  <p>This is a callback function for asynchronous handling of strings representing a file's data.  These strings are either data URLs [<a href="#DataURL">DataURL</a>], <a href="#filedata-if" class="if-name">filedata:</a> URLs, or string encodings of a file's data. Implementations MUST queue the <a href="#FileContent-if">FileContent</a> callback by adding it to the <em>task queue</em> of the relevant <em>event loop</em> [<a href="#HTML5">HTML5</a>].  This callback MUST be called asynchronously with <code>null</code>
   for the string argument if the asynchronous data accessors encounter a <a href="#FileError-if" class="if-name">FileError</a> while called, OR if <a href="#dfn-cancelReads"><code>cancelReads</code></a> is called before the callback is called. When called with <code>null</code> for the string argument, this callback MUST be called with a meaningful <a href="#FileError-if" class="if-name">FileError</a> error code that is NOT <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a>. If the callback is successful, it MUST be called with a valid string argument, and a <a href="#FileError-if" class="if-name">FileError</a> argument with an error code of <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a>.</p>
- </dd>
- <dt id="dfn-FileDataCallback"><code>FileDataCallback</code>, of type <code>[CallBack=FunctionOnly]</code></dt>
- <dd>
- <p>This is a callback function for asynchronous handling of <a href="#FileData-if" class="if-name">FileData</a> objects that are coined as a result of the <a href="#dfn-splice"><code>splice</code></a> call.  This callback MUST be called asynchronously with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument if the asynchronous data accessors encounter a <a href="#FileError-if" class="if-name">FileError</a> while called, OR if <a href="#dfn-cancelReads"><code>cancelReads</code></a> is called before the callback is called. When called with <code>null</code> for the <a href="#FileData-if" class="if-name">FileData</a> argument, this callback MUST be called with a meaningful <a href="#FileError-if" class="if-name">FileError</a> error code that is NOT <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a>. If the callback is successful, it MUST be called with a valid <a href="#FileData-if" class="if-name">FileData</a> object argument, and a <a href="#FileError-if" class="if-name">FileError</a> argument with an error code of <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a>.
- 
- </p>
  </dd>
   <dt id="dfn-encoding"><code>encoding</code>, of type <code>DOMString [optional]</code></dt>
   <dd>
     <p>
       This OPTIONAL parameter is specified on the <a href="#dfn-getAsText"><code>getAsText</code></a> method.  If it is NOT used when calling <a href="#dfn-getAsText"><code>getAsText</code></a>, implementations SHOULD make a &quot;best pass&quot; at determining the encoding needed. If implementations cannot make such a determination, implementations
-      MUST assume that the encoding is in UTF-8.  Bytes or sequences of bytes that are not valid UTF-8 sequences MUST be interpreted as a U+FFFD REPLACEMENT CHARACTER [<a href="#Unicode">UNICODE</a>]. If it is used by the caller, implementations
-      MUST attempt to decode the file using the encoding that the caller has specified (e.g. "UTF-16" as in the sample <a href="#sample-getAsText"><code>getAsText</code> code snippet in JavaScript</a>).
-      Implementations MAY use a <a href="#FileError-if" class="if-name">FileError</a> error code of <a href="#idl-defs-FileErrorCode-SUCCESS"><code>ENCODING_ERR</code></a> if charset conversations fail; the Unicode U+FFFD REPLACEMENT CHARACTER
-      should be used for bytes or sequences of bytes that could not be decoded using the caller specified encoding. </p>
+      MUST assume that the encoding is in UTF-8.  Bytes or sequences of bytes that are not valid UTF-8 sequences MUST be interpreted as a U+FFFD Replacement Character [<a href="#Unicode">UNICODE</a>]. If it is used by the caller, implementations
+      MUST attempt to decode the file using the encoding that the caller has specified (e.g. "UTF-16" as in the sample <a href="#sample-getAsText"><code>getAsText</code> code snippet in JavaScript</a>); bytes or sequences of bytes that are not valid for that encoding type MUST be interpreted as a U+FFFD Replacement Character [<a href="#Unicode">UNICODE</a>].      </p>
    </dd>
    <dt id="dfn-offset"><code>offset</code>, of type <code>long long</code></dt>
-   <dd><p>A value for the start point for an asynchronous <a href="#dfn-splice"><code>splice</code></a> call.</p></dd>
+   <dd>
+     <p>A value for the start point for a <a href="#dfn-slice"><code>slice</code></a> call.</p>
+   </dd>
    <dt id="dfn-length"><code>length</code>, of type <code>long long</code></dt>
-   <dd><p>A value for the end point for an asynchronous <a href="#dfn-splice"><code>splice</code></a> call.</p></dd>
+   <dd>
+     <p>A value for the end point for a <a href="#dfn-slice"><code>slice</code></a> call.</p>
+   </dd>
 </dl>
 </div>
 </div>
@@ -480,28 +398,64 @@ determine the media type of the file, they MUST return <code>null</code>.</p>
 <div class="section">
 <h2 id="FileError-if">5. The FileError error</h2>
     
-<p>Methods in this specification may throw an error, which is reported when asynchronous file data accessor methods invoke callbacks (<a href="#dfn-FileContent">FileContent</a> or <a href="#dfn-FileDataContent">FileDataContent</a>) with <a href="#FileError-if" class="if-name">FileError</a> objects as one of their arguments.
+<p>Errors in the asynchronous data accessors are reported using callbacks with <a href="#FileError-if" class="if-name">FileError</a> objects as one of their arguments.
 While this specification describes a new error interface, <code>SECURITY_ERR</code> and <code>NOT_FOUND_ERR</code> are <code>ExceptionCode</code>s that are currently defined in
-<code>DOMException</code>, originally defined in DOM Core [<a href="#DOM3CORE">DOM3CORE</a>][<a href="#DOMException">DOMException</a>]. Implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback or the <a href="#dfn-FileDataContent">FileDataContent</a> callback with a <a href="#FileError-if" class="if-name">FileError</a> object with a valid <a href="#dfn-errorCode"><code>errorCode</code></a> value, which is one of the constants defined below. </p>
+<code>DOMException</code>, originally defined in DOM Core [<a href="#DOM3CORE">DOM3CORE</a>][<a href="#DOMException">DOMException</a>]. Implementations MUST call the <a href="#FileContent-if">FileContent</a> callback  with a <a href="#FileError-if" class="if-name">FileError</a> object with a valid <a href="#dfn-code"><code>code</code></a> value, which is one of the constants defined below. </p>
 
-    <div class="boxed"><p><span class="idlTitle">The FileError error</span></p>
+  <div class="boxed"><p><span class="idlTitle">The FileError error</span></p>
     <pre class="schema" title="The FileError error">interface <a href="#idl-if-FileError">FileError</a> {
-  readonly attribute unsigned short errorCode;
-};
-// FileErrorCode
-const unsigned short <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> = 0;
-const unsigned short <a href="#idl-defs-FileErrorCode-NOT_FOUND_ERR">NOT_FOUND_ERR</a> = 8;
-const unsigned short <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a> = 24;
-const unsigned short <a href="#idl-defs-FileErrorCode-SECURITY_ERR">SECURITY_ERR</a> = 18;
-const unsigned short <a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a> = 25;
-const unsigned short <a href="#idl-defs-FileErrorCode-ENCODING_ERR">ENCODING_ERR</a> = 26;
-const unsigned short <a href="#idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a> = 27;
+    
+	readonly attribute unsigned short code;
 
-</pre>
+	const unsigned short <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> = 0;
+	const unsigned short <a href="#idl-defs-FileErrorCode-NOT_FOUND_ERR">NOT_FOUND_ERR</a> = 8;
+	const unsigned short <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a> = 24;
+	const unsigned short <a href="#idl-defs-FileErrorCode-SECURITY_ERR">SECURITY_ERR</a> = 18;
+	const unsigned short <a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a> = 25;
+	const unsigned short <a href="#idl-defs-FileErrorCode-SLICE_ERR">SLICE_ERR</a> = 27;
+
+
+};</pre>
+</div>
+<div class="section">
+  <h4 id="idl-attrs-FileError">Attributes</h4>
+<dl><dt><code>code</code>, of type <code>unsigned short</code>;</dt>
+<dd>
+  <p>The code value MUST be one of the above constants. If the code is <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a>, implementations MUST call the <a href="#FileContent-if">FileContent</a> callback with a string argument that represents the 
+  <a href="#FileData-if" class="if-name">FileData</a> object's content (depending on the asynchronous accessor method, e.g. <a href="#dfn-getAsText"><code>getAsText</code></a>). With every other code but <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a> , the <a href="#FileContent-if">FileContent</a> callback is called with <code>null</code> for the string argument.</p>
+</dd></dl></div>
+</div>
+<div class="section">
+<h2 id="FileException-if">6. The FileException exception</h2>
+    
+<p> An error that occurs when the synchronous <a href="#dfn-slice"><code>slice</code></a> method is called is reported using the <a href="#FileException-if" class="if-name">FileException</a> exception.   </p>
+
+  <div class="boxed"><p><span class="idlTitle">The FileException exception</span></p>
+    <pre class="schema" title="The FileError error">exception <a href="#idl-if-FileError">FileException</a> {
+    
+	unsigned short code;
+
+	const unsigned short <a href="#idl-defs-FileErrorCode-SUCCESS">SUCCESS</a> = 0;
+	const unsigned short <a href="#idl-defs-FileErrorCode-NOT_FOUND_ERR">NOT_FOUND_ERR</a> = 8;
+	const unsigned short <a href="#idl-defs-FileErrorCode-NOT_READABLE_ERR">NOT_READABLE_ERR</a> = 24;
+	const unsigned short <a href="#idl-defs-FileErrorCode-SECURITY_ERR">SECURITY_ERR</a> = 18;
+	const unsigned short <a href="#idl-defs-FileErrorCode-CANCEL_ERR">CANCEL_ERR</a> = 25;
+	const unsigned short <a href="#idl-defs-FileErrorCode-SLICE_ERR">SLICE_ERR</a> = 27;
+
+
+};</pre>
+</div>
+<div class="section">
+  <h4 id="idl-attrs-FileException">Exception Code</h4>
+<dl><dt><code>code</code>, of type <code>unsigned short</code>;</dt>
+<dd>
+  <p>The code value MUST be one of the above constants. </p>
+</dd></dl></div>
 </div>
     
-<div class="section"><h4 class="idl-header" id="idl-defs-FileErrorCode">Definition Group <em>FileErrorCode</em></h4>
-<dl class="idl-defs">
+<div class="section">
+  <h4 class="idl-header" id="idl-defs-FileErrorCode">The Error Codes For FileError and FileException</h4>
+  <dl class="idl-defs">
 <dt id="idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></dt>
 <dd>
 <p>This error code MUST be used if the file has been successfully accessed, and is readable by the asynchronous accessor APIs on <a href="FileData-if" class="if-name">FileData</a>. </p>
@@ -516,7 +470,7 @@ const unsigned short <a href="#idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a>
 <dt id="idl-defs-FileErrorCode-NOT_READABLE_ERR"><code>NOT_READABLE_ERR</code></dt>
 <dd>
   <p>
-            This error code MUST be used if the file cannot be read. This may be due to permission problems that occur after a reference to a file has been acquired (e.g. concurrent lock with another application).
+            This error code MUST be used if the file cannot be read. This may be due to permission problems that occur after a reference to a file has been acquired (e.g. concurrent lock with another application).  Additionally, this error code MUST be used if the file cannot be read into the desired format by the asynchronous accessor method, e.g. if <a href="#dfn-getAsDataURL">getAsDataURL</a> is subject to URL length limitations for the file data in question.
     </p>        
 </dd>
 <dt id="idl-defs-FileErrorCode-SECURITY_ERR"><code>SECURITY_ERR</code></dt>
@@ -532,33 +486,23 @@ const unsigned short <a href="#idl-defs-FileErrorCode-SPLICE_ERR">SPLICE_ERR</a>
  
  This error code MUST be used if the user cancels the file dialog without picking a file, OR if a <a href="#dfn-cancelReads"><code>cancelReads()</code></a> is called on the <a href="#FileData-if" class="if-name">FileData</a> object.  </p>
 </dd>
-<dt id="idl-defs-FileErrorCode-ENCODING_ERR"><code>ENCODING_ERR</code></dt>
+<dt id="idl-defs-FileErrorCode-SLICE_ERR"><code>SLICE_ERR</code></dt>
 <dd>
-  <p>This error code MAY be used if implementations cannot return a <a href="#FileData-if" class="if-name">FileData</a> object's data in the requested encoding. This error code MAY be used for all the asynchronous data accessors on the <a href="#FileData-if" class="if-name">FileData</a> object.</p>
-</dd>
-<dt id="idl-defs-FileErrorCode-SPLICE_ERR"><code>SPLICE_ERR</code></dt>
-<dd>
-  <p>This error code MUST be used if implementations cannot splice the <a href="#FileData-if" class="if-name">FileData</a> object between the specified byte ranges using the <a href="#FileData-if" class="if-name">FileData</a> object's <a href="#dfn-splice"><code>splice</code></a> method. This could occur because the caller has innacurately accounted for the number of bytes that the <a href="#FileData-if" class="if-name">FileData</a> object consists of, or if implementations encounter an error in splicing the data.</p>
+  <p>This error code MUST be used if implementations cannot slice the <a href="#FileData-if" class="if-name">FileData</a> object between the specified byte ranges using the <a href="#FileData-if" class="if-name">FileData</a> object's <a href="#dfn-slice"><code>slice</code></a> method. This could occur because the caller has innacurately accounted for the number of bytes that the <a href="#FileData-if" class="if-name">FileData</a> object consists of, or if implementations encounter an error in splicing the data.</p>
 </dd>
 </dl>
 </div>
+
 <div class="section">
-  <h4 id="idl-attrs-FileError">Attributes</h4>
-<dl><dt><code>errorCode</code>, of type <code>unsigned short</code>;</dt>
-<dd>
-  <p>The errorCode value MUST be one of the above constants. If the errorCode is <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a>, implementations MUST call the <a href="#dfn-FileContent">FileContent</a> callback with a string argument that represents the 
-  <a href="#FileData-if" class="if-name">FileData</a> object's content (depending on the asynchronous accessor method, e.g. <a href="#dfn-getAsText"><code>getAsText</code></a>), and the <a href="#dfn-FileDataContent">FileDataContent</a> callback with a <a href="#FileData-if" class="if-name">FileData</a> argument (e.g. when the <a href="#dfn-splice"><code>splice</code></a> method is used). With every other errorCode but <a href="#idl-defs-FileErrorCode-SUCCESS"><code>SUCCESS</code></a> , the <a href="#dfn-FileContent">FileContent</a> callback is called with <code>null</code> for the string argument, and the <a href="#dfn-FileDataContent">FileDataContent</a> callback is called with <code>null</code> for the <a href="#FileData-if">FileData</a> argument.</p>
-</dd></dl></div>
-<div class="section">
-<h2 id="fileurl-if">6. The filedata:// scheme</h2>
-<p>This section defines a scheme for a short-lived and unique URL, generated by the <a href="#FileData-if" class="if-name">FileData</a> object's asynchronous <a href="#dfn-getAsURL"><code>getAsURL</code></a> data accessor. The URL can be used in web content, and MUST be processed by conforming implementations just as HTTP URLs are, using HTTP status codes [<a href="#HTTP">HTTP</a>].</p>
-<div class="ednote">The processing model is problematic.  HTTP responses shouldn't be used outside of HTTP. However, returning these status codes would allow applications to behave as they do under HTTP, particularly when resources are not found, etc.</div>
+<h2 id="filedataurl-if">7. The filedata: scheme</h2>
+<p>This section defines a scheme for a unique URL that is used to refer to a <a href="#FileData-if" class="if-name">FileData</a> object, including an <a href="#filedataABNF">ABNF for filedata: URLs</a>, an <a href="#origin">Origin Policy for filedata: URLs</a>, a <a href="#lifetime">Lifetime</a> stipulation, and a <a href="#processingModel">Processing Model for filedata: URLs</a>.</p>
+
 <h3 id="filedataABNF">ABNF of filedata URL Scheme</h3>
-<p>This section uses the Augmented Backus-Naur Form (ABNF), defined in [<a href="#ABNF">RFC2234</a>]. All filedata:// URLs MUST follow this ABNF.</p>
+<p>This section uses the Augmented Backus-Naur Form (ABNF), defined in [<a href="#ABNF">RFC2234</a>]. All <a href="#filedataurl-if" class="if-name">filedata:</a> URLs MUST follow this ABNF.</p>
 
 <div class="boxed">
 <pre>
-filedata = scheme &quot;://&quot; UUID 
+filedata = scheme &quot;:&quot; UUID 
 
 ; UUID refers to a UUID in its canonical form, used without the urn: namespace, and is defined in [<a href="#UUID">RFC4122</a>]
 
@@ -583,27 +527,49 @@ hexDigit =
          "A" / "B" / "C" / "D" / "E" / "F"
 
 </pre>
-<p>Thus, a valid filedata:// URL would take the form:
-<code>filedata://550e8400-e29b-41d4-a716-446655440000</code>
+<p>Thus, a valid filedata: URL would take the form:
+<code>filedata:550e8400-e29b-41d4-a716-446655440000</code>
 </p>
 </div>
-<h3 id="origin">Origin of filedata:// URLs</h3>
+<h3 id="origin">Origin of filedata: URLs</h3>
 <div class="section">
-  <p>The origin of filedata:// URLs MUST be the  origin of the script context that  invoked the <a href="#dfn-getAsURL"><code>getAsURL</code></a> method; this is defined as the &quot;first script&quot; in HTML5 [<a href="#HTML5">HTML5</a>]. filedata:// URLs MUST only be valid within this script context. Retrieving them within any other script context results in a 404 Not Found [<a href="#HTTP">HTTP</a>].</p>
-  <div class="ednote">Caveats about the HTTP processing model, but I include it as a strawperson.</div>
+  <p>The origin of <a href="filedataurl-if" class="if-name">filedata:</a> URLs MUST be the  origin of the script context that  spawned the <a href="#FileData-if" class="if-name">FileData</a> object on which the <a href="#dfn-url"><code>url</code></a> attribute was called; this is defined as the &quot;first script&quot; in HTML5 [<a href="#HTML5">HTML5</a>]. <a href="#filedataurl-if" class="if-name">filedata:</a> URLs MUST only be valid within this script context. Retrieving them from within any other script context results in a <strong>403 Not Allowed</strong> with an additional affiliated message that implementations MAY use (e.g. &quot;Origin Violation&quot;). [<a href="#processingModel">Processing Model for filedata: URLs</a>]</p>
+  
 </div>
-<h3 id="lifetime">Lifetime of filedata:// URLs</h3>
+<h3 id="lifetime">Lifetime of filedata: URLs</h3>
 <div class="section">
-<p>Implementations MUST ensure that the lifetime of filedata:// URLs is the same as the lifetime of the <code>Document</code>[<a href="#HTML5">HTML5</a>] of the origin script from which <a href="#dfn-getAsURL"><code>getAsURL</code></a> was called.  When this <code>Document</code> is destroyed, implementations MUST treat requests for filedata:// URLs as 404 Not Found [<a href="#HTTP">HTTP</a>].</p>
-<div class="ednote">Caveats about the HTTP processing model.</div>
-<h3 id="processingModel">Processing Model for filedata:// URLs</h3>
+<p>Implementations MUST ensure that the lifetime of <a href="#filedataurl-if" class="if-name">filedata:</a> URLs is the same as the lifetime of the <code>Document</code>[<a href="#HTML5">HTML5</a>] of the origin script which spawned the <a href="#FileData-if" class="if-name">FileData</a> object on which the <a href="#dfn-url"><code>url</code></a> attribute was called.  When this <code>Document</code> is destroyed, implementations MUST treat requests for <a href="#filedataurl-if" class="if-name">filedata:</a> URLs  created within this <code>Document</code> as <strong>404 Not Found</strong>.[<a href="#processingModel">Processing Model for filedata: URLs</a>]</p>
+</div>
+
+<h3 id="processingModel">Processing Model for filedata: URLs</h3>
 <div class="section">
-<div class="ednote">Some status codes (200 OK, 404 Not Found, 5xx (Errors)) are going to be useful.</div>
+<p>
+<a href="#filedataurl-if">filedata:</a> URLs are not relative or hierarchical, unlike file:// URLs [<a href="#RFC1738">RFC1738</a>][<a href="#RFC1630">RFC1630</a>]; additionally, they can be used within web applications, including with primitives like <code>XMLHttpRequest</code> [<a href="#XHR2"><code>XMLHttpRequest</code></a>]. They MUST only support requests with GET [<a href="#HTTP">HTTP</a>] and MUST only support a subset of responses [<a href="#HTTP">HTTP</a>], which are:</p>
+<h4 id="200OK">200 OK</h4>
+<div class="section">
+<p>This response [<a href="#HTTP">HTTP</a>] MUST be used if the request has succeeded, namely the <a href="#filedataurl-if">filedata:</a> URL has been requested with a GET, satisfies the <a href="#origin">origin requirement</a>, and satisfies the <a href="#lifetime">lifetime requirement.</a></p>
 </div>
+<h4 id="403NotAllowed">403 Not Allowed</h4>
+<div class="section">
+<p>This response [<a href="#HTTP">HTTP</a>] MUST be used if the request violates the <a href="#origin">origin requirement</a>.  Additionally, it MUST be used if the underlying file's permission structure has changed (thus preventing access from web content).  Implementations MAY accompany this response with a message (e.g. &quot;Origin Violation&quot;).</p>
+</div>
+
+<h4 id="404NotFound">404 Not Found</h4>
+<div class="section">
+<p>This response [<a href="#HTTP">HTTP</a>] MUST be used if the request violates the lifetime requirement (e.g. if a cached <a href="#filedataurl-if">filedata:</a> URL persists after the specified lifetime of the URL has elapsed). Additionally, it MUST be used if the underlying file has moved.</p>
+</div>
+
+<h4 id="500InternalServerError">500 Internal Server Error</h4>
+<div class="section">
+<p>This response [<a href="#HTTP">HTTP</a>] MAY be used as a generic error condition, including for security errors or access violations.  </p>
+</div>
+
+</div>
+
 </div>
 </div>
 <div class="section">
-<h2 id="conform">7. Conformance</h2>
+<h2 id="conform">8. Conformance</h2>
 <p>    
 All examples (including code snippets in JavaScript) and notes in this specification are non-normative, as are all sections explicitly marked non-normative. Everything else in this specification is normative.
 </p>
@@ -625,7 +591,7 @@ platform-specific limitations.
 </div>
   
   <div class="section">
-	<h2 id="requirements">8. Requirements and Use Cases</h2>
+	<h2 id="requirements">9. Requirements and Use Cases</h2>
 	<p>This section covers what the requirements are for this API, as well as illustrates some use cases.  This version of the API does not satisfy all use cases; subsequent versions may elect to address these.</p>  
 	  <ul>
 		  <li><p>Once a user has given permission, user agents should provide the ability to read and parse data directly from a local file programmatically.</p>
@@ -662,11 +628,11 @@ platform-specific limitations.
 	  </ul>
   </div>
   <div class="section">
-    <h2 id="ack">9. Acknowledgements</h2>
+    <h2 id="ack">10. Acknowledgements</h2>
     
     <p>
       This specification was originally developed by the SVG Working Group. Many thanks to Mark Baker and Anne van Kesteren for their feedback.</p>
-    <p>Robin Berjon, Jonas Sicking, Maciej Stachowiak, Sam Weinig, Ian Hickson</p>
+    <p>Robin Berjon, Jonas Sicking, Sam Weinig, Ian Hickson</p>
   </div>
 
   <div class="section"><h2 id="bibref">A. References</h2>
@@ -689,6 +655,12 @@ platform-specific limitations.
     <dd><cite><a href="]http://www.ietf.org/rfc/rfc2234.txt">Augmented BNF for Syntax Specifications: ABNF</a></cite></dd>
     <dt id="RFC2046">RFC2046</dt>
     <dd><cite><a href="http://www.ietf.org/rfc/rfc2046.txt">Multipurpose Internet Mail Extensions (MIME) Part Two: Media Extensions</a></cite></dd>
+    <dt id="RFC4648">RFC4648</dt>
+    <dd><cite><a href="http://tools.ietf.org/html/rfc4648">The Base16, Base32, and Base64 Data Encodings</a></cite></dd>
+    <dt id="RFC1630">RFC1630</dt>
+    <dd><cite><a href="http://tools.ietf.org/html/rfc1630">Universal Resource Identifiers in WWW</a></cite></dd>
+    <dt id="RFC1738">RFC1738</dt>
+    <dd><cite><a href="http://tools.ietf.org/html/rfc1738">Uniform Resource Locators (URL)</a></cite></dd>
    </dl>
   </div>
   </div>
