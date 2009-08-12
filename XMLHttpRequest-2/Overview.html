@@ -36,13 +36,13 @@
    <h1 class=head id=xmlhttprequest-level-2><code
     title="">XMLHttpRequest</code> Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 14 June 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 August 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090614/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090614/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090812/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20090812/</a>
 
     <dt>Latest Version:
 
@@ -100,7 +100,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 14 June 2009 Working Draft of <code
+  <p>This is the 12 August 2009 Working Draft of <code
    title="">XMLHttpRequest</code> Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -441,24 +441,24 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
   // <a href="#request">request</a>
            attribute boolean <a href="#withcredentials">withCredentials</a>;
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>, in boolean <var>async</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
-  void <a href="#open">open</a>(in DOMString <var>method</var>, in DOMString <var><a href="#url">url</a></var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
-  void <a href="#setrequestheader">setRequestHeader</a>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var><a href="#url">url</a></var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var><a href="#url">url</a></var>, boolean <var>async</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var><a href="#url">url</a></var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>);
+  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var><a href="#url">url</a></var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>, [Null=Null, Undefined=Null] DOMString <var>password</var>);
+  void <a href="#setrequestheader">setRequestHeader</a>(DOMString <var>header</var>, DOMString <var>value</var>);
   readonly attribute <a href="#xmlhttprequestupload">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
   void <a href="#send">send</a>();
-  void <a href="#send">send</a>(in ByteArray <var>data</var>);
-  void <a href="#send">send</a>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
-  void <a href="#send">send</a>(in Document <var>data</var>);
+  void <a href="#send">send</a>(ByteArray <var>data</var>);
+  void <a href="#send">send</a>([AllowAny, Null=Null, Undefined=Null] DOMString <var>data</var>); <!-- XXX XHR1 -->
+  void <a href="#send">send</a>(Document <var>data</var>);
   void <a href="#abort">abort</a>();
 
   // <a href="#response">response</a>
   readonly attribute unsigned short <a href="#status">status</a>;
   readonly attribute DOMString <a href="#statustext">statusText</a>;
-  DOMString <a href="#getresponseheader">getResponseHeader</a>(in DOMString <var>header</var>);
+  DOMString <a href="#getresponseheader">getResponseHeader</a>(DOMString <var>header</var>);
   DOMString <a href="#getallresponseheaders">getAllResponseHeaders</a>();
-  void <a href="#overridemimetype">overrideMimeType</a>(<var>mime</var>);
+  void <a href="#overridemimetype">overrideMimeType</a>(DOMString <var>mime</var>);
   readonly attribute ByteArray <a href="#responsebody">responseBody</a>;
   readonly attribute DOMString <a href="#responsetext">responseText</a>;
   readonly attribute Document <a href="#responsexml">responseXML</a>;
@@ -699,16 +699,20 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    <dt>The <dfn id=credentials-flag>credentials flag</dfn>
 
    <dd>Indicates whether a cross-origin request will include cookie and HTTP
-    authentication data.
+    authentication data. The flag is either true or false. The default value
+    is false.
 
    <dt>The <dfn id=upload-complete-flag>upload complete flag</dfn>
 
-   <dd>Used to determine whether to send upload progress events.
+   <dd>Used to determine whether to send upload progress events. The flag is
+    either true or false.</dd>
+   <!-- XXX default -->
 
    <dt>The <dfn id=upload-events-flag>upload events flag</dfn>
 
    <dd>Used to determine whether to send upload progress events for
-    cross-origin requests.
+    cross-origin requests. The flag is either true or false.</dd>
+   <!-- XXX default -->
   </dl>
 
   <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object
@@ -1199,14 +1203,6 @@ X-Test: one, two
 
       <p class=note>Subsequent changes to the <code>Document</code> have no
        effect on what is submitted.</p>
-
-     <dt>Anything else
-
-     <dd>
-      <p>Use the stringification mechanisms of the host language on
-       <var>data</var> and treat the result as if <var>data</var> is a
-       <code>DOMString</code>. Or, if this fails, act as if <var>data</var>
-       is <code>null</code>.
     </dl>
 
     <p>If the <var>data</var> argument has been omitted, or is

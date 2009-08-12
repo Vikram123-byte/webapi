@@ -335,24 +335,24 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
   // <a href="#request">request</a>
            attribute boolean <span>withCredentials</span>;
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>);
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>);
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>);
-  void <span>open</span>(in DOMString <var>method</var>, in DOMString <var>url</var>, in boolean <var>async</var>, [Null=Null, Undefined=Null] in DOMString <var>user</var>, [Null=Null, Undefined=Null] in DOMString <var>password</var>);
-  void <span>setRequestHeader</span>(in DOMString <var>header</var>, in DOMString <var>value</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>, [Null=Null, Undefined=Null] DOMString <var>user</var>, [Null=Null, Undefined=Null] DOMString <var>password</var>);
+  void <span>setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);
   readonly attribute <span>XMLHttpRequestUpload</span> <span>upload</span>;
   void <span>send</span>();
-  void <span>send</span>(in ByteArray <var>data</var>);
-  void <span>send</span>([Null=Null, Undefined=Null] in DOMString <var>data</var>);
-  void <span>send</span>(in Document <var>data</var>);
+  void <span>send</span>(ByteArray <var>data</var>);
+  void <span>send</span>([AllowAny, Null=Null, Undefined=Null] DOMString <var>data</var>); <!-- XXX XHR1 -->
+  void <span>send</span>(Document <var>data</var>);
   void <span>abort</span>();
 
   // <a href="#response">response</a>
   readonly attribute unsigned short <span>status</span>;
   readonly attribute DOMString <span>statusText</span>;
-  DOMString <span>getResponseHeader</span>(in DOMString <var>header</var>);
+  DOMString <span>getResponseHeader</span>(DOMString <var>header</var>);
   DOMString <span>getAllResponseHeaders</span>();
-  void <span>overrideMimeType</span>(<var>mime</var>);
+  void <span>overrideMimeType</span>(DOMString <var>mime</var>);
   readonly attribute ByteArray <span>responseBody</span>;
   readonly attribute DOMString <span>responseText</span>;
   readonly attribute Document <span>responseXML</span>;
@@ -552,14 +552,16 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <dt>The <dfn>credentials flag</dfn></dt>
    <dd>Indicates whether a cross-origin request will include cookie and HTTP
-   authentication data.</dd>
+   authentication data. The flag is either true or false. The default value
+   is false.</dd>
 
    <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
-   <dd>Used to determine whether to send upload progress events.</dd>
+   <dd>Used to determine whether to send upload progress events. The flag is
+   either true or false.</dd> <!-- XXX default -->
 
    <dt>The <dfn id="upload-events-flag">upload events flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events for
-   cross-origin requests.</dd>
+   cross-origin requests. The flag is either true or false.</dd> <!-- XXX default -->
   </dl>
 
   <p>The <code>XMLHttpRequest</code> object also has an associated
@@ -976,13 +978,6 @@ X-Test: one, two
       <p class="note">Subsequent changes to the <code>Document</code> have
       no effect on what is submitted.</p>
      </dd>
-
-     <dt>Anything else</dt>
-
-     <dd><p>Use the stringification mechanisms of the host language on
-     <var>data</var> and treat the result as if <var>data</var> is a
-     <code>DOMString</code>. Or, if this fails, act as if <var>data</var> is
-     <code>null</code>.</p></dd>
     </dl>
 
     <p>If the <var>data</var> argument has been omitted, or is
