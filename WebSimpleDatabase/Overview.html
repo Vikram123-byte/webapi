@@ -1,0 +1,1247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!--
+  Overview.html
+  DataCache 
+
+  Note: This file is generated from Overview.xml.  Run "make" to regenerate it.
+  -->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Web Simple Database API</title>
+    <meta name="revision" content="$Id: Overview.html,v 1.1 2009-09-03 01:43:07 nmehta3 Exp $" />
+    <link rel="stylesheet" href="SimpleDatabase.css" type="text/css" />
+    <script src="section-links.js" type="application/ecmascript"></script>
+    <script src="dfn.js" type="application/ecmascript"></script>
+    <!--[if IE]>
+    <style type='text/css'>
+      .ignore {
+        -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+        filter: alpha(opacity=50);
+      }
+    </style>
+    <![endif]-->
+
+    
+  <link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-ED" type="text/css" /></head>
+
+  <body>
+    <div class="head"><div><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C" /></a></div><h1>Web Simple Database API</h1><h2>W3C Editor’s Draft <em>5 September 2009</em></h2><dl><dt>Latest Editor’s Draft:</dt><dd><a href="http://dev.w3.org/2006/webapi/WebSimpleDatabase/">http://dev.w3.org/2006/webapi/WebSimpleDatabase/</a></dd><dt>Latest Published Version:</dt><dd><a href="http://www.w3.org/TR/WebSimpleDatabase/">http://www.w3.org/TR/WebSimpleDatabase/</a></dd><dt>Editor:</dt><dd><a href="http://o-micron.blogspot.com/">Nikunj R. Mehta</a>, Oracle Corp &lt;nikunj.mehta@oracle.com&gt;</dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> &copy; 2009 <a href="http://www.w3.org/"><abbr title="World Wide Web Consortium">W3C</abbr></a><sup>&reg;</sup> (<a href="http://www.csail.mit.edu/"><abbr title="Massachusetts Institute of Technology">MIT</abbr></a>, <a href="http://www.ercim.org/"><abbr title="European Research Consortium for Informatics and Mathematics">ERCIM</abbr></a>, <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>, <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.</p></div><hr />
+
+    <div class="section">
+      <h2>Abstract</h2>
+      <p>
+        This document defines APIs for storing and retreving ordered key-value pairs in a B-Tree database.
+      </p>
+
+      <div class="ednote"><div class="ednoteHeader">Editorial note</div><p>This is revision $Id: Overview.html,v 1.1 2009-09-03 01:43:07 nmehta3 Exp $.</p></div>
+    </div>
+
+    <div class="section">
+      <h2>Status of this Document</h2>
+      <p><em>
+        This section describes the status of this document at the time of
+        its publication.  Other documents may supersede this document. A list
+        of current W3C publications and the latest revision of this technical
+        report can be found in the <a href="http://www.w3.org/TR/">W3C technical
+          reports index</a> at http://www.w3.org/TR/.
+      </em></p><p>
+        This document is the 5 September 2009 <b>Editor’s Draft</b> of the
+        <cite>Web Simple Database API</cite> specification.
+      
+      Please send comments about this document to
+      <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>
+      (<a href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
+      with “[WebSimpleDatabase]” at the start of the subject line.
+    </p>
+      <p>
+        This document is produced by the
+        <a href="http://www.w3.org/2008/webapps/">Web Applications Working Group</a>, part of the
+        <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
+        in the W3C <a href="http://www.w3.org/Interaction/">Interaction Domain</a>.
+        Changes made to this document can be found in the
+        <a href="http://dev.w3.org/cvsweb/2006/webapi/WebSimpleDatabase/Overview.xml">W3C
+          public CVS server</a>.
+      </p>
+      <p>
+          Publication as an Editor’s Draft does not imply endorsement by the
+          W3C Membership.  This is a draft document and may be updated, replaced
+          or obsoleted by other documents at any time. It is inappropriate to cite
+          this document as other than work in progress.
+        </p><p>
+      This document was produced by a group operating under the
+      <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February
+        2004 W3C Patent Policy</a>. W3C maintains a
+      <a href="http://www.w3.org/2004/01/pp-impl/42538/status">public list of
+        any patent disclosures</a> made in connection with the deliverables of
+      the group; that page also includes instructions for disclosing a patent.
+      An individual who has actual knowledge of a patent which the individual
+      believes contains
+      <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential
+        Claim(s)</a> must disclose the information in accordance with
+      <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
+        6 of the W3C Patent Policy</a>.
+    </p>
+    </div>
+
+    <div id="toc">
+      <h2>Table of Contents</h2>
+      <div class="toc"><ul><li><a href="#introduction">1. Introduction</a></li><li><a href="#conformance">2. Conformance Requirements</a></li><li><a href="#database-api">3. Simple Database API</a><ul><li><a href="#environment">3.1. Opening a database</a></li><li><a href="#database">3.2. Database</a><ul><li><a href="#database-async">3.2.1. Asynchronous Database API</a><ul><li><a href="#processing-transaction">3.2.1.1. Processing model</a></li></ul></li><li><a href="#sync-database">3.2.2. Synchronous Database API</a></li></ul></li><li><a href="#creating-transaction">3.3. Creating a Transaction object</a></li><li><a href="#transaction">3.4. Transaction</a></li><li><a href="#entity-store">3.5. Entity Store</a></li><li><a href="#index">3.6. Index</a></li><li><a href="#cursor">3.7. Cursor</a></li><li><a href="#entity-join">3.8. Entity Join</a></li><li><a href="#sequence">3.9. Sequence</a></li><li><a href="#queue">3.10. Queue</a></li><li><a href="#database-exception">3.11. Exceptions and Errors</a></li></ul></li></ul><ul><li><a href="#references">A. References</a><ul><li><a href="#normative-references">A.1. Normative references</a></li><li><a href="#informative-references">A.2. Informative references</a></li></ul></li></ul></div>
+    </div>
+
+    <div id="sections">
+      <div id="introduction" class="section">
+        <h2>1. Introduction</h2>
+
+        <p class="norm">This section is non-normative.</p>
+        
+        <p>
+          User agents have a need to store large numbers of records locally in
+          order to satisfy off-line data requirements of Web applications.
+          <cite><a href="#ref-WebStorage">[WebStorage]</a></cite> is useful for
+          storing pairs of keys and their corresponding values. However, it does 
+          not provide in-order retrieval of keys or storage of duplicate values
+          for a key. <cite><a href="#ref-WebDatabase">[WebDatabase]</a></cite> 
+          provides APIs to access data using SQL queries. However, it does not
+          provide a definition of the vocabulary that can be used for making SQL
+          queries.
+        </p>
+        
+        <p>
+          This specification bridges the gap between the above two APIs by
+          providing a concrete API to perform advanced key-value data management
+          that is at the heart of most sophisticated query processors. It does
+          so by using databases to store keys and their corresponding values
+          (one or more per key), and providing a means of traversing keys in a
+          deterministic order. This is made possible through the use of B-tree
+          data structures that are considered efficient for in-order traversal
+          of very large numbers of data items.
+        </p>
+        
+        <div class="note"><div class="noteHeader">Note</div>
+          This specification is one of the proposals being considered by the
+          WebApps WG for client-side data storage.
+        </div>
+      </div>
+
+      <div id="conformance" class="section">
+        <h2>2. Conformance Requirements</h2>
+
+        <p>
+          Everything in this specification is normative except for diagrams,
+          examples, notes and sections marked as being informative.
+        </p>
+        <p>
+          The keywords “<span class="rfc2119">MUST</span>”,
+          “<span class="rfc2119">MUST NOT</span>”,
+          “<span class="rfc2119">REQUIRED</span>”,
+          “<span class="rfc2119">SHALL</span>”,
+          “<span class="rfc2119">SHALL NOT</span>”,
+          “<span class="rfc2119">RECOMMENDED</span>”,
+          “<span class="rfc2119">MAY</span>” and
+          “<span class="rfc2119">OPTIONAL</span>” in this document are to be
+          interpreted as described in
+          <cite><a href="http://www.ietf.org/rfc/rfc2119">Key words for use in RFCs to
+              Indicate Requirement Levels</a></cite>
+          <a href="#ref-RFC2119">[RFC2119]</a>.
+        </p>
+        <p>
+          This specification defines one class of products:
+        </p>
+        <dl>
+          <dt><dfn id="dfn-conforming-user-agent">Conforming user agent</dfn></dt>
+          <dd>
+            <p>
+              A user agent must behave as described in this specification
+              in order to be considered conformant.
+            </p>
+            
+            <p>
+              User agents may implement algorithms given in this
+              specification in any way desired, so long as the end result is
+              indistinguishable from the result that would be obtained by the
+              specification's algorithms.
+            </p>
+            
+            <p>
+              A conforming DataCache user agent must also be a
+              <em>conforming implementation</em> of the IDL fragments
+              of this specification, as described in the
+              “Web IDL” specification. <cite><a href="#ref-WebIDL">[WEBIDL]</a></cite>
+            </p>
+            
+            <div class="note"><div class="noteHeader">Note</div>
+              This specification uses both the terms "conforming user agent(s)" 
+              and "user agent(s)" to refer to this product class.
+            </div>
+          </dd>
+        </dl>        
+	  </div>
+	  
+      <div id="database-api" class="section">
+        <h2>3. Simple Database API</h2>
+        
+        <p>Each origin has an associated set of databases. Each database has a name and a current version. There is no way to enumerate or delete the databases available for an origin from this API.</p>
+        
+        <div class="note"><div class="noteHeader">Note</div>
+        Each database has one version at a time; a database can't exist in multiple versions at once. Versions are intended to allow authors to manage schema changes incrementally and non-destructively, and without running the risk of old code (e.g. in another browser window) trying to write to a database with incorrect assumptions.
+        </div>
+        
+        <div id="environment" class="section">
+          <h3>3.1. Opening a database</h3>
+          <div>
+            <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">[Supplemental] 
+interface <dfn id="Environment">Environment</dfn> {
+  <a href="#Database">Database</a> <a href="#openDatabase">openDatabase</a>(in DOMString name, 
+                        in DOMString version, 
+                        in DOMString displayName, 
+                        in optional boolean readonly, 
+                        in optional <a href="#DatabaseCallback">DatabaseCallback</a> upgradeCallback);
+};
+
+Window implements Environment;
+
+[Callback=FunctionOnly, NoInterfaceObject]
+interface <dfn id="DatabaseCallback">DatabaseCallback</dfn> {
+  void handleEvent(in <a href="#Database">Database</a> database);
+};
+
+[Supplemental]
+interface <dfn id="EnvironmentSync">EnvironmentSync</dfn> {
+  <a href="#DatabaseSync">DatabaseSync</a> <a href="#openDatabaseSync">openDatabaseSync</a>(in DOMString name, 
+                        in DOMString version, 
+                        in DOMString displayName, 
+                        in optional boolean readonly, 
+                        in optional <a href="#DatabaseCallback">DatabaseCallback</a> upgradeCallback);
+};
+
+WorkerUtils implements <a href="#Environment">Environment</a>;
+WorkerUtils implements <a href="#EnvironmentSync">EnvironmentSync</a>;</code></pre></div></div>  
+        </div>
+        <p>
+          The <dfn id="#openDatabase"><code>openDatabase()</code></dfn>
+          and the <dfn id="#openDatabaseSync"><code>openDatabaseSync()</code></dfn>
+          methods take the following arguments: a database name, a database
+          version, a display name, a read only flag, and optionally a callback
+          to be invoked if the database has not yet been created. The callback,
+          if provided, is intended to be used to call 
+          <a class="idltype" href="#changeVersion"><code>changeVersion()</code></a>; 
+          the callback is invoked with the database having the empty string as
+          its version regardless of the given database version. If the
+          callback is not provided, the database is created with the given
+          database version as its version.
+        </p>
+        
+        <p>
+          When invoked, these methods must run the following steps, with all
+          but the last two steps being run atomically:
+        </p>
+        <ol>
+          <li>
+            <p>
+              For the method on the <code>Window</code> object: let <var>origin</var> be the 
+              origin of the active document of the browsing context of the
+              Window object on which the method was invoked.
+            </p>
+            
+            <p>
+              For the methods on the <code>WorkerUtils</code> object: let <var>origin</var>
+              be the origin of the scripts in the worker.
+            </p>
+          </li>
+          
+          <li>
+            If the database version provided is not the empty string, and
+            there is already a database with the given name from the origin
+            <var>origin</var>, but the database has a different version
+            than the version provided, then throw an INVALID_STATE_ERR
+            exception and abort these steps.
+          </li>
+          
+          <li>
+            <p>
+              If no database with the given name from the origin <var>origin</var>
+              exists, then create the database and let <var>created</var> be true.
+              Otherwise, let <var>created</var> be false.
+            </p>
+            <p>
+              If a callback was passed to the method, then let the database's 
+              version be the empty string. Otherwise, let its version be
+              the given database version.
+            </p>
+          </li>
+          
+          <li>
+            <p>
+              For the <a class="idltype" href="#openDatabase"><code>openDatabase()</code></a> 
+              method: let <var>result</var> be a newly constructed 
+              <a class="idltype" href="#Database"><code>Database</code></a> object
+              representing the database with the given database name from the
+              origin <var>origin</var>.
+            </p>
+            
+            <p>
+              For the <a class="idltype" href="#openDatabaseSync"><code>openDatabaseSync()</code></a>
+              method: let result be a newly constructed 
+              <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a>
+              object representing the database with the given database name 
+              from the origin <var>origin</var>.
+            </p>
+          </li>
+
+          <li>
+            If <var>created</var> is false or if no callback was passed
+            to the method, skip this step. Otherwise:
+            <ul>
+              <li>
+                For the <a class="idltype" href="#openDatabase"><code>openDatabase()</code></a>
+                method: queue a task to to invoke the callback with <var>result</var>
+                as its only argument.
+              </li>
+              
+              <li>
+                For the <a class="idltype" href="#openDatabaseSync"><code>openDatabaseSync()</code></a>
+                method: invoke the callback with <var>result</var> as its only argument.
+                If the callback throws an exception, rethrow that exception and abort these steps.
+              </li>
+            </ul>
+          </li>
+          
+          <li>
+            Return <var>result</var>.
+          </li>
+        </ol>
+        
+        <p>
+          All strings including the empty string are valid database names. 
+          Database names must be compared in a case-sensitive manner.
+        </p>
+        
+        <div class="note"><div class="noteHeader">Note</div>
+          Implementations can support this even in environments that only
+          support a subset of all strings as database names by mapping
+          database names (e.g. using a hashing algorithm) to the supported
+          set of names.
+        </div>
+        
+        <p>
+          The version that the database was opened with is the expected
+          version of this <a class="idltype" href="#Database"><code>Database</code></a> 
+          or <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a> 
+          object. It can be the empty string, in which case there is no
+          expected version — any version is fine.
+        </p>
+        
+        <p>
+          User agents are expected to use the display name to optimize
+          the user experience.
+        </p>
+       </div>
+       
+       <div id="database" class="section"> 
+        <h3>3.2. Database</h3>
+        <p>
+          Two variants of databases are available in this API. The asynchronous 
+          version <a class="idltype" href="#Database"><code>Database</code></a>
+          is available to both <code>Window</code> and <code>WorkerUtils</code> objects.
+          The synchronous version <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a>
+          is available only to the <code>WorkerUtils</code> object.
+        </p>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface <dfn id="AbstractDatabase">AbstractDatabase</dfn> {
+  readonly attribute DOMString version;
+  readonly attribute boolean mutable;
+};</code></pre></div></div>  
+        <p>
+          On getting, the <dfn id="version">version</dfn> attribute must return the current version of the database (as opposed to the expected version of the <a href="#AbstractDatabase"><code>AbstractDatabase</code></a> object).
+        </p>
+        
+        <p>
+          On getting, the <dfn id="mutable">mutable</dfn> attribute must return whether the 
+          database can be modified. This is set at the time the database is opened.
+        </p>
+        
+			  <div id="database-async" class="section">
+          <h4>3.2.1. Asynchronous Database API</h4>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface <dfn id="Database">Database</dfn> : <a href="#AbstractDatabase">AbstractDatabase</a> {
+  transaction(in <a href="#TransactionCallback">TransactionCallback</a> txnCallback,
+              in <a href="#TransactionErrorCallback">TransactionErrorCallback</a> errorCallback,
+              in <a href="#DatabaseVoidCallback">DatabaseVoidCallback</a> txnCallback,
+              in optional <a href="#Transaction">Transaction</a> parent,
+              in optional unsigned short isolationLevel,
+              in optional unsigned int timeout);
+};
+
+[Callback=FunctionOnly, NoInterfaceObject]
+interface <dfn id="#TransactionCallback">TransactionCallback</dfn> {
+  void handleEvent(in <a href="#Transaction">Transaction</a> txn);
+};
+
+[Callback=FunctionOnly, NoInterfaceObject]
+interface <dfn id="#DatabaseVoidCallback">DatabaseVoidCallback</dfn> {
+  void handleEvent();
+};
+
+[Callback=FunctionOnly, NoInterfaceObject]
+interface <dfn id="#TransactionErrorCallback">DatabaseTransactionErrorCallback</dfn> {
+  void handleEvent(in <a href="#DatabaseError">DatabaseError</a> error);
+};</code></pre></div></div>  
+          <p>
+            When creating the transaction, three configuration parameters can be specified - 
+            a parent transaction, an isolation level for this transaction, and a timeout
+            duration (in milliseconds) for acquiring locks required in this transaction. 
+          </p>
+          
+          <p>
+            If a parent transaction is specified, the new transaction is committed
+             only if the parent transaction commits. If the parent transaction
+             rolls back, all its child transactions are also rolledback even if
+             they had been committed.
+          </p>
+
+          <p>
+            An isolation level can be either of <a class="idltype" href="isolation-READ-UNCOMMITTED"><code>
+            READ_UNCOMMITTED</code></a>, <a class="idltype" href="isolation-READ-COMMITTED"><code>
+            READ_COMMITTED</code></a>, or <a class="idltype" href="isolation-SERIALIZABLE"><code>
+            SERIALIZABLE</code></a> as specified in the 
+            <a class="idltype" href="Transaction"><code>Transaction</code></a> interface.
+          </p>
+          
+          <p>
+            To perform a transaction within an asynchronous database, the application
+            should provide a callback within which the steps of the transaction are
+            performed. The <dfn id="transaction"><code>transaction()</code></dfn> method
+            produces a read-only or read-write transaction depending on whether the 
+            database is mutable or not.
+          </p>
+          
+          <p>
+            When called, the method <a class="idltype" href="#transaction"><code>transaction()</code></a>
+            method must immediately return and then asynchronously perform the
+            <a href="#transaction-steps">transaction steps</a>.
+          </p>
+                    
+          <div class="section" id="processing-transaction">
+            <h3>3.2.1.1. Processing model</h3>
+            
+            <p>
+              The <dfn id="transaction-steps">transaction steps</dfn> are as follows. 
+              These steps must be run asynchronously. These steps are invoked with a
+              <i>transaction callback</i>, optionally an <i>error callback</i>, and
+              optionally a <i>success callback</i>.
+            </p>
+            
+            <ol>
+              <li>
+                <a href="#create-a-transaction-object">Create a new <code>Transaction</code> object</a>.
+                Let <var>transaction</var> be this object. 
+              </li>
+              
+              <li>
+                If an error occurred in the creating of the Transaction object
+                (e.g. if the user agent failed to obtain an appropriate lock), 
+                jump to the last step.
+              </li>
+              
+              <li>
+                <span>Queue a task</span> to invoke the <i>transaction callback</i> 
+                with <var>transaction</var> as its only argument, and wait for 
+                that task to be run.
+              </li>
+              
+              <li>
+                If the callback couldn't be called (e.g. it was null), or if the
+                callback was invoked and raised an exception, jump to the last step.
+              </li>
+              
+              <li>
+                For each call on <var>transaction</var>, perform the following steps
+
+                <ol>
+                  <li>
+                    If the call mutates the database, but 
+                    <var>transaction</var> is on a read-only database, jump to
+                    the last step in the overall steps.
+                  </li>
+                  
+                  <li>
+                    Execute the call in the context of the <var>transaction</var>.
+                  </li>
+                  
+                  <li>
+                    If the call failed, jump to the last step in the overall steps.
+                  </li>
+                </ol>
+              </li>
+              
+              <li>
+                Otherwise: if the transaction is not already committed, then commit
+                the transaction. If an error occurred in the committing of the
+    transaction, jump to the last step.
+              </li>
+
+              <li>
+                <span>Queue a task</span> to invoke the <i>success callback</i>.
+              </li>
+
+              <li>
+                End these steps. The next step is only used when something
+                goes wrong.
+              </li>
+              
+              <li>
+                <span>Queue a task</span> to invoke the <i>error
+                callback</i> with a newly constructed 
+                <a class="idltype" href="#DatabaseError"><code>DatabaseError</code></a> object
+                that represents the last error to have occurred in this
+                transaction. Rollback the transaction. 
+              </li>
+            </ol>
+  
+            <p>
+              The <span>task source</span> for these tasks is the 
+              <dfn id="database-access-task-source">database access task source</dfn>.
+            </p>          
+          </div>
+        </div>
+
+			  <div id="sync-database" class="section">
+          <h4>3.2.2. Synchronous Database API</h4>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a href="#AbstractDatabase">AbstractDatabase</a> {
+  <a href="#Transaction">Transaction</a> <a href="transaction-sync">transaction</a>(in optional <a href="#Transaction">Transaction</a> parent,
+              in optional unsigned short isolationLevel,
+              in optional unsigned int timeout);
+};</code></pre></div></div>  
+         </div>
+          <p>
+            The <dfn id="dom-database-sync-transaction" title="dom-database-sync-transaction"><code>transaction()</code></dfn> method must run the following steps:
+          </p>
+           
+          <ol>
+            <li>
+               <a href="#create-a-transaction-object">Create a <code>Transaction</code> object</a>. 
+               Let <var title="">transaction</var> be the newly created
+               <code><a class="idltype" href="#Transaction">Transaction</a></code> object.
+            </li>
+             
+            <li>
+              Return <var>transaction</var>.
+            </li>
+            <li>
+              For each call on <var>transaction</var>, perform the following steps
+
+              <ol>
+                <li>
+                  If the call mutates the database, but 
+                  <var>transaction</var> is on a read-only database, jump to
+                  the "in case of error" steps below.
+                </li>
+                
+                <li>
+                  Execute the call in the context of the <var>transaction</var>.
+                </li>
+                
+                <li>
+                  If the call failed, jump to the "in case of error" steps below.
+                </li>
+              </ol>
+  
+              <p>
+                In case of error (or more specifically, if the above substeps
+                say to jump to the "in case of error" steps), run the following
+                substeps:
+              </p>
+
+              <ol>
+                <li>
+                  If the call caused an error then throw a newly constructed
+                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> exception 
+                  that represents the error that caused these substeps to be run.
+                </li>
+              </ol>  
+            </li>
+          </ol>
+       </div>
+       
+      <div id="creating-transaction" class="section">
+        <h3>3.3. Creating a <code>Transaction</code> object</h3>
+        
+        <p>
+          When the user agent is to <dfn id="create-a-transaction-object">create a
+          <a class="idltype" href="#Transaction"><code>Transaction</code></a> object</dfn> for a
+          transaction, it must run the following steps:
+        </p>
+        
+        <ol>
+          <li>
+            Open a new transaction to the database, and create a
+            <code><a class="idltype" href="#Transaction">Transaction</a></code> 
+            object that represents that transaction. The user agent may wait for
+            appropriate locks to become available.
+          </li>
+          
+          <li>
+            If an error occurs in the opening of the transaction (e.g. if 
+            the user agent failed to obtain an appropriate lock after
+            the given <var>timeout</var>, throw a 
+            <code><a class="idltype" href="#DatabaseException">DatabaseException</a></code> 
+            exception and abort these steps.
+            (<a href="#dom-databaseerror-code-32">Error code 32</a>.)
+          </li>
+          
+          <li>
+            Return the newly created <code><a href="#Transaction">Transaction</a></code> object.
+          </li>
+        </ol>
+      </div>
+      
+      <div id="transaction" class="section"> 
+        <h3>3.4. Transaction</h3>
+        <p>
+          A transaction represents an atomic, consistent, isolated, and durable set of 
+          database access and mutation operations. Transactions offer data protection
+          from application or system failures. 
+        </p>
+        
+        <ul>
+          <li>
+            <p>Atomicity</p>
+            <p>
+              Multiple database operations are treated as a single unit of work. 
+              Once committed, all write operations performed under the protection 
+              of the transaction are saved to the databases. Further, in the event 
+              that a transaction is aborted, all write operations performed during 
+              the transaction are discarded. In this event, the database is left
+              in the state it was in before the transaction began, regardless of
+              the number or type of write operations that may have been performed
+              during the course of the transaction.
+            </p>
+          </li>
+
+          <li>
+            <p>Consistency</p>
+            <p>
+              Databases will never see a partially completed transaction. This is
+              true even if the application fails while there are in-progress
+              transactions. If the application or system fails, then either all of
+              the database changes appear when the application next runs, or none
+              of them appear.
+            </p>
+          </li>
+          
+          <li><p>Isolation</p>
+            <p>
+              While a transaction is in progress, databases appear to the
+              transaction as if there are no other operations occurring outside
+              of the transaction. That is, operations wrapped inside a transaction
+              will always have a clean and consistent view of the database. They
+              never have to see updates currently in progress under the protection
+              of another transaction. Note, however, that isolation guarantees
+               can be increased and relaxed from the default setting. 
+            </p>
+          </li>
+          
+          <li><p>Durability</p>
+            <p>
+              Once committed to a database, modifications will persist even in the
+              event of an application or system failure. Note that like isolation,
+              durability guarantees can be relaxed by a user preference or user
+              agent configuration. 
+            </p>
+          </li>
+        </ul>
+
+        <div class="example"><div class="exampleHeader">Example</div>				
+          <p>
+            In the following example, a database can be initially setup with an
+            entity store and a sequence used in that entity store.
+          </p>
+          <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var database = window.openDatabase('AddressBook', '1', 'Address Book', null, 
+  function(Transaction txn) {
+    txn.createSequence('ContactSeq');
+    txn.createEntityStore('Contact', 'id', 'ContactSeq');
+    txn.changeVersion(database.version, '1');
+  });
+  
+database.transaction(function(Transaction txn) {
+  //... some transaction processing
+});</code></pre></div></div>
+          <p>
+            Later this database can be upgraded to remove the sequence being used
+            in the entity store.
+          </p>
+          <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">database = window.openDatabase('AddressBook', '2', 'Address Book', null,
+  function(Transaction txn) {
+    txn.modifyEntityStore('Contact', 'id');
+    txn.getSequence('ContactSeq').remove();
+    // database.version === '1'
+    txn.changeVersion(database.version, '2');
+  });
+database.transaction(function(Transaction txn) {
+  // ...
+});</code></pre></div></div>
+        </div>
+        <p>  
+          A transaction may be a part of another transaction or completely
+          independent of other transactions.          
+        </p>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface <dfn id="Transaction">Transaction</dfn> {
+  const unsigned short READ_UNCOMMITTED = 0;
+  const unsigned short READ_COMMITTED = 1;
+  const unsigned short SERIALIZABLE = 2;
+  
+  readonly attribute unsigned short <a href="#isolation-level">isolationLevel</a>;
+  readonly attribute Transaction <a href="#parent-transaction">parent</a>;
+  
+  void <a href="#change-version">changeVersion</a>(in DOMString oldVersion, 
+                     in DOMString newVersion);  
+
+  <a href="#EntityStore">EntityStore</a> <a href="#create-entity-store">createEntityStore</a>(in DOMString name, 
+                                in DOMString primaryKeyPath, 
+                                in optional DOMString sequenceName);
+  <a href="#EntityStore">EntityStore</a> <a href="#modify-entity-store">modifyEntityStore</a>(in DOMString name, 
+                                in DOMString primaryKeyPath, 
+                                in optional DOMString sequenceName);
+  <a href="#EntityStore">EntityStore</a> <a href="#get-entity-store">getEntityStore</a>(in DOMString name);
+
+  <a href="#Sequence">Sequence</a> <a href="#create-sequence">createSequence</a>(in DOMString name, 
+                          in optional long long initial, 
+                          in optional long long increment);
+  <a href="#Sequence">Sequence</a> <a href="#get-sequence">getSequence</a>(in DOMString name);
+  
+  <a href="#Queue">Queue</a> <a href="#create-queue">createQueue</a>(in DOMString name);                             
+  <a href="#Queue">Queue</a> <a href="#get-queue">getQueue</a>(in DOMString name);
+  
+
+  <a href="#abort">abort</a>();
+  <a href="#commit">commit</a>();
+};</code></pre></div></div>  
+        </div>
+        
+        <p>
+          On getting, <dfn id="isolation-level"><code>isolationLevel</code></dfn> will
+          provide the isolation level specified when creating the transaction.
+        </p>
+        
+        <p>
+          On getting, <dfn id="parent-transaction"><code>parent</code></dfn> will
+          provide the parent transaction specified when creating the transaction.
+        </p>
+        
+        <p>
+          The <dfn id="change-version"><code>changeVersion()</code></dfn> method
+          allows scripts to atomically verify the version number and change it at
+          the same time as doing a schema update. 
+        </p>
+        
+        <p> 
+          The <dfn id="create-entity-store"><code>createEntityStore()</code></dfn> method
+          creates a new entity store with the given name and returns a 
+          <a class="idltype" href="#EntityStore"><code>EntityStore</code></a> object to 
+          access the objects of the entity store. The path of the primary key in objects
+          stored in this entity store is required to correctly create a unique identifier
+          for each object. The empty string is a valid value for this parameter, and it 
+          results in the entire value of objects to be used as the key value. If a path 
+          is specified and an optional sequence name is also provided, then the identified
+          sequence is used to populate a value in the object at the key path and that value
+          is stored as the key value for the object. 
+        </p>
+        
+        <p>    
+          If an entity store with the same name, compared in a
+          case-sensitive manner, already exists, then this method will throw a
+          newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-4">Error code 4</a>).
+        </p>
+
+        <p> 
+          The <dfn id="modify-entity-store"><code>modifyEntityStore()</code></dfn> method
+          modifies an existing entity store with the given name and returns a 
+          <a class="idltype" href="#EntityStore"><code>EntityStore</code></a> object to 
+          access the objects of the modified entity store. The path of the primary key in 
+          objects stored in this entity store is modified to the one provided in this call. 
+          If this path is different from that currently defined on the entity store, then
+          the entity store is reorganized to use the new primary key path. If the entity
+          store uses a sequence to generate primary keys, and this call omits the optional 
+          sequence name, then the existing sequence is no longer used to populate a value 
+          in the object at the key path. If a different sequence is specified, then the
+          new sequence is used to generate keys. 
+        </p>
+        
+        <p>    
+          If an entity store with the given name, compared in a case-sensitive manner, 
+          does not already exist, then this method will throw a newly constructed 
+          <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+        </p>
+        
+        <p> 
+          The <dfn id="get-entity-store"><code>getEntityStore()</code></dfn> method
+          returns a <a class="idltype" href="#EntityStore"><code>EntityStore</code></a> 
+          object to access the objects of the entity store identified by the given name. 
+        </p>
+        
+        <p>    
+          If an entity store with the given name, compared in a case-sensitive manner, 
+          does not already exist, then this method will throw a newly constructed 
+          <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+        </p>
+        
+        <p> 
+          The <dfn id="create-sequence"><code>createSequence()</code></dfn> method
+          creates a new sequence with the given name and returns a 
+          <a class="idltype" href="#Sequence"><code>Sequence</code></a> object to access the items
+          of the sequence. The optional parameters for initial value and increment 
+          size are used to create the sequence. If 0 is used for the
+          increment parameter, then a system default is chosen to be the actual value.
+          If a negative value is used, the sequence decrements instead of incrementing.
+        </p>
+        
+        <p>    
+          If a sequence with the same name, compared in a
+          case-sensitive manner, already exists, then this method will throw a
+          newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-4">Error code 4</a>).
+        </p>
+
+        <p> 
+          The <dfn id="get-sequence"><code>getSequence()</code></dfn> method
+          returns a <a class="idltype" href="#Sequence"><code>Sequence</code></a> 
+          object to access the items of the sequence identified by the given name. 
+        </p>
+        
+        <p> 
+          The <dfn id="create-queue"><code>createQueue()</code></dfn> method
+          creates a new queue with the given name and returns a 
+          <a class="idltype" href="#Queue"><code>Queue</code></a> object to access the items
+          of the queue. 
+        </p>
+        
+        <p>    
+          If a queue with the same name, compared in a
+          case-sensitive manner, already exists, then this method will throw a
+          newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-4">Error code 4</a>).
+        </p>
+
+        <p> 
+          The <dfn id="get-queue"><code>getQueue()</code></dfn> method
+          returns a <a class="idltype" href="#Queue"><code>Queue</code></a> 
+          object to access the items of the queue identified by the given name. 
+        </p>
+        
+        <p>    
+          If a queue with the given name, compared in a case-sensitive manner, 
+          does not already exist, then this method will throw a newly constructed 
+          <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+        </p>
+
+        <p>
+          The <dfn id="commit"><code>commit()</code></dfn> method is used to signal
+          the normal and satisfactory completion of a transaction to the database. At
+          this point, the database durably stores the result of all the operations
+          performed in this transaction through calls to this 
+          <a class="idltype" href="#Transaction"><code>Transaction</code></a> object.
+        </p>
+        
+        <p>
+          The <dfn id="abort"><code>abort()</code></dfn> method is used to signal
+          the need to cancel the effects of database operations performed in a 
+          transaction. To perform this method, the database ignores all the changes
+          performed in this transaction through calls to this 
+          <a class="idltype" href="#Transaction"><code>Transaction</code></a> object.
+        </p>
+        
+        <p>
+          Once a transaction is aborted or committed, that 
+          <a class="idltype" href="#Transaction"><code>Transaction</code></a> 
+          object can no longer be used. If any calls are made on that
+           object, then the database will throw a newly constructed 
+          <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-1">Error code 1</a>). 
+          To perform database operations under the control of a new transaction, 
+          a fresh <a class="idltype" href="#Transaction"><code>Transaction</code></a>
+          object is needed.
+        </p>
+        
+      </div>
+      
+      <div class="section" id="entity-store">  
+        <h3>3.5. Entity Store</h3>
+        <p>
+          An entity store is a simple B-tree structured store that can hold data sorted
+          by keys so as to enable fast insertion and look up as well as ordered retrieval.
+          The store provides a mechanism by which to read and write stored objects. 
+          Operations on an entity store must follow the transaction used to create 
+          or obtain the entity store.
+        </p>
+        
+        <p>
+          Each <a href="#EntityStore" class="idltype"><code>EntityStore</code></a>
+           object provides access to a set of key/value pairs, which are sometimes
+           called items. Values can be any data type supported by the 
+           <span>structured clone algorithm</span>. Keys are derived from the
+           values themselves or can be obtained from a sequence managed in the database. 
+           Keys themselves can be of any data type supported by the 
+           <span>structured clone algorithm</span>.
+        </p>
+        
+        <div class="example"><div class="exampleHeader">Example</div>				
+          <p>
+            In the following example, the put operation will
+            store an object.
+          </p>
+          <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var lincoln = {id: 1, name: 'Lincoln', number: '7012'};
+
+var database = window.openDatabase('AddressBook', '1', 'Address Book', null, 
+  function(Transaction txn) {
+    txn.createEntityStore('Contact', 'id');
+  });
+database.transaction(function(Transaction txn) {
+  var store = txn.getEntityStore('Contact');
+  var lincolnID = store.put(lincoln);  
+  // 1 === lincolnID
+});</code></pre></div></div>
+          <p>
+            Objects in the entity store can be read using their key.
+          </p>
+          <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">database = window.openDatabase('AddressBook', '1', 'Address Book', true);
+database.transaction(function(Transaction txn) {
+  var store = txn.getEntityStore('Contact');
+  var lincolnContact = store.get(1);
+  // lincolnContact.id === 1 &amp;&amp; lincolnContact.name === 'Lincoln';
+});</code></pre></div></div>
+        </div>
+        <p>
+          An entity store does not allow multiple items to be stored with the same primary.
+          key If the same key is used to store a different item, then it will replace
+          the currently stored object with that key.
+        </p>
+        <div class="example"><div class="exampleHeader">Example</div>				
+          <p>
+            Continuing with the earlier example, the second put operation will
+            replace the object stored by the first put operation.
+          </p>
+          <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var abraham = {id: 1, name: 'Abraham', number: '2107'};
+
+database.transaction(function(Transaction txn) {
+  var store = txn.getEntityStore('Contact');
+  var abrahamID = store.put(abraham);
+  // 1 === abrahamID
+});</code></pre></div></div>
+          <p>
+            Now when the entity store is read with the same key, the result 
+            is different compared to the object read in the previous example.
+          </p>
+          <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">database.transaction(function(Transaction txn) {
+  var store = txn.getEntityStore('Contact');
+  var abrahamContact = store.get(1);
+  // abrahamContact.id === 1 &amp;&amp; abrahamContact.name === 'Abraham';
+});</code></pre></div></div>
+      </div>
+      <p>
+        If an application does not generate its own keys, it can use keys 
+        generated by a <a class="idltype" href="#Sequence"><code>Sequence</code></a> 
+        object.
+      </p>
+      <div class="example"><div class="exampleHeader">Example</div>
+        <p>
+          Contrasted with the previous examples, the entity store below is designed
+          to use a <a class="idltype" href="#Sequence"><code>Sequence</code></a> 
+          object.
+        </p>
+        <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var lincoln = {name: 'Lincoln', number: '7012'};
+
+var database = window.openDatabase('AddressBook', '1', 'Address Book', null, 
+  function(Transaction txn) {
+    txn.createSequence('ContactSeq');
+    txn.createEntityStore('Contact', 'id', 'ContactSeq');
+  });
+var lincolnID = null;
+database.transaction(function(Transaction txn) {
+  var store = txn.getEntityStore('Contact');
+  lincolnID = store.put(lincoln);  
+  // lincoln["id"] === lincolnID
+});</code></pre></div></div>
+      <p>
+        When an object is stored in 'Contact', the 'ContactSeq' sequence is used
+        to produce a key for that object. This key is also stored as part of the 
+        stored object as can be seen from the following code. 
+      </p>
+      <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">database = window.openDatabase('AddressBook', '1', 'Address Book', true);
+database.transaction(function(Transaction txn) {
+  var store = txn.getEntityStore('Contact');
+  var lincolnContact = store.get(lincolnID);
+  // lincolnID == lincolnContact["id"] &amp;&amp; lincolnContact["name"] == 'Lincoln';
+});</code></pre></div></div>
+      </div>
+			<div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface <dfn id="EntityStore">EntityStore</dfn> {  
+  readonly attribute DOMString name;
+  readonly attribute DOMString keyPath;
+  readonly DOMStringList indexNames;
+  
+  any put(in any object);
+  delete(in any key);
+  any get(in any key);
+  
+  Index createIndex(in DOMString name, 
+                    in DOMString keyPath, 
+                    in unsigned short cardinality, 
+                    in optional unsigned short onRelatedEntityDelete, 
+                    in optional DOMString relatedEntity);  
+  Index getIndex(in DOMString name);
+
+  remove();
+  Cursor entities(in optional unsigned short isolationLevel);
+  EntityJoin join();
+};</code></pre></div></div>  
+        </div>
+      </div>
+      
+      <div id="index" class="section">  
+        <h3>3.6. Index</h3>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface Index {
+  const unsigned short ONE_TO_ONE = 0;
+  const unsigned short MANY_TO_ONE = 1;
+  const unsigned short ONE_TO_MANY = 2;
+  const unsigned short MANY_TO_MANY = 3;
+
+  const unsigned short NULLIFY = 0;
+  const unsigned short CASCADE = 1;
+  const unsigned short ABORT = 2;
+
+  readonly attribute DOMString name;
+  readonly attribute DOMString keyPath;
+  readonly attribute unsigned short cardinality;
+  readonly attribute unsigned short onRelatedEntityDelete, 
+  readonly attribute DOMString relatedEntity, 
+  
+  Cursor entities(in optional any from, 
+                  in optional bool inclusive, 
+                  in optional any to, 
+                  in optional bool inclusive, 
+                  in optional unsigned short isolationLevel);
+  delete(in any key);
+
+  remove();
+};</code></pre></div></div>  
+        </div>
+      </div>
+      
+      <div class="section" id="cursor">  
+        <h3>3.7. Cursor</h3>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface Cursor {
+  any first();
+  any next();
+  any nextDup();
+  any nextNoDup();
+  any prevNoDup();
+  any prevDup();
+  any previous();
+  any last();
+  
+  any current();
+  delete();
+};</code></pre></div></div>  
+        </div>
+      </div>
+      
+      <div id="entity-join" class="section">
+        <h3>3.8. Entity Join</h3>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface EntityJoin {
+  addCondition(in Index index, 
+               in optional any key);
+  Cursor entities(in optional unsigned short isolationLevel);
+};</code></pre></div></div>  
+        </div>
+      </div>
+                
+      <div id="sequence" class="section">
+        <h3>3.9. Sequence</h3>
+        <p>
+          Sequences provide an arbitrary number of persistent objects that return
+          an increasing or decreasing sequence of integers. Operations on a sequence
+          must follow the transaction used to create or obtain the sequence.
+        </p>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface <dfn id="Sequence">Sequence</dfn> {
+  readonly attribute DOMString <a href="#sequence-name">name</a>;
+  readonly attribute long long <a href="#sequence-current">current</a>;
+  
+  long long next();
+  remove();
+};</code></pre></div></div>  
+        </div>
+      </div>
+      
+      <div class="section" id="queue">  
+        <h3>3.10. Queue</h3>
+        <p>
+          A queue is a simple first-in-first-out store that can hold data sorted
+          by their arrival so as to enable fast insertion and sequential retrieval.
+          Operations on a queue must follow the transaction used to create 
+          or obtain the queue.
+        </p>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface Queue {  
+  readonly attribute DOMString name;
+
+  push(in any object);
+  any pop();
+  
+  remove();
+};</code></pre></div></div>  
+        </div>
+      </div>
+      
+      <div id="database-exception" class="section">
+        <h3>3.11. Exceptions and Errors</h3>
+        <p>
+          Errors in the asynchronous database API are reported using 
+          callbacks that have a 
+          <a class="idltype" href="#DatabaseError"><code>DatabaseError</code></a> 
+          object as one of their arguments.
+        </p>
+			  <div>
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">interface DatabaseError {
+  const unsigned short UNKNOWN_ERR = 0;
+  const unsigned short NON_TRANSIENT_ERR = 1; 
+  const unsigned short VERSION_ERR = 2; 
+  const unsigned short SYNTAX_ERR = 3;
+  const unsigned short CONSTRAINT_ERR = 4;
+  const unsigned short DATA_ERR = 5;
+  const unsigned short FEATURE_ERR = 6;
+  const unsigned short SERIAL_ERR = 11;
+  const unsigned short TOO_LARGE_ERR = 12;
+  const unsigned short RECOVERABLE_ERR = 21;
+  const unsigned short QUOTA_ERR = 22;
+  const unsigned shrot TRANSIENT_ERR = 31;
+  const unsigned short TIMEOUT_ERR = 32;
+  unsigned short <a href="#error-code">code</a>;
+  int <a href="#error-status">status</a>;
+  DOMString <a href="#error-message">message</a>;
+};</code></pre></div></div>  
+          <p>
+            The <dfn id="error-code">code</dfn> IDL attribute must return
+            the most appropriate code.
+          </p>
+          
+          <p>
+            The <dfn id="error-status">status</dfn> IDL attribute must return
+            the detailed error status of the database.
+          </p>
+          
+          <p>
+            The <dfn id="error-message">message</dfn> IDL attribute must
+            return an error message describing the error encountered. 
+            The message should be localized to the user's language.
+          </p>
+
+			    <div class="block"><div class="blockTitleDiv"><span class="blockTitle">IDL</span></div><div class="blockContent"><pre class="code"><code class="idl-code">exception <dfn id="DatabaseException">DatabaseException</dfn> {
+  const unsigned short UNKNOWN_ERR = 0;
+  const unsigned short NON_TRANSIENT_ERR = 1; 
+  const unsigned short VERSION_ERR = 2; 
+  const unsigned short SYNTAX_ERR = 3;
+  const unsigned short CONSTRAINT_ERR = 4;
+  const unsigned short DATA_ERR = 5;
+  const unsigned short FEATURE_ERR = 6;
+  const unsigned short SERIAL_ERR = 11;
+  const unsigned short TOO_LARGE_ERR = 12;
+  const unsigned short RECOVERABLE_ERR = 21;
+  const unsigned short QUOTA_ERR = 22;
+  const unsigned shrot TRANSIENT_ERR = 31;
+  const unsigned short TIMEOUT_ERR = 32;
+  unsigned short <a href="#exception-code">code</a>;
+  int <a href="#exception-status">status</a>;
+  DOMString <a href="#exception-message">message</a>;
+};</code></pre></div></div>  
+
+          <p>
+            The <dfn id="exception-code">code</dfn> IDL attribute must return
+            the most appropriate code.
+          </p>
+          
+          <p>
+            The <dfn id="exception-status">status</dfn> IDL attribute must return
+            the detailed error status of the database.
+          </p>
+          
+          <p>
+            The <dfn id="exception-message">message</dfn> IDL attribute must
+            return an error message describing the exception raised. 
+            The message should be localized to the user's language.
+          </p>
+
+        </div>
+      </div>
+                
+      <b>Data types and structured values</b>
+
+      <div class="example"><div class="exampleHeader">Example</div>				
+        <p>
+          For example, an application can locally store a preference 
+          list fetched from its server in the following manner:
+        </p>
+        <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var dataCache = ...
+dataCache.capture('/app/layout.plist');</code></pre></div></div>
+        <p>
+          Later, when any page requests that preference list either 
+          through page navigation or an XMLHttpRequest 
+          <cite><a href="#ref-XMLHttpRequest">XMLHttpRequest</a></cite>, 
+          the user agent can serve it from that data cache:
+        </p>
+        <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var req = new XMLHttpRequest;
+req.open('GET', '/app/layout.plist');
+req.onreadystatechange = ...
+req.send();</code></pre></div></div>
+        </div>
+      </div>
+	  </div>
+
+    <div id="appendices">
+      <div id="references" class="section">
+        <h2>A. References</h2>
+
+        <div id="normative-references" class="section">
+          <h3>A.1. Normative references</h3>
+
+          <dl>
+		    <dt><dfn id="ref-HTML5">[HTML5]</dfn></dt>
+			<dd>
+			  <cite><a href="http://www.w3.org/TR/HTML5">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>, 
+			  Ian Hickson, editor, W3C Working Draft, April 2009.
+			</dd>
+			<dt><dfn id="ref-RFC2119">[RFC2119]</dfn></dt>
+			<dd>
+			  <cite><a href="http://ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
+			  S. Bradner. IETF, March 1997.
+			</dd>
+			<dt><dfn id="ref-WebIDL">[WebIDL]</dfn></dt>
+			<dd>
+			  <cite><a href="http://www.w3.org/TR/WebIDL">Web IDL</a></cite>,
+			  Cameron McCormack, editor. W3C Working Draft, December 2008.
+			</dd>
+			<dt><dfn id="ref-WebIDL">[WebWorkers]</dfn></dt>
+			<dd>
+			  <cite><a href="http://www.w3.org/TR/workers">Web Workers</a></cite>,
+			  Ian Hickson, editor. W3C Working Draft, April 2009.
+			</dd>
+          </dl>
+        </div>
+
+        <div id="informative-references" class="section">
+          <h3>A.2. Informative references</h3>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
