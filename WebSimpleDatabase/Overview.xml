@@ -15,7 +15,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Web Simple Database API</title>
-    <meta name='revision' content='$Id: Overview.xml,v 1.2 2009-09-04 03:38:13 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.xml,v 1.3 2009-09-04 15:59:12 nmehta3 Exp $'/>
     <link rel='stylesheet' href='SimpleDatabase.css' type='text/css'/>
     <script src='section-links.js' type='application/ecmascript'/>
     <script src='dfn.js' type='application/ecmascript'/>
@@ -1013,8 +1013,8 @@ database.transaction(function(Transaction txn) {
   var store = txn.getEntityStore('Contact');
   var allCursor = store.entities();
   var lCursor = store.getIndex('ContactName').entities('L');
-  allCursor.first();
-  var l1 = lCursor.first();
+  var l1 = lCursor.next();
+  l1 = lCursor.next();
   var l2 = allCursor.next();
   // l1["id"] === l2["id"]
 });</x:codeblock>
@@ -1487,35 +1487,125 @@ var accounts = [
       
       <div class="section" id="cursor">  
         <h3>Cursor</h3>
+        <p>
+          Cursors provide a mechanism by which to iterate over the records in a 
+          database. Cursors can be used to get, put, and delete database records. If 
+          a database allows duplicate records, then cursors are the only mechanism 
+          by which to access anything other than the first duplicate for a given key.
+        </p>
+        
+        <p>
+          When a cursor is obtained from an index or an entity store, it is not
+          positioned to any value. Before accessing data from a cursor,
+          it is necessary to position the cursor to a particular object in the
+          cursor's range. The cursor can be initialized any methods that move
+          the cursor. If data is accessed from an uninitialized cursor, then it
+          will cause a newly constructed 
+          <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+          exception (<a href="#dom-databaseerror-code-1">Error code 1</a>) to be 
+          thrown. 
+        </p>
+        <div class="example">
+        <p>
+          To iterate over database records, from the first record to the last, obtain
+          a cursor from the entity store and use the <a href="#next" class="idltype"><code>next()</code></a> 
+          method. Continuing from the address book example,
+        </p>
+        <x:codeblock language="es">var store = ...
+          
+        </x:codeblock>
+        </div>
 			  <div>
 			    <x:codeblock language="idl">interface <dfn id="Cursor">Cursor</dfn> {
+  readonly attribute unsigned long long count;
+          
   any <a href="#first">first</a>();
+  any <a href="#last">last</a>();
   any <a href="#next">next</a>();
+  any <a href="#previous">previous</a>();
   any <a href="#nextDup">nextDup</a>();
   any <a href="#nextNoDup">nextNoDup</a>();
   any <a href="#prevNoDup">prevNoDup</a>();
   any <a href="#prevDup">prevDup</a>();
-  any <a href="#previous">previous</a>();
-  any <a href="#last">last</a>();
   
+  // these methods do not move the cursor
   any <a href="#current">current</a>();
+  boolean <a href="#update">update</a>(any object);
   <a href="#cursor-delete">delete</a>();
 };</x:codeblock>  
         </div>
         <p>
+          On getting, <dfn id="count"><code>count</code></dfn> returns the
+          total number of objects that share the current key.        
+        </p>
+        <p>
+          The <dfn id="first" class="idltype"><code>first()</code></dfn>
+          method is used to position the cursor to the first unique key
+          in the cursor's range.
+        </p>        
+        <p>
+          The <dfn id="last" class="idltype"><code>last()</code></dfn>
+          method is used to position the cursor to the last unique key
+          in the cursor's range.
+        </p>        
+        <p>
+          The <dfn id="next" class="idltype"><code>next()</code></dfn>
+          method is used to position the cursor to the next key
+          in the cursor's range. If the cursor is uninitialized, its
+          position is set to the first key. In the presence of
+          duplicate key values, the value of the key may not change.
+        </p>        
+        <p>
+          The <dfn id="previous" class="idltype"><code>previous()</code></dfn>
+          method is used to position the cursor to the next key
+          in the cursor's range. If the cursor is uninitialized, its
+          position is set to the last unique key. In the presence of
+          duplicate key values, the value of the key may not change.
+        </p>        
+        <p>
+          The <dfn id="nextDup" class="idltype"><code>nextDup()</code></dfn>
+          method is used to position the cursor to the next duplicate object for
+          the current key. If no such object exists, this method returns null. 
+        </p>        
+        <p>
+          The <dfn id="prevDup" class="idltype"><code>prevDup()</code></dfn>
+          method is used to position the cursor to the previous duplicate object for
+          the current key. If no such object exists, this method returns null. 
+        </p>        
+        <p>
+          The <dfn id="nextNoDup" class="idltype"><code>nextNoDup()</code></dfn>
+          method is used to position the cursor to the next unique key. If no
+          such object exists, this method returns null. If the cursor is 
+          uninitialized, its position is set to the first key.
+        </p>        
+        <p>
+          The <dfn id="prevNoDup" class="idltype"><code>prevNoDup()</code></dfn>
+          method is used to position the cursor to the previous unique key.
+          If no such object exists, this method returns null. If  
+          the cursor is uninitialized, its position is set to the last key.
+        </p>        
+        <p>
+          The <dfn id="update"><code>update()</code></dfn> method is used to 
+          update the object in the entity store at which the cursor is currently 
+          positioned. If the object is updated, then this method returns true.
+          The update method is only allowed if the 
+          <a href="#Cursor" class="idltype"><code>Cursor</code></a> is obtained
+          from an entity store.
+        </p>
+        <p>
           The <dfn id="cursor-delete"><code>delete()</code></dfn> method is used to 
           delete the object in the entity store at which the cursor is currently 
-          positioned. If the cursor is not yet positioned, then this operation will
-          result in a newly constructed 
-          <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-          exception (<a href="#dom-databaseerror-code-1">Error code 1</a>) being 
-          thrown. 
+          positioned. The cursor can be moved to the next (or the previous) position
+          after deleting an object. If a cursor is positioned on a deleted entity, 
+          <a href="#current" class="idltype"><code>current()</code></a> will return
+          null, <a href="#delete" class="idltype"><code>delete()</code></a> will
+          return false, and <a href="#delete" class="idltype"><code>update()</code></a>
+          will return false.
         </p>
           
         <p>
-          The <dfn id="current" class="idltype"><code>getIndex()</code></dfn>
-          method is used to obtain an <a class="idltype" href="#Index"><code>Index</code></a> 
-          object representing the named index on this entity store.
+          The <dfn id="current" class="idltype"><code>current()</code></dfn>
+          method is used to obtain the object at the current cursor position.
         </p>        
         
       </div>
@@ -1780,10 +1870,10 @@ req.send();</x:codeblock>
           </dl>
         </div>
 
-        <div id='informative-references' class='section'>
+        <!--div id='informative-references' class='section'>
           <h3>Informative references</h3>
 
-        </div>
+        </div-->
       </div>
     </div>
   </body>
