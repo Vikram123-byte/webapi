@@ -15,7 +15,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Web Simple Database API</title>
-    <meta name='revision' content='$Id: Overview.xml,v 1.3 2009-09-04 15:59:12 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.xml,v 1.4 2009-09-04 18:27:55 nmehta3 Exp $'/>
     <link rel='stylesheet' href='SimpleDatabase.css' type='text/css'/>
     <script src='section-links.js' type='application/ecmascript'/>
     <script src='dfn.js' type='application/ecmascript'/>
@@ -51,7 +51,7 @@
     <div class='section'>
       <h2>Abstract</h2>
       <p>
-        This document defines APIs for storing and retreving ordered key-value pairs in a B-Tree database.
+        This document defines APIs for storing and retreving ordered key-value pairs in a transactional database.
       </p>
 
       <?revision-note?>
@@ -84,7 +84,7 @@
         <p class='norm'>This section is non-normative.</p>
         
         <p>
-          User agents have a need to store large numbers of records locally in
+          User agents need to store large numbers of objects locally in
           order to satisfy off-line data requirements of Web applications.
           <cite><a href="#ref-WebStorage">[WebStorage]</a></cite> is useful for
           storing pairs of keys and their corresponding values. However, it does 
@@ -99,12 +99,80 @@
           This specification bridges the gap between the above two APIs by
           providing a concrete API to perform advanced key-value data management
           that is at the heart of most sophisticated query processors. It does
-          so by using databases to store keys and their corresponding values
-          (one or more per key), and providing a means of traversing keys in a
-          deterministic order. This is made possible through the use of B-tree
-          data structures that are considered efficient for in-order traversal
-          of very large numbers of data items.
+          so by using transactional databases to store keys and their 
+          corresponding values (one or more per key), and providing a means
+          of traversing keys in a deterministic order. This is often implemented
+          through the use of persistent B-tree data structures that are considered
+          efficient for insertion and deletion as well as in-order traversal of
+          very large numbers of data items.
         </p>
+        
+        <div class="example">
+          <p>
+          Here is an example of a script using this API. First, a function
+          prepareDatabase() is defined. This function tries to create the
+          database if necessary, giving it one entity store called "docids" with
+          two columns ("id" and "name"). If it is successful, or if the table
+          doesn't need creating, it calls the function that does the
+          actual work, in this case showDocCount().
+          </p>
+          <x:codeblock language="es">function prepareDatabase(ready, error) {
+  return openDatabase('documents', '1.0', 'Offline document storage', false,
+    function(db) {
+      db.transaction(function(txn) {
+        txn.createEntityStore('docids', 'id');
+        txn.changeVersion(db.version, '1.0');
+      }, error);
+      db.transaction(ready);
+    });
+}
+
+function showDocCount(txn, span) {
+  var store = txn.getEntityStore('docids');
+  var entities = store.entities();
+  var count = 0;
+  for (var item = entities.nextNoDup(); item !== null; item = entities.nextNoDup()) {
+    count += entities.count;
+  }
+  span.textContent = count;
+}
+
+prepareDatabase(function(txn) {
+  // got database
+  var span = document.getElementById('doc-count');
+  showDocCount(txn, span);
+}, function (e) {
+  // error getting database
+  alert(e.message);
+});</x:codeblock>
+          <p>
+            A script can efficiently find items in an entity store that come 
+            closest to the required value provided the value is stored in either 
+            a primary or a secondary key.
+            In the following example, the 'books' entity store holds data about
+            books which are stored by their 'isbn' attribute. Additionally, 
+            an index is maintained on the 'author' attribute of the objects
+            stored in the entity store. This index can be used to look up books
+            for a given author. If an exact match is not found, the next
+            matching author is located.
+          </p>
+          <x:codeblock language="es">var db = openDatabase('books', '1.0', 'Book store', false,
+    function(db) {
+      db.transaction(function(txn) {
+        var store = txn.createEntityStore('books', 'isbn');
+        store.createIndex('BookAuthor', 'author', Index.MANY_TO_ONE);
+        txn.changeVersion(db.version, '1.0');
+      });
+    });
+db.transaction(function(txn) {
+  var cursor = txn.getEntityStore('books').getIndex('BookAuthor').entities(author);
+  var book = cursor.first();
+  if (book.author == author)
+    report(book.isbn, book.name, book.author);
+  else
+    report(null);
+});</x:codeblock>
+        </div>
         
         <div class="note">
           This specification is one of the proposals being considered by the
@@ -164,6 +232,19 @@
             </div>
           </dd>
         </dl>        
+        
+        <div class="section" id="dependencies">
+          <h3>Dependencies</h3>
+          <p>
+            This specification relies on several other underlying specifications. 
+          </p>
+          <dl>
+            <dt>HTML5</dt>
+            <dd>Many fundamental concepts from HTML5 are used by this specification. <cite><a href="#ref-HTML5">[HTML5]</a></cite></dd>
+            <dt>WebWorkers</dt>
+            <dd>This specification adds capabilites to WebWorkers and uses certain concepts defined in this specification. <cite><a href="#ref-WebWorkers">[WebWorkers]</a></cite></dd>
+          </dl>
+        </div>
 	  </div>
 	  
       <div id="database-api" class="section">
@@ -187,7 +268,7 @@ interface <dfn id="Environment">Environment</dfn> {
                         in optional <a href="#DatabaseCallback">DatabaseCallback</a> upgradeCallback);
 };
 
-Window implements Environment;
+Window implements <a href="#Environment">Environment</a>;
 
 [Callback=FunctionOnly, NoInterfaceObject]
 interface <dfn id="DatabaseCallback">DatabaseCallback</dfn> {
@@ -352,8 +433,8 @@ WorkerUtils implements <a href="#EnvironmentSync">EnvironmentSync</a>;</x:codebl
           <h4>Asynchronous Database API</h4>
 			    <x:codeblock language="idl">interface <dfn id="Database">Database</dfn> : <a href="#AbstractDatabase">AbstractDatabase</a> {
   transaction(in <a href="#TransactionCallback">TransactionCallback</a> txnCallback,
-              in <a href="#TransactionErrorCallback">TransactionErrorCallback</a> errorCallback,
-              in <a href="#DatabaseVoidCallback">DatabaseVoidCallback</a> txnCallback,
+              in optional <a href="#TransactionErrorCallback">TransactionErrorCallback</a> errorCallback,
+              in optional <a href="#DatabaseVoidCallback">DatabaseVoidCallback</a> txnCallback,
               in optional <a href="#Transaction">Transaction</a> parent,
               in optional unsigned short isolationLevel,
               in optional unsigned int timeout);
@@ -387,9 +468,9 @@ interface <dfn id="#TransactionErrorCallback">DatabaseTransactionErrorCallback</
           </p>
 
           <p>
-            An isolation level can be either of <a class="idltype" href="isolation-READ-UNCOMMITTED"><code>
-            READ_UNCOMMITTED</code></a>, <a class="idltype" href="isolation-READ-COMMITTED"><code>
-            READ_COMMITTED</code></a>, or <a class="idltype" href="isolation-SERIALIZABLE"><code>
+            An isolation level can be either of <a class="idltype" href="#isolation-READ-UNCOMMITTED"><code>
+            READ_UNCOMMITTED</code></a>, <a class="idltype" href="#isolation-READ-COMMITTED"><code>
+            READ_COMMITTED</code></a>, or <a class="idltype" href="#isolation-SERIALIZABLE"><code>
             SERIALIZABLE</code></a> as specified in the 
             <a class="idltype" href="Transaction"><code>Transaction</code></a> interface.
           </p>
@@ -548,40 +629,40 @@ interface <dfn id="#TransactionErrorCallback">DatabaseTransactionErrorCallback</
               </ol>  
             </li>
           </ol>
+          
+          <div id="creating-transaction" class="section">
+            <h4>Creating a <code>Transaction</code> object</h4>
+            
+            <p>
+              When the user agent is to <dfn id="create-a-transaction-object">create a
+              <a class="idltype" href="#Transaction"><code>Transaction</code></a> object</dfn> for a
+              transaction, it must run the following steps:
+            </p>
+            
+            <ol>
+              <li>
+                Open a new transaction to the database, and create a
+                <code><a class="idltype" href="#Transaction">Transaction</a></code> 
+                object that represents that transaction. The user agent may wait for
+                appropriate locks to become available.
+              </li>
+              
+              <li>
+                If an error occurs in the opening of the transaction (e.g. if 
+                the user agent failed to obtain an appropriate lock after
+                the given <var>timeout</var>, throw a 
+                <code><a class="idltype" href="#DatabaseException">DatabaseException</a></code> 
+                exception and abort these steps.
+                (<a href="#dom-databaseerror-code-32">Error code 32</a>.)
+              </li>
+              
+              <li>
+                Return the newly created <code><a href="#Transaction">Transaction</a></code> object.
+              </li>
+            </ol>
+          </div>
        </div>
-       
-      <div id="creating-transaction" class="section">
-        <h3>Creating a <code>Transaction</code> object</h3>
-        
-        <p>
-          When the user agent is to <dfn id="create-a-transaction-object">create a
-          <a class="idltype" href="#Transaction"><code>Transaction</code></a> object</dfn> for a
-          transaction, it must run the following steps:
-        </p>
-        
-        <ol>
-          <li>
-            Open a new transaction to the database, and create a
-            <code><a class="idltype" href="#Transaction">Transaction</a></code> 
-            object that represents that transaction. The user agent may wait for
-            appropriate locks to become available.
-          </li>
-          
-          <li>
-            If an error occurs in the opening of the transaction (e.g. if 
-            the user agent failed to obtain an appropriate lock after
-            the given <var>timeout</var>, throw a 
-            <code><a class="idltype" href="#DatabaseException">DatabaseException</a></code> 
-            exception and abort these steps.
-            (<a href="#dom-databaseerror-code-32">Error code 32</a>.)
-          </li>
-          
-          <li>
-            Return the newly created <code><a href="#Transaction">Transaction</a></code> object.
-          </li>
-        </ol>
-      </div>
-      
+            
       <div id="transaction" class="section"> 
         <h3>Transaction</h3>
         <p>
@@ -643,28 +724,31 @@ interface <dfn id="#TransactionErrorCallback">DatabaseTransactionErrorCallback</
             In the following example, a database can be initially setup with an
             entity store and a sequence used in that entity store.
           </p>
-          <x:codeblock language="es">var database = window.openDatabase('AddressBook', '1', 'Address Book', null, 
-  function(Transaction txn) {
-    txn.createSequence('ContactSeq');
-    txn.createEntityStore('Contact', 'id', 'ContactSeq');
-    txn.changeVersion(database.version, '1');
-  });
-  
-database.transaction(function(Transaction txn) {
+          <x:codeblock language="es">var database = window.openDatabase('AddressBook', '1', 'Address Book', false, 
+  function(db) {
+    db.transaction(function(txn) {
+        txn.createSequence('ContactSeq');
+        txn.createEntityStore('Contact', 'id', 'ContactSeq');
+        txn.changeVersion(database.version, '1');
+      });
+    });
+database.transaction(function(txn) {
   //... some transaction processing
 });</x:codeblock>
           <p>
             Later this database can be upgraded to remove the sequence being used
             in the entity store.
           </p>
-          <x:codeblock language="es">database = window.openDatabase('AddressBook', '2', 'Address Book', null,
-  function(Transaction txn) {
-    txn.modifyEntityStore('Contact', 'id');
-    txn.getSequence('ContactSeq').remove();
-    // database.version === '1'
-    txn.changeVersion(database.version, '2');
+          <x:codeblock language="es">database = window.openDatabase('AddressBook', '2', 'Address Book', false,
+  function(db) {
+    db.transaction(function(txn) {
+      txn.modifyEntityStore('Contact', 'id');
+      txn.getSequence('ContactSeq').remove();
+      // database.version === '1'
+      txn.changeVersion(database.version, '2');
+    });
   });
-database.transaction(function(Transaction txn) {
+database.transaction(function(txn) {
   // ...
 });</x:codeblock>
         </div>
@@ -732,7 +816,7 @@ database.transaction(function(Transaction txn) {
           If an entity store with the given name, compared in a case-sensitive manner, 
           does not already exist, then this method will throw a newly constructed 
           <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+          exception (<a href="#dom-databaseerror-code-3">Error code 3</a>).
         </p>
         
         <p> 
@@ -773,7 +857,7 @@ database.transaction(function(Transaction txn) {
           If an entity store with the given name, compared in a case-sensitive manner, 
           does not already exist, then this method will throw a newly constructed 
           <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+          exception (<a href="#dom-databaseerror-code-3">Error code 3</a>).
         </p>
         
         <p> 
@@ -786,7 +870,7 @@ database.transaction(function(Transaction txn) {
           If a sequence with the given name, compared in a case-sensitive manner, 
           does not already exist, then this method will throw a newly constructed 
           <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+          exception (<a href="#dom-databaseerror-code-3">Error code 3</a>).
         </p>
         
         <p> 
@@ -818,7 +902,7 @@ database.transaction(function(Transaction txn) {
           If a queue with the given name, compared in a case-sensitive manner, 
           does not already exist, then this method will throw a newly constructed 
           <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+          exception (<a href="#dom-databaseerror-code-3">Error code 3</a>).
         </p>
 
         <p> 
@@ -1080,7 +1164,7 @@ database.transaction(function(Transaction txn) {
           <li>
             If <var>key</var> is not defined or null, then throw a newly constructed 
             <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-            exception (<a href="#dom-databaseerror-code-7">Error code 7</a>)
+            exception (<a href="#dom-databaseerror-code-3">Error code 3</a>)
             and terminate these steps.
           </li>            
           <li>
@@ -1091,7 +1175,7 @@ database.transaction(function(Transaction txn) {
           <li>
             If <var>object</var> is not found in the entity store, then throw a newly constructed 
             <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-            exception (<a href="#dom-databaseerror-code-7">Error code 7</a>)
+            exception (<a href="#dom-databaseerror-code-3">Error code 3</a>)
             and terminate these steps.
           </li>
         </ol>
@@ -1112,7 +1196,7 @@ database.transaction(function(Transaction txn) {
           If an index with the given name, compared in a case-sensitive manner, 
           does not already exist, then this method will throw a newly constructed 
           <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-          exception (<a href="#dom-databaseerror-code-7">Error code 7</a>).
+          exception (<a href="#dom-databaseerror-code-3">Error code 3</a>).
         </p>
         
         <p>
@@ -1245,7 +1329,7 @@ database.transaction(function(Transaction txn) {
             <li>
               If <var>key</var> is not defined or null, then throw a newly constructed 
               <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-              exception (<a href="#dom-databaseerror-code-7">Error code 7</a>)
+              exception (<a href="#dom-databaseerror-code-3">Error code 3</a>)
               and terminate these steps.
             </li>            
             
@@ -1505,16 +1589,6 @@ var accounts = [
           exception (<a href="#dom-databaseerror-code-1">Error code 1</a>) to be 
           thrown. 
         </p>
-        <div class="example">
-        <p>
-          To iterate over database records, from the first record to the last, obtain
-          a cursor from the entity store and use the <a href="#next" class="idltype"><code>next()</code></a> 
-          method. Continuing from the address book example,
-        </p>
-        <x:codeblock language="es">var store = ...
-          
-        </x:codeblock>
-        </div>
 			  <div>
 			    <x:codeblock language="idl">interface <dfn id="Cursor">Cursor</dfn> {
   readonly attribute unsigned long long count;
@@ -1748,14 +1822,14 @@ var accounts = [
   const unsigned short UNKNOWN_ERR = 0;
   const unsigned short NON_TRANSIENT_ERR = 1; 
   const unsigned short VERSION_ERR = 2; 
-  const unsigned short SYNTAX_ERR = 3;
+  const unsigned short NOT_FOUND_ERR = 3;
   const unsigned short CONSTRAINT_ERR = 4;
   const unsigned short DATA_ERR = 5;
   const unsigned short FEATURE_ERR = 6;
   const unsigned short SERIAL_ERR = 11;
   const unsigned short TOO_LARGE_ERR = 12;
-  const unsigned short RECOVERABLE_ERR = 21;
-  const unsigned short QUOTA_ERR = 22;
+  const unsigned short RECOVERABLE_ERR = 21;<!--
+  const unsigned short QUOTA_ERR = 22;-->
   const unsigned shrot TRANSIENT_ERR = 31;
   const unsigned short TIMEOUT_ERR = 32;
   unsigned short <a href="#error-code">code</a>;
@@ -1782,14 +1856,14 @@ var accounts = [
   const unsigned short UNKNOWN_ERR = 0;
   const unsigned short NON_TRANSIENT_ERR = 1; 
   const unsigned short VERSION_ERR = 2; 
-  const unsigned short SYNTAX_ERR = 3;
+  const unsigned short NOT_FOUND_ERR = 3;
   const unsigned short CONSTRAINT_ERR = 4;
   const unsigned short DATA_ERR = 5;
   const unsigned short FEATURE_ERR = 6;
   const unsigned short SERIAL_ERR = 11;
   const unsigned short TOO_LARGE_ERR = 12;
-  const unsigned short RECOVERABLE_ERR = 21;
-  const unsigned short QUOTA_ERR = 22;
+  const unsigned short RECOVERABLE_ERR = 21;<!--
+  const unsigned short QUOTA_ERR = 22;-->
   const unsigned shrot TRANSIENT_ERR = 31;
   const unsigned short TIMEOUT_ERR = 32;
   unsigned short <a href="#exception-code">code</a>;
@@ -1812,33 +1886,143 @@ var accounts = [
             return an error message describing the exception raised. 
             The message should be localized to the user's language.
           </p>
+          <p>
+            The error codes and their meanings are given below.
+          </p>
+          <table>
+            <thead><tr><th>Constant</th><th>Code</th><th>Situation</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><dfn id="dom-databaseexception-code-unknown" title="dom-DatabaseException-code-UNKNOWN"><code>UNKNOWN_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-0" title="dom-databaseerror-code-0">0</dfn></td>
+                <td>The operation failed for reasons unrelated to the database
+                  itself and not covered by any other error code.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-non-transient" title="dom-DatabaseException-code-NON_TRANSIENT"><code>NON_TRANSIENT_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-1" title="dom-databaseerror-code-1">1</dfn></td>
+                <td>This error occurred because an operation was not allowed on 
+                an object. A retry of the same operation would fail unless the
+                cause of the error is corrected.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-version" title="dom-DatabaseException-code-VERSION"><code>VERSION_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-2" title="dom-databaseerror-code-2">2</dfn></td>
+                <td>The operation failed because the actual database version was
+                not what it should be. The <code title="dom-database-sync-changeversion"><a href="#change-version">Transaction.changeVersion()</a></code>
+                method was passed a version that doesn't match the actual
+                database version.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-not-found" title="dom-DatabaseException-code-NOT_FOUND"><code>NOT_FOUND_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-3" title="dom-databaseerror-code-3">3</dfn></td>
+                <td>The operation failed because the requested database
+                object could not be found. For example, an entity store
+                did not exist but was being opened, or a sequence was 
+                used to create an entity store, but did not exist.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-constraint" title="dom-DatabaseException-code-CONSTRAINT"><code>CONSTRAINT_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-4" title="dom-databaseerror-code-4">4</dfn></td>
+                <td>A mutation operation in the transaction failed due to a
+                because a constraint was not satisfied. For example, an
+                object such as an entity store, sequence, or index already
+                exists and a new one was being attempted to be created.
+                In another example, an object was deleted but was required 
+                to satisfy the foreign key constraint on a related entity
+                store.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-data" title="dom-DatabaseException-code-DATA"><code>DATA_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-5" title="dom-databaseerror-code-5">5</dfn></td>
+                <td>Data provided to an operation does not meet requirements,
+                e.g., if the increment value for a sequence is set to 0.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-data" title="dom-DatabaseException-code-FEATURE"><code>FEATURE_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-6" title="dom-databaseerror-code-6">6</dfn></td>
+                <td>A feature defined in this API was used but is not supported
+                by the underlying implementation.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-too_large" title="dom-DatabaseException-code-SERIAL"><code>SERIAL_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-11" title="dom-databaseerror-code-11">11</dfn></td>
+                <td>The operation failed because of the size of the data set 
+                being returned or because there was a problem in serializing or 
+                deserializing the object being processed.</td>
+              </tr>
 
+              <tr>
+                <td><dfn id="dom-databaseexception-code-too_large" title="dom-DatabaseException-code-TOO_LARGE"><code>TOO_LARGE_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-12" title="dom-databaseerror-code-12">12</dfn></td>
+                <td>The operation failed because the data returned from the
+                database was too large.</td>
+              </tr>
+              
+              <tr>
+                <td><dfn id="dom-databaseexception-code-recoverable" title="dom-DatabaseException-code-RECOVERABLE"><code>RECOVERABLE_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-21" title="dom-databaseerror-code-21">21</dfn></td>
+                <td>The operation failed because the database was prevented
+                from taking an action. The operation might be able to succeed
+                if the application performs some recovery steps and retries
+                the entire transaction. For example, there was not enough 
+                remaining storage space, or the storage quota was reached
+                and the user declined to give more space to the database.</td>
+              </tr>
+             
+              <!--tr>
+                <td><dfn id="dom-databaseexception-code-quota" title="dom-DatabaseException-code-QUOTA"><code>QUOTA_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-4" title="dom-databaseerror-code-4">4</dfn></td>
+                <td>The statement failed because there was not enough remaining
+     storage space, or the storage quota was reached and the user
+     declined to give more space to the database.</td>
+              </tr-->
+              <tr>
+                <td><dfn id="dom-databaseexception-code-transient" title="dom-DatabaseException-code-TRANSIENT"><code>TRANSIENT_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-31" title="dom-databaseerror-code-31">31</dfn></td>
+                <td>The operation failed because of some temporary problems.
+                The failed operation might be able to succeed when the
+                operation is retried without any intervention by 
+                application-level functionality.</td>
+              </tr>
+             
+              <tr>
+                <td><dfn id="dom-databaseexception-code-timeout" title="dom-DatabaseException-code-TIMEOUT"><code>TIMEOUT_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-32" title="dom-databaseerror-code-32">32</dfn></td>
+                <td>A lock for the transaction could not be obtained in a
+                reasonable time.</td>
+              </tr>
+
+              <tr>
+                <td><dfn id="dom-databaseexception-code-deadlock" title="dom-DatabaseException-code-DEADLOCK"><code>DEADLOCK_ERR</code></dfn></td>
+                <td><dfn id="dom-databaseerror-code-33" title="dom-databaseerror-code-33">33</dfn></td>
+                <td>The current transaction was automatically rolled back
+                by the database becuase of deadlock or other transaction
+                serialization failures.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
+      </div>      
       </div>
-                
-      <b>Data types and structured values</b>
-
-      <div class="example">				
-        <p>
-          For example, an application can locally store a preference 
-          list fetched from its server in the following manner:
-        </p>
-        <x:codeblock language="es">var dataCache = ...
-dataCache.capture('/app/layout.plist');</x:codeblock>
-        <p>
-          Later, when any page requests that preference list either 
-          through page navigation or an XMLHttpRequest 
-          <cite><a href="#ref-XMLHttpRequest">XMLHttpRequest</a></cite>, 
-          the user agent can serve it from that data cache:
-        </p>
-        <x:codeblock language="es">var req = new XMLHttpRequest;
-req.open('GET', '/app/layout.plist');
-req.onreadystatechange = ...
-req.send();</x:codeblock>
-        </div>
+      <div id="privacy" class="section">
+        <h2>Privacy</h2>
+        To be written
       </div>
-	  </div>
 
+      <div id="security" class="section">
+        <h2>Security</h2>
+        To be written
+      </div>
+
+    </div>
     <div id='appendices'>
       <div id='references' class='section'>
         <h2>References</h2>
@@ -1862,7 +2046,7 @@ req.send();</x:codeblock>
 			  <cite><a href="http://www.w3.org/TR/WebIDL">Web IDL</a></cite>,
 			  Cameron McCormack, editor. W3C Working Draft, December 2008.
 			</dd>
-			<dt><dfn id="ref-WebIDL">[WebWorkers]</dfn></dt>
+			<dt><dfn id="ref-WebWorkers">[WebWorkers]</dfn></dt>
 			<dd>
 			  <cite><a href="http://www.w3.org/TR/workers">Web Workers</a></cite>,
 			  Ian Hickson, editor. W3C Working Draft, April 2009.
