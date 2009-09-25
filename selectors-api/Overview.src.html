@@ -309,18 +309,10 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <em class="ct">recommended</em> that implementations behave consistently
 	   with other uses of Selectors supported by the user agent.</p>
 
-	<h2 id="nodeselector">The <code title="">NodeSelector</code> Interface</h2>
+	<h2>The APIs</h2>
 
-	<pre class="idl">module dom {
-  [ImplementedOn=Document,ImplementedOn=DocumentFragment,ImplementedOn=Element,
-   NoInterfaceObject]
-  interface <dfn id="dom-document-selector">NodeSelector</dfn> {
-    Element   <span title="queryselector">querySelector</span>(in DOMString selectors);
-    NodeList  <span title="queryselectorall">querySelectorAll</span>(in DOMString selectors);
-  };
-};</pre>
-	<p>The term <dfn>first</dfn> used in the definitions of the methods of the
-	   <code>NodeSelector</code> interface means <em>first in document order</em>.
+	<p>The term <dfn>first</dfn> used in the definitions of the methods defined
+	   in this specification means <em>first in document order</em>.
 	   The term <dfn>document order</dfn> means a depth-first pre-order traversal
 	   of the DOM tree or subtree in question. The term <dfn>context node</dfn>
 	   refers to the node upon which the method was invoked. The term
@@ -340,6 +332,19 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <code>Element</code> node, then the <span>scope element</span> is the
 	   same as the <span>context node</span>.</p>
 -->
+	
+	<h3 id="nodeselector">The <code title="">NodeSelector</code> Interface</h3>
+
+	<pre class="idl">module dom {
+  [Supplemantal, NoInterfaceObject]
+  interface <dfn id="dom-document-selector">NodeSelector</dfn> {
+    Element   <span title="queryselector">querySelector</span>(in DOMString selectors);
+    NodeList  <span title="queryselectorall">querySelectorAll</span>(in DOMString selectors);
+  };
+  Document implements NodeSelector;
+  DocumentFragment implements NodeSelector;
+  Element implements NodeSelector;
+};</pre>
 
 	<p>The <dfn id="queryselector" title="queryselector"><code>querySelector()</code></dfn>
 	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
@@ -356,9 +361,22 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<p>Both <code title="queryselector">querySelector()</code> and
 	   <code title="queryselectorall">querySelectorAll()</code> take a
+	   <span>selector string</span> (<var>selectors</var>) as their argument.</p>
+
+	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
+	   method <em class="ct">must</em> be static, not
+	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>
+	   ([[!DOM-LEVEL-3-CORE]], section 1.1.1). Subsequent changes to the
+	   structure of the underlying document <em class="ct">must not</em> be
+	   reflected in the <code>NodeList</code> object. This means that the object
+	   will instead contain a list of matching <code>Element</code> nodes that
+	   were in the document at the time the list was created.</p>
+
+	<h3>Processing Selectors</h3>
+
+	<p>A <dfn>selector string</dfn> is a
 	   <a href="http://www.w3.org/TR/css3-selectors/#grouping">group of selectors</a>
-	   (<var>selectors</var>) as their argument ([[!SELECT]], section 5).
-	   This group of selectors <em class="ct">should</em> match the
+	   ([[!SELECT]], section 5).  This group of selectors <em class="ct">should</em> match the
 	   <code>selectors_group</code> production ([[!SELECT]], section 10) with
 	   the additional provision that leading and trailing
 	   <a href="http://www.w3.org/TR/css3-selectors/#whitespace" title="Selectors">whitespace</a>
@@ -394,14 +412,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <em class="ct">should</em> support the same set of selectors in both
 	   these APIs and CSS.</p>
 
-	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
-	   method <em class="ct">must</em> be static, not
-	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>
-	   ([[!DOM-LEVEL-3-CORE]], section 1.1.1). Subsequent changes to the
-	   structure of the underlying document <em class="ct">must not</em> be
-	   reflected in the <code>NodeList</code> object. This means that the object
-	   will instead contain a list of matching <code>Element</code> nodes that
-	   were in the document at the time the list was created.</p>
 
 	<h3>Resolving Namespaces</h3>
 

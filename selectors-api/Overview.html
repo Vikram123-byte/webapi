@@ -32,13 +32,14 @@
 		conforming to the DOM specification template (if there is such a thing) is
 		just silly so we got stuck with this weird name. -->
    
-   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 4 March 2009</h2>
+   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 25 September
+    2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-selectors-api-20090304/">http://www.w3.org/TR/2009/ED-selectors-api-20090304/</a>
+     href="http://www.w3.org/TR/2009/ED-selectors-api-20090925/">http://www.w3.org/TR/2009/ED-selectors-api-20090925/</a>
 
     <dt>Latest Version:
 
@@ -191,10 +192,15 @@
    <li><a href="#privacy"><span class=secno>5 </span>Privacy Considerations
     </a>
 
-   <li><a href="#nodeselector"><span class=secno>6 </span>The <code
-    title="">NodeSelector</code> Interface</a>
+   <li><a href="#the-apis"><span class=secno>6 </span>The APIs</a>
     <ul class=toc>
-     <li><a href="#resolving-namespaces"><span class=secno>6.1
+     <li><a href="#nodeselector"><span class=secno>6.1 </span>The <code
+      title="">NodeSelector</code> Interface</a>
+
+     <li><a href="#processing-selectors"><span class=secno>6.2
+      </span>Processing Selectors</a>
+
+     <li><a href="#resolving-namespaces"><span class=secno>6.3
       </span>Resolving Namespaces</a>
     </ul>
 
@@ -406,32 +412,20 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    class=ct>recommended</em> that implementations behave consistently with
    other uses of Selectors supported by the user agent.
 
-  <h2 id=nodeselector><span class=secno>6 </span>The <code
-   title="">NodeSelector</code> Interface</h2>
-
-  <pre class=idl>module dom {
-  [ImplementedOn=Document,ImplementedOn=DocumentFragment,ImplementedOn=Element,
-   NoInterfaceObject]
-  interface <dfn id=dom-document-selector>NodeSelector</dfn> {
-    Element   <a href="#queryselector" title=queryselector>querySelector</a>(in DOMString selectors);
-    NodeList  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>(in DOMString selectors);
-  };
-};</pre>
+  <h2 id=the-apis><span class=secno>6 </span>The APIs</h2>
 
   <p>The term <dfn id=first>first</dfn> used in the definitions of the
-   methods of the <code><a
-   href="#dom-document-selector">NodeSelector</a></code> interface means
-   <em>first in document order</em>. The term <dfn id=document-order>document
-   order</dfn> means a depth-first pre-order traversal of the DOM tree or
-   subtree in question. The term <dfn id=context-node>context node</dfn>
-   refers to the node upon which the method was invoked. The term <dfn
-   id=nodes-subtrees>node’s subtrees</dfn> refers to the collection of
-   elements that are descendants of the <a href="#context-node">context
-   node</a>. The term <dfn id=matching-element-node>matching
-   <code>Element</code> node</dfn> refers to an <code>Element</code> node
-   that matches the group of selectors (<var>selectors</var>) that was passed
-   to the method, according to the rules for matching elements defined in
-   Selectors <a href="#SELECT"
+   methods defined in this specification means <em>first in document
+   order</em>. The term <dfn id=document-order>document order</dfn> means a
+   depth-first pre-order traversal of the DOM tree or subtree in question.
+   The term <dfn id=context-node>context node</dfn> refers to the node upon
+   which the method was invoked. The term <dfn id=nodes-subtrees>node’s
+   subtrees</dfn> refers to the collection of elements that are descendants
+   of the <a href="#context-node">context node</a>. The term <dfn
+   id=matching-element-node>matching <code>Element</code> node</dfn> refers
+   to an <code>Element</code> node that matches the group of selectors
+   (<var>selectors</var>) that was passed to the method, according to the
+   rules for matching elements defined in Selectors <a href="#SELECT"
    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>.</p>
   <!-- (Commented out until this definition, or something like it, is needed for
      the proposed :scope pseudo-class.)
@@ -442,6 +436,20 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <code>Element</code> node, then the <span>scope element</span> is the
 	   same as the <span>context node</span>.</p>
 -->
+
+  <h3 id=nodeselector><span class=secno>6.1 </span>The <code
+   title="">NodeSelector</code> Interface</h3>
+
+  <pre class=idl>module dom {
+  [Supplemantal, NoInterfaceObject]
+  interface <dfn id=dom-document-selector>NodeSelector</dfn> {
+    Element   <a href="#queryselector" title=queryselector>querySelector</a>(in DOMString selectors);
+    NodeList  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>(in DOMString selectors);
+  };
+  Document implements NodeSelector;
+  DocumentFragment implements NodeSelector;
+  Element implements NodeSelector;
+};</pre>
 
   <p>The <dfn id=queryselector
    title=queryselector><code>querySelector()</code></dfn> method on the
@@ -464,8 +472,27 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    href="#queryselector">querySelector()</a></code> and <code
    title=queryselectorall><a
    href="#queryselectorall">querySelectorAll()</a></code> take a <a
+   href="#selector-string">selector string</a> (<var>selectors</var>) as
+   their argument.
+
+  <p>The <code>NodeList</code> object returned by the <code><a
+   href="#queryselectorall">querySelectorAll()</a></code> method <em
+   class=ct>must</em> be static, not <a
+   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live"
+   title="Document Object Model Core">live</a> (<a href="#DOM-LEVEL-3-CORE"
+   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
+   section 1.1.1). Subsequent changes to the structure of the underlying
+   document <em class=ct>must not</em> be reflected in the
+   <code>NodeList</code> object. This means that the object will instead
+   contain a list of matching <code>Element</code> nodes that were in the
+   document at the time the list was created.
+
+  <h3 id=processing-selectors><span class=secno>6.2 </span>Processing
+   Selectors</h3>
+
+  <p>A <dfn id=selector-string>selector string</dfn> is a <a
    href="http://www.w3.org/TR/css3-selectors/#grouping">group of
-   selectors</a> (<var>selectors</var>) as their argument (<a href="#SELECT"
+   selectors</a> (<a href="#SELECT"
    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 5). This group of
    selectors <em class=ct>should</em> match the <code>selectors_group</code>
    production (<a href="#SELECT"
@@ -512,19 +539,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <em class=ct>should</em> support the same set of selectors in both these
    APIs and CSS.
 
-  <p>The <code>NodeList</code> object returned by the <code><a
-   href="#queryselectorall">querySelectorAll()</a></code> method <em
-   class=ct>must</em> be static, not <a
-   href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live"
-   title="Document Object Model Core">live</a> (<a href="#DOM-LEVEL-3-CORE"
-   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
-   section 1.1.1). Subsequent changes to the structure of the underlying
-   document <em class=ct>must not</em> be reflected in the
-   <code>NodeList</code> object. This means that the object will instead
-   contain a list of matching <code>Element</code> nodes that were in the
-   document at the time the list was created.
-
-  <h3 id=resolving-namespaces><span class=secno>6.1 </span>Resolving
+  <h3 id=resolving-namespaces><span class=secno>6.3 </span>Resolving
    Namespaces</h3>
 
   <p>If the group of selectors include <a
@@ -741,9 +756,10 @@ for(var i = 0; i < elms.length; i++) {
    <dt id=SELECT>[SELECT]
 
    <dd>Daniel Glazman; et al. <a
-    href="http://www.w3.org/TR/2005/WD-css3-selectors-20051215"><cite>Selectors.</cite></a>
-    15 December 2005. W3C Working Draft. (Work in progress.) URL: <a
-    href="http://www.w3.org/TR/2005/WD-css3-selectors-20051215">http://www.w3.org/TR/2005/WD-css3-selectors-20051215</a>
+    href="http://www.w3.org/TR/2009/WD-css3-selectors-20090310"><cite>Selectors
+    Level 3.</cite></a> 10 March 2009. W3C Working Draft. (Work in progress.)
+    URL: <a
+    href="http://www.w3.org/TR/2009/WD-css3-selectors-20090310">http://www.w3.org/TR/2009/WD-css3-selectors-20090310</a>
     </dd>
    <!---->
 
@@ -770,16 +786,16 @@ for(var i = 0; i < elms.length; i++) {
    <dt id=CSS21>[CSS21]
 
    <dd>Bert Bos; et al. <a
-    href="http://www.w3.org/TR/2007/CR-CSS21-20070719"><cite>Cascading Style
-    Sheets Level 2 Revision 1 (CSS 2.1) Specification.</cite></a> 19 July
-    2007. W3C Candidate Recommendation. (Work in progress.) URL: <a
-    href="http://www.w3.org/TR/2007/CR-CSS21-20070719">http://www.w3.org/TR/2007/CR-CSS21-20070719</a>
+    href="http://www.w3.org/TR/2009/CR-CSS2-20090908"><cite>Cascading Style
+    Sheets Level 2 Revision 1 (CSS 2.1) Specification.</cite></a> 8 September
+    2009. W3C Candidate Recommendation. (Work in progress.) URL: <a
+    href="http://www.w3.org/TR/2009/CR-CSS2-20090908">http://www.w3.org/TR/2009/CR-CSS2-20090908</a>
     </dd>
    <!---->
 
    <dt id=DOM-LEVEL-2-STYLE>[DOM-LEVEL-2-STYLE]
 
-   <dd>Vidur Apparao; Philippe Le H&#233;garet; Chris Wilson. <a
+   <dd>Chris Wilson; Philippe Le H&#233;garet; Vidur Apparao. <a
     href="http://www.w3.org/TR/2000/REC-DOM-Level-2-Style-20001113"><cite>Document
     Object Model (DOM) Level 2 Style Specification.</cite></a> 13 November
     2000. W3C Recommendation. URL: <a
