@@ -3,7 +3,7 @@
 <html lang=en-US>
  <head><meta content="text/html;charset=UTF-8" http-equiv=Content-Type>
 
-  <title>Selectors API</title>
+  <title>Selectors API Level 2</title>
 
   <style type="text/css">
 	pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
@@ -97,7 +97,7 @@
    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a><a href="#CSS21"
    rel=biblioentry>[CSS21]<!--{{CSS21}}--></a>. The Selectors API
    specification defines methods for retrieving <code><a
-   href="#dom-document-selector">Element</a></code> nodes from the <abbr
+   href="#dom-element">Element</a></code> nodes from the <abbr
    title="Document Object Model">DOM</abbr> by matching against a group of
    selectors. It is often desirable to perform DOM operations on a specific
    set of elements in a document. These methods simplify the process of
@@ -201,10 +201,16 @@
      <li><a href="#matchtesting"><span class=secno>6.2 </span>Matching
       Element Testing</a>
 
-     <li><a href="#processing-selectors"><span class=secno>6.3
+     <li><a href="#scoped-selectors"><span class=secno>6.3 </span>Scoped
+      Selectors</a>
+
+     <li><a href="#processing-selectors"><span class=secno>6.4
       </span>Processing Selectors</a>
 
-     <li><a href="#resolving-namespaces"><span class=secno>6.4
+     <li><a href="#processing-reference-nodes"><span class=secno>6.5
+      </span>Processing Reference Nodes</a>
+
+     <li><a href="#resolving-namespaces"><span class=secno>6.6
       </span>Resolving Namespaces</a>
     </ul>
 
@@ -234,10 +240,9 @@
    (often simply referred to as a selector) as an argument and return the
    matching elements <a href="#SELECT"
    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>. With these methods, it is
-   easier to match a set of <code><a
-   href="#dom-document-selector">Element</a></code> nodes based on specific
-   criteria, than having to subsequently filter the result of calling other
-   methods like <code>getElementsByTagName()</code>.
+   easier to match a set of <code><a href="#dom-element">Element</a></code>
+   nodes based on specific criteria, than having to subsequently filter the
+   result of calling other methods like <code>getElementsByTagName()</code>.
 
   <h3 id=examples><span class=secno>1.1 </span>Examples</h3>
 
@@ -321,8 +326,8 @@ for (var i = 0; i &lt; groups.length; i++) {
    <dt><dfn id=conforming-user-agent>conforming user agent</dfn>
 
    <dd>A user agent that implements the <code><a
-    href="#dom-document-selector">NodeSelector</a></code> interface described
-    in this specification and conforms to all <em class=ct>must</em>-level
+    href="#dom-node-selector">NodeSelector</a></code> interface described in
+    this specification and conforms to all <em class=ct>must</em>-level
     criteria that apply to implementations.
 
    <dt><dfn id=conforming-application>conforming application</dfn>
@@ -349,10 +354,10 @@ for (var i = 0; i &lt; groups.length; i++) {
    "object implementing the <code>Foo</code> interface".
 
   <p>The interfaces used within, but not defined by, this specification,
-   including <code>Document</code>, <code>DocumentFragment</code>,
-   <code>Node</code> and <code><a
-   href="#dom-document-selector">Element</a></code> are defined in DOM Level
-   3 Core <a href="#DOM-LEVEL-3-CORE"
+   including <code><a href="#dom-document">Document</a></code>,
+   <code>DocumentFragment</code>, <code>Node</code> and <code><a
+   href="#dom-element">Element</a></code> are defined in DOM Level 3 Core <a
+   href="#DOM-LEVEL-3-CORE"
    rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>.
 
   <h2 id=interoperability><span class=secno>3 </span>Interoperability
@@ -429,29 +434,19 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    subtrees</dfn> refers to the collection of elements that are descendants
    of the <a href="#context-node">context node</a>. The term <dfn
    id=matching-element-node>matching <code>Element</code> node</dfn> refers
-   to an <code><a href="#dom-document-selector">Element</a></code> node that
-   matches the group of selectors (<var>selectors</var>) that was passed to
-   the method, according to the rules for matching elements defined in
-   Selectors <a href="#SELECT"
-   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>.</p>
-  <!-- (Commented out until this definition, or something like it, is needed for
-     the proposed :scope pseudo-class.)
-
-	<p>If the <span>context node</span> is a <code>Document</code> node, then
-	   the <span>scope element</span> is the <code>documentElement</code> of
-	   the given document.  If the <span>context node</span> is an
-	   <code>Element</code> node, then the <span>scope element</span> is the
-	   same as the <span>context node</span>.</p>
--->
+   to an <code><a href="#dom-element">Element</a></code> node that matches
+   the group of selectors (<var>selectors</var>) that was passed to the
+   method, according to the rules for matching elements defined in Selectors
+   <a href="#SELECT" rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>.
 
   <h3 id=nodeselector><span class=secno>6.1 </span>The <code
    title="">NodeSelector</code> Interface</h3>
 
   <pre class=idl>module dom {
   [Supplemantal, NoInterfaceObject]
-  interface <dfn id=dom-document-selector>NodeSelector</dfn> {
-    Element   <a href="#queryselector" title=queryselector>querySelector</a>(in DOMString selectors);
-    NodeList  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>(in DOMString selectors);
+  interface <dfn id=dom-node-selector>NodeSelector</dfn> {
+    Element   <a href="#queryselector" title=queryselector>querySelector</a>(in DOMString selectors[, in Any refNodes]);
+    NodeList  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>(in DOMString selectors[, in Any refNodes]);
   };
   Document implements NodeSelector;
   DocumentFragment implements NodeSelector;
@@ -460,29 +455,29 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <p>The <dfn id=queryselector
    title=queryselector><code>querySelector()</code></dfn> method on the
-   <code><a href="#dom-document-selector">NodeSelector</a></code> interface
-   <em class=ct>must</em>, when invoked, return the <a
-   href="#first">first</a> matching <code><a
-   href="#dom-document-selector">Element</a></code> node within the <a
-   href="#nodes-subtrees">node’s subtrees</a>. If there is no such node,
+   <code><a href="#dom-node-selector">NodeSelector</a></code> interface <em
+   class=ct>must</em>, when invoked, return the <a href="#first">first</a>
+   matching <code><a href="#dom-element">Element</a></code> node within the
+   <a href="#nodes-subtrees">node’s subtrees</a>. If there is no such node,
    the method <em class=ct>must</em> return <code>null</code>.
 
   <p>The <dfn id=queryselectorall
    title=queryselectorall><code>querySelectorAll()</code></dfn> method on the
-   <code><a href="#dom-document-selector">NodeSelector</a></code> interface
-   <em class=ct>must</em>, when invoked, return a <code>NodeList</code>
+   <code><a href="#dom-node-selector">NodeSelector</a></code> interface <em
+   class=ct>must</em>, when invoked, return a <code>NodeList</code>
    containing all of the matching <code><a
-   href="#dom-document-selector">Element</a></code> nodes within the <a
+   href="#dom-element">Element</a></code> nodes within the <a
    href="#nodes-subtrees">node’s subtrees</a>, in <a
    href="#document-order">document order</a>. If there are no such nodes, the
    method <em class=ct>must</em> return an empty <code>NodeList</code>.
 
-  <p>Both <code title=queryselector><a
-   href="#queryselector">querySelector()</a></code> and <code
-   title=queryselectorall><a
-   href="#queryselectorall">querySelectorAll()</a></code> take a <a
-   href="#selector-string">selector string</a> (<var>selectors</var>) as
-   their argument.
+  <p>The <var>selectors</var> argument accepts a <a
+   href="#selector-string">selector string</a>.
+
+  <p>The optional <var>refNodes</var> argument specifies one or more <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes. This parameter must be processed <span
+   title=processing-reference-nodes>as described below</span>.
 
   <p>The <code>NodeList</code> object returned by the <code><a
    href="#queryselectorall">querySelectorAll()</a></code> method <em
@@ -493,33 +488,67 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    section 1.1.1). Subsequent changes to the structure of the underlying
    document <em class=ct>must not</em> be reflected in the
    <code>NodeList</code> object. This means that the object will instead
-   contain a list of matching <code><a
-   href="#dom-document-selector">Element</a></code> nodes that were in the
-   document at the time the list was created.
+   contain a list of matching <code><a href="#dom-element">Element</a></code>
+   nodes that were in the document at the time the list was created.
 
   <h3 id=matchtesting><span class=secno>6.2 </span>Matching Element Testing</h3>
 
   <pre class=idl>module dom {
   [Supplemental]
-  interface <dfn id=dom-document-selector>Element</dfn> {
-    boolean   <a href="#matchesselector" title=matchesselector>matchesSelector</a>(in DOMString selectors);
+  interface <dfn id=dom-element>Element</dfn> {
+    boolean   <a href="#matchesselector" title=matchesselector>matchesSelector</a>(in DOMString selectors[, in Any refNodes]);
   };
 };</pre>
 
   <p>The <dfn id=matchesselector
    title=matchesselector><code>matchesSelector()</code></dfn> method on the
-   <code><a href="#dom-document-selector">Element</a></code> interface <em
+   <code><a href="#dom-element">Element</a></code> interface <em
    class=ct>must</em>, when invoked, return true if the <a
    href="#context-node">context node</a> is a <a
    href="#matching-element-node">matching <code>Element</code> node</a>.
    Otherwise, the method <em class=ct>must</em> return false.
 
-  <p>The <code title=queryselector><a
-   href="#queryselector">matchesSelector()</a></code> method takes a <a
-   href="#selector-string">selector string</a> (<var>selectors</var>) as its
-   argument.
+  <p>The <var>selectors</var> argument accepts a <a
+   href="#selector-string">selector string</a>.
 
-  <h3 id=processing-selectors><span class=secno>6.3 </span>Processing
+  <p>The optional <var>refNodes</var> argument specifies one or more <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes. This parameter must be processed <span
+   title=processing-reference-nodes>as described below</span>.
+
+  <h3 id=scoped-selectors><span class=secno>6.3 </span>Scoped Selectors</h3>
+
+  <pre class=idl>module dom {
+  [Supplemental]
+  interface <dfn id=dom-document>Document</dfn> {
+    SelectorExpression   <span title=createselector>createSelector</span>(in DOMString selectors[, in boolean impliedScope]);
+  };
+};</pre>
+
+  <p>The <dfn id=createselector
+   title=createseelctor><code>createSelector()</code></dfn> method on the
+   <code><a href="#dom-document">Document</a></code> interface <em
+   class=ct>must</em>, when invoked, return a <code><a
+   href="#selectorexpression">SelectorExpression</a></code> object
+   representing the parsed selector.
+
+  <p>If the <var>impliedScope</var> argument is true, the
+   <var>selectors</var> argument accepts a <a
+   href="#scoped-selector-string">scoped selector string</a>. Otherwise, the
+   <var>selectors</var> argument accepts a <a
+   href="#selector-string">selector string</a>.
+
+  <pre class=idl>module dom {
+  Interface <dfn id=selectorexpression>SelectorExpression</dfn> {
+    stringifier readonly attribute DOMString <a href="#selectortext" title=selectortext>selectorText</a>; 
+  };
+};</pre>
+
+  <p>The <dfn id=selectortext><code>selectorText</code></dfn> attribute <em
+   class=ct>must</em> return the <a href="#selector-string">selector
+   string</a> represented by the object.
+
+  <h3 id=processing-selectors><span class=secno>6.4 </span>Processing
    Selectors</h3>
 
   <p>A <dfn id=selector-string>selector string</dfn> is a <a
@@ -567,11 +596,59 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
    section 1.4).
 
+  <p>A <dfn id=scoped-selector-string>scoped selector string</dfn> is a <a
+   href="http://www.w3.org/TR/css3-selectors/#grouping">group of
+   selectors</a> (<a href="#SELECT"
+   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 5), where each
+   selector in the group has had the first sequence of simple selectors
+   omitted, and thus begins with a combinator.
+
+  <p class=issue>Need to define how the UA must process a scoped selector
+   string into a conforming selector string by prepending the :scope selector
+   to each selector in the group.
+
   <p>If the user agent also supports some level of CSS, the implementation
    <em class=ct>should</em> support the same set of selectors in both these
    APIs and CSS.
 
-  <h3 id=resolving-namespaces><span class=secno>6.4 </span>Resolving
+  <h3 id=processing-reference-nodes><span class=secno>6.5 </span>Processing
+   Reference Nodes</h3>
+
+  <p class=issue>Fix the contextual selector reference when it's defined in a
+   published spec.
+
+  <p>A <dfn id=contextual-reference-element>contextual reference
+   element</dfn> is a specified reference element, as defined in The
+   Contextual Selector ([[!CONTEXT]], section 3.1).
+
+  <p>If the <code>refNodes</code> parameter is an <code><a
+   href="#dom-element">Element</a></code> node, then that element is a <a
+   href="#contextual-reference-element">contextual reference element</a>.
+
+  <p>If the <code>refNodes</code> parameter is a <code>NodeList</code>, and
+   it contains <code><a href="#dom-element">Element</a></code> nodes, then
+   all <code><a href="#dom-element">Element</a></code> nodes contained within
+   that <code>NodeList</code> are <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes. Any other node types within the <code>NodeList</code> are ignored.
+
+  <p>If the <code>refNodes</code> parameter is an Array, and it contains
+   <code><a href="#dom-element">Element</a></code> nodes, then all <code><a
+   href="#dom-element">Element</a></code> nodes contained within that array
+   are <a href="#contextual-reference-element">contextual reference
+   element</a> nodes. Any other types of objects within the array are
+   ignored.
+
+  <p>Otherwise, if the <a href="#context-node">context node</a> is a <code><a
+   href="#dom-document">Document</a></code> node, then the
+   <code>documentElement</code> of the given document is a <a
+   href="#contextual-reference-element">contextual reference element</a>. If
+   the <a href="#context-node">context node</a> is an <code><a
+   href="#dom-element">Element</a></code> node, then the <a
+   href="#context-node">context node</a> is a <a
+   href="#contextual-reference-element">contextual reference element</a>.
+
+  <h3 id=resolving-namespaces><span class=secno>6.6 </span>Resolving
    Namespaces</h3>
 
   <p>If the group of selectors include <a
