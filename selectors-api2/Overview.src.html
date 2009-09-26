@@ -316,8 +316,8 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   The term <dfn>document order</dfn> means a depth-first pre-order traversal
 	   of the DOM tree or subtree in question. The term <dfn>context node</dfn>
 	   refers to the node upon which the method was invoked. The term
-	   <dfn>node’s subtrees</dfn> refers to the collection of elements that are
-	   descendants of the <span>context node</span>. The term <dfn>matching
+	   <dfn>subtrees</dfn> refers to the collection of elements that are
+	   descendants of the specified node. The term <dfn>matching
 	   <code>Element</code> node</dfn> refers to an <code>Element</code> node
 	   that matches the group of selectors (<var>selectors</var>) that was
 	   passed to the method, according to the rules for matching elements
@@ -327,36 +327,64 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<h3 id="nodeselector">The <code title="">NodeSelector</code> Interface</h3>
 
 	<pre class="idl">module dom {
-  [Supplemantal, NoInterfaceObject]
+  [Supplemental, NoInterfaceObject]
   interface <dfn id="dom-node-selector">NodeSelector</dfn> {
     Element   <span title="queryselector">querySelector</span>(in DOMString selectors[, in Any refNodes]);
-    Element   <span title="queryselector">querySelector</span>(in SelectorExpression selectors[, in Any refNodes]);
     NodeList  <span title="queryselectorall">querySelectorAll</span>(in DOMString selectors[, in Any refNodes]);
-    NodeList  <span title="queryselectorall">querySelectorAll</span>(in SelectorExpression selectors[, in Any refNodes]);
   };
   Document implements NodeSelector;
   DocumentFragment implements NodeSelector;
   Element implements NodeSelector;
 };</pre>
-
-	<p>The <dfn id="queryselector" title="queryselector"><code>querySelector()</code></dfn>
-	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return the <span>first</span> matching <code>Element</code> node within
-	   the <span>node’s subtrees</span>. If there is no such node, the method <em class="ct">must</em>
-	   return <code>null</code>.</p>
-
-	<p>The <dfn id="queryselectorall" title="queryselectorall"><code>querySelectorAll()</code></dfn>
-	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes within the <span>node’s subtrees</span>, in
-	   <span>document order</span>. If there are no such nodes, the method <em class="ct">must</em>
-	   return an empty <code>NodeList</code>.</p>
-
-	<p>The <var>selectors</var> argument accepts a <span>selector string</span> or a <code>SelectorExpression</code> object.</p>
+	<p>The <var>selectors</var> argument accepts either a <span>selector string</span>
+	   or a <span>scoped selector string</span>.</p>
 
 	<p>The optional <var>refNodes</var> argument specifies one or more
-	   <span>contextual reference element</span> nodes. This parameter must be processed
-	   <span title="processing-reference-nodes">as described below</span>.</p>
+	   <span>contextual reference element</span> nodes.</p>
+
+	<p>If the <var>selectors</var> argument is a <span>selector string</span>,
+	   or it is a <span>scoped selector string</span> and the <span>context node</span>
+	   is not an <code>Element</code> node, the
+	   <dfn title="queryselector"><code>querySelector()</code></dfn> method
+	   on the <code>NodeSelector</code> interface <em class="ct">must</em>, when
+	   invoked, return the <span>first</span> matching <code>Element</code> node
+	   within the <span>subtrees</span> of the <span>context node</span>. If
+	   there is no such node, the method <em class="ct">must</em> return
+	   <code>null</code>.</p>
+
+	<p>Otherwise, If the <var>selectors</var> argument is a <span>scoped selector string</span>
+	   and the <span>context node</span> is an <code>Element</code> node, the
+	   <dfn title="queryselector"><code>querySelector()</code></dfn> method
+	   on the <code>NodeSelector</code> interface <em class="ct">must</em>, when
+	   invoked, return the <span>first</span> matching <code>Element</code> node
+	   within the <span>subtrees</span> of the <span>context node</span>'s parent
+	   node. If there is no such node, the method <em class="ct">must</em> return
+	   <code>null</code>.</p>
+
+	<p>If the <var>selectors</var> argument is a <span>selector string</span>,
+	   or it is a <span>scoped selector string</span> and the <span>context node</span>
+	   is not an <code>Element</code> node, the
+	   <dfn title="queryselectorall"><code>querySelectorAll()</code></dfn>
+	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
+	   when invoked, return a <code>NodeList</code> containing all of the
+	   matching <code>Element</code> nodes within the <span>subtrees</span> of
+	   the <span>context node</span>, in <span>document order</span>. If there
+	   are no such nodes, the method <em class="ct">must</em> return an empty
+	   <code>NodeList</code>.</p>
+
+	<p>Otherwise, If the <var>selectors</var> argument is a <span>scoped selector string</span>
+	   and the <span>context node</span> is an <code>Element</code> node, the
+	   <dfn title="queryselectorall"><code>querySelectorAll()</code></dfn>
+	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
+	   when invoked, return a <code>NodeList</code> containing all of the
+	   matching <code>Element</code> nodes within the <span>subtrees</span> of
+	   the <span>context node</span>'s parent node, in
+	   <span>document order</span>. If there are no such nodes, the method
+	   <em class="ct">must</em> return an empty <code>NodeList</code>.</p>
+
+	<p class="issue">The above definition doesn't quite work when a scoped
+	   selector string is used and the context node is an a disconnected Element
+	   node with no parent.</p>
 
 	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
 	   method <em class="ct">must</em> be static, not
@@ -373,9 +401,15 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   [Supplemental]
   interface <dfn id="dom-element">Element</dfn> {
     boolean   <span title="matchesselector">matchesSelector</span>(in DOMString selectors[, in Any refNodes]);
-    boolean   <span title="matchesselector">matchesSelector</span>(in SelectorExpression selectors[, in Any refNodes]);
   };
 };</pre>
+
+	<p>The <var>selectors</var> argument accepts either a <span>selector string</span>
+	   or a <span>scoped selector string</span>.</p>
+
+	<p>The optional <var>refNodes</var> argument specifies one or more
+	   <span>contextual reference element</span> nodes. This parameter must be processed
+	   <span title="processing-reference-nodes">as described below</span>.</p>
 
 	<p>The <dfn title="matchesselector"><code>matchesSelector()</code></dfn>
 	   method on the <code>Element</code> interface <em class="ct">must</em>,
@@ -383,38 +417,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <span>matching <code>Element</code> node</span>.  Otherwise, the method
 	   <em class="ct">must</em> return false.</p>
 
-	<p>The <var>selectors</var> argument accepts a <span>selector string</span> or a <code>SelectorExpression</code> object.</p>
-
-	<p>The optional <var>refNodes</var> argument specifies one or more
-	   <span>contextual reference element</span> nodes. This parameter must be processed
-	   <span title="processing-reference-nodes">as described below</span>.</p>
-
-
-	<h3>Scoped Selectors</h3>
-	<pre class="idl">module dom {
-  [Supplemental]
-  interface <dfn id="dom-document">Document</dfn> {
-    SelectorExpression   <span title="createselector">createSelector</span>(in DOMString selectors[, in boolean impliedScope]);
-  };
-};</pre>
-
-	<p>The <dfn title="createseelctor"><code>createSelector()</code></dfn>
-	   method on the <code>Document</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>SelectorExpression</code> object representing
-	   the parsed selector.</p>
-
-	<p>If the <var>impliedScope</var> argument is true, the <var>selectors</var>
-	   argument accepts a <span>scoped selector string</span>. Otherwise, the
-	   <var>selectors</var> argument accepts a <span>selector string</span>.</p>
-
-	<pre class="idl">module dom {
-  Interface <dfn>SelectorExpression</dfn> {
-    stringifier readonly attribute DOMString <span title="selectortext">selectorText</span>; 
-  };
-};</pre>
-
-	<p>The <dfn><code>selectorText</code></dfn> attribute <em class="ct">must</em>
-	   return the <span>selector string</span> represented by the object.</p>
 
 	<h3>Processing Selectors</h3>
 
@@ -452,14 +454,21 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-SYNTAX_ERR">raise
 	   a <code>SYNTAX_ERR</code> exception</a> ([[!DOM-LEVEL-3-CORE]], section 1.4).</p>
 
-	<p>A <dfn>scoped selector string</dfn> is a
+	<p>A <dfn>scoped selector string</dfn> is a string beginning with a
+	   U+0021 EXCLAMATION MARK character, followed by a	
 	   <a href="http://www.w3.org/TR/css3-selectors/#grouping">group of selectors</a>
 	   ([[!SELECT]], section 5), where each selector in the group has had the first
 	   sequence of simple selectors omitted, and thus begins with a combinator.</p>
 
-	<p class="issue">Need to define how the UA must process a scoped selector string
-	   into a conforming selector string by prepending the :scope selector to each
-	   selector in the group.</p>
+	<div class="issue">
+		<p>Need to define how the UA must process a scoped selector string
+		   into a conforming selector string by prepending the :scope selector to each
+		   selector in the group. The basic principle is that the "!" is stripped off
+		   the beginning and ":scope" is inserted appropriately.</p>
+
+		<p>e.g. "!>em, >strong" is pre-processed to become the selector
+		   ":scope>em, :scope>strong", "!div div" becomes ":scope div div", etc.</p>
+	</div>
 
 	<p>If the user agent also supports some level of CSS, the implementation
 	   <em class="ct">should</em> support the same set of selectors in both
