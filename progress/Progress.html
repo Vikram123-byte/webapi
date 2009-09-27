@@ -20,17 +20,17 @@ alt="W3C" height="48" width="72"> </a>
 
 <h1 id="title">Progress events 1.0</h1>
 
-<h2 id="Editor">Editor's Draft 5 March 2009</h2>
+<h2 id="Editor">Editor's Draft 27 September 2009</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31</a></dd>
   <dt>Latest Editor's version:</dt>
     <dd><a
-      href="http://www.w3.org/2006/webapi/progress/Progress.html">http://dev.w3.org/2006/webapi/progress/Progress.html</a></dd>
+      href="http://dev.w3.org/2006/webapi/progress/Progress.html">http://dev.w3.org/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.29">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.29</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -74,11 +74,13 @@ the <a href="http://www.w3.org/TR/">W3C technical reports index</a> at
 http://www.w3.org/TR/.</em></p>
 
 <p>This document is an editor's draft specification of the ProgressEvent events
-from the <a href="http://www.w3.org/2006/webapi/">Web API group</a>, part of
-the Rich Web Client Activity. It defines events which can be used to monitor a
-process and provide feedback to a user, particularly for network-based events.
-This editor's draft does not imply any consensus of or endorsement by any
-member of the working group, and may contain minor or major errors.</p>
+from the <a href="http://www.w3.org/2008/webapps">Web Applications Working
+Group</a>, a successor to the <a href="http://www.w3.org/2006/webapi/">Web API
+group</a>, part of the Rich Web Client Activity. It defines events which can be
+used to monitor a process and provide feedback to a user, particularly for
+network-based events. This editor's draft does not imply any consensus of or
+endorsement by any member of the working group, and may contain minor or major
+errors.</p>
 
 <p>This version is published following comments on the last formal draft in
 October 2008, and subsequent Editor's drafts. All comments are welcome and
@@ -87,16 +89,14 @@ href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> with the marker
 <kbd>[progress]</kbd> in the subject line. All messages received at this
 address are viewable in a <a
 href="http://lists.w3.org/Archives/Public/public-webapps/">public archive</a>
-(Please note that a different list was used until mid 2008, so some old
+(Please note that the WebAPIs group list was used until mid 2008, so some old
 messages are <a
 href="http://lists.w3.org/Archives/Public/public-webapi/">archived there
-instead</a>). If no new issues are raised by review of this draft, the
-specification will be published as a Last Call Working draft. At the time of
-publication the editor believes that <a
-href="http://www.w3.org/2008/webapps/track/issues/79">issue-79</a> has been
-resolved, and that there are <a
-href="http://www.w3.org/2008/webapps/track/products/5">no other known
-substantive issues</a>.</p>
+instead</a>). At the time of publication the editor believes that <a
+href="http://www.w3.org/2008/webapps/track/issues/79">issue-79</a>
+href="http://www.w3.org/2008/webapps/track/issues/105" has been resolved, but
+that <a>ISSUE-105</a> (what is counted by the
+<code>total</code>/<code>loaded</code> attributes) is still unresolved.</p>
 
 <p>This document was produced by a group operating under the <a
 href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 W3C
@@ -270,6 +270,13 @@ informative.</p>
   </tbody>
 </table>
 
+<p class="issue"><a
+href="http://www.w3.org/2008/webapps/track/issues/105">ISSUE-105</a>: How do we
+track (if at all) progress other than in bytes, e.g. for a series of
+transactions? Overload <code>total</code>/<code>loaded</code> and (optionally)
+add some flag or attribute to track what is being counted, mint new events, or
+what?</p>
+
 <p>User agents <em>must</em> ensure that these events trigger event listeners
 attached on <code>Element</code> nodes for the relevant event and on the
 capture and target phases. </p>
@@ -289,16 +296,17 @@ different name) that offer the same functionality.</p>
 
 <p>These events are in "no namespace", that is for the purposes of namespaced
 systems they use the <samp>null</samp> namespace. (For further information on
-namespaces, see "Namespaces in XML" [<a href="#XMLNames">XMLNames</a>]). </p>
+namespaces, see "Namespaces in XML" [<a href="#XMLNames">XMLNames</a>]). Any
+events which have another namespace are not defined by this specification.</p>
 
 <p>Two kinds of initialisation methods are provided: one (<code><a
 href="#initProgre2">initProgressEventNS</a></code>) in which the namespace is
-<em>required</em> and <em>must</em> be <samp>null</samp> (any event in another
-namespace is not defined by this specification), and one (<code><a
+<em>required</em> and <em>must</em> be <samp>null</samp>, and one (<code><a
 href="#initProgressEvent">initProgressEvent</a></code>) which assigns the
 <samp>null</samp> namespace automatically. This specification does not
-recommend use of one method over the other, and authors may choose whichever
-method suits them better for any given usage.</p>
+recommend use of one method over the other, and authors of specifications using
+progress events may choose whichever method suits them better for any given
+usage, or allow both.</p>
 
 <h3 id="Event1">2.2 Event firing order</h3>
 <ul>
@@ -328,11 +336,12 @@ method suits them better for any given usage.</p>
     a <code>loadend</code> event.</li>
 </ul>
 
-<p>In short, there must be at least one <code>loadstart</code> event, followed
-by zero or more <code>progress</code> events, followed by one event which may
-be any of <code>error</code>, <code>abort</code> or <code>load</code>,
-according to the outcome of the operation, and finally a <code>loadend</code>
-event must be fired.</p>
+<p>In short, conforming user agents must fire at least one
+<code>loadstart</code> event, followed by zero or more <code>progress</code>
+events, followed by one event which may be any of <code>error</code>,
+<code>abort</code> or <code>load</code>, according to the outcome of the
+operation, and finally a <code>loadend</code> event must be fired. As noted in
+Section 3, conforming specifications must maintain these constraints.</p>
 
 <h3 id="Interface">2.3 Interface definitions</h3>
 
@@ -345,7 +354,7 @@ the DOM Level 3 Events specification is normative.</p>
 <code>ProgressEvent</code> interface, use the
 <code>DocumentEvent.createEvent("ProgressEvent")</code> method call.</p>
 <dl>
-  <dt><b>IDL Definition</b></dt>
+  <dt><b>WebIDL[<a href="#WebIDL">WI</a>] Definition:</b></dt>
     <dd>
       <div class="idl-code">
       <pre>interface ProgressEvent : events::Event {
@@ -357,14 +366,14 @@ the DOM Level 3 Events specification is normative.</p>
                                           in boolean       cancelableArg,
                                           in boolean       lengthComputableArg,
                                           in unsigned long long loadedArg,
-                                          in unsigned long long totalArg)
+                                          in unsigned long long totalArg);
      void               initProgressEventNS(in DOMString namespaceURI,
                                             in DOMString typeArg,
                                             in boolean       canBubbleArg,
                                             in boolean       cancelableArg,
                                             in boolean       lengthComputableArg,
                                             in unsigned long long loadedArg,
-                                            in unsigned long long totalArg)
+                                            in unsigned long long totalArg);
 };</pre>
       </div>
       <p><br>
@@ -450,9 +459,9 @@ the DOM Level 3 Events specification is normative.</p>
                         the value of total, this <em>should</em> be false</dd>
                     <dt><var>loadedArg</var> of type unsigned long long</dt>
                       <dd>This parameter specifies the total number of bytes
-                        already transferred. If this value is not a
-                        non-negative number, the user agent <em>must</em>
-                        change it to zero.</dd>
+                        already transferred. If this value is a negative
+                        number, the user agent <em>must</em> change it to
+                      zero.</dd>
                     <dt><var>totalArg</var> of type unsigned long long</dt>
                       <dd>This specifies the total number of bytes to be
                         transferred. If lengthComputable is <var>false</var>,
@@ -508,9 +517,9 @@ transfer operation, such as loading a resource from the web via XMLHttpRequest
 <em>must</em> maintain and <em>must not</em> contradict the requirements for
 and definition of the events as described in the section <a
 href="../../../../tmp/Progress.html#Progress">The <code>ProgressEvent</code>
-events</a>, including such characteristics as the order of firing. As noted in
-that section, specifications may define additional characteristics subject to
-this restriction.</p>
+events</a>, including such characteristics as the relative order of firing. As
+noted in that section, specifications may define additional characteristics
+subject to this restriction.</p>
 
 <h4 id="Example">Example 1: Using progress events in another specification:</h4>
 
@@ -521,8 +530,8 @@ this restriction.</p>
 via a predefined SMTP server and retrieves some other content via HTTP HEAD
 from a URI given as a parameter. It specifies two event targets
 <code>send</code> and <code>receive</code>. Progress events as specified in the
-ProgressEvent events specification may be dispatched on these targets for the
-send and receive phases respectively. </p>
+[ProgressEvent] events specification may be fired [firing] on these targets for
+the send and receive phases respectively. </p>
 
 <p>If any progress events are dispatched, then at least one <code>start</code>
 event, one <code>progress</code> or, if the rate of transfer falls below 10
@@ -538,14 +547,30 @@ one <code>stalled</code> event per second <em>may</em> be fired for as long as
 the rate remains below 1kb/second. If no bytes are transferred for 4 seconds an
 <code>error</code> event followed by a <code>loadend</code> event <em>must</em>
 be fired and the transfer terminated.</p>
+
+<p>References:</p>
+<ul>
+  <li>[ProgressEvent] Progress Events, C. McCathieNevile ed., Section 2
+    http://www.w3.org/TR/progress-event/#Progress</li>
+  <li>[firing] Progress Events, C. McCathieNevile ed., Section 3.1
+    http://www.w3.org/TR/progress-event/#firing</li>
+</ul>
 </div>
 
 <h3 id="Firing">3.1 Firing a Progress Event</h3>
 
 <p>Firing a Progress event means to dispatch an event [<a href="#D3E">D3E</a>]
-described in section 2 <a href="../../../../tmp/Progress.html#Progress">The
-<code>ProgressEvent</code> events</a>, with relevant further definition
-provided in the host specification, at a given target.</p>
+at a given target. This event must have the name <samp>progress</samp>, must be
+in the <samp>null</samp> namespace (or have no namespace) and must use the
+ProgressEvent interface. It must also meet the requirements described in
+section 2 <a href="../../../../tmp/Progress.html#Progress">The
+<code>ProgressEvent</code> events</a>, including values for the
+<code>type</code>, <code>total</code>, and <code>loaded</code> attributes. If
+the specification calling for the event to be fired has defined its bubbling
+and cancelability, then it must follow those requirements, otherwise (as
+described in section 2), it must not bubble and must not be cancelable. There
+is only a default action if it has been defined by the specification calling
+for the events to be fired.</p>
 
 <h2 id="Using">4. Using progress events in Web content</h2>
 
@@ -676,7 +701,7 @@ specifications and may need to change)</p>
   &lt;body&gt;
     &lt;p id="theProgress"&gt;So far, I have loaded 
      &lt;span id="progressCount"&gt;0&lt;/span&gt; bytes
-     &lt;span id="totalCount" irrelevant="irrelevant"&gt;of the total transfer of 
+     &lt;span id="totalCount"&gt;of the total transfer of 
      &lt;span id="total"&gt;the total&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
   &lt;/body&gt;
  &lt;/html&gt;</code></pre>
@@ -688,7 +713,7 @@ specifications and may need to change)</p>
 <h3 id="Normative">5.1 Normative references</h3>
 <dl>
   <dt>[<a name="D3E" id="D3E">D3E</a>] DOM Level 3 Events.</dt>
-    <dd>Björn Höhrmann, ed. W3C Working draft, available at <a
+    <dd>Doug Schepers, ed., W3C Working draft, available at <a
       href="http://www.w3.org/TR/DOM-Level-3-Events/events.html#Events-interface">http://www.w3.org/TR/DOM-Level-3-Events/</a></dd>
   <dt id="ref-rfc2119">[<a name="RFC2119" id="RFC2119">RFC2119</a>] Key words
   for use in RFCs to indicate Requirement Levels</dt>
@@ -699,6 +724,9 @@ specifications and may need to change)</p>
   -- HTTP/1.1</dt>
     <dd>R Fielding et al., 1999. Available at <a
       href="http://rfc.net/rfc2616.html">http://rfc.net/rfc2616.html</a></dd>
+  <dt>[WI] Web IDL</dt>
+    <dd>C McCormack, ed. W3C Working Draft, available at <a
+      href="http://www.w3.org/TR/WebIDL/">http://www.w3.org/TR/WebIDL/</a></dd>
 </dl>
 
 <h3 id="Informativ">5.2 Informative references</h3>
@@ -736,19 +764,18 @@ specifications and may need to change)</p>
 [<a href="#SVGD">SVGD</a>] that this was initially based on. The WHATWG's
 proposed <code>progress</code> element [<a href="#WPE">WPE</a>] and the
 documentation for Internet Explorer's <code>onProgress</code> implementation
-[<a href="#IEoP">IEoP</a>] were also useful as an initial reference for this
+[<a href="#IEoP">IEoP</a>] were also useful as initial references for this
 specification. In addition, the following individuals' comments have been
 invaluable in preparing this draft:</p>
 
 <p>Robin Berjon, Jean-Yves Bitterlich, Marcos Caceres, Suresh Chitturi, Alex
 Danilo, Erik Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm
-Eriksen, Kartikaya Gupta, Ian Hickson, Bjoern Hoehrmann, Björn Hoehrmann, David
-Håsäther, Björn Höhrmann, Bjoern Hï¿½hrmann, Philip Jägenstedt, Anne van
-Kesteren, Travis Leithead, Aaron Leventhal, Jim Ley, Chris Lilley, Cameron
-McCormack, Olli Pettay, Michael Antony Puls, Nandini Ramani, Robert Sayre, Alan
-Schepers, Doug Schepers, Rich Schwerdtfeger, Lisa Seeman, Andrew Shellshear,
-Ellen Siegel, Andy Sledd, Garret Smith, Maciej Stachowiak, Boris Zbarsky,
-Gottfried Zimmermann</p>
+Eriksen, Kartikaya Gupta, Ian Hickson, David Håsäther, Björn Höhrmann, Philip
+Jägenstedt, Anne van Kesteren, Travis Leithead, Aaron Leventhal, Jim Ley, Chris
+Lilley, Cameron McCormack, Olli Pettay, Michael Antony Puls, Nandini Ramani,
+Robert Sayre, Alan Schepers, Doug Schepers, Rich Schwerdtfeger, Lisa Seeman,
+Andrew Shellshear, Ellen Siegel, Andy Sledd, Garrett Smith, Maciej Stachowiak,
+Boris Zbarsky, Gottfried Zimmermann</p>
 
 <p>The editor apologises to anyone who has inadvertently been left off this
 list, and welcomes corrections.</p>
@@ -756,7 +783,19 @@ list, and welcomes corrections.</p>
 <h2 id="Change">7. Change History</h2>
 <dl>
   <dt><a
-  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.28">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30</a>
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31</a>
+  <strong>(Intended basis for Last Call Working Draft)</strong></dt>
+    <dd><ul>
+        <li>Clarified that conforming user agents still do what non-conformant
+          content tells them to do.</li>
+        <li>Expanded the "firing a progress event" text.</li>
+        <li>Fixed typos in IDL, added reference to WebIDL.</li>
+        <li>Added <a
+          href="http://www.w3.org/2008/webapps/track/issues/105">ISSUE-105</a></li>
+      </ul>
+    </dd>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30</a>
   <strong>(Intended basis for Last Call Working Draft)</strong></dt>
     <dd><ul>
         <li>Clarified that conforming user agents still do what non-conformant
