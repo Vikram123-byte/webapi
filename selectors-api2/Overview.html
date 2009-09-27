@@ -211,10 +211,13 @@
       </span>Resolving Namespaces</a>
     </ul>
 
-   <li><a href="#dom-feature-string"><span class=secno>7 </span>DOM Feature
+   <li><a href="#the-reference-pseudo-class"><span class=secno>7 </span>The
+    <code>:reference</code> Pseudo-Class</a>
+
+   <li><a href="#dom-feature-string"><span class=secno>8 </span>DOM Feature
     String</a>
 
-   <li><a href="#examples0"><span class=secno>8 </span>Examples</a>
+   <li><a href="#examples0"><span class=secno>9 </span>Examples</a>
 
    <li class=no-num><a href="#references">References</a>
     <ul class=toc>
@@ -616,19 +619,16 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 10). If the
    argument is a <a href="#scoped-selector-string">scoped selector
    string</a>, then for each selector in the group of selectors, imply the
-   presence of the simple selector <code>:-x-scope</code> at the beginning of
-   each, and, if the selector did not begin with a combinator, imply the
-   presence of a descendant combinator.
-
-  <p class=issue>Using <code>:-x-scope</code> for now, until it's defined in
-   a published spec and until the name has been decided upon. Will need to
-   insert an appropriate reference too
+   presence of the simple selector <code title=reference-pseudo><a
+   href="#reference">:reference</a></code> at the beginning of each, and, if
+   the selector did not begin with a combinator, imply the presence of a
+   descendant combinator.
 
   <div class=example>
    <p>For example, if the <code>selectors</code> argument is “<code>!div
     div, >p, +p"</code>” the processing will result in the selector being
-    equivalent to “<code>:-x-scope div div, :-x-scope>p,
-    :-x-scope+p</code>”</p>
+    equivalent to “<code>:reference div div, :reference>p,
+    :reference+p</code>”</p>
   </div>
 
   <p>Selectors are evaluated against a given element in the context of the
@@ -648,13 +648,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <h3 id=processing-reference-nodes><span class=secno>6.4 </span>Processing
    Reference Nodes</h3>
-
-  <p class=issue>Fix the contextual selector reference when it's defined in a
-   published spec.
-
-  <p>A <dfn id=contextual-reference-element>contextual reference
-   element</dfn> is a specified reference element, as defined in The
-   Contextual Selector ([[!CONTEXT]], section 3.1).
 
   <p>If the <code>refNodes</code> parameter is an <code><a
    href="#dom-element">Element</a></code> node, then that element is a <a
@@ -712,7 +705,51 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    Selectors would instead throw a <code>SYNTAX_ERR</code> because it would
    be treated as an invalid selector.
 
-  <h2 id=dom-feature-string><span class=secno>7 </span>DOM Feature String</h2>
+  <p>In addition to the terms defined in this specification, the terms
+   defined in Selectors <a href="#SELECT"
+   rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a> and DOM Level 3 Core <a
+   href="#DOM-LEVEL-3-CORE"
+   rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a> are
+   also used.
+
+  <h2 id=the-reference-pseudo-class><span class=secno>7 </span>The <dfn
+   id=reference title=reference-pseudo><code>:reference</code></dfn>
+   Pseudo-Class</h2>
+
+  <p class=issue>This section is expected to be moved to the Selectors Level
+   4 specification when the CSSWG begins work. It is defined here only
+   because it needs to be defined somewhere. Note that this has been called
+   various names including <code>:scope</code> and <code>:context</code> in
+   previous discussions.
+
+  <p>A <dfn id=contextual-reference-element>contextual reference
+   element</dfn> is a specified reference <code><a
+   href="#dom-element">Element</a></code> node within the context in which a
+   selector is being evaluated. There may be more than one such element in a
+   given context.
+
+  <p>The <code>:reference</code> pseudo-class <em class=ct>must</em> match
+   the any element that is a <a
+   href="#contextual-reference-element">contextual reference element</a>.
+
+  <p>When a given element is being evaluated against a given selector in a
+   given context, there may be one or more <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes specified. If there are no other <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes specified, and the element being evaluated belongs to a document,
+   the root element of the document to which the element belongs is a <a
+   href="#contextual-reference-element">contextual reference element</a>.
+   Otherwise, there is no <a href="#contextual-reference-element">contextual
+   reference element</a>.
+
+  <p>Specifications intending for this pseudo-class to match specific
+   elements other than the document's root element <em class=ct>must</em>
+   define which elements are the <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes.
+
+  <h2 id=dom-feature-string><span class=secno>8 </span>DOM Feature String</h2>
 
   <p>DOM3 Core defines several methods for checking for interface support, or
    for obtaining implementations of interfaces, using <a
@@ -732,7 +769,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    features in this specification; in general, therefore, use of this method
    is discouraged.
 
-  <h2 id=examples0><span class=secno>8 </span>Examples</h2>
+  <h2 id=examples0><span class=secno>9 </span>Examples</h2>
 
   <div class=example>
    <p>The following examples make use of this sample XHTML document.</p>

@@ -464,18 +464,15 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   according to <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the
 	   grammar of Selectors</a> ([[!SELECT]], section 10).  If the argument is a
 	   <span>scoped selector string</span>, then for each selector in the group
-	   of selectors, imply the presence of the simple selector <code>:-x-scope</code>
-	   at the beginning of each, and, if the selector did not begin with a combinator,
-	   imply the presence of a descendant combinator.</p>
-	
-	<p class="issue">Using <code>:-x-scope</code> for now, until it's defined in a published
-	   spec and until the name has been decided upon. Will need to insert an appropriate
-	   reference too</p>
+	   of selectors, imply the presence of the simple selector
+	   <code title="reference-pseudo">:reference</code> at the beginning of each,
+	   and, if the selector did not begin with a combinator, imply the presence
+	   of a descendant combinator.</p>
 
 	<div class="example">
 		<p>For example, if the <code>selectors</code> argument is “<code>!div div, >p, +p"</code>”
 		   the processing will result in the selector being equivalent to
-		   “<code>:-x-scope div div, :-x-scope>p, :-x-scope+p</code>”</p>
+		   “<code>:reference div div, :reference>p, :reference+p</code>”</p>
 	</div>
 
 	<p>Selectors are evaluated against a given element in the context of the
@@ -491,11 +488,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 
 	<h3>Processing Reference Nodes</h3>
-	
-	<p class="issue">Fix the contextual selector reference when it's defined in a published spec.</p>
-
-	<p>A <dfn>contextual reference element</dfn> is a specified reference element, as defined
-	   in The Contextual Selector ([[!CONTEXT]], section 3.1).</p>
 
 	<p>If the <code>refNodes</code> parameter is an <code>Element</code> node, then that element
 	   is a <span>contextual reference element</span>.</p>
@@ -517,6 +509,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <span>contextual reference element</span>.  If the <span>context node</span>
 	   is an <code>Element</code> node, then the <span>context node</span> is a
 	   <span>contextual reference element</span>.</p>
+
 
 	<h3>Resolving Namespaces</h3>
 
@@ -541,6 +534,38 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<p class="note">Implementations that don't support the namespace syntax in
 	   Selectors would instead throw a <code>SYNTAX_ERR</code> because it would
 	   be treated as an invalid selector.</p>
+
+	<p>In addition to the terms defined in this specification, the terms defined in
+	   Selectors [[!SELECT]] and DOM Level 3 Core [[!DOM-LEVEL-3-CORE]] are also used.</p>
+
+
+	<h2>The <dfn title="reference-pseudo"><code>:reference</code></dfn> Pseudo-Class</h2>
+
+	<p class="issue">This section is expected to be moved to the Selectors Level 4
+	   specification when the CSSWG begins work. It is defined here only because
+	   it needs to be defined somewhere. Note that this has been called various
+	   names including <code>:scope</code> and <code>:context</code> in previous
+	   discussions.</p>
+
+	<p>A <dfn>contextual reference element</dfn> is a specified reference
+	   <code>Element</code> node within the context in which a selector is being
+	   evaluated.  There may be more than one such element in a given context.</p>
+
+	<p>The <code>:reference</code> pseudo-class <em class="ct">must</em> match the
+	   any element that is a <span>contextual reference element</span>.</p>
+
+	<p>When a given element is being evaluated against a given selector in a given
+	   context, there may be one or more <span>contextual reference element</span>
+	   nodes specified.  If there are no other <span>contextual reference element</span>
+	   nodes specified, and the element being evaluated belongs to a document, the
+	   root element of the document to which the element belongs is a
+	   <span>contextual reference element</span>.  Otherwise, there is no
+	   <span>contextual reference element</span>.</p>
+
+	<p>Specifications intending for this pseudo-class to match specific elements
+	   other than the document's root element <em class="ct">must</em> define which
+	   elements are the <span>contextual reference element</span> nodes.</p>
+
 
 	<h2>DOM Feature String</h2>
 
