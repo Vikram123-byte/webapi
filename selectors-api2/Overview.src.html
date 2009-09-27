@@ -429,6 +429,12 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <em class="ct">should not</em> use <span title="need-to-resolve">namespace
 	   prefixes that need to be resolved</span>.</p>
 
+	<p>A <dfn>scoped selector string</dfn> is a string beginning with either a
+	   U+0021 EXCLAMATION MARK character or a combinator, followed by a	
+	   <a href="http://www.w3.org/TR/css3-selectors/#grouping">group of selectors</a>
+	   ([[!SELECT]], section 5), where each selector in the group has had the first
+	   sequence of simple selectors omitted.</p>
+
 	<p class="note">Implementers are advised that if <code>null</code> or
 	   <code>undefined</code> are passed as the value of the <var>selectors</var>
 	   parameter, they are to be handled as defined in WebIDL [[!WEBIDL]].
@@ -442,32 +448,42 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<p>The implementation <em class="ct">must</em> first trim any leading and/or
 	   trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace" title="Selectors">whitespace</a>
-	   from the value of the <var>selectors</var> parameter. The implementation
-	   <em class="ct">must</em> then process the value according to
-	   <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar
-	   of Selectors</a> ([[!SELECT]], section 10).  Selectors are evaluated
-	   against a given element in the context of the entire DOM tree in which
-	   the element is located. If the given group of selectors is
-	   <a href="http://www.w3.org/TR/css3-selectors/#Conformance">invalid</a>
+	   from the value of the <var>selectors</var> argument.
+	
+	<p>If the resulting string begins with a character matching the
+	   <code>combinator</code> production ([[!SELECT]], section 10), then the
+	   argument is a <span>scoped selector string</span>.</p>
+
+	<p>Otherwise, if the resulting string begins with a U+0021 EXCLAMATION POINT
+	   character, then remove that character and the argument is a
+ 	   <span>scoped selector string</span>.</p>
+
+	<p>Otherwise the argument is a <span>selector string</span>.</p>
+
+	<p>The implementation <em class="ct">must</em> then process the value
+	   according to <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the
+	   grammar of Selectors</a> ([[!SELECT]], section 10).  If the argument is a
+	   <span>scoped selector string</span>, then for each selector in the group
+	   of selectors, imply the presence of the simple selector <code>:-x-scope</code>
+	   at the beginning of each, and, if the selector did not begin with a combinator,
+	   imply the presence of a descendant combinator.</p>
+	
+	<p class="issue">Using <code>:-x-scope</code> for now, until it's defined in a published
+	   spec and until the name has been decided upon. Will need to insert an appropriate
+	   reference too</p>
+
+	<div class="example">
+		<p>For example, if the <code>selectors</code> argument is “<code>!div div, >p, +p"</code>”
+		   the processing will result in the selector being equivalent to
+		   “<code>:-x-scope div div, :-x-scope>p, :-x-scope+p</code>”</p>
+	</div>
+
+	<p>Selectors are evaluated against a given element in the context of the
+	   entire DOM tree in which the element is located. If the given group of
+	   selectors is <a href="http://www.w3.org/TR/css3-selectors/#Conformance">invalid</a>
 	   ([[!SELECT]], section 13), the implementation <em class="ct">must</em>
 	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#DOMException-SYNTAX_ERR">raise
 	   a <code>SYNTAX_ERR</code> exception</a> ([[!DOM-LEVEL-3-CORE]], section 1.4).</p>
-
-	<p>A <dfn>scoped selector string</dfn> is a string beginning with a
-	   U+0021 EXCLAMATION MARK character, followed by a	
-	   <a href="http://www.w3.org/TR/css3-selectors/#grouping">group of selectors</a>
-	   ([[!SELECT]], section 5), where each selector in the group has had the first
-	   sequence of simple selectors omitted, and thus begins with a combinator.</p>
-
-	<div class="issue">
-		<p>Need to define how the UA must process a scoped selector string
-		   into a conforming selector string by prepending the :scope selector to each
-		   selector in the group. The basic principle is that the "!" is stripped off
-		   the beginning and ":scope" is inserted appropriately.</p>
-
-		<p>e.g. "!>em, >strong" is pre-processed to become the selector
-		   ":scope>em, :scope>strong", "!div div" becomes ":scope div div", etc.</p>
-	</div>
 
 	<p>If the user agent also supports some level of CSS, the implementation
 	   <em class="ct">should</em> support the same set of selectors in both
