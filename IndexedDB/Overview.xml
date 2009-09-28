@@ -15,7 +15,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>WebSimpleDB API</title>
-    <meta name='revision' content='$Id: Overview.xml,v 1.6 2009-09-25 21:14:07 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.xml,v 1.7 2009-09-28 17:59:03 nmehta3 Exp $'/>
     <link rel='stylesheet' href='SimpleDB.css' type='text/css'/>
     <script src='section-links.js' type='application/ecmascript'/>
     <script src='dfn.js' type='application/ecmascript'/>
@@ -321,7 +321,7 @@ WorkerUtils implements <a href="#EnvironmentSync">EnvironmentSync</a>;</x:codebl
           version, a display name, a read only flag, and optionally a callback
           to be invoked if the database has not yet been created. The callback,
           if provided, is intended to be used to call 
-          <a class="idltype" href="#changeVersion"><code>changeVersion()</code></a>; 
+          <a class="idltype" href="#change-version"><code>changeVersion()</code></a>; 
           the callback is invoked with the database having the empty string as
           its version regardless of the given database version. If the
           callback is not provided, the database is created with the given
@@ -499,7 +499,7 @@ interface <dfn id="TransactionErrorCallback">DatabaseTransactionErrorCallback</d
             READ_UNCOMMITTED</code></a>, <a class="idltype" href="#isolation-READ-COMMITTED"><code>
             READ_COMMITTED</code></a>, or <a class="idltype" href="#isolation-SERIALIZABLE"><code>
             SERIALIZABLE</code></a> as specified in the 
-            <a class="idltype" href="Transaction"><code>Transaction</code></a> interface.
+            <a class="idltype" href="#Transaction"><code>Transaction</code></a> interface.
           </p>
           
           <p>
@@ -603,13 +603,14 @@ interface <dfn id="TransactionErrorCallback">DatabaseTransactionErrorCallback</d
 			  <div id="sync-database" class="section">
           <h4>Synchronous Database API</h4>
 			    <x:codeblock language="idl">interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a href="#AbstractDatabase">AbstractDatabase</a> {
-  <a href="#Transaction">Transaction</a> <a href="transaction-sync">transaction</a>(in optional <a href="#Transaction">Transaction</a> parent,
+  <a href="#Transaction">Transaction</a> <a href="#transaction-sync">transaction</a>(in optional <a href="#Transaction">Transaction</a> parent,
               in optional unsigned short isolationLevel,
               in optional unsigned int timeout);
 };</x:codeblock>  
          </div>
           <p>
-            The <dfn id="dom-database-sync-transaction" title="dom-database-sync-transaction"><code>transaction()</code></dfn> method must run the following steps:
+            The <dfn id="dom-database-sync-transaction" title="transaction-sync"><code>
+            transaction()</code></dfn> method must run the following steps:
           </p>
            
           <ol>
@@ -815,9 +816,9 @@ database.transaction(function(txn) {
           </div>
           <div>
             <x:codeblock language="idl">interface <dfn id="Transaction">Transaction</dfn> {
-    const unsigned short READ_UNCOMMITTED = 0;
-    const unsigned short READ_COMMITTED = 1;
-    const unsigned short SERIALIZABLE = 2;
+    const unsigned short <a href="#isolation-READ-UNCOMMITTED">READ_UNCOMMITTED</a> = 0;
+    const unsigned short <a href="#isolation-READ-COMMITTED">READ_COMMITTED</a> = 1;
+    const unsigned short <a href="#isolation-SERIALIZABLE">SERIALIZABLE</a> = 2;
     
     readonly attribute unsigned short <a href="#isolation-level">isolationLevel</a>;
     readonly attribute Transaction <a href="#parent-transaction">parent</a>;
@@ -847,6 +848,26 @@ database.transaction(function(txn) {
           <p>
             On getting, <dfn id="isolation-level"><code>isolationLevel</code></dfn> will
             provide the isolation level specified when creating the transaction.
+          </p>
+          
+          <p>
+            The <dfn id="isolation-READ-UNCOMMITTED"><code>READ_UNCOMMITTED</code></dfn> 
+            isolation level allows the transaction access to data that is modified by a different 
+            transaction, even if that data may not have been committed by the foreign transaction.
+          </p>
+          
+          <p>
+            The <dfn id="isolation-READ-COMMITTED"><code>READ_COMMITTED</code></dfn> isolation
+            level allows the transaction access only to the data that is committed by prior 
+            transactions even though a foreign transaction may subsequently modify or delete
+            that data before the present transaction completes. 
+          </p>
+          
+          <p>
+            The <dfn id="isolation-SERIALIZABLE"><code>SERIALIZABLE</code></dfn> isolation
+            level allows the transaction access only to the data that is committed by prior 
+            transactions and does not allow any such data to be modified by foreign transactions
+            until the present transaction completes. 
           </p>
           
           <p>
@@ -1242,7 +1263,7 @@ database.transaction(function(Transaction txn) {
         </p>
           
         <p>
-          The <dfn id="entity-store-get-index" class="idltype"><code>getIndex()</code></dfn>
+          The <dfn id="get-index" class="idltype"><code>getIndex()</code></dfn>
           method is used to obtain an <a class="idltype" href="#Index"><code>Index</code></a> 
           object representing the named index on this entity store.
         </p>
@@ -1255,7 +1276,7 @@ database.transaction(function(Transaction txn) {
         </p>
         
         <p>
-          The <dfn id="entity-store-create-index" class="idltype"><code>createIndex()</code></dfn>
+          The <dfn id="create-index" class="idltype"><code>createIndex()</code></dfn>
           method is used to define a new index on this entity store. An index is created using 
           three required parameters - name, key path, and cardinality - and two optional 
           parameters - action to be performed when related entity is deleted, and the
@@ -1726,8 +1747,8 @@ var accounts = [
           positioned. The cursor can be moved to the next (or the previous) position
           after deleting an object. If a cursor is positioned on a deleted entity, 
           <a href="#current" class="idltype"><code>current()</code></a> will return
-          null, <a href="#delete" class="idltype"><code>delete()</code></a> will
-          return false, and <a href="#delete" class="idltype"><code>update()</code></a>
+          null, <a href="#cursor-delete" class="idltype"><code>delete()</code></a> will
+          return false, and <a href="#update" class="idltype"><code>update()</code></a>
           will return false.
         </p>
           
@@ -1763,7 +1784,7 @@ var accounts = [
         </p>
         
         <p>
-          The <dfn id="entities"><code>entities()</code></dfn> is used to obtain a
+          The <dfn id="join-entities"><code>entities()</code></dfn> is used to obtain a
           cursor positioned to the object in the entity store that satisfies all the
           conditions specified in the join. If an isolation level is specified, it 
           overrides the level specified in the transaction.
@@ -1796,9 +1817,9 @@ var accounts = [
   readonly attribute DOMString <a href="#sequence-name">name</a>;
   readonly attribute long long <a href="#sequence-current">current</a>;
   
-  <a href="#changeIncrement">changeIncrement</a>(long long increment);
-  long long <a href="sequence-next">next</a>();
-  <a href="sequence-remove">remove</a>();
+  <a href="#change-increment">changeIncrement</a>(long long increment);
+  long long <a href="#sequence-next">next</a>();
+  <a href="#sequence-remove">remove</a>();
 };</x:codeblock>  
         </div>
         <p>
@@ -1810,6 +1831,14 @@ var accounts = [
           provide the present value of the sequence. Unless a value is provided,
           the initial value of a sequence will be 1.
         </p>
+        
+        <p>
+          The <dfn id="change-increment"><code>changeIncrement()</code></dfn> 
+          method is used to alter the amount by which the sequence is 
+          incremented (or decremented) each time the <a href="#sequence-next" class="idlref">
+          <code>next()</code></a> method is called.
+        </p>
+        
         <p>
           The <dfn id="sequence-next"><code>next()</code></dfn> method is used to 
           advance the sequence and obtain the next number in the sequence
@@ -1833,13 +1862,13 @@ var accounts = [
           specified key.
         </p>
 			  <div>
-			    <x:codeblock language="idl">interface Queue {  
-  readonly attribute DOMString <a href="queue-name">name</a>;
+			    <x:codeblock language="idl">interface <dfn id="Queue">Queue</dfn> {  
+  readonly attribute DOMString <a href="#queue-name">name</a>;
 
   <a href="#push">push</a>(in any object);
   any <a href="#pop">pop</a>();
   
-  <a href="#remove">remove</a>();
+  <a href="#queue-remove">remove</a>();
 };</x:codeblock>  
         </div>
         <p>
@@ -1872,20 +1901,20 @@ var accounts = [
           object as one of their arguments.
         </p>
 			  <div>
-			    <x:codeblock language="idl">interface DatabaseError {
-  const unsigned short UNKNOWN_ERR = 0;
-  const unsigned short NON_TRANSIENT_ERR = 1; 
-  const unsigned short VERSION_ERR = 2; 
-  const unsigned short NOT_FOUND_ERR = 3;
-  const unsigned short CONSTRAINT_ERR = 4;
-  const unsigned short DATA_ERR = 5;
-  const unsigned short FEATURE_ERR = 6;
-  const unsigned short SERIAL_ERR = 11;
-  const unsigned short TOO_LARGE_ERR = 12;
-  const unsigned short RECOVERABLE_ERR = 21;<!--
+			    <x:codeblock language="idl">interface <dfn id="DatabaseError">DatabaseError</dfn> {
+  const unsigned short <a href="#dom-databaseexception-code-unknown">UNKNOWN_ERR</a> = 0;
+  const unsigned short <a href="#dom-databaseexception-code-non-transient">NON_TRANSIENT_ERR</a> = 1; 
+  const unsigned short <a href="#dom-databaseexception-code-version">VERSION_ERR</a> = 2; 
+  const unsigned short <a href="#dom-databaseexception-code-not-found">NOT_FOUND_ERR</a> = 3;
+  const unsigned short <a href="#dom-databaseexception-code-constraint">CONSTRAINT_ERR</a> = 4;
+  const unsigned short <a href="#dom-databaseexception-code-data">DATA_ERR</a> = 5;
+  const unsigned short <a href="#dom-databaseexception-code-feature">FEATURE_ERR</a> = 6;
+  const unsigned short <a href="#dom-databaseexception-code-serial">SERIAL_ERR</a> = 11;
+  const unsigned short <a href="#dom-databaseexception-code-too_large">TOO_LARGE_ERR</a> = 12;
+  const unsigned short <a href="#dom-databaseexception-code-recoverable">RECOVERABLE_ERR</a> = 21;<!--
   const unsigned short QUOTA_ERR = 22;-->
-  const unsigned short TRANSIENT_ERR = 31;
-  const unsigned short TIMEOUT_ERR = 32;
+  const unsigned shrot <a href="#dom-databaseexception-code-transient">TRANSIENT_ERR</a> = 31;
+  const unsigned short <a href="#dom-databaseexception-code-deadlock">TIMEOUT_ERR</a> = 32;
   unsigned short <a href="#error-code">code</a>;
   int <a href="#error-status">status</a>;
   DOMString <a href="#error-message">message</a>;
@@ -1907,19 +1936,19 @@ var accounts = [
           </p>
 
 			    <x:codeblock language="idl">exception <dfn id="DatabaseException">DatabaseException</dfn> {
-  const unsigned short UNKNOWN_ERR = 0;
-  const unsigned short NON_TRANSIENT_ERR = 1; 
-  const unsigned short VERSION_ERR = 2; 
-  const unsigned short NOT_FOUND_ERR = 3;
-  const unsigned short CONSTRAINT_ERR = 4;
-  const unsigned short DATA_ERR = 5;
-  const unsigned short FEATURE_ERR = 6;
-  const unsigned short SERIAL_ERR = 11;
-  const unsigned short TOO_LARGE_ERR = 12;
-  const unsigned short RECOVERABLE_ERR = 21;<!--
+  const unsigned short <a href="#dom-databaseexception-code-unknown">UNKNOWN_ERR</a> = 0;
+  const unsigned short <a href="#dom-databaseexception-code-non-transient">NON_TRANSIENT_ERR</a> = 1; 
+  const unsigned short <a href="#dom-databaseexception-code-version">VERSION_ERR</a> = 2; 
+  const unsigned short <a href="#dom-databaseexception-code-not-found">NOT_FOUND_ERR</a> = 3;
+  const unsigned short <a href="#dom-databaseexception-code-constraint">CONSTRAINT_ERR</a> = 4;
+  const unsigned short <a href="#dom-databaseexception-code-data">DATA_ERR</a> = 5;
+  const unsigned short <a href="#dom-databaseexception-code-feature">FEATURE_ERR</a> = 6;
+  const unsigned short <a href="#dom-databaseexception-code-serial">SERIAL_ERR</a> = 11;
+  const unsigned short <a href="#dom-databaseexception-code-too_large">TOO_LARGE_ERR</a> = 12;
+  const unsigned short <a href="#dom-databaseexception-code-recoverable">RECOVERABLE_ERR</a> = 21;<!--
   const unsigned short QUOTA_ERR = 22;-->
-  const unsigned shrot TRANSIENT_ERR = 31;
-  const unsigned short TIMEOUT_ERR = 32;
+  const unsigned shrot <a href="#dom-databaseexception-code-transient">TRANSIENT_ERR</a> = 31;
+  const unsigned short <a href="#dom-databaseexception-code-deadlock">TIMEOUT_ERR</a> = 32;
   unsigned short <a href="#exception-code">code</a>;
   int <a href="#exception-status">status</a>;
   DOMString <a href="#exception-message">message</a>;
@@ -2087,17 +2116,17 @@ var accounts = [
           <dl>
             <dt><dfn id="ref-HTML5">[HTML5]</dfn></dt>
             <dd>
-              <cite><a href="http://www.w3.org/TR/HTML5">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>, 
+              <cite><a href="http://www.w3.org/TR/html5/">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>, 
               Ian Hickson, editor, W3C Working Draft, August 2009.
             </dd>
             <dt><dfn id="ref-RFC2119">[RFC2119]</dfn></dt>
             <dd>
-              <cite><a href="http://ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
+              <cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
               S. Bradner. IETF, March 1997.
             </dd>
             <dt><dfn id="ref-WebIDL">[WebIDL]</dfn></dt>
             <dd>
-              <cite><a href="http://www.w3.org/TR/WebIDL">Web IDL</a></cite>,
+              <cite><a href="http://www.w3.org/TR/WebIDL/">Web IDL</a></cite>,
               Cameron McCormack, editor. W3C Working Draft, December 2008.
             </dd>
             <dt><dfn id="ref-WebStorage">[WebStorage]</dfn></dt>
@@ -2107,7 +2136,7 @@ var accounts = [
             </dd>
             <dt><dfn id="ref-WebWorkers">[WebWorkers]</dfn></dt>
             <dd>
-              <cite><a href="http://www.w3.org/TR/workers">Web Workers</a></cite>,
+              <cite><a href="http://www.w3.org/TR/workers/">Web Workers</a></cite>,
               Ian Hickson, editor. W3C Working Draft, April 2009.
             </dd>
           </dl>
