@@ -340,7 +340,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   or a <span>scoped selector string</span>.</p>
 
 	<p>The optional <var>refNodes</var> argument specifies one or more
-	   <span>contextual reference element</span> nodes.</p>
+	   <span>contextual reference element</span> nodes. The implementation
+	   <em class="ct">must</em> process this argument according to the
+	   <span>steps for determining reference nodes</span></p>
 
 	<p>If the <var>selectors</var> argument is a <span>selector string</span>,
 	   or it is a <span>scoped selector string</span> and the <span>context node</span>
@@ -357,9 +359,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <dfn title="queryselector"><code>querySelector()</code></dfn> method
 	   on the <code>NodeSelector</code> interface <em class="ct">must</em>, when
 	   invoked, return the <span>first</span> matching <code>Element</code> node
-	   within the <span>subtrees</span> of the <span>context node</span>'s parent
-	   node. If there is no such node, the method <em class="ct">must</em> return
-	   <code>null</code>.</p>
+	   within the entire DOM tree in which the <span>context node</span> is
+	   located.  If there is no such node, the method <em class="ct">must</em>
+	   return <code>null</code>.</p>
 
 	<p>If the <var>selectors</var> argument is a <span>selector string</span>,
 	   or it is a <span>scoped selector string</span> and the <span>context node</span>
@@ -377,14 +379,10 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <dfn title="queryselectorall"><code>querySelectorAll()</code></dfn>
 	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
 	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes within the <span>subtrees</span> of
-	   the <span>context node</span>'s parent node, in
-	   <span>document order</span>. If there are no such nodes, the method
-	   <em class="ct">must</em> return an empty <code>NodeList</code>.</p>
-
-	<p class="issue">The above definition doesn't quite work when a scoped
-	   selector string is used and the context node is an a disconnected Element
-	   node with no parent.</p>
+	   matching <code>Element</code> nodes within the entire DOM tree in which
+	   the <span>context node</span> is located, in <span>document order</span>.
+	   If there are no such nodes, the method <em class="ct">must</em> return an
+	   empty <code>NodeList</code>.</p>
 
 	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
 	   method <em class="ct">must</em> be static, not
@@ -395,7 +393,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   will instead contain a list of matching <code>Element</code> nodes that
 	   were in the document at the time the list was created.</p>
 
-	<h3 id="matchtesting">Testing Matching Elements</h3>
+	<h3 id="matchtesting">Matching Elements</h3>
 
 		<pre class="idl">module dom {
   [Supplemental]
@@ -492,6 +490,8 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<h3>Processing Reference Nodes</h3>
 
+	<p>The <dfn>steps for determining reference nodes</dfn> are as follows:</p>
+
 	<p>If the <code>refNodes</code> parameter is an <code>Element</code> node, then that element
 	   is a <span>contextual reference element</span>.</p>
 
@@ -579,6 +579,10 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <var>feature</var> and <var>version</var> parameters, using the values
 	   "<code title="">Selectors-API</code>" and "<code>1.0</code>"
 	   (respectively).</p>
+
+	<p class="note">The version parameter has been intentionally left as "<code>1.0</code>".
+	   This is intended only as a way to detect the presence of some level of support,
+	   rather than being able claim support for a specific level of this API.</p>
 
 	<p>Conforming implementations <em class="ct">must</em> respond with a
 	   <code>true</code> value when the <code>hasFeature</code> method is

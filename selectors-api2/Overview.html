@@ -198,8 +198,8 @@
      <li><a href="#nodeselector"><span class=secno>6.1 </span>The <code
       title="">NodeSelector</code> Interface</a>
 
-     <li><a href="#matchtesting"><span class=secno>6.2 </span>Testing
-      Matching Elements</a>
+     <li><a href="#matchtesting"><span class=secno>6.2 </span>Matching
+      Elements</a>
 
      <li><a href="#processing-selectors"><span class=secno>6.3
       </span>Processing Selectors</a>
@@ -458,7 +458,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <p>The optional <var>refNodes</var> argument specifies one or more <a
    href="#contextual-reference-element">contextual reference element</a>
-   nodes.
+   nodes. The implementation <em class=ct>must</em> process this argument
+   according to the <a href="#steps-for-determining-reference-nodes">steps
+   for determining reference nodes</a>
 
   <p>If the <var>selectors</var> argument is a <a
    href="#selector-string">selector string</a>, or it is a <a
@@ -481,9 +483,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <code><a href="#dom-node-selector">NodeSelector</a></code> interface <em
    class=ct>must</em>, when invoked, return the <a href="#first">first</a>
    matching <code><a href="#dom-element">Element</a></code> node within the
-   <a href="#subtrees">subtrees</a> of the <a href="#context-node">context
-   node</a>'s parent node. If there is no such node, the method <em
-   class=ct>must</em> return <code>null</code>.
+   entire DOM tree in which the <a href="#context-node">context node</a> is
+   located. If there is no such node, the method <em class=ct>must</em>
+   return <code>null</code>.
 
   <p>If the <var>selectors</var> argument is a <a
    href="#selector-string">selector string</a>, or it is a <a
@@ -508,15 +510,10 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <code><a href="#dom-node-selector">NodeSelector</a></code> interface <em
    class=ct>must</em>, when invoked, return a <code>NodeList</code>
    containing all of the matching <code><a
-   href="#dom-element">Element</a></code> nodes within the <a
-   href="#subtrees">subtrees</a> of the <a href="#context-node">context
-   node</a>'s parent node, in <a href="#document-order">document order</a>.
-   If there are no such nodes, the method <em class=ct>must</em> return an
-   empty <code>NodeList</code>.
-
-  <p class=issue>The above definition doesn't quite work when a scoped
-   selector string is used and the context node is an a disconnected Element
-   node with no parent.
+   href="#dom-element">Element</a></code> nodes within the entire DOM tree in
+   which the <a href="#context-node">context node</a> is located, in <a
+   href="#document-order">document order</a>. If there are no such nodes, the
+   method <em class=ct>must</em> return an empty <code>NodeList</code>.
 
   <p>The <code>NodeList</code> object returned by the <code><a
    href="#queryselectorall0">querySelectorAll()</a></code> method <em
@@ -530,7 +527,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    contain a list of matching <code><a href="#dom-element">Element</a></code>
    nodes that were in the document at the time the list was created.
 
-  <h3 id=matchtesting><span class=secno>6.2 </span>Testing Matching Elements</h3>
+  <h3 id=matchtesting><span class=secno>6.2 </span>Matching Elements</h3>
 
   <pre class=idl>module dom {
   [Supplemental]
@@ -653,6 +650,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   <h3 id=processing-reference-nodes><span class=secno>6.4 </span>Processing
    Reference Nodes</h3>
 
+  <p>The <dfn id=steps-for-determining-reference-nodes>steps for determining
+   reference nodes</dfn> are as follows:
+
   <p>If the <code>refNodes</code> parameter is an <code><a
    href="#dom-element">Element</a></code> node, then that element is a <a
    href="#contextual-reference-element">contextual reference element</a>.
@@ -764,6 +764,11 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    accept <var>feature</var> and <var>version</var> parameters, using the
    values "<code title="">Selectors-API</code>" and "<code>1.0</code>"
    (respectively).
+
+  <p class=note>The version parameter has been intentionally left as
+   "<code>1.0</code>". This is intended only as a way to detect the presence
+   of some level of support, rather than being able claim support for a
+   specific level of this API.
 
   <p>Conforming implementations <em class=ct>must</em> respond with a
    <code>true</code> value when the <code>hasFeature</code> method is queried
