@@ -332,62 +332,77 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   interface <dfn id="dom-node-selector">NodeSelector</dfn> {
     Element   <span title="queryselector">querySelector</span>(in DOMString selectors[, in Any refNodes]);
     NodeList  <span title="queryselectorall">querySelectorAll</span>(in DOMString selectors[, in Any refNodes]);
+    Element   <span title="queryselector">queryScopedSelector</span>(in DOMString selectors[, in Any refNodes]);
+    NodeList  <span title="queryselectorall">queryScopedSelectorAll</span>(in DOMString selectors[, in Any refNodes]);
   };
   Document implements NodeSelector;
   DocumentFragment implements NodeSelector;
   Element implements NodeSelector;
 };</pre>
-	<p>The <var>selectors</var> argument accepts either a <span>selector string</span>
-	   or a <span>scoped selector string</span>.</p>
+	<p>The <var>selectors</var> argument for the <code>querySelector</code> and
+	   <code>querySelectorAll</code> method accepts a <span>selector string</span>.
+
+	<p>The <var>selectors</var> argument for the <code>queryScopedSelector</code>
+	   and <code>queryScopedSelectorAll</code> methods accepts a <span>scoped
+	   selector string</span>.
 
 	<p>The optional <var>refNodes</var> argument specifies one or more
-	   <span>contextual reference element</span> nodes. The implementation
-	   <em class="ct">must</em> process this argument according to the
-	   <span>steps for determining reference nodes</span>.</p>
+	   <span>contextual reference element</span> nodes.</p>
+
+	<p>When either method is invoked, the implementation must follow these steps.</p>
 
 	<p>If the <var>selectors</var> argument is a <span>selector string</span>,
-	   or it is a <span>scoped selector string</span> and the <span>context node</span>
-	   is not an <code>Element</code> node, the
-	   <dfn title="queryselector"><code>querySelector()</code></dfn> method
-	   on the <code>NodeSelector</code> interface <em class="ct">must</em>, when
-	   invoked, return the <span>first</span> matching <code>Element</code> node
+	   let <var>parsed selector</var> be the result of running the algorithm
+	   to <span>parse a selector</span> with <var>selectors</var> as the
+	   input.</p>
+
+	<p>If the <var>selectors</var> argument is a <span>scoped selector string</span>,
+	   let <var>parsed selector</var> be the result of running the algorithm
+	   to <span>parse a scoped selector</span> using <var>selectors</var> as
+	   the input.</p>
+
+	<p>Let <var>reference nodes</var> be the result of running the algorithm
+	   to <span>determine contextual reference nodes</span> using
+	   <var>refNodes</var> as the input.</p>
+
+	<p>The implementation must then <span>evaluate the selector</span> against
+	   element nodes in the tree using <var>parsed selector</var> as
+	   the selector and <var>reference nodes</var> as the <span>contextual
+	   reference element</span> nodes, as needed to return the required result for
+	   invoked method.</p>
+
+	<p>The <dfn title="queryselector"><code>querySelector()</code></dfn> method
+	   on the <code>NodeSelector</code> interface <em class="ct">must</em>
+	   return the <span>first</span> matching <code>Element</code> node
 	   within the <span>subtrees</span> of the <span>context node</span>. If
 	   there is no such node, the method <em class="ct">must</em> return
 	   <code>null</code>.</p>
 
-	<p>Otherwise, If the <var>selectors</var> argument is a <span>scoped selector string</span>
-	   and the <span>context node</span> is an <code>Element</code> node, the
-	   <dfn title="queryselector"><code>querySelector()</code></dfn> method
+	<p>The <dfn title="queryselector"><code>queryScopedSelector()</code></dfn> method
 	   on the <code>NodeSelector</code> interface <em class="ct">must</em>, when
 	   invoked, return the <span>first</span> matching <code>Element</code> node
 	   within the entire DOM tree in which the <span>context node</span> is
 	   located.  If there is no such node, the method <em class="ct">must</em>
 	   return <code>null</code>.</p>
 
-	<p>If the <var>selectors</var> argument is a <span>selector string</span>,
-	   or it is a <span>scoped selector string</span> and the <span>context node</span>
-	   is not an <code>Element</code> node, the
-	   <dfn title="queryselectorall"><code>querySelectorAll()</code></dfn>
-	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes within the <span>subtrees</span> of
-	   the <span>context node</span>, in <span>document order</span>. If there
+	<p>The <dfn title="queryselectorall"><code>querySelectorAll()</code></dfn>
+	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>
+	   return a <code>NodeList</code> containing all of the matching
+	   <code>Element</code> nodes within the <span>subtrees</span> of the
+	   <span>context node</span>, in <span>document order</span>. If there
 	   are no such nodes, the method <em class="ct">must</em> return an empty
 	   <code>NodeList</code>.</p>
 
-	<p>Otherwise, If the <var>selectors</var> argument is a <span>scoped selector string</span>
-	   and the <span>context node</span> is an <code>Element</code> node, the
-	   <dfn title="queryselectorall"><code>querySelectorAll()</code></dfn>
-	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>,
-	   when invoked, return a <code>NodeList</code> containing all of the
-	   matching <code>Element</code> nodes within the entire DOM tree in which
-	   the <span>context node</span> is located, in <span>document order</span>.
-	   If there are no such nodes, the method <em class="ct">must</em> return an
-	   empty <code>NodeList</code>.</p>
+	<p>The <dfn title="queryselectorall"><code>queryScopedSelectorAll()</code></dfn>
+	   method on the <code>NodeSelector</code> interface <em class="ct">must</em>
+	   return a <code>NodeList</code> containing all of the matching <code>Element</code>
+	   nodes within the entire DOM tree in which the <span>context node</span>
+	   is located, in <span>document order</span>. If there are no such nodes,
+	   the method <em class="ct">must</em> return an empty <code>NodeList</code>.</p>
 
 	<p>The <code>NodeList</code> object returned by the <code>querySelectorAll()</code>
-	   method <em class="ct">must</em> be static, not
-	   <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>
+	   and <code>queryScopedSelectorAll()</code> methods <em class="ct">must</em>
+	   be static, not <a href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live" title="Document Object Model Core">live</a>
 	   ([[!DOM-LEVEL-3-CORE]], section 1.1.1). Subsequent changes to the
 	   structure of the underlying document <em class="ct">must not</em> be
 	   reflected in the <code>NodeList</code> object. This means that the object
@@ -428,14 +443,18 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <em class="ct">should not</em> use <span title="need-to-resolve">namespace
 	   prefixes that need to be resolved</span>.</p>
 
-	<p>A <dfn>scoped selector string</dfn> is a string beginning with either a
-	   U+0021 EXCLAMATION MARK character or a combinator, followed by a	
+	<p>A <dfn>scoped selector string</dfn> is a	
 	   <a href="http://www.w3.org/TR/css3-selectors/#grouping">group of selectors</a>
-	   ([[!SELECT]], section 5), where each selector in the group has had the first
-	   sequence of simple selectors omitted.</p>
+	   ([[!SELECT]], section 5), with a modified syntax, where each selector in
+	   the group may have the first sequence of simple selectors omitted
+	   and begin with a combinator.</p>
 
-	<p class="issue">The use of an exclamation point may change to a different character.
-	   Need to discuss the issue with the CSSWG to find the most appropriate char to use.</p>
+	<p>The <dfn><code>selector</code> production</dfn> for a scoped selector differs from
+	   that defined in Selectors, in the following way:</p>
+
+	<pre>selector
+  : [ combinator ]? simple_selector_sequence [ combinator simple_selector_sequence ]*
+  ;</pre>
 
 	<p class="note">Implementers are advised that if <code>null</code> or
 	   <code>undefined</code> are passed as the value of the <var>selectors</var>
@@ -448,34 +467,64 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   Therefore, authors are advised to avoid the use of pseudo-elements in
 	   selectors that are passed to the methods defined in this specification.</p>
 
-	<p>The implementation <em class="ct">must</em> first trim any leading and/or
-	   trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace" title="Selectors">whitespace</a>
-	   from the value of the <var>selectors</var> argument.
+	<p>The steps for <dfn>parsing a selector</dfn> are as follows:
+
+	<ol>
+		<li>Let <var>input</var> be the input to this algorithm.</li>
 	
-	<p>If the resulting string begins with a character matching the
-	   <code>combinator</code> production ([[!SELECT]], section 10), then the
-	   argument is a <span>scoped selector string</span>.</p>
+		<li>The implementation <em class="ct">must</em> first trim any leading and/or
+		   trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace" title="Selectors">whitespace</a>
+		   from <var>input</var>.</li>
 
-	<p>Otherwise, if the resulting string begins with a U+0021 EXCLAMATION POINT
-	   character, then remove that character and the argument is a
- 	   <span>scoped selector string</span>.</p>
+		<li>Let <var>result</var> be the group of selectors returned as a result
+		    of parsing the <var>input</var> according to
+		    <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the
+		    grammar of Selectors</a> ([[!SELECT]], section 10).</li>
+		<li>Return <var>result</var>.</li>
+	</ol>
 
-	<p>Otherwise the argument is a <span>selector string</span>.</p>
+	<p>The steps for <dfn>parsing a scoped selector</dfn> are as follows:
 
-	<p>The implementation <em class="ct">must</em> then process the value
-	   according to <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the
-	   grammar of Selectors</a> ([[!SELECT]], section 10).  If the argument is a
-	   <span>scoped selector string</span>, then for each selector in the group
-	   of selectors, imply the presence of the simple selector
-	   <code title="reference-pseudo">:reference</code> at the beginning of each,
-	   and, if the selector did not begin with a combinator, imply the presence
-	   of a descendant combinator.</p>
+	<ol>
+		<li>Let <var>input</var> be the string being parsed.</li>
+
+		<li>The implementation <em class="ct">must</em> first trim any leading and/or
+		   trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace" title="Selectors">whitespace</a>
+		   from <var>input</var>.</li>
+
+		<li>Let <var>result</var> be the group of selectors returned as a result
+		    of parsing the <var>input</var> according to
+		    <a href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the
+		    grammar of Selectors</a> ([[!SELECT]], section 10), substituting the
+		    <span title="selector production">production for <code>selector</code></span>
+		    as defined above.</li>
+
+		<li>For each selector in <var>result</var> that begins with a combinator,
+		    insert the simple selector <code title="reference-pseudo">:reference</code>
+		    at the beginning.</li>
+
+		<li>For each selector in <var>result</var> that begins with a sequence
+		    of simple selectors, if the first sequence of simple selectors
+		    contains the <code>:reference</code> pseudo-class, do nothing.</li>
+
+		<li>For each remaining selector in <var>result</var> that begins with a
+		    sequence of simple selectors, if the first sequence of simple
+		    selectors does not contain the <code>:reference</code> pseudo-class,
+		    the simple selector <code title="reference-pseudo">:reference</code>
+		    followed by a descendant combinator at the beginning.</li>
+		<li>Return <var>result</var>.</li>
+	</ol>
 
 	<div class="example">
-		<p>For example, if the <code>selectors</code> argument is “<code>!div div, >p, +p"</code>”
-		   the processing will result in the selector being equivalent to
+		<p>For example, if the <span>scoped selector string</span> is
+		   “<code>div div, >p, :reference+p"</code>” the processing will result
+		   in the selector being equivalent to
 		   “<code>:reference div div, :reference>p, :reference+p</code>”</p>
 	</div>
+
+	<p>The steps to <dfn>evaluate a selector</dfn> are as follows:</p>
+
+	<p class="issue">TODO</p>
 
 	<p>Selectors are evaluated against a given element in the context of the
 	   entire DOM tree in which the element is located. If the given group of
@@ -491,28 +540,38 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<h3>Processing Reference Nodes</h3>
 
-	<p>The <dfn>steps for determining reference nodes</dfn> are as follows:</p>
+	<p>The steps to <dfn>determine contextual reference nodes</dfn> are as follows:</p>
 
-	<p>If the <code>refNodes</code> parameter is an <code>Element</code> node, then that element
-	   is a <span>contextual reference element</span>.</p>
+	<ol>
+		<li>Let <var>input</var> be the value that is being processed.</li>
+		<li>Let <var>result</var> be an intially empty collection of <code>Element</code>
+		    nodes.</li>
+		<li>If the <var>input</var> is an <code>Element</code> node, then that
+		    append that element to the <var>result</var> collection.</li>
 
-	<p>If the <code>refNodes</code> parameter is a <code>NodeList</code>, and it
-	   contains <code>Element</code> nodes, then all <code>Element</code> nodes
-	   contained within that <code>NodeList</code> are <span>contextual reference
-	   element</span> nodes.  Any other node types within the <code>NodeList</code>
-	   are ignored.</p>
+		<li>If <var>input</var> is a <code>NodeList</code> or <code>HTMLCollection</code>,
+		    then append each <code>Element</code> node contained within it to
+		    the <var>result</var> collection.</li>
 
-	<p>If the <code>refNodes</code> parameter is an Array, and it
-	   contains <code>Element</code> nodes, then all <code>Element</code> nodes
-	   contained within that array are <span>contextual reference
-	   element</span> nodes.  Any other types of objects within the array are
-	   ignored.</p>
+		<li>If <var>input</var> is an <code>Array</code> or other object with indexable
+		    properties, then iterate through <var>input</var> to find and append each
+		    <code>Element</code> node contained within it to the <var>result</var>
+		    collection.</li>
 
-	<p>Otherwise, if the <span>context node</span> is a <code>Document</code>
-	   node, then the <code>documentElement</code> of the given document is a
-	   <span>contextual reference element</span>.  If the <span>context node</span>
-	   is an <code>Element</code> node, then the <span>context node</span> is a
-	   <span>contextual reference element</span>.</p>
+		<li>If <var>results</var> is still an empty collection and the
+		    <span>context node</span> is an <code>Element</code> node, append
+		    the <span>context node</span> to the <var>result</var> collection.</li>
+		
+		<li>Otherwise, if <var>results</var> is still an empty collection and
+		    the <span>context node</span> is a <code>Document</code> node, then
+		    append the <code>documentElement</code> of the given document, if
+		    any, to the <var>result</var> collection.</li>
+
+		<li>Return <var>result</var>.</li>
+	</ol>
+
+	<p class="note">The result may still be an empty collection at the end of
+	   that process.</p>
 
 
 	<h3>Resolving Namespaces</h3>
