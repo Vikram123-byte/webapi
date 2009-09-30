@@ -32,14 +32,14 @@
 		conforming to the DOM specification template (if there is such a thing) is
 		just silly so we got stuck with this weird name. -->
    
-   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 29 September
+   <h2 class="no-num no-toc" id=W3C-doctype>W3C Working Draft 30 September
     2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-selectors-api-20090929/">http://www.w3.org/TR/2009/ED-selectors-api-20090929/</a>
+     href="http://www.w3.org/TR/2009/ED-selectors-api-20090930/">http://www.w3.org/TR/2009/ED-selectors-api-20090930/</a>
 
     <dt>Latest Version:
 
@@ -444,10 +444,10 @@ for (var i = 0; i &lt; vlinks.length; i++) {
   <pre class=idl>module dom {
   [Supplemental, NoInterfaceObject]
   interface <dfn id=dom-node-selector>NodeSelector</dfn> {
-    Element   <a href="#queryscopedselector" title=queryselector>querySelector</a>(in DOMString selectors[, in Any refNodes]);
-    NodeList  <a href="#queryscopedselectorall" title=queryselectorall>querySelectorAll</a>(in DOMString selectors[, in Any refNodes]);
-    Element   <a href="#queryscopedselector" title=queryselector>queryScopedSelector</a>(in DOMString selectors[, in Any refNodes]);
-    NodeList  <a href="#queryscopedselectorall" title=queryselectorall>queryScopedSelectorAll</a>(in DOMString selectors[, in Any refNodes]);
+    Element   <a href="#queryselector" title=queryselector>querySelector</a>(in DOMString selectors[, in Any refNodes]);
+    NodeList  <a href="#queryselectorall" title=queryselectorall>querySelectorAll</a>(in DOMString selectors[, in Any refNodes]);
+    Element   <a href="#queryscopedselector" title=queryscopedselector>queryScopedSelector</a>(in DOMString selectors);
+    NodeList  <a href="#queryscopedselectorall" title=queryscopedselectorall>queryScopedSelectorAll</a>(in DOMString selectors);
   };
   Document implements NodeSelector;
   DocumentFragment implements NodeSelector;
@@ -455,14 +455,14 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 };</pre>
 
   <p>The <var>selectors</var> argument for the <code><a
-   href="#queryscopedselector">querySelector</a></code> and <code><a
-   href="#queryscopedselectorall">querySelectorAll</a></code> method accepts
-   a <a href="#selector-string">selector string</a>.
+   href="#queryselector">querySelector</a></code> and <code><a
+   href="#queryselectorall">querySelectorAll</a></code> method accepts a <a
+   href="#selector-string">selector string</a>.
 
-  <p>The <var>selectors</var> argument for the
-   <code>queryScopedSelector</code> and <code>queryScopedSelectorAll</code>
-   methods accepts a <a href="#scoped-selector-string">scoped selector
-   string</a>.
+  <p>The <var>selectors</var> argument for the <code><a
+   href="#queryscopedselector">queryScopedSelector</a></code> and <code><a
+   href="#queryscopedselectorall">queryScopedSelectorAll</a></code> methods
+   accepts a <a href="#scoped-selector-string">scoped selector string</a>.
 
   <p>The optional <var>refNodes</var> argument specifies one or more <a
    href="#contextual-reference-element">contextual reference element</a>
@@ -473,21 +473,24 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
   <p>If the <var>selectors</var> argument is a <a
    href="#selector-string">selector string</a>, let <var>parsed
-   selector</var> be the result of running the algorithm to <span>parse a
-   selector</span> with <var>selectors</var> as the input.
+   selector</var> be the result of running the algorithm to <a
+   href="#parse-a-selector">parse a selector</a> with <var>selectors</var> as
+   the input.
 
   <p>If the <var>selectors</var> argument is a <a
    href="#scoped-selector-string">scoped selector string</a>, let <var>parsed
-   selector</var> be the result of running the algorithm to <span>parse a
-   scoped selector</span> using <var>selectors</var> as the input.
+   selector</var> be the result of running the algorithm to <a
+   href="#parse-a-scoped-selector">parse a scoped selector</a> using
+   <var>selectors</var> as the input.
 
   <p>Let <var>reference nodes</var> be the result of running the algorithm to
    <a href="#determine-contextual-reference-nodes">determine contextual
-   reference nodes</a> using <var>refNodes</var> as the input.
+   reference nodes</a> using <var>refNodes</var> as the input, if provided.
 
-  <p>The implementation must then <span>evaluate the selector</span> against
-   element nodes in the tree using <var>parsed selector</var> as the selector
-   and <var>reference nodes</var> as the <a
+  <p>The implementation must then run the algorithm to <a
+   href="#evaluate-a-selector">evaluate a selector</a> against element nodes
+   in the tree using <var>parsed selector</var> as the selector and
+   <var>reference nodes</var> as the <a
    href="#contextual-reference-element">contextual reference element</a>
    nodes, as needed to return the required result for invoked method.
 
@@ -500,15 +503,6 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    node</a>. If there is no such node, the method <em class=ct>must</em>
    return <code>null</code>.
 
-  <p>The <dfn id=queryscopedselector
-   title=queryselector><code>queryScopedSelector()</code></dfn> method on the
-   <code><a href="#dom-node-selector">NodeSelector</a></code> interface <em
-   class=ct>must</em>, when invoked, return the <a href="#first">first</a>
-   matching <code><a href="#dom-element">Element</a></code> node within the
-   entire DOM tree in which the <a href="#context-node">context node</a> is
-   located. If there is no such node, the method <em class=ct>must</em>
-   return <code>null</code>.
-
   <p>The <dfn id=queryselectorall
    title=queryselectorall><code>querySelectorAll()</code></dfn> method on the
    <code><a href="#dom-node-selector">NodeSelector</a></code> interface <em
@@ -519,9 +513,18 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    such nodes, the method <em class=ct>must</em> return an empty
    <code>NodeList</code>.
 
-  <p>The <dfn id=queryscopedselectorall
-   title=queryselectorall><code>queryScopedSelectorAll()</code></dfn> method
+  <p>The <dfn id=queryscopedselector
+   title=queryscopedselector><code>queryScopedSelector()</code></dfn> method
    on the <code><a href="#dom-node-selector">NodeSelector</a></code>
+   interface <em class=ct>must</em>, when invoked, return the <a
+   href="#first">first</a> matching <code><a
+   href="#dom-element">Element</a></code> node within the entire DOM tree in
+   which the <a href="#context-node">context node</a> is located. If there is
+   no such node, the method <em class=ct>must</em> return <code>null</code>.
+
+  <p>The <dfn id=queryscopedselectorall
+   title=queryscopedselectorall><code>queryScopedSelectorAll()</code></dfn>
+   method on the <code><a href="#dom-node-selector">NodeSelector</a></code>
    interface <em class=ct>must</em> return a <code>NodeList</code> containing
    all of the matching <code><a href="#dom-element">Element</a></code> nodes
    within the entire DOM tree in which the <a href="#context-node">context
@@ -530,9 +533,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <code>NodeList</code>.
 
   <p>The <code>NodeList</code> object returned by the <code><a
-   href="#queryscopedselectorall">querySelectorAll()</a></code> and
-   <code>queryScopedSelectorAll()</code> methods <em class=ct>must</em> be
-   static, not <a
+   href="#queryselectorall">querySelectorAll()</a></code> and <code><a
+   href="#queryscopedselectorall">queryScopedSelectorAll()</a></code> methods
+   <em class=ct>must</em> be static, not <a
    href="http://www.w3.org/TR/DOM-Level-3-Core/core.html#td-live"
    title="Document Object Model Core">live</a> (<a href="#DOM-LEVEL-3-CORE"
    rel=biblioentry>[DOM-LEVEL-3-CORE]<!--{{!DOM-LEVEL-3-CORE}}--></a>,
@@ -556,6 +559,23 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    href="#scoped-selector-string">scoped selector string</a>.
 
   <p>The optional <var>refNodes</var> argument specifies one or more <a
+   href="#contextual-reference-element">contextual reference element</a>
+   nodes.
+
+  <p>When the method is invoked, the implementation must follow these steps.
+
+  <p>Let <var>parsed selector</var> be the result of running the algorithm to
+   <a href="#parse-a-selector">parse a selector</a> with <var>selectors</var>
+   as the input.
+
+  <p>Let <var>reference nodes</var> be the result of running the algorithm to
+   <a href="#determine-contextual-reference-nodes">determine contextual
+   reference nodes</a> using <var>refNodes</var> as the input, if provided.
+
+  <p>The implementation must then run the algorithm to <a
+   href="#evaluate-a-selector">evaluate a selector</a> against the <a
+   href="#context-node">context node</a> using <var>parsed selector</var> as
+   the selector and <var>reference nodes</var> as the <a
    href="#contextual-reference-element">contextual reference element</a>
    nodes.
 
@@ -612,7 +632,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    authors are advised to avoid the use of pseudo-elements in selectors that
    are passed to the methods defined in this specification.
 
-  <p>The steps for <dfn id=parsing-a-selector>parsing a selector</dfn> are as
+  <p>The steps to <dfn id=parse-a-selector>parse a selector</dfn> are as
    follows:
 
   <ol>
@@ -631,53 +651,51 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    <li>Return <var>result</var>.
   </ol>
 
-  <p>The steps for <dfn id=parsing-a-scoped-selector>parsing a scoped
+  <p>The steps for <dfn id=parse-a-scoped-selector>parse a scoped
    selector</dfn> are as follows:
 
   <ol>
    <li>Let <var>input</var> be the string being parsed.
 
-   <li>The implementation <em class=ct>must</em> first trim any leading
-    and/or trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace"
-    title=Selectors>whitespace</a> from <var>input</var>.
-
-   <li>Let <var>result</var> be the group of selectors returned as a result
-    of parsing the <var>input</var> according to <a
-    href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of
-    Selectors</a> (<a href="#SELECT"
-    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 10), substituting
-    the <a href="#selector-production" title="selector production">production
-    for <code>selector</code></a> as defined above.
-
-   <li>For each selector in <var>result</var> that begins with a combinator,
-    insert the simple selector <code title=reference-pseudo><a
-    href="#reference">:reference</a></code> at the beginning.
+   <li>Let <var>result</var> be the result of running the algorithm to <a
+    href="#parse-a-selector">parse a selector</a> with <var>input</var> as
+    the input.
 
    <li>For each selector in <var>result</var> that begins with a sequence of
-    simple selectors, if the first sequence of simple selectors contains the
-    <code>:reference</code> pseudo-class, do nothing.
-
-   <li>For each remaining selector in <var>result</var> that begins with a
-    sequence of simple selectors, if the first sequence of simple selectors
-    does not contain the <code>:reference</code> pseudo-class, the simple
-    selector <code title=reference-pseudo><a
-    href="#reference">:reference</a></code> followed by a descendant
-    combinator at the beginning.
+    simple selectors that does not contain the <code><a
+    href="#reference">:reference</a></code> pseudo-class, insert the simple
+    selector <code><a href="#reference">:reference</a></code> followed by a
+    descendant combinator at the beginning.
 
    <li>Return <var>result</var>.
   </ol>
 
   <div class=example>
    <p>For example, if the <a href="#scoped-selector-string">scoped selector
-    string</a> is “<code>div div, >p, :reference+p"</code>” the
-    processing will result in the selector being equivalent to
-    “<code>:reference div div, :reference>p, :reference+p</code>”</p>
+    string</a> is “<code>div div, :reference+p"</code>” the processing
+    will result in the selector being equivalent to “<code>:reference div
+    div, :reference+p</code>”</p>
   </div>
 
   <p>The steps to <dfn id=evaluate-a-selector>evaluate a selector</dfn> are
    as follows:
 
-  <p class=issue>TODO
+  <ol>
+   <li>Let <var>selector group</var> be the selector input into this
+    algotihm.
+
+   <li>Let <var>reference nodes</var> be the reference nodes input into this
+    algorithm.
+
+   <li>Let <var title="">element</var> be the element being evaluated.
+
+   <li>The <code><a href="#reference">:reference</a></code> pseudo class, if
+    used in <var>selector group</var>, must match any node within the
+    <var>reference nodes</var> collection.
+
+   <li>If any selector in <var>selector group</var> matches <var
+    title="">element</var>, return true. Otherwise, return false.
+  </ol>
 
   <p>Selectors are evaluated against a given element in the context of the
    entire DOM tree in which the element is located. If the given group of
@@ -701,7 +719,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    contextual reference nodes</dfn> are as follows:
 
   <ol>
-   <li>Let <var>input</var> be the value that is being processed.
+   <li>Let <var>input</var> be the value that is being processed, if any.
 
    <li>Let <var>result</var> be an intially empty collection of <code><a
     href="#dom-element">Element</a></code> nodes.
@@ -775,8 +793,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    also used.
 
   <h2 id=the-reference-pseudo-class><span class=secno>7 </span>The <dfn
-   id=reference title=reference-pseudo><code>:reference</code></dfn>
-   Pseudo-Class</h2>
+   id=reference><code>:reference</code></dfn> Pseudo-Class</h2>
 
   <p class=issue>This section is expected to be moved to the Selectors Level
    4 specification when the CSSWG begins work. It is defined here only
@@ -790,9 +807,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    selector is being evaluated. There may be more than one such element in a
    given context.
 
-  <p>The <code>:reference</code> pseudo-class <em class=ct>must</em> match
-   any element that is a <a href="#contextual-reference-element">contextual
-   reference element</a>.
+  <p>The <code><a href="#reference">:reference</a></code> pseudo-class <em
+   class=ct>must</em> match any element that is a <a
+   href="#contextual-reference-element">contextual reference element</a>.
 
   <p>When a given element is being evaluated against a given selector in a
    given context, there may be one or more <a
