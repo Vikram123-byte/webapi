@@ -330,8 +330,8 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	<pre class="idl">module dom {
   [Supplemental, NoInterfaceObject]
   interface <dfn id="dom-node-selector">NodeSelector</dfn> {
-    Element   <span title="queryselector">querySelector</span>(in DOMString selectors[, in Any refNodes]);
-    NodeList  <span title="queryselectorall">querySelectorAll</span>(in DOMString selectors[, in Any refNodes]);
+    Element   <span title="queryselector">querySelector</span>(in DOMString selectors, in optional any refNodes);
+    NodeList  <span title="queryselectorall">querySelectorAll</span>(in DOMString selectors, in optional any refNodes);
     Element   <span title="queryscopedselector">queryScopedSelector</span>(in DOMString selectors);
     NodeList  <span title="queryscopedselectorall">queryScopedSelectorAll</span>(in DOMString selectors);
   };
@@ -414,7 +414,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 		<pre class="idl">module dom {
   [Supplemental]
   interface <dfn id="dom-element">Element</dfn> {
-    boolean   <span title="matchesselector">matchesSelector</span>(in DOMString selectors[, in Any refNodes]);
+    boolean   <span title="matchesselector">matchesSelector</span>(in DOMString selectors, in optional any refNodes]);
   };
 };</pre>
 
@@ -507,9 +507,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 		    <span>parse a selector</span> with <var>input</var> as the input.</li>
 
 		<li>For each selector in <var>result</var> that begins with a sequence
-		    of simple selectors that does not contain the <code>:reference</code>
+		    of simple selectors that does not contain the <code>:-x-scope</code>
 		    pseudo-class, insert the simple selector
-		    <code>:reference</code> followed by a
+		    <code>:-x-scope</code> followed by a
 		    descendant combinator at the beginning.</li>
 
 		<li>Return <var>result</var>.</li>
@@ -517,9 +517,9 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 
 	<div class="example">
 		<p>For example, if the <span>scoped selector string</span> is
-		   “<code>div div, :reference+p"</code>” the processing will result
+		   “<code>div div, :-x-scope+p"</code>” the processing will result
 		   in the selector being equivalent to
-		   “<code>:reference div div, :reference+p</code>”</p>
+		   “<code>:-x-scope div div, :-x-scope+p</code>”</p>
 	</div>
 
 	<p>The steps to <dfn>evaluate a selector</dfn> are as follows:</p>
@@ -528,7 +528,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 		<li>Let <var>selector group</var> be the selector input into this algotihm.</li>
 		<li>Let <var>reference nodes</var> be the reference nodes input into this algorithm.</li>
 		<li>Let <var title="">element</var> be the element being evaluated.</li>
-		<li>The <code>:reference</code> pseudo class, if used in <var>selector group</var>,
+		<li>The <code>:-x-scope</code> pseudo class, if used in <var>selector group</var>,
 		    must match any node within the <var>reference nodes</var> collection.</li>
 		<li>If any selector in <var>selector group</var> matches <var title="">element</var>, return true.
 		    Otherwise, return false.</li>
@@ -610,7 +610,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   Selectors [[!SELECT]] and DOM Level 3 Core [[!DOM-LEVEL-3-CORE]] are also used.</p>
 
 
-	<h2>The <dfn><code>:reference</code></dfn> Pseudo-Class</h2>
+	<h2>The <dfn><code>:-x-scope</code></dfn> Pseudo-Class</h2>
 
 	<p class="issue">This section is expected to be moved to the Selectors Level 4
 	   specification when the CSSWG begins work. It is defined here only because
@@ -622,7 +622,7 @@ for (var i = 0; i &lt; vlinks.length; i++) {
 	   <code>Element</code> node within the context in which a selector is being
 	   evaluated.  There may be more than one such element in a given context.</p>
 
-	<p>The <code>:reference</code> pseudo-class <em class="ct">must</em> match
+	<p>The <code>:-x-scope</code> pseudo-class <em class="ct">must</em> match
 	   any element that is a <span>contextual reference element</span>.</p>
 
 	<p>When a given element is being evaluated against a given selector in a given
