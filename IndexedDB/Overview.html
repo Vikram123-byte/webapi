@@ -11,7 +11,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>WebSimpleDB API</title>
-    <meta name="revision" content="$Id: Overview.html,v 1.10 2009-10-02 17:21:57 nmehta3 Exp $" />
+    <meta name="revision" content="$Id: Overview.html,v 1.11 2009-10-02 18:42:22 nmehta3 Exp $" />
     <link rel="stylesheet" href="SimpleDB.css" type="text/css" />
     <script src="section-links.js" type="application/ecmascript"></script>
     <script src="dfn.js" type="application/ecmascript"></script>
@@ -203,12 +203,8 @@ prepareDatabase(function(txn) {
       });
     });
 db.transaction(function(txn) {
-  var cursor = txn.getEntityStore('books').getIndex('BookAuthor');
-  var matching = null;
-  index.forEach(author, function(book) {
-    matching = book;
-    return true;
-  });
+  var index = txn.getEntityStore('books').getIndex('BookAuthor');
+  var matching = index.get(author);
   if (matching)
     report(matching.isbn, matching.name, matching.author);
   else
@@ -1220,7 +1216,7 @@ interface <dfn id="CursorEnabled">CursorEnabled</dfn> {
         <p>
           The <dfn id="cursor-delete"><code>delete()</code></dfn> method
           is used to delete the object at which the cursor is currently
-          positioned. The <a href="#delete" class="idltype"><code>delete()</code></a> 
+          positioned. The <a href="#cursor-delete" class="idltype"><code>delete()</code></a> 
           method will return false if this method is called more than once 
           inside a <a href="#CursorCallback"><code>CursorCallback</code></a>.
         </p>
