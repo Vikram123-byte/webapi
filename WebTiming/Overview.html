@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en"><head>
+
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Web Timing</title>
+<link rel="stylesheet" type="text/css" href="WebTiming.css">
+
+</head><body class="draft">
+
+<div class="head">
+	<h1>Web Timing</h1>
+	
+	<h2 class="no-num no-toc">Working Draft September 26th, 2009</h2>
+	
+	<dl>
+		<dt>This version:
+		</dt><dd><!--begin-link-->http://example.com/<!--end-link-->
+		
+		</dd><dt>Latest version:
+		</dt><dd><!--begin-link-->http://example.com/<!--end-link-->
+		
+		</dd><dt>Previous versions:
+		</dt><dd><!--begin-link-->http://example.com/<!--end-link-->
+		
+		</dd><dt>Editors:
+		</dt><dd class="vcard">
+			<span class="fn">Zhiheng Wang</span>,
+			<span class="org">Google Inc.</span>,
+			<span class="email">zhihengw@google.com</span>
+	</dd></dl>
+	
+        <p class="copyright">Copyright 2009, All Rights Reserved</p>
+</div>
+
+<h2 class="no-num no-toc">Abstract</h2>
+
+<p>This specification defines an interface for web applications to access timing information.
+
+</p><h2 class="no-num no-toc">Status of this document</h2>
+
+<p>This is a <strong>work in progress</strong> and may change without any
+notices.
+
+</p><p>If you wish to make comments regarding this document, please send them to
+zhihengw@google.com. All feedback is welcome.
+
+</p><h2 class="no-num no-toc">Table of Contents</h2>
+
+<!--toc-->
+
+
+<h2>Introduction</h2>
+<p>This section is non-normative</p>
+
+<p>User latency is an important quality benchmark for Web Applications.
+While JavaScript-based mechanisms can provide comprehensive instrumentations
+for user latency measurements within an application, in many cases, they are
+unable to provide a complete end-to-end latency picture.
+
+<div class="example">
+<!--<div class="exampleHeader">Example</div>-->
+<p>For example, the following Javascript shows the time it take to fully load a page:
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type="text/javascript"&gt;
+var start = new Date().getTime();
+function onLoad() {
+  var now = new Date().getTime();
+  var latency = now - start;
+  alert("page loading time: " + latency);
+}
+&lt;script&gt;
+&lt;/head&gt;
+&lt;body onload="onLoad()"&gt;
+&lt;!- Main page body goes from here. --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p></div>
+<p>The script calculates the time it takes to load the page
+<b>after</b> the first bit of JavaScript in the head is executed, but it
+does not give any information about the time it takes to get
+the page from the server.
+
+</p><p>To address the need for complete information on the user experience,
+this document introduces the <a href="#timing-0">Timing</a> interface.
+This interface allows JavaScript mechanisms to provide complete client-side
+latency measurements within applications. With the proposed interface, the
+previous example could be modified to provide information about user's perceived
+page load time.
+<div class="example">
+<!--<div class="exampleHeader">Example</div>-->
+<p>The following script calculates how much time has elapsed since the occurance
+of a navigation event, such as the mouse click on a link.
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+&lt;script type="text/javascript"&gt;
+function onLoad() {
+  var now = new Date().getTime();
+  var latency = now - window.pageTiming.navigationTime;
+  alert("User-perceived page loading time: " + latency);
+}
+&lt;script&gt;
+&lt;/head&gt;
+&lt;body onload="onLoad()"&gt;
+&lt;!- Main page body goes from here. --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+</p></div>
+
+
+</p><h2>Conformance requirements</h2>
+
+<p>All diagrams, examples, and notes in this specification are non-normative, as are all sections explicitly marked non-normative. Everything else in this specification is normative.
+
+</p><p>The key words "MUST", "MUST NOT", "REQUIRED", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in the normative parts of this document are to be interpreted as described in RFC2119. For readability, these words do not appear in all uppercase letters in this specification. <a href="#references">[RFC2119]</a>
+
+</p><p>Requirements phrased in the imperative as part of algorithms (such as "strip any leading space characters" or "return false and abort these steps") are to be interpreted with the meaning of the key word ("must", "should", "may", etc) used in introducing the algorithm.
+
+</p><p>Some conformance requirements are phrased as requirements on attributes, methods or objects. Such requirements are to be interpreted as requirements on user agents.
+
+</p><p>Conformance requirements phrased as algorithms or specific steps may be implemented in any manner, so long as the end result is equivalent. (In particular, the algorithms defined in this specification are intended to be easy to follow, and not intended to be performant.)
+
+</p><h2>Terminology</h2>
+<p>The construction "a <code title="">Foo</code> object", where
+<code title="">Foo</code> is actually an interface, is sometimes
+used instead of the more accurate "an object implementing the
+interface <code title="">Foo</code>".
+
+</p><p>The term DOM is used to refer to the API set made available to
+scripts in Web applications, and does not necessarily imply the
+existence of an actual <code>Document</code> object or of any other
+<code>Node</code> objects as defined in the DOM Core
+specifications. <a href="#references">[DOM3CORE]</a>
+
+</p><p>A DOM attribute is said to be <em>getting</em> when its value is
+being retrieved (such as by author script), and is said to be <em>setting</em> 
+when a new value is assigned to it.
+
+</p><p>The term "JavaScript" is used to refer to ECMA262, rather than
+the official term ECMAScript, since the term JavaScript is more
+widely known. <a href="#references">[ECMA262]</a>
+
+</p><h2>Web Application Timing</h2>
+<h3>Introduction</h3>
+<p>This section is non-normative</p>
+
+</p><p>This specification introduces an interface that provides
+Web applications with timing-related information.
+
+This specification does not cover how Web applications leverage these
+interfaces to collect, store and report the provided information.
+
+</p><h3>The <code><a href="#timing-0">Timing</a></code> interface</h3>
+<pre class="idl">interface <dfn id="timing-0">Timing</dfn> {
+  const unsigned short NAVIGATION_LINK = 0;
+  const unsigned short NAVIGATION_REDIRECT_SERVER = 1;
+  const unsigned short NAVIGATION_REDIRECT_META = 2;
+  const unsigned short NAVIGATION_REDIRECT_ONLOAD = 3;
+  const unsigned short NAVIGATION_REDIRECT_JAVASCRIPT = 4;
+  const unsigned short NAVIGATION_FORWARD_BACK = 5;
+  const unsigned short NAVIGATION_USER_BROWSER = 6;
+  const unsigned short NAVIGATION_NEW_WINDOW = 7;
+  const unsigned short NAVIGATION_RELOAD = 8;
+  const unsigned short NAVIGATION_IFRAME = 9;
+  const unsigned short NAVIGATION_OTHER = 15;
+
+  readonly attribute unsigned short <a href="#dom-timing-navigationtype"
+  title="dom-timing-navigationtype">navigationType</a>;
+
+  readonly attribute unsigned double <a href="#dom-timing-navigationtime"
+  title="dom-timing-navigationtime">navigationTime</a>;
+
+  readonly attribute unsigned double <a href="#dom-timing-redirectiontime"
+  title="dom-timing-redirectiontime">redirectionTime</a>;
+
+  readonly attribute unsigned float <a href="#dom-timing-dnstime" title="dom-timing-dnstime">domainLookupTime</a>;
+};
+</pre>
+
+</p><h4>The <code><a href="#dom-timing-navigationtype">navigationType</a></code> attribute</h4>
+
+<p>The <dfn id="dom-timing-navigationtype">navigationType</dfn> attribute must
+return the type of the last <a
+href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigation</a>
+event of the current document. It must have one of the following values:
+
+</p><dl>
+<dt><dfn id="dom-timing-navigation-link">NAVIGATION_LINK</dfn>:
+navigation started by clicking on a link on the previous page.</dt>
+<dt><dfn id="dom-timing-navigation-redirect-server">TRANSITION_REDIRECT_SERVER</dfn>:
+Navigation is any of 30x server redirections.</dt>
+<dt><dfn id="dom-timing-navigation-direct-meta">NAVIGATION_REDIRECT_META</dfn>:
+Client meta-refresh header redirection.</dt>
+<dt><dfn id="dom-timing-navigation-onload">NAVIGATION_REDIRECT_ONLOAD</dfn>:
+Client onload redirection</dt>
+<dt><dfn id="dom-timing-navigation-redirect-javascript">NAVIGATION_REDIRECT_JAVASCRIPT</dfn>:
+Javascript redirection.</dt>
+<dt><dfn id="dom-timing-navigation-forward-back">NAVIGATION_FORWARD_BACK</dfn>:
+Navigation through a forward or backward operation.</dt>
+<dt><dfn id="dom-timing-navigation-user-browser">NAVIGATION_USER_BROWSER</dfn>:
+Navigation by typing a url into the user agent's address bar. </dt>
+<dt><dfn id="dom-timing-navigation-new-window">NAVIGATION_NEW_WINDOW</dfn>:
+Current page is opened in a tab or window by the user agent.</dt>
+<dt><dfn id="dom-timing-navigation-reload">NAVIGATION_RELOAD</dfn>:
+Navigation through the reload operation.</dt>
+<dt><dfn id="dom-timing-navigation-iframe">NAVIGATION_IFRAME</dfn>:
+Navigation is initiated within an iframe.</dt>
+<dt><dfn id="dom-timing-navigation-other">NAVIGATION_OTHER</dfn>:
+Any other navigation types not defined by other values.</dt>
+</dl>
+
+</p><p>In top-level browsing context, the
+<a href="#dom-timing-navigationtype">navigationType</a> must not return 
+<a href="#dom-timing-navigation-iframe">NAVIGATION_IFRAME</a>.
+In case the current browsing context resides within an iframe, the <a
+href="#dom-timing-navigationtype">navigationType</a> must return
+<a href="#dom-timing-navigation-iframe">NAVIGATION_IFRAME</a>.
+
+
+</p><h4>The <code><a href="#dom-timing-navigationtime">navigationTime</a></code> attribute</h4>
+
+<p><dfn id="dom-timing-navigationtime">navigationTime</dfn> must
+return the number of milliseconds between midnight of January 1, 1970
+(UTC) and the time when the last <a
+href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigation</a>
+event was initiated.
+
+<div class="example"><div class="exampleHeader">Example</div>
+<p>Different user agents may use different events to signal the start of
+navigation, for example
+<ul>
+  <li>In Internet Explorer, the navigationTime can be the number of
+      milliseconds between midnight of January 1, 1970 (UTC) and the browser's
+      BeforeNavigate2 event</li>
+  <li>In FireFox, the navigationTime can be the number of milliseconds
+      between midnight of January 1, 1970 (UTC) and the time 
+      when the browser's nsIWebProgressListener.STATE_START state changes.</li>
+</ul>
+</p></div>
+
+<!--
+</p><p class="XXX">Fill in the Chrome example
+-->
+
+</p><h4>The <code><a href="#dom-timing-redirectiontime">redirectionTime</a></code> attribute</h4>
+<p><dfn id="dom-timing-redirectiontime">redirectionTime</dfn> must
+return the number of elapsed milliseconds between midnight of January 1, 1970
+(UTC) when the last non-server-redirection
+<a
+href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigation</a>
+event was initiated.
+
+</p><div class="example"><div class="exampleHeader"></div>
+<p><ul>
+  <li>When <a href="#dom-timing-navigationtype">navigationType</a> is not
+  TRANSITION_REDIRECT_SERVER, <a href="#dom-timing-redirectiontime">redirectionTime</a>
+  has the same value as <a href="#dom-timing-navigationtime">navigationTime</a>.</li>
+  <li>When <a href="#dom-timing-navigationtype">navigationType</a> is
+  TRANSITION_REDIRECT_SERVER, <a
+  href="#dom-timing-redirectiontime">redirectionTime</a> is the time in
+  millisecond between midnight of January 1, 1970 (UTC) and the time 
+  when the last non-server-redirection occurs. </li>
+</ul>
+</p></div>
+
+</p><h4>The <code><a href="#dom-timing-dnstime">domainLookupTime</a></code> attribute</h4>
+This attribute must return the number of milliseconds the user agent spends on
+domain name lookup for the current document. If the current document is
+retrieved from <a
+href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
+relevant application caches</a>, this attribute must return zero.
+
+
+</p><h3>The <code><a href="#">pageTiming</a></code> attribute</h3>
+
+<pre class="idl">interface Window {
+  readonly attribute <a href="#timing-0">Timing</a> pageTiming;
+};
+</pre>
+
+<p> The <dfn id="dom-window-pagetiming">pageTiming</dfn> attribute represents
+the timing information related to the current browsing context.
+Each browsing context must have a unique pageTiming attribute.
+
+
+<div class="example">
+  <!--<div class="exampleHeader">Example</div>-->
+<p> Following is an example of how to use the interface in an HTML page:
+<pre>
+var server_response_time = window.pageTiming.navigationTime;
+if (window.pageTiming.navigationType == window.pageTiming.NAVIGATION_LINK) {
+  alert (server_response_time);
+}
+</pre>
+</p></div>
+
+
+</p><h2>Processing model</h2>
+<p>User agents should always refresh the
+<a href="#dom-window-pagetiming">pageTiming</a> attribute when a
+<a
+  href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigation</a>
+event takes place, unless the navigation is aborted for any of the following
+reasons:
+<ul>
+  <li>The navigation is caused by
+  <a href="http://www.whatwg.org/specs/web-apps/current-work/#navigate-fragid-step"><em>fragment
+      identifiers</em></a> within the page.</li>
+  <li>The new resource is to be handled by some sort of inline content.</li>
+  <li>The new resource is to be handled using a mechanism that does not affect
+  the browsing context.</li>
+</ul>
+
+</p><p> Before the user agent checks with the
+<a href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
+relevant application caches</a>, it should carry out the following steps to
+create or refresh the <a href="#dom-window-pagetiming">pageTiming</a> attribute:
+<ul>
+  <li>The user agent should determine the type of the navigation and set the <a
+  href="#dom-timing-navigationtype">window.pageTiming.navigationType</a>
+  attribute to the appropriate values.</li>
+  <li>The user agent should set the <a href="#dom-timing-navigationtime">
+  window.pageTiming.navigationTime</a> to the elapsed milliseconds since
+  midnight of January 1, 1970 (UTC).</li>
+  <li>If the navigation is <em>not</em> initiated by a HTTP 300 response code,
+  the user agent should also set <a href="#dom-timing-redirectiontime">
+  window.pageTiming.redirectionTime</a> to the elapsed milliseconds since
+midnight of January 1, 1970 (UTC).</li>
+</ul>
+
+</p><p>If the resource is from the <a
+href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">relevant
+application caches</a>, <a
+href="#dom-timing-navigationtype">window.pageTiming.domainLookupTime</a> should
+be set to 0. Otherwise, on completion of the DNS lookup, the user agent should
+update the
+<a href="#dom-timing-navigationtype">window.pageTiming.domainLookupTime</a>
+attribute.
+
+<!--
+</p><p class="XXX">need some more details on when and what to set domainLookupTime
+-->
+
+</p><p>The granularity of the
+<a href="#dom-timing-navigationtime">navigationTime</a>,
+<a href="#dom-timing-redirectiontime">redirectionTime</a>
+and <a href="#dom-timing-dnstime">domainLookupTime</a> must be equal to or
+exceed the granularity of the <a
+  href="http://www.whatwg.org/specs/web-apps/current-work/#dates-and-times">
+  dates and times</a> objects.
+
+</p><p>Timing accuracy of no less than one millisecond is recommended.
+
+</p><h2>Privacy</h2>
+<p>This section is non-normative.
+
+</p><p>The <a href="#dom-timing">Timing</a> attribute does not contain any
+Personal Identifiable Information (PII). There is no obvious privacy concern
+at this time.
+
+
+</p><h2>Security</h2>
+<p>This section is non-normative.
+
+</p><p>
+The <a href="#dom-timing">Timing</a> attribute contains only relative timing
+information within the current
+<a href="http://www.whatwg.org/specs/web-apps/current-work/#browsing-context">browsing context</a>.
+Information passing across browsing contexts can be implemented with
+<a href="http://dev.w3.org/html5/webstorage">Web Storage</a>. Security concerns
+related to Web Storage are not discussed in this document.
+
+</p><h2 class="no-num">Acknowledgements</h2>
+
+<p>I would like to thank all the people that I have been in touch with regarding this draft.
+</p></body></html>
