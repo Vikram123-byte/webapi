@@ -35,13 +35,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 8 October 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 October 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091008/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091008/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091012/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091012/</a>
 
     <dt>Latest Version:
 
@@ -118,7 +118,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 8 October 2009 Editor's Draft of the XMLHttpRequest
+  <p>This is the 12 October 2009 Editor's Draft of the XMLHttpRequest
    specification. Please send comments to <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
@@ -442,18 +442,20 @@ client.send();</code></pre>
 
   <p>The terms and algorithms <dfn id=url-fragment>&lt;fragment></dfn>, <dfn
    id=url-scheme>&lt;scheme></dfn>, <dfn id=document-base-url>document base
-   URL</dfn>, <dfn id=event-handler-attributes-0>event handler
+   URL</dfn>, <dfn id="document's-character-encoding">document's character
+   encoding</dfn>, <dfn id=event-handler-attributes-0>event handler
    attributes</dfn>, <dfn id=event-handler-event-type>event handler event
    type</dfn>, <dfn id=fully-active>fully active</dfn>, <dfn
    id=function><code>Function</code></dfn>, <dfn id=dom-innerhtml
    title=dom-innerHTML><code>innerHTML</code></dfn>, <dfn
-   id=origin>origin</dfn>, <dfn id=resolve-a-url>resolve a URL</dfn>, <dfn
+   id=origin>origin</dfn>, <dfn id=preferred-mime-name>preferred MIME
+   name</dfn>, <dfn id=resolve-a-url>resolve a URL</dfn>, <dfn
    id=same-origin>same origin</dfn>, <dfn id=storage-mutex>storage
    mutex</dfn>, <dfn id=task>task</dfn>, <dfn id=task-source>task
    source</dfn>, <dfn id=url>URL</dfn>, <dfn id=url-character-encoding>URL
-   character encoding</dfn>, and <dfn id=queue-a-task>queue a task</dfn> are
-   defined by the HTML&nbsp;5 specification. [<cite><a
-   href="#ref-html5">HTML5</a></cite>]</p>
+   character encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and
+   <dfn id=valid-mime-type>valid MIME type</dfn> are defined by the
+   HTML&nbsp;5 specification. [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
   <!-- XXX Things might be splitted out of HTML5 -->
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
@@ -469,9 +471,9 @@ client.send();</code></pre>
 
   <p>To <dfn id=dispatch-readystatechange-event>dispatch a
    <code>readystatechange</code> event</dfn> means that an event with the
-   name <code>readystatechange</code>, with no namespace, which does not
-   bubble and is not cancelable, and which uses the <code>Event</code>
-   interface, is to be dispatched at the <code><a
+   name <code>readystatechange</code>, which does not bubble and is not
+   cancelable, and which uses the <code>Event</code> interface, is to be
+   dispatched at the <code><a
    href="#xmlhttprequest">XMLHttpRequest</a></code> object.
 
   <h3 id=extensibility><span class=secno>2.3 </span>Extensibility</h3>
@@ -1115,66 +1117,57 @@ X-Test: one, two
     <p>If the <span>request method is <code>GET</code> or <code>HEAD</code>
      act as if <var>data</var> is <code>null</code>.</span></p>
 
-    <p>If the <var>data</var> argument has not been omitted and is not
-     <code>null</code> use it for the <a href="#request-entity-body">request
-     entity body</a> observing the following rules:</p>
+    <p>If the <var>data</var> argument has been omitted or is
+     <code>null</code>, do not include a <a
+     href="#request-entity-body">request entity body</a> and go to the next
+     step.</p>
+
+    <p>Otherwise, let <var>encoding</var> be UTF-8, <var>mime</var> be
+     <code>text/plain</code>, and then follow these rules:</p>
 
     <dl class=switch>
      <dt><var>data</var> is a <code>DOMString</code>
 
      <dd>
-      <p>Encode <var>data</var> using UTF-8 for transmission.</p>
-
-      <p>If a <code>Content-Type</code> header is set using <code><a
-       href="#setrequestheader">setRequestHeader()</a></code> and its value
-       is not malformed, set the <code>charset</code> parameter of that
-       header, by either changing the <code>charset</code> parameter (if one
-       is present) or appending one, to <code>UTF-8</code>.</p>
-
-      <p>If no <code>Content-Type</code> header has been set using <code><a
-       href="#setrequestheader">setRequestHeader()</a></code> set a
-       <code>Content-Type</code> request header with a value of
-       <code>text/plain;charset=UTF-8</code>.</p>
-      <!-- XXX not all UAs modify Content-Type -->
+      <p>Let the <a href="#request-entity-body">request entity body</a> be
+       <var>data</var> encoded as UTF-8.
 
      <dt><var>data</var> is a <code>Document</code>
 
      <dd>
-      <p>Let <var>tempdata</var> be the result of getting the <code
-       title=dom-innerHTML><a href="#dom-innerhtml">innerHTML</a></code>
-       attribute on the <var>data</var> object and encode it using
-       <code><var>data</var>.inputEncoding</code> or UTF-8 if
-       <code><var>data</var>.inputEncoding</code> is <code>null</code>.
-       Re-raise any exception this raises.</p>
+      <p>Let <var>encoding</var> be the <a
+       href="#preferred-mime-name">preferred MIME name</a> of the <a
+       href="#document's-character-encoding" title="document's character
+       encoding">character encoding</a> of <var>data</var>. If
+       <var>encoding</var> is UTF-16 change it to UTF-8.</p>
+
+      <p>Let <var>mime</var> be <code>application/xml</code>.</p>
+
+      <p>Let the <a href="#request-entity-body">request entity body</a> be
+       the result of getting the <code title=dom-innerHTML><a
+       href="#dom-innerhtml">innerHTML</a></code> attribute on
+       <var>data</var> and encode it using <var>encoding</var>. Re-raise any
+       exception this raises.</p>
 
       <p class=note>If the document cannot be serialized an
        <code>INVALID_STATE_ERR</code> exception is raised.</p>
 
-      <p>Let <var>data</var> be <var>tempdata</var>.</p>
-
-      <p>If a <code>Content-Type</code> header is set using <code><a
-       href="#setrequestheader">setRequestHeader()</a></code> and its value
-       is not malformed, set the <code>charset</code> parameter of that
-       header, by either changing the <code>charset</code> parameter (if one
-       is present) or appending one, to the encoding used to encode
-       <var>data</var>.</p>
-
-      <p>If no <code>Content-Type</code> header has been set using <code><a
-       href="#setrequestheader">setRequestHeader()</a></code> set a
-       <code>Content-Type</code> request header with a value of
-       <code>application/xml;charset=<var>charset</var></code> where
-       <var>charset</var> is the encoding used to encode <var>data</var>.</p>
-
       <p class=note>Subsequent changes to the <code>Document</code> have no
        effect on what is submitted.</p>
-      <!-- XXX not all UAs modify Content-Type
-               different algorithm for HTML? -->
-      
     </dl>
 
-    <p>If the <var>data</var> argument has been omitted, or is
-     <code>null</code>, no <a href="#request-entity-body">request entity
-     body</a> is used in the request.</p>
+    <p>If a <code>Content-Type</code> header is set using <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> and its value is
+     a <code><a href="#valid-mime-type">valid MIME type</a></code> and it has
+     a <code>charset</code> parameter whose value is not an <a
+     href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
+     <var>encoding</var>, set the <code>charset</code> parameter to
+     <var>encoding</var>.</p>
+
+    <p>If no <code>Content-Type</code> header has been set using <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> set a
+     <code>Content-Type</code> request header with a value of
+     <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
 
    <li>
     <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
