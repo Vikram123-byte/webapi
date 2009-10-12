@@ -244,6 +244,10 @@
   LATIN SMALL LETTER A to LATIN SMALL LETTER Z) with the corresponding
   characters in the range U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to
   LATIN CAPITAL LETTER Z).</p>
+  
+  <p><dfn id="dfn-obtain-unicode">convert a DOMString to a sequence of Unicode characters</dfn>
+  is defined by the Web IDL specification.
+  [<cite><span>WebIDL</span></cite>]</p>
 
   <p>The terms and algorithms
   <dfn id="url-fragment">&lt;fragment></dfn>,
@@ -345,7 +349,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
            attribute boolean <span>withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span>upload</span>;
   void <span>send</span>();
-  void <span>send</span>(ByteArray <var>data</var>);
+  void <span>send</span>(<var>XXX</var>);
   void <span>send</span>(Document <var>data</var>);
   void <span>send</span>([AllowAny] DOMString? <var>data</var>);
   void <span>abort</span>();
@@ -941,7 +945,7 @@ X-Test: one, two
     <p>If the <var>data</var> argument has been omitted or is
     <code>null</code>, do not include a <span>request entity body</span>
     and go to the next step.</p>
-    
+
     <p>Otherwise, let <var>encoding</var> be UTF-8, <var>mime</var> be
     <code>text/plain</code>, and then follow these rules:</p>
 
@@ -953,7 +957,8 @@ X-Test: one, two
      <dt><var>data</var> is a <code>DOMString</code></dt>
 
      <dd><p>Let the <span>request entity body</span> be <var>data</var>
-     encoded as UTF-8.</p></dd>
+     <span title="convert a DOMString to a sequence of Unicode characters">converted to Unicode</span>
+     and encoded as UTF-8.</p></dd>
 
      <dt><var>data</var> is a <code>Document</code>
 
@@ -968,10 +973,12 @@ X-Test: one, two
 
       <p>Let the <span>request entity body</span> be the result of getting
       the <code title="dom-innerHTML">innerHTML</code> attribute on
-      <var>data</var> and encode it using <var>encoding</var>. Re-raise any
-      exception this raises.</p>
+      <var>data</var>
+      <span title="convert a DOMString to a sequence of Unicode characters">converted to Unicode</span>
+      and encoded as <var>encoding</var>. Re-raise any exception this
+      raises.</p>
 
-      <p class="note">If the document cannot be serialized an
+      <p class="note">In particular, if the document cannot be serialized an
       <code>INVALID_STATE_ERR</code> exception is raised.</p>
 
       <p class="note">Subsequent changes to the <code>Document</code> have
