@@ -249,20 +249,23 @@
   <dfn id="url-fragment">&lt;fragment></dfn>,
   <dfn id="url-scheme">&lt;scheme></dfn>,
   <dfn id="document-base-url">document base URL</dfn>,
+  <dfn id="document's-character-encoding">document's character encoding</dfn>,
   <dfn id="event-handler-attributes-0">event handler attributes</dfn>,
   <dfn id="event-handler-event-type">event handler event type</dfn>,
   <dfn id="fully-active">fully active</dfn>,
   <dfn id="function"><code>Function</code></dfn>,
   <dfn id="dom-innerhtml" title="dom-innerHTML"><code>innerHTML</code></dfn>,
   <dfn id="origin">origin</dfn>,
+  <dfn id="preferred-mime-name">preferred MIME name</dfn>,
   <dfn id="resolve-a-url">resolve a URL</dfn>,
   <dfn id="same-origin">same origin</dfn>,
   <dfn id="storage-mutex">storage mutex</dfn>,
   <dfn id="task">task</dfn>,
   <dfn id="task-source">task source</dfn>,
   <dfn id="url">URL</dfn>,
-  <dfn id="url-character-encoding">URL character encoding</dfn>, and
-  <dfn id="queue-a-task">queue a task</dfn>
+  <dfn id="url-character-encoding">URL character encoding</dfn>,
+  <dfn id="queue-a-task">queue a task</dfn>, and
+  <dfn id="valid-mime-type">valid MIME type</dfn>
   are defined by the HTML&nbsp;5 specification.
   [<cite><span>HTML5</span></cite>]</p>
 
@@ -282,10 +285,9 @@
 
   <p>To <dfn id="dispatch-readystatechange-event">dispatch a
   <code>readystatechange</code> event</dfn> means that an event with the
-  name <code>readystatechange</code>, with no namespace, which does not
-  bubble and is not cancelable, and which uses the <code>Event</code>
-  interface, is to be dispatched at the <code>XMLHttpRequest</code>
-  object.</p>
+  name <code>readystatechange</code>, which does not bubble and is not
+  cancelable, and which uses the <code>Event</code> interface, is to be
+  dispatched at the <code>XMLHttpRequest</code> object.</p>
 
   <p class="XXX">To
   <dfn id="dispatch-progress-event" title="dispatch a progress event">dispatch
@@ -933,56 +935,61 @@ X-Test: one, two
    steps.</p></li>
 
    <li>
-    <!-- XXX this step does not match XHR1 -->
-   
-    <p>If <var>stored method</var> is <code>GET</code> or <code>HEAD</code>
-    act as if the <var>data</var> argument is <code>null</code>.</p>
-
-    <p>If the <var>data</var> argument has not been omitted and is not
-    <code>null</code> use it for the <span>entity body</span> observing the
-    following rules:</p>
+    <p>If the <span>request method</var> is <code>GET</code> or
+    <code>HEAD</code> act as if  <var>data</var> is <code>null</code>.</p>
+    
+    <p>If the <var>data</var> argument has been omitted or is
+    <code>null</code>, do not include a <span>request entity body</span>
+    and go to the next step.</p>
+    
+    <p>Otherwise, let <var>encoding</var> be UTF-8, <var>mime</var> be
+    <code>text/plain</code>, and then follow these rules:</p>
 
     <dl class="switch">
-     <dt><var>data</var> is a <code>ByteArray</code></dt>
-     <dd>
-      <p class="XXX">This will be done in terms of the File API in due
-      course.</p>
-
-      <p>Use <var>data</var> literally for transmission.</p>
-     </dd>
+     <dt class="XXX"><var>data</var> is a <code>XXX</code></dt>
+     
+     <dd class="XXX"><p>Haz new features.</p></dd>
 
      <dt><var>data</var> is a <code>DOMString</code></dt>
-     <dd><p>Encode <var>data</var> using UTF-8 for transmission.</p></dd>
+
+     <dd><p>Let the <span>request entity body</span> be <var>data</var>
+     encoded as UTF-8.</p></dd>
 
      <dt><var>data</var> is a <code>Document</code>
+
      <dd>
-      <p>Let <var>tempdata</var> be the result of getting the
-      <code title="dom-innerHTML">innerHTML</code> attribute on the
-      <var>data</var> object and encode it using
-      <code><var>data</var>.inputEncoding</code> or UTF-8 if
-      <code><var>data</var>.inputEncoding</code> is <code>null</code>.
-      Re-raise any exception this raises.</p>
+      <p>Let <var>encoding</var> be the <span>preferred MIME name</span> of
+      the
+      <span title="document's character encoding">character encoding</span>
+      of <var>data</var>. If <var>encoding</var> is UTF-16 change it to
+      UTF-8.</p>
+      
+      <p>Let <var>mime</var> be <code>application/xml</code>.</p>
+
+      <p>Let the <span>request entity body</span> be the result of getting
+      the <code title="dom-innerHTML">innerHTML</code> attribute on
+      <var>data</var> and encode it using <var>encoding</var>. Re-raise any
+      exception this raises.</p>
 
       <p class="note">If the document cannot be serialized an
       <code>INVALID_STATE_ERR</code> exception is raised.</p>
-
-      <p>Let <var>data</var> be <var>tempdata</var>.</p>
-      
-      <!-- XXX1 difference -->
-
-      <p>If no <code>Content-Type</code> header has been set using
-      <code>setRequestHeader()</code> set a <code>Content-Type</code>
-      request header with a value of
-      <code>application/xml;charset=<var>charset</var></code> where
-      <var>charset</var> is the encoding used to encode the document.</p>
 
       <p class="note">Subsequent changes to the <code>Document</code> have
       no effect on what is submitted.</p>
      </dd>
     </dl>
 
-    <p>If the <var>data</var> argument has been omitted, or is
-    <code>null</code>, no entity body is used in the request.</p>
+    <p>If a <code>Content-Type</code> header is set using
+    <code>setRequestHeader()</code> and its value is a
+    <code>valid MIME type</code> and it has a <code>charset</code>
+    parameter whose value is not an <span>ASCII case-insensitive</span>
+    match for <var>encoding</var>, set the <code>charset</code> parameter to
+    <var>encoding</var>.</p>
+
+    <p>If no <code>Content-Type</code> header has been set using
+    <code>setRequestHeader()</code> set a <code>Content-Type</code> request
+    header with a value of
+    <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
    </li>
 
    <li><p>If the <span>asynchronous flag</span> is false release the
