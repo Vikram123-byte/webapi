@@ -5,6 +5,7 @@
   <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
   <title>Progress Events 1.0</title>
   <style type="text/css">
+ dd + dd {margin-top: .3em}
  .example {border:  2px double Grey; padding-left: 2em}
  .issue {background-color: #ffffbf; border:  2px dashed Red;}
  .todo {border: dotted thin}</style>
@@ -20,17 +21,17 @@ alt="W3C" height="48" width="72"> </a>
 
 <h1 id="title">Progress events 1.0</h1>
 
-<h2 id="Editor">Editor's Draft 27 September 2009</h2>
+<h2 id="Editor">Editor's Draft 20 October 2009</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.32">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.32</a></dd>
   <dt>Latest Editor's version:</dt>
     <dd><a
       href="http://dev.w3.org/2006/webapi/progress/Progress.html">http://dev.w3.org/2006/webapi/progress/Progress.html</a></dd>
   <dt>Previous version:</dt>
     <dd><a
-      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.30</a></dd>
+      href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31</a></dd>
   <dt>Editor:</dt>
     <dd><a href="mailto:chaals@opera.com">Charles McCathieNevile</a>, <a
       href="http://www.opera.com/">Opera Software</a></dd>
@@ -275,7 +276,14 @@ href="http://www.w3.org/2008/webapps/track/issues/105">ISSUE-105</a>: How do we
 track (if at all) progress other than in bytes, e.g. for a series of
 transactions? Overload <code>total</code>/<code>loaded</code> and (optionally)
 add some flag or attribute to track what is being counted, mint new events, or
-what?</p>
+what? <em>Proposed resolution</em> is to add the <code>loadedItems</code> and
+<code>totalItems</code> attributes now found in the draft.</p>
+
+<p class="issue"><a
+href="http://www.w3.org/2008/webapps/track/issues/107">ISSUE-107</a>: For
+multiple-object transactions, should end-state events (<code>load</code>,
+<code>error</code>, <code>abort</code>, <code>loadend</code>) fire for each
+object, or only at the completion of the entire transaction?</p>
 
 <p>User agents <em>must</em> ensure that these events trigger event listeners
 attached on <code>Element</code> nodes for the relevant event and on the
@@ -358,22 +366,30 @@ the DOM Level 3 Events specification is normative.</p>
     <dd>
       <div class="idl-code">
       <pre>interface ProgressEvent : events::Event {
-     readonly attribute boolean         lengthComputable;
-     readonly attribute unsigned long long  loaded;
-     readonly attribute unsigned long long  total;
-     void               initProgressEvent(in DOMString typeArg,
-                                          in boolean       canBubbleArg,
-                                          in boolean       cancelableArg,
-                                          in boolean       lengthComputableArg,
-                                          in unsigned long long loadedArg,
-                                          in unsigned long long totalArg);
-     void               initProgressEventNS(in DOMString namespaceURI,
-                                            in DOMString typeArg,
-                                            in boolean       canBubbleArg,
-                                            in boolean       cancelableArg,
-                                            in boolean       lengthComputableArg,
-                                            in unsigned long long loadedArg,
-                                            in unsigned long long totalArg);
+  readonly attribute boolean         lengthComputable;
+  readonly attribute unsigned long long  loaded;
+  readonly attribute unsigned long long  total;
+  readonly attribute unsigned long long  loadedItems;
+  readonly attribute unsigned long long  totalItems;
+
+  void initProgressEvent(in DOMString           typeArg,
+                         in boolean             canBubbleArg,
+                         in boolean             cancelableArg,
+                         in boolean             lengthComputableArg,
+                         in unsigned long long  loadedArg,
+                         in unsigned long long  totalArg,
+              [Optional] in unsigned long       loadedItemsArg,
+                         in unsigned long       totalItemsArg);
+
+  void initProgressEventNS(in DOMString           namespaceURI,
+                           in DOMString           typeArg,
+                           in boolean             canBubbleArg,
+                           in boolean             cancelableArg,
+                           in boolean             lengthComputableArg,
+                           in unsigned long long  loadedArg,
+                           in unsigned long long  totalArg,
+                [Optional] in unsigned long       loadedItemsArg,
+                           in unsigned long       totalItemsArg);
 };</pre>
       </div>
       <p><br>
@@ -383,6 +399,10 @@ the DOM Level 3 Events specification is normative.</p>
     <dd><dl>
         <dt>readonly boolean <code>lengthComputable</code></dt>
           <dd>Specifies whether the total size of the transfer is known.</dd>
+          <dd>If the <code>loadedItems</code> attribute is present, then this
+            value refers to the amount loaded for item in the list
+            corresponding the to the value of the <code>loadedItems</code>
+            attribute.</dd>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long long</span> <span
         class="dom-attr-name"><code>loaded</code></span></dt>
@@ -394,8 +414,8 @@ the DOM Level 3 Events specification is normative.</p>
             applied. Where a specification has not defined this, conformant
             user agents <em>should</em> exclude headers and similar
           overhead.</dd>
-          <dd class="example"><p>For example, an HTTP GET request
-            <em>should</em> calculate the size of the body only. </p>
+          <dd class="example">For example, an HTTP GET request <em>should</em>
+            calculate the size of the body only. 
             <p>Because HTTP headers can include the users password, sometimes
             in clear text, a site that knows the size of the default headers
             for a given implementation can determine the size of the users
@@ -404,20 +424,52 @@ the DOM Level 3 Events specification is normative.</p>
             available from a HEAD request.For more details on HTTP see [<a
             href="#RFC2616">RFC2616</a>]. </p>
           </dd>
+          <dd>If the <code>loadedItems</code> attribute is present, then this
+            value refers to the amount loaded for item in the list
+            corresponding the to the value of the <code>loadedItems</code>
+            attribute.</dd>
+          <dd class="example">For example, an event which has the values 
+            <ul>
+              <li>lengthComputable true</li>
+              <li>loaded 1024</li>
+              <li>total 8192</li>
+              <li>loadedItems 19</li>
+              <li>totalItems 34</li>
+            </ul>
+            <p>describes the state where of 34 items to be downloaded, the 20th
+            ( item[19], where the first is item[0] ) has loaded 1024 of 8192
+            total bytes.</p>
+          </dd>
         <dt><span class="dom-readonly">readonly</span> <span
         class="dom-attr-type">unsigned long long</span> <span
         class="dom-attr-name"><code>total</code></span></dt>
           <dd>Specifies the expected total number of bytes of the content
             transferred in the operation. Where the size of the transfer is for
-            some reason unknown, the value of this attribute <em>must</em> be
-            zero. Similar to requirements for the <code>loaded</code>
-            attribute, conformant specifications <em>must</em> define whether
-            headers and overhead from the transaction are included in
-            calculating this value. Where there is a content-encoding or
-            transfer-encoding this value refers to the number of bytes to be
-            transferred, i.e. with the relevant encodings applied. Where a
-            specification has not defined this, conformant user agents
-            <em>should</em> exclude headers and similar overhead.</dd>
+            some reason unknown, the user agent <em>must</em> set the value of
+            this attribute to<em></em> zero. Similar to requirements for the
+            <code>loaded</code> attribute, conformant specifications
+            <em>must</em> define whether headers and overhead from the
+            transaction are included in calculating this value. Where there is
+            a content-encoding or transfer-encoding this value refers to the
+            number of bytes to be transferred, i.e. with the relevant encodings
+            applied. Where a specification has not defined this, conformant
+            user agents <em>should</em> exclude headers and similar
+          overhead.</dd>
+          <dd>If the <code>loadedItems</code> attribute is present, then this
+            value refers to the amount loaded for item in the list
+            corresponding the to the value of the <code>loadedItems</code>
+            attribute.</dd>
+        <dt>[Optional] readonly unsigned long <code>loadedItems</code></dt>
+          <dd>When the progress of a transaction involving a number of distinct
+            items is producing progress events, this specifies the index of the
+            item (as for an array whose first index is zero) being described by
+            the event. @@Should it start at zero?</dd>
+        <dt>readonly unsigned long <code>totalItems</code></dt>
+          <dd>When the progress of a transaction involving a number of distinct
+            items is producing progress events, this specifies the total number
+            of items invovled in the transaction. If the total number is for
+            some reason unknown, the user agent <em>must</em> set the value of
+            this attribute to zero.</dd>
       </dl>
     </dd>
   <dt><b>Methods</b></dt>
@@ -466,6 +518,16 @@ the DOM Level 3 Events specification is normative.</p>
                       <dd>This specifies the total number of bytes to be
                         transferred. If lengthComputable is <var>false</var>,
                         this <em>should</em> be zero.</dd>
+                    <dt>[Optional] loadedItems of type unsigned long</dt>
+                      <dd>Where present, this specifies the index (as for an
+                        array beginning at zero (0) of the item being described
+                        by an event produced in a transaction which handles
+                        multiple distinct objects.</dd>
+                    <dt>totalItems of type unsigned long</dt>
+                      <dd>Where present, this specifies the total number of
+                        items in a transaction which handles a number of
+                        distinct objects. If the number is unknown, this value
+                        <em>should</em> be zero</dd>
                   </dl>
                 </dd>
             </dl>
@@ -504,6 +566,14 @@ the DOM Level 3 Events specification is normative.</p>
       </dl>
     </dd>
 </dl>
+
+<p>Note that <code>initProgressEvent('progress', true, true, true, size,
+bigsize)</code> and <code>initProgressEvent('progress', true, true, true, size,
+bigsize, 0, 1)</code> are equivalent (an event describing the progress of a
+transaction involving a single option), but <code>initProgressEvent('progress',
+true, true, true, size, bigsize, 0, 0)</code> is not equivalent to these, since
+it describes the first object in a transaction with an unknown total number of
+distinct objects.</p>
 
 <h2 id="Referring">3. Referring to progress events from other
 specifications</h2>
@@ -772,16 +842,28 @@ invaluable in preparing this draft:</p>
 Danilo, Erik Dahlström, Jean-Claude Duford, Andrew Emmons, João Eiras, Gorm
 Eriksen, Kartikaya Gupta, Ian Hickson, David Håsäther, Björn Höhrmann, Philip
 Jägenstedt, Anne van Kesteren, Travis Leithead, Aaron Leventhal, Jim Ley, Chris
-Lilley, Cameron McCormack, Olli Pettay, Michael Antony Puls, Nandini Ramani,
-Robert Sayre, Alan Schepers, Doug Schepers, Rich Schwerdtfeger, Lisa Seeman,
-Andrew Shellshear, Ellen Siegel, Andy Sledd, Garrett Smith, Maciej Stachowiak,
-Boris Zbarsky, Gottfried Zimmermann</p>
+Lilley, Cameron McCormack, Olli Pettay, Simon Pieters, Michael Antony Puls,
+Nandini Ramani, Robert Sayre, Alan Schepers, Doug Schepers, Rich Schwerdtfeger,
+Lisa Seeman, Andrew Shellshear, Ellen Siegel, Andy Sledd, Garrett Smith, Maciej
+Stachowiak, Boris Zbarsky, Gottfried Zimmermann</p>
 
 <p>The editor apologises to anyone who has inadvertently been left off this
 list, and welcomes corrections.</p>
 
 <h2 id="Change">7. Change History</h2>
 <dl>
+  <dt><a
+  href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.32">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.32</a>
+  <strong>(Intended basis for Last Call Working Draft)</strong></dt>
+    <dd><ul>
+        <li>Added new attributes <code>totalItems</code> and
+          <code>loadedItems</code> as a proposal to resolve <a
+          href="http://www.w3.org/2008/webapps/track/issues/105">ISSUE-105</a></li>
+        <li>Added <a
+          href="http://www.w3.org/2008/webapps/track/issues/107">ISSUE-107</a>
+          but no proposal to resolve it yet.</li>
+      </ul>
+    </dd>
   <dt><a
   href="http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31">http://dev.w3.org/cvsweb/~checkout~/2006/webapi/progress/Progress.html?rev=1.31</a>
   <strong>(Intended basis for Last Call Working Draft)</strong></dt>
