@@ -228,15 +228,22 @@
 
   <xsl:template match='processing-instruction("sotd-top")'>
     <xsl:variable name='mail' select='substring-before(., " ")'/>
-    <xsl:variable name='temp' select='substring-after(., " ")'/>
+    <xsl:variable name='temp1' select='substring-after(., " ")'/>
+    <xsl:variable name='subscribe'>
+      <xsl:if test='contains($temp1, " ")'><xsl:value-of select='substring-before($temp1, " ")'/></xsl:if>
+    </xsl:variable>
+    <xsl:variable name='temp2' select='substring-after($temp1, " ")'/>
     <xsl:variable name='archive'>
       <xsl:choose>
-        <xsl:when test='contains($temp, " ")'><xsl:value-of select='substring-before($temp, " ")'/></xsl:when>
-        <xsl:otherwise><xsl:value-of select='$temp'/></xsl:otherwise>
+        <xsl:when test='contains($temp2, " ")'><xsl:value-of select='substring-before($temp2, " ")'/></xsl:when>
       </xsl:choose>
     </xsl:variable>
+    <xsl:variable name='temp3' select='substring-after($temp2, " ")'/>
     <xsl:variable name='prefix'>
-      <xsl:if test='contains($temp, " ")'><xsl:value-of select='substring-after($temp, " ")'/></xsl:if>
+      <xsl:if test='contains($temp3, " ")'><xsl:value-of select='substring-before($temp3, " ")'/></xsl:if>
+    </xsl:variable>
+    <xsl:variable name='bug'>
+      <xsl:if test='contains($temp3, " ")'><xsl:value-of select='substring-after($temp3, " ")'/></xsl:if>
     </xsl:variable>
     <p>
       <em>
@@ -253,10 +260,11 @@
         <b><xsl:call-template name='maturity'/></b> of the
         <cite><xsl:value-of select='/*/h:head/h:title'/></cite> specification.
       </xsl:if>
-      Please send comments about this document to
-      <a href='mailto:{$mail}'><xsl:value-of select='$mail'/></a>
-      (<a href='{$archive}'>archived</a>)<xsl:if test='$prefix'>
-      with “<xsl:value-of select='$prefix'/>” at the start of the subject line</xsl:if>.
+      If you wish to make comments regarding this document, please send them to
+      <a href='mailto:{$mail}?subject={$prefix}'><xsl:value-of select='$mail'/></a>
+      (<a href="{$subscribe}">subscribe</a>, <a href='{$archive}'>archives</a>)
+      <xsl:if test='$prefix'>with “<xsl:value-of select='$prefix'/>” at the start of the subject line</xsl:if>,
+      or submit them using our <a href="{$bug}">public bug database</a>.
     </p>
   </xsl:template>
 
