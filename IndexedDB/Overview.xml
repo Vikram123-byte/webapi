@@ -15,7 +15,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>WebSimpleDB API</title>
-    <meta name='revision' content='$Id: Overview.xml,v 1.15 2009-11-03 20:07:02 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.xml,v 1.16 2009-11-03 20:30:05 nmehta3 Exp $'/>
     <link rel='stylesheet' href='SimpleDB.css' type='text/css'/>
     <script src='section-links.js' type='application/ecmascript'/>
     <script src='dfn.js' type='application/ecmascript'/>
@@ -125,19 +125,19 @@
         
         <div class="example">
           <p>
-            A script can efficiently find items in an entity store that come 
+            A script can efficiently find items in an object store that come 
             closest to the required value provided the value is stored in either 
             a primary or a secondary key.
-            In the following example, the 'books' entity store holds data about
+            In the following example, the 'books' object store holds data about
             books which are stored by their 'isbn' attribute. Additionally, 
             an index is maintained on the 'author' attribute of the objects
-            stored in the entity store. This index can be used to look up books
+            stored in the object store. This index can be used to look up books
             for a given author. If an exact match is not found, the next
             matching author is located.
           </p>
           <x:codeblock language="es">var upgrade = 
   function(changes, db) {
-    changes.<a class="idltype" href="#create-entity-store">createEntityStore</a>('books', 'isbn');
+    changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('books', 'isbn');
     changes.<a class="idltype" href="#create-index">createIndex</a>('BookAuthor', 'Book', 'author', <a href="#Index" class="idltype">Index</a>.<a href="#MANY_TO_ONE" class="idlvalue">MANY_TO_ONE</a>);
     // now db.<a class="idltype" href="#version">version</a> === '1.0'
   };
@@ -152,7 +152,7 @@ else
           <p>
           Here is an example of a script using this API. First, a function
           <code>prepareDatabase()</code> is defined. This function tries to create 
-          the database if necessary, giving it one entity store called "docids" with
+          the database if necessary, giving it one object store called "docids" with
           the primary key "id". If it is successful, or if the table
           doesn't need creating, it calls the function that does the
           actual work, in this case <code>showDocCount()</code>.
@@ -164,14 +164,14 @@ function prepareDatabase(ready, error) {
   request.<a class="idltype" href="#handler-request-onerror">onerror</a> = error;
   var upgrade = 
     function(changes, db) {
-      changes.<a class="idltype" href="#create-entity-store">createEntityStore</a>('docids', 'id');
+      changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('docids', 'id');
       // now db.<a class="idltype" href="#version">version</a> === '1.0'
     };
   request.<a class="idltype" href="#database-open">open</a>('documents', '1.0', 'Offline document storage', upgrade);
 }
 
 function showDocCount(db, span) {
-  var storeRequest = new <a class="idltype" href="#EntityStoreRequest">EntityStoreRequest</a>(db);
+  var storeRequest = new <a class="idltype" href="#ObjectStoreRequest">ObjectStoreRequest</a>(db);
   storeRequest.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = 
     function() {
       var store = storeRequest.<a class="idltype" href="#request-store">store</a>, total = 0;
@@ -184,7 +184,7 @@ function showDocCount(db, span) {
           total += cursor.<a class="idltype" href="#count">count</a>; 
         }, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#NEXT_NO_DUP">NEXT_NO_DUPLICATE</a>);
     };
-  storeRequest.<a class="idltype" href="#entity-store-open">open</a>('docids', true);
+  storeRequest.<a class="idltype" href="#object-store-open">open</a>('docids', true);
 };
 
 prepareDatabase(function(evt) {
@@ -289,13 +289,13 @@ prepareDatabase(function(evt) {
         </p>
         <ul>
           <li>
-            one or more entity stores, each of which hold any number of keys 
+            one or more object stores, each of which hold any number of keys 
             and a value for each of those keys. Each key can be accessed randomly.
             Keys may also be accessed in their natural order.
           </li>
           <li>
             zero or one active <a class="dfnref" href="#dfn-transaction">transaction</a>
-            used to isolate access to entity stores.
+            used to isolate access to object stores.
           </li>
         </ul>
         <p>
@@ -346,7 +346,7 @@ prepareDatabase(function(evt) {
   readonly attribute DOMString     <a class="idltype" href="#name">name</a>;
   readonly attribute DOMString     <a class="idltype" href="#description">description</a>;  
   readonly attribute DOMString     <a class="idltype" href="#version">version</a>;
-  readonly attribute DOMStringList <a class="idltype" href="#entityStores">entityStores</a>;
+  readonly attribute DOMStringList <a class="idltype" href="#objectStores">objectStores</a>;
   readonly attribute <a class="idltype" href="#Transaction">Transaction</a>   <a class="idltype" href="#current-transaction">currentTransaction</a>;
 };</x:codeblock>
           <dl>
@@ -370,10 +370,10 @@ prepareDatabase(function(evt) {
               (as opposed to the expected version of the
               <a class="idltype" href="#Database"><code>Database</code></a> object).
             </dd>
-            <dt><dfn id="entityStores"><code>entityStores</code></dfn></dt>
+            <dt><dfn id="objectStores"><code>objectStores</code></dfn></dt>
             <dd>
               On getting, this attribute must return a list of names 
-              of the entity stores currently in this database
+              of the object stores currently in this database
               <a class="dfnref" href="#dfn-database">database</a>
               <a class="dfnref" href="#dfn-connection">connected</a> to this object.
             </dd>
@@ -421,14 +421,12 @@ prepareDatabase(function(evt) {
              in          DOMString       displayName, 
              in optional <a class="idltype" href="#UpgradeCallback">UpgradeCallback</a> upgrade)]
 interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a class="idltype" href="#Database">Database</a> {
-  <a class="idltype" href="#EntityStoreSync">EntityStoreSync</a> <a class="idltype" href="#sync-get-entity-store">getEntityStore</a>(in          DOMString      name,
+  <a class="idltype" href="#ObjectStoreSync">ObjectStoreSync</a> <a class="idltype" href="#sync-get-object-store">getObjectStore</a>(in          DOMString      name,
                                  in optional unsigned short mode) 
                                  raises      <a class="idltype" href="#DatabaseException">DatabaseException</a>;
   <a class="idltype" href="#IndexSync">IndexSync</a>       <a class="idltype" href="#sync-get-index">getIndex</a>(      in          DOMString name, 
                                  in          DOMString storeName) 
-                                 raises      <a class="idltype" href="#DatabaseException">DatabaseException</a>;<!--
-  <a class="idltype" href="#SequenceSync">SequenceSync</a> <a class="idltype" href="#sync-get-sequence">getSequence</a>(in DOMString name);
-  <a class="idltype" href="#QueueSync">QueueSync</a> <a class="idltype" href="#sync-get-queue">getQueue</a>(in DOMString name);-->
+                                 raises      <a class="idltype" href="#DatabaseException">DatabaseException</a>;
   <a class="idltype" href="#TransactionSync">TransactionSync</a> <a class="idltype" href="#sync-transaction">transaction</a>(   in optional DOMStringList storeNames, 
                                  in optional unsigned int  timeout) 
                                  raises      <a class="idltype" href="#DatabaseException">DatabaseException</a>;
@@ -571,12 +569,12 @@ interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a class="idltype" href="#
               </li>
             </ol>
             <dl>
-              <dt><dfn id="sync-get-entity-store"><code>getEntityStore()</code></dfn></dt>
+              <dt><dfn id="sync-get-object-store"><code>getObjectStore()</code></dfn></dt>
               <dd>
                 <p> 
                   This method returns an 
-                  <a class="idltype" href="#EntityStoreSync"><code>EntityStoreSync</code></a> 
-                  object to access the entity store identified by the given name in the 
+                  <a class="idltype" href="#ObjectStoreSync"><code>ObjectStoreSync</code></a> 
+                  object to access the object store identified by the given name in the 
                   <a class="dfnref" href="#dfn-database">database</a> to which this 
                   <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a> object
                   is <a class="dfnref" href="#dfn-connection">connected</a>. The mode 
@@ -584,7 +582,7 @@ interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a class="idltype" href="#
                 </p>
                 
                 <p>
-                  If an entity store with the given name, compared in a case-sensitive manner, 
+                  If an object store with the given name, compared in a case-sensitive manner, 
                   does not already exist in the database, then this method will throw a newly constructed 
                   <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                   exception with code 
@@ -596,7 +594,7 @@ interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a class="idltype" href="#
                 <p>
                   This method returns an 
                   <a class="idltype" href="#IndexSync"><code>IndexSync</code></a> 
-                  object representing the named index on the given entity store in this database.
+                  object representing the named index on the given object store in this database.
                 </p>
         
                 <p>    
@@ -607,40 +605,6 @@ interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a class="idltype" href="#
                   <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
                 </p>
               </dd>
-              <!--dt><dfn id="sync-get-sequence"><code>getSequence()</code></dfn></dt>
-              <dd>
-                <p> 
-                  This method
-                  returns a <a class="idltype" href="#SequenceSync"><code>SequenceSync</code></a> 
-                  object to access the items of the sequence in this database identified 
-                  by the given name. 
-                </p>
-                
-                <p>    
-                  If a sequence with the given name, compared in a case-sensitive manner, 
-                  does not already exist, then this method will throw a newly constructed 
-                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code 
-                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-                </p>            
-              </dd>
-              <dt><dfn id="sync-get-queue"><code>getQueue()</code></dfn></dt>
-              <dd>
-                <p> 
-                  This method
-                  returns a <a class="idltype" href="#QueueSync"><code>QueueSync</code></a> 
-                  object to access the items of the queue in this database identified
-                  by the given name. 
-                </p>
-                
-                <p>    
-                  If a queue with the given name, compared in a case-sensitive manner, 
-                  does not already exist, then this method will throw a newly constructed 
-                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code 
-                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-                </p>            
-              </dd-->
               <dt><dfn id="sync-transaction"><code>transaction()</code></dfn></dt>
               <dd>
                Perform the <a class="dfnref" href="#create-a-transaction-object">transaction
@@ -656,13 +620,13 @@ interface <dfn id="DatabaseSync">DatabaseSync</dfn> : <a class="idltype" href="#
             <h4>Upgrading databases</h4>            
             <div class="example">				
               <p>
-                In the following example, a database can be initially setup with an entity
+                In the following example, a database can be initially setup with an object
                 store where the <em>id</em> property on stored objects is used as the key.
               </p>
               <x:codeblock language="es">var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
 var upgrade = 
   function(changes, db) {
-    changes.<a class="idltype" href="#create-entity-store">createEntityStore</a>('Contact', 'id');
+    changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id');
     // after this - db.<a class="idltype" href="#version">version</a> === '1'          
   };
 dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Address Book', upgrade);</x:codeblock>
@@ -679,28 +643,20 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
 var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '2', 'Address Book', upgrade);</x:codeblock>
             </div>
             <x:codeblock language="idl">interface <dfn id="Upgrade">Upgrade</dfn> {
-  void <a class="idltype" href="#create-entity-store">createEntityStore</a>(in          DOMString name, 
+  void <a class="idltype" href="#create-object-store">createObjectStore</a>(in          DOMString name, 
                          in          DOMString primaryKeyPath, 
                          in optional boolean   autoIncrement) 
                          raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
   void <a class="idltype" href="#create-index">createIndex</a>(      in          DOMString      name, 
                          in          DOMString      storeName,
                          in          DOMString      keyPath, 
-                         in optional unsigned short cardinality<!--, 
-                   in optional unsigned short onRelatedEntityDelete, 
-                   in optional DOMString relatedEntity-->) 
-                         raises <a class="idltype" href="#DatabaseException">DatabaseException</a>; <!-- 
-  void <a class="idltype" href="#create-sequence">createSequence</a>(in DOMString name, 
-                      in optional long long initial, 
-                      in optional long long increment);
-  void <a class="idltype" href="#create-queue">createQueue</a>(in DOMString name);-->
+                         in optional unsigned short cardinality) 
+                         raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
 
-  void <a class="idltype" href="#remove-entity-store">removeEntityStore</a>(in DOMString storeName) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  void <a class="idltype" href="#remove-object-store">removeObjectStore</a>(in DOMString storeName) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
   void <a class="idltype" href="#remove-index">removeIndex</a>(     in DOMString indexName, 
                         in DOMString storeName) 
-                        raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;<!--
-  void <a class="idltype" href="#remove-sequence">removeSequence</a>(in DOMString sequenceName);
-  void <a class="idltype" href="#remove-queue">removeQueue</a>(in DOMString queueName);-->
+                        raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
 };
 
 [Callback=FunctionOnly, NoInterfaceObject]
@@ -709,11 +665,11 @@ interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
                in <a class="idltype" href="#Database">Database</a> db);
 };</x:codeblock>
             <dl>
-              <dt><dfn id="create-entity-store"><code>createEntityStore()</code></dfn></dt>
+              <dt><dfn id="create-object-store"><code>createObjectStore()</code></dfn></dt>
               <dd>
                 <p> 
-                  This method creates a new entity store with the given name. The path of the 
-                  primary key in objects stored in this entity store is required to correctly
+                  This method creates a new object store with the given name. The path of the 
+                  primary key in objects stored in this object store is required to correctly
                   create a unique identifier for each object. This path cannot be the empty string.
                   <!--The empty string is a valid value for this parameter, and it 
                   results in the entire value of objects to be used as the key value. -If a path 
@@ -723,7 +679,7 @@ interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
                 </p>
                 
                 <p>    
-                  If an entity store with the same name, compared in a
+                  If an object store with the same name, compared in a
                   case-sensitive manner, already exists, then this method will throw a
                   newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                   exception with code
@@ -739,10 +695,10 @@ interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
               <dt><dfn id="create-index" class="idltype"><code>createIndex()</code></dfn></dt>
               <dd>
                 <p>
-                  This method is used to define a new index on this entity store. An index is 
-                  created using four required parameters - name, entity store name, key path, 
+                  This method is used to define a new index on this object store. An index is 
+                  created using four required parameters - name, object store name, key path, 
                   and cardinality - and two optional parameters - action to be performed when 
-                  related entity is deleted, and the name of the related entity. 
+                  related object is deleted, and the name of the related object. 
                 </p>
         
                 <p>    
@@ -751,58 +707,22 @@ interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
                   newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                   exception with code
                   <a class="idlvalue" href="#code-constraint"><code>CONSTRAINT_ERR</code></a>.
-                  If the entity store with the given name does not exist, then this method will
+                  If the object store with the given name does not exist, then this method will
                   throw a newly constructed 
                   <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                   exception with code
                   <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
                 </p>            
               </dd>
-              
-              <!--dt><dfn id="create-sequence"><code>createSequence()</code></dfn></dt>
-              <dd>
-                <p> 
-                  This method creates a new sequence with the given name. The optional 
-                  parameters for initial value and increment size are used to create the
-                  sequence. If the increment parameter value is 0, then a newly constructed 
-                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code 
-                  <a class="idlvalue" href="#code-data"><code>DATA_ERR</code></a> is 
-                  thrown. If a negative value is used, the sequence decrements its values.
-                </p>
-                
-                <p>    
-                  If a sequence with the same name, compared in a
-                  case-sensitive manner, already exists, then this method will throw a
-                  newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code
-                  <a class="idlvalue" href="#code-constraint"><code>CONSTRAINT_ERR</code></a>.
-                </p>
-              </dd>
-              
-              <dt><dfn id="create-queue"><code>createQueue()</code></dfn></dt>
-              <dd>
-                <p> 
-                  This method creates a new queue with the given name. 
-                </p>
-                
-                <p>    
-                  If a queue with the same name, compared in a case-sensitive manner,
-                  already exists, then this method will throw a newly constructed 
-                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code
-                  <a class="idlvalue" href="#code-constraint"><code>CONSTRAINT_ERR</code></a>.
-                </p>
-              </dd-->
-              
-              <dt><dfn id="remove-entity-store"><code>removeEntityStore()</code></dfn></dt>
+                            
+              <dt><dfn id="remove-object-store"><code>removeObjectStore()</code></dfn></dt>
               <dd>
                 <p>
-                  This method is used to destroy the entity store as well as all associated indices. 
+                  This method is used to destroy the object store as well as all associated indices. 
                 </p>
                 
                 <p>    
-                  If an entity store with the given name, compared in a case-sensitive manner, 
+                  If an object store with the given name, compared in a case-sensitive manner, 
                   does not already exist, then this method will throw a newly constructed 
                   <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                   exception with code 
@@ -813,81 +733,31 @@ interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
               <dt><dfn id="remove-index"><code>removeIndex()</code></dfn></dt>
               <dd>
                 <p>
-                  This method is used to destroy the named index on the given entity store. 
+                  This method is used to destroy the named index on the given object store. 
                 </p>
                 
                 <p>    
-                  If an index with the given name does not exist on the named entity store, 
+                  If an index with the given name does not exist on the named object store, 
                   then this method will throw a newly constructed 
                   <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                   exception with code 
                   <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
                 </p>
               </dd>          
-  
-            <!--p> 
-              The <dfn id="modify-entity-store"><code>modifyEntityStore()</code></dfn> method
-              modifies an existing entity store with the given name and returns a 
-              <a class="idltype" href="#EntityStore"><code>EntityStore</code></a> object to 
-              access the objects of the modified entity store. The path of the primary key in 
-              objects stored in this entity store is modified to the one provided in this call. 
-              If this path is different from that currently defined on the entity store, then
-              the entity store is reorganized to use the new primary key path. If the entity
-              store uses a sequence to generate primary keys, and this call omits the optional 
-              sequence name, then the existing sequence is no longer used to populate a value 
-              in the object at the key path. If a different sequence is specified, then the
-              new sequence is used to generate keys. 
-            </p>
-            
-            <p>    
-              If an entity store with the given name, compared in a case-sensitive manner, 
-              does not already exist, then this method will throw a newly constructed 
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-              exception with code 
-              <a href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-            </p-->
-              <!--dt><dfn id="remove-sequence"><code>removeSequence()</code></dfn></dt>
-              <dd>
-                <p> 
-                  This method is used to destroy a sequence.
-                </p>
-                
-                <p>    
-                  If a sequence with the given name, compared in a case-sensitive manner, 
-                  does not already exist, then this method will throw a newly constructed 
-                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code 
-                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-                </p>
-              </dd>
-              <dt><dfn id="remove-queue"><code>removeQueue()</code></dfn></dt>
-              <dd>
-                <p> 
-                  This method is used to destroy a queue.
-                </p>
-                
-                <p>    
-                  If a queue with the given name, compared in a case-sensitive manner, 
-                  does not already exist, then this method will throw a newly constructed 
-                  <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                  exception with code 
-                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-                </p>
-              </dd-->
             </dl>   
           </div>
-          <div class="section" id="entity-store-sync">  
-            <h4>Entity Store</h4>
+          <div class="section" id="object-store-sync">  
+            <h4>Object Store</h4>
             <p>
-              An entity store is a persistent structure that holds key-value pairs sorted
+              An object store is a persistent structure that holds key-value pairs sorted
               by keys so as to enable fast insertion and look up as well as ordered retrieval.
               The store provides a mechanism by which to read and write stored objects. 
-              Operations on an entity store must follow the transaction used to create 
-              or obtain the entity store.
+              Operations on an object store must follow the transaction used to create 
+              or obtain the object store.
             </p>
             
             <p>
-              Each <a href="#EntityStore" class="idltype"><code>EntityStore</code></a>
+              Each <a href="#ObjectStore" class="idltype"><code>ObjectStore</code></a>
                object provides access to a set of key/value pairs, which are sometimes
                called items. Values can be any data type supported by the 
                <span>structured clone algorithm</span> <cite><a href="#ref-HTML5">[HTML5]</a></cite>. 
@@ -895,52 +765,50 @@ interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
                from objects being stored or generated from a monotonic sequence.
             </p>
             <p>
-              An entity store does not allow multiple items to be stored with the same primary.
+              An object store does not allow multiple items to be stored with the same primary.
               key. If the same key is used to store a different item, then it will replace
               the object currently stored with the same key.
             </p>
             <div class="example">				
               <p>
-                In the following example, we set up an entity store to use the 
+                In the following example, we set up an object store to use the 
                 property <em>id</em> from objects to store as the key. 
-                This entity store is designed to auto generate keys for each
-                new object added to <em>Contact</em><!-- using the <em>ContactSeq</em> 
-                <a class="idltype" href="#Sequence"><code>Sequence</code></a> object-->.
+                This object store is designed to auto generate keys for each
+                new object added to <em>Contact</em>.
               </p>
-              <x:codeblock language="es">var upgrade = function(changes, db) {<!--
-                changes.<a class="idltype" href="#create-sequence">createSequence</a>('ContactSeq');-->
-                changes.<a class="idltype" href="#create-entity-store">createEntityStore</a>('Contact', 'id', true);
+              <x:codeblock language="es">var upgrade = function(changes, db) {
+                changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id', true);
               });
 
 var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '1', 'Address Book', upgrade);</x:codeblock>
               <p>
                 Using this database, we can store objects in the <em>Contact</em>
-                entity store. 
+                object store. 
               </p>
-              <x:codeblock language="es">var store = db.<a class="idltype" href="#sync-get-entity-store">getEntityStore</a>('Contact');
+              <x:codeblock language="es">var store = db.<a class="idltype" href="#sync-get-object-store">getObjectStore</a>('Contact');
 
 var lincoln = {name: 'Lincoln', number: '7012'};
-var contact = store.<a class="idltype" href="#entity-store-put">put</a>(lincoln);
+var contact = store.<a class="idltype" href="#object-store-put">put</a>(lincoln);
 // contact.id === 1</x:codeblock>
               <p>
                 A stored value can be retrieved using the same key used for storage.
               </p>
-              <x:codeblock language="es">var contact = store.<a class="idltype" href="#entity-store-get">get</a>(1);
+              <x:codeblock language="es">var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
 // contact.name === 'Lincoln'</x:codeblock>
               <p>
                 A second put operation will
                 replace the object stored by the first put operation.
               </p>
               <x:codeblock language="es">var abraham = {id: 1, name: 'Abraham', number: '2107'};
-store.<a class="idltype" href="#entity-store-put">put</a>(abraham);</x:codeblock>
+store.<a class="idltype" href="#object-store-put">put</a>(abraham);</x:codeblock>
               <p>
-                Now when the entity store is read with the same key, the result 
+                Now when the object store is read with the same key, the result 
                 is different compared to the object read earlier.
               </p>
-              <x:codeblock language="es">var contact = store.<a class="idltype" href="#entity-store-get">get</a>(1);
+              <x:codeblock language="es">var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
 // contact.id === 1 &amp;&amp; contact.name === 'Abraham';</x:codeblock>
               <p>
-                Additionally, all the objects of an entity store matching a certain
+                Additionally, all the objects of an object store matching a certain
                 range of secondary or primary keys can be retrieved in key order.
               </p>
               <x:codeblock language="es">var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(2, 4, <a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> &amp; <a class="idlvalue" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a>);
@@ -950,60 +818,60 @@ var count = store.<a class="idltype" href="#store-for-each">forEach</a>(function
               }, range);</x:codeblock>
             </div>
             <p>
-              An entity store arranges stored objects by their key, also referred to 
+              An object store arranges stored objects by their key, also referred to 
               as the primary key. Each object contains the value of its primary key. 
-              Additionally, entity stores may also have one or more secondary keys 
+              Additionally, object stores may also have one or more secondary keys 
               declared for stored objects. Indices store data about secondary keys
-              and refer to a primary key somewhere in the entity store.
+              and refer to a primary key somewhere in the object store.
             </p>
             
-  			    <x:codeblock language="idl">interface <dfn id="EntityStore">EntityStore</dfn> {  
+  			    <x:codeblock language="idl">interface <dfn id="ObjectStore">ObjectStore</dfn> {  
            const     unsigned short <a href="#READ_WRITE">READ_WRITE</a>    = 1;
            const     unsigned short <a href="#READ_ONLY">READ_ONLY</a>     = 2;
            const     unsigned short <a href="#DETACHED_READ">DETACHED_READ</a> = 6;
 
-  readonly attribute DOMString      <a class="idltype" href="#entity-store-name">name</a>;
-  readonly attribute DOMString      <a class="idltype" href="#entity-store-key-path">keyPath</a>;
-  readonly attribute DOMStringList  <a class="idltype" href="#entity-store-index-names">indexNames</a>;
+  readonly attribute DOMString      <a class="idltype" href="#object-store-name">name</a>;
+  readonly attribute DOMString      <a class="idltype" href="#object-store-key-path">keyPath</a>;
+  readonly attribute DOMStringList  <a class="idltype" href="#object-store-index-names">indexNames</a>;
   readonly attribute unsigned short <a class="idltype" href="#mode">mode</a>;
 };
 
-interface <dfn id="EntityStoreSync">EntityStoreSync</dfn> : <a class="idltype" href="#EntityStore">EntityStore</a> {
+interface <dfn id="ObjectStoreSync">ObjectStoreSync</dfn> : <a class="idltype" href="#ObjectStore">ObjectStore</a> {
   unsigned long long <a class="idltype" href="#store-for-each">forEach</a>(in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
                              in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
                              in optional unsigned short direction);
 
-  any                <a class="idltype" href="#entity-store-put">put</a>(    in any obj) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-  void               <a class="idltype" href="#entity-store-delete">delete</a>( in any key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-  any                <a class="idltype" href="#entity-store-get">get</a>(    in any key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  any                <a class="idltype" href="#object-store-put">put</a>(    in any obj) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  void               <a class="idltype" href="#object-store-delete">delete</a>( in any key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  any                <a class="idltype" href="#object-store-get">get</a>(    in any key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
 };</x:codeblock>
         
           <p>
-            On getting, <dfn id="entity-store-name"><code>name</code></dfn> will
-            provide the name of the entity store.        
+            On getting, <dfn id="object-store-name"><code>name</code></dfn> will
+            provide the name of the object store.        
           </p>
   
           <p>
-            On getting, <dfn id="entity-store-key-path"><code>keyPath</code></dfn> will
+            On getting, <dfn id="object-store-key-path"><code>keyPath</code></dfn> will
             provide the path of the key used as the primary key of objects stored in this
-            entity store. This path can be the empty string if the object value is used
+            object store. This path can be the empty string if the object value is used
             as the key.
           </p>
           
           <p>
-            On getting, <dfn id="entity-store-index-names"><code>indexNames</code></dfn> will
-            provide a list of the names of indexes on objects in this entity store.
+            On getting, <dfn id="object-store-index-names"><code>indexNames</code></dfn> will
+            provide a list of the names of indexes on objects in this object store.
           </p>
           
           <p>
-            The <dfn id="entity-store-put"><code>put()</code></dfn> method is used to 
-            store the given object in the entity store. Insert the object by performing the 
+            The <dfn id="object-store-put"><code>put()</code></dfn> method is used to 
+            store the given object in the object store. Insert the object by performing the 
             <a class="dfnref" href="#insertion-steps">insertion steps</a>.
           </p>
   
           <p>
-            The <dfn id="entity-store-get"><code>get()</code></dfn> method is used to retrieve
-            the object associated with the given key in the entity store. The following steps 
+            The <dfn id="object-store-get"><code>get()</code></dfn> method is used to retrieve
+            the object associated with the given key in the object store. The following steps 
             must be run for retrieving the object with the following parameters: <var>key</var>.
           </p>
             
@@ -1016,12 +884,12 @@ interface <dfn id="EntityStoreSync">EntityStoreSync</dfn> : <a class="idltype" h
               and terminate these steps.
             </li>            
             <li>
-              Use the <var>key</var> to look up an object in the entity store. Let 
+              Use the <var>key</var> to look up an object in the object store. Let 
               <var>value</var> be that object.
             </li>
             
             <li>
-              If <var>object</var> is not found in the entity store, then throw a newly constructed 
+              If <var>object</var> is not found in the object store, then throw a newly constructed 
               <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
               exception with code
               <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
@@ -1030,8 +898,8 @@ interface <dfn id="EntityStoreSync">EntityStoreSync</dfn> : <a class="idltype" h
           </ol>
   
           <p>
-            The <dfn id="entity-store-delete"><code>delete()</code></dfn> method is used to 
-            delete the object associated with the given key in the entity store. Delete the
+            The <dfn id="object-store-delete"><code>delete()</code></dfn> method is used to 
+            delete the object associated with the given key in the object store. Delete the
             object by performing the <a class="dfnref" href="#deletion-steps">deletion steps</a>.
           </p>
   
@@ -1048,13 +916,13 @@ interface <dfn id="EntityStoreSync">EntityStoreSync</dfn> : <a class="idltype" h
             <div class="example">
               <p>
                 An object can be retrieved using <em>secondary</em> keys, provided these keys
-                are defined for the entity store holding such objects. If the <code>upgrade()</code>
+                are defined for the object store holding such objects. If the <code>upgrade()</code>
                 function above were redefined as below, an index would be maintained
                 on the <em>name</em> property of objects in <em>Contact</em>.
               </p>
               <x:codeblock language="es">var upgrade = function(changes, db) {<!--
                 changes.<a class="idltype" href="#create-sequence">createSequence</a>('ContactSeq');-->
-                changes.<a class="idltype" href="#create-entity-store">createEntityStore</a>('Contact', 'id', true);
+                changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id', true);
                 changes.<a class="idltype" href="#create-index">createIndex</a>('ContactName', 'Contact', 'name', Index.MANY_TO_ONE);
               });</x:codeblock>
               <p>
@@ -1069,18 +937,18 @@ var id = index.<a class="idltype" href="#index-get">get</a>('Lincoln');
                 value as 'Lincoln' can be retrieved using this <em>ContactName</em> index.
               </p>
               <x:codeblock language="es">var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
-var contact = index.<a class="idltype" href="#index-get-value">getValue</a>('Lincoln');
+var contact = index.<a class="idltype" href="#index-get-object">getObject</a>('Lincoln');
 // contact.id === 1</x:codeblock>              
               <p>
-                Additionally, all the objects of an entity store matching a certain
+                Additionally, all the objects of an object store matching a certain
                 range of secondary or primary keys can be retrieved in key order. 
-                When objects are retrieved from the <em>Contact</em> entity store, 
+                When objects are retrieved from the <em>Contact</em> object store, 
                 they are arranged by the value of the <em>id</em> attribute. On the
                 other hand, when objects are retrieved using the <em>ContactName</em>
                 index, they are arranged by the value of the <em>name</em> attribute. 
               </p>
               <x:codeblock language="es">var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
-var count = index.<a class="idltype" href="#index-for-each">forEachValue</a>(function(key, cursor, value) {
+var count = index.<a class="idltype" href="#index-for-each">forEachObject</a>(function(key, cursor, value) {
               // each value is a contact and each key is the name for that  
               // contact whose name's first letter is either L or M
               }, range);</x:codeblock>
@@ -1094,114 +962,37 @@ var count = index.<a class="idltype" href="#index-for-each">forEach</a>(function
               // whose name's first letter is either L or M
               }, range);</x:codeblock>
             </div>
-            
-            <!--p>
-              An index can indicate a relationship of objects in one entity store to 
-              those in another. A relation has three attributes - the two entities
-              that are related and a cardinality.
-              Because an <a class="idltype" href="#Index"><code>Index</code></a> object relates two entity
-              stores, it is important to consider the consequence of the deletion of
-              an object on the related objects. If this is the case, foreign key
-              constraints can be used to control data integrity. 
-            </p>
-            
-            <div class="example">
-              <p>
-                For example, if one entity store holds <em>Contact</em> objects, and
-                another holds <em>Account</em> objects, such that each <em>Account</em> 
-                object holds a key to one <em>Contact</em> object. In this example, 
-                an entity store holding <em>Account</em> objects has a <code>MANY_TO_ONE</code>
-                relationship with an entity store holding <em>Contact</em> objects.
-              </p>
-              <x:codeblock language="es">var contacts = [
-      {id: 1, name: 'John', email: 'john@him.com'},
-      {id: 2, name: 'Jane', email: 'jane@her.com'},
-      {id: 3, name: 'Dan', email: 'dan@him.com'},
-      {id: 4, name: 'Kim', email: 'kim@her.com'},              
-    ];
-    
-    var accounts = [
-      {acct: 'x1', owner: 1, type: 'checking'},
-      {acct: 'x3', owner: 2, type: 'saving'},
-      {acct: 'y1', owner: 1, type: 'brokerage'},
-      {acct: 'z4', owner: 4, type: 'saving'}
-     ];</x:codeblock>
-              <p>
-                If an <em>Account</em> is destroyed, it has no impact on the <em>Contact</em>
-                objects that were referenced in the <em>Account</em>. However, the opposite
-                action would have more interesting consequences. If the contact 'John' were
-                to be destroyed, then two accounts owned by 'John' are affected. 
-              </p>
-            </div>
-    
-            <p>
-              When a foreign key constraint is declared:
-            </p>
-            <ol>
-              <li>
-                a new secondary key for the object is stored, it is checked to make
-                sure it exists as a primary key for the related entity object. If
-                it does not, then a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code
-                <a class="idlvalue" href="#code-constraint"><code>CONSTRAINT_ERR</code></a>
-                is thrown.
-              </li>
-              <li>
-                When a related entity is deleted, some action is automatically taken
-                for the entities that refer to this object. The exact action can be
-                one of the following:
-                <ol>
-                  <li><p>Nullify</p>
-                    The referencing object can be modified to change its referring property
-                    to null.
-                  </li>
-                  <li><p>Cascade</p>
-                    The referencing object can be deleted.
-                  </li>
-                  <li><p>Abort</p>
-                    The delete action can be aborted so that no dangling references are left.
-                  </li>
-                </ol>
-              </li>
-            </ol-->
-    
+                
             <x:codeblock language="idl">interface <dfn id="Index">Index</dfn> {  
            const     unsigned short <a class="idlvalue" href="#ONE_TO_ONE">ONE_TO_ONE</a> = 0;
            const     unsigned short <a class="idlvalue" href="#MANY_TO_ONE">MANY_TO_ONE</a> = 1;
            const     unsigned short <a class="idlvalue" href="#ONE_TO_MANY">ONE_TO_MANY</a> = 2;
            const     unsigned short <a class="idlvalue" href="#MANY_TO_MANY">MANY_TO_MANY</a> = 3;
-<!--
-  const unsigned short <a class="idlvalue" href="#NULLIFY">NULLIFY</a> = 0;
-  const unsigned short <a class="idlvalue" href="#CASCADE">CASCADE</a> = 1;
-  const unsigned short <a class="idlvalue" href="#ABORT">ABORT</a> = 2;
--->
+
   readonly attribute DOMString      <a class="idltype" href="#index-name">name</a>;
   readonly attribute DOMString      <a class="idltype" href="#index-key-path">keyPath</a>;
-  readonly attribute unsigned short <a class="idltype" href="#index-cardinality">cardinality</a>;<!--
-  readonly attribute unsigned short <a class="idltype" href="#index-on-related-entity-delete">onRelatedEntityDelete</a>; 
-  readonly attribute DOMString <a class="idltype" href="#index-related-entity">relatedEntity</a>;-->
+  readonly attribute unsigned short <a class="idltype" href="#index-cardinality">cardinality</a>;
 };
 
 interface <dfn id="IndexSync">IndexSync</dfn>: <a class="idltype" href="#Index">Index</a> { 
-  unsigned long long <a class="idltype" href="#for-each">forEach</a>(     in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
-                                  in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
-                                  in optional unsigned short direction);
-  unsigned long long <a class="idltype" href="#for-each">forEachValue</a>(in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
-                                  in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
-                                  in optional unsigned short direction);
-  any                <a class="idltype" href="#sync-index-get">get</a>(         in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-  any                <a class="idltype" href="#sync-index-get-value">getValue</a>(    in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-  void               <a class="idltype" href="#sync-index-delete">delete</a>(      in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  unsigned long long <a class="idltype" href="#for-each">forEach</a>(      in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
+                                   in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
+                                   in optional unsigned short direction);
+  unsigned long long <a class="idltype" href="#for-each">forEachObject</a>(in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
+                                   in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
+                                   in optional unsigned short direction);
+  any                <a class="idltype" href="#sync-index-get">get</a>(          in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  any                <a class="idltype" href="#sync-index-get-object">getObject</a>(    in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
+  void               <a class="idltype" href="#sync-index-delete">delete</a>(       in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
 };</x:codeblock>
             <p>
               The <dfn id="ONE_TO_ONE">ONE_TO_ONE</dfn> cardinality option indicates
               that the secondary key is unique to the object. If an object is stored
-              with a secondary key that already exists in the entity store.
+              with a secondary key that already exists in the object store.
             </p>
             <p>
               The <dfn id="MANY_TO_ONE">MANY_TO_ONE</dfn> cardinality option indicates
-              the secondary key may be used for multiple objects in the entity store. 
+              the secondary key may be used for multiple objects in the object store. 
               That is, the key appears more than once, but for each stored object it
               can be used only once. 
             </p>
@@ -1216,21 +1007,6 @@ interface <dfn id="IndexSync">IndexSync</dfn>: <a class="idltype" href="#Index">
               there can be multiple keys for any given object, and for any given key
               there can be many related objects. 
             </p>
-            <!--p>
-              The <dfn id="NULLIFY">NULLIFY</dfn> foreign constraint action option indicates
-              that all entities related to the deleted entity are updated so that
-              the pertinent property in objects is nullified.
-            </p>
-            <p>
-              The <dfn id="CASCADE">CASCADE</dfn> cardinality option indicates
-              that the secondary key might be used more than once for a given object. 
-              Secondary keys themselves are assumed to be unique, but multiple instances
-              of the secondary key can be used per object. 
-            </p>
-            <p>
-              The <dfn id="ABORT">ABORT</dfn> foreign constraint action indicates
-              that the delete operation is not allowed. This is the default behavior.         
-            </p-->
             <p>
               On getting, <dfn id="index-name"><code>name</code></dfn> will
               provide the name of the index.        
@@ -1252,20 +1028,9 @@ interface <dfn id="IndexSync">IndexSync</dfn>: <a class="idltype" href="#Index">
               cardinality levels, duplicates may occur.
             </p>
             
-            <!--p>
-              On getting, <dfn id="index-on-related-entity-delete"><code>onRelatedEntityDelete</code></dfn>
-              identifies the foreign key constraint action to take when the related entity
-              is deleted.
-            </p>
-            <p>
-              On getting, <dfn id="index-related-entity"><code>relatedEntity</code></dfn>
-              identifies the name of the entity store that holds the related foreign entity for 
-              enforcing foreign key constraints.
-            </p-->
-            
             <p>
               The <dfn id="sync-index-get"><code>get()</code></dfn> method is used to 
-              retrieve the object associated with the given secondary key in the entity store
+              retrieve the object associated with the given secondary key in the object store
               by looking up the primary keys for the given secondary key and performing the 
               <a class="dfnref" href="#retrieval-steps">retrieval steps</a> for each of
               the primary keys.
@@ -1273,7 +1038,7 @@ interface <dfn id="IndexSync">IndexSync</dfn>: <a class="idltype" href="#Index">
 
             <p>
               The <dfn id="sync-index-delete"><code>delete()</code></dfn> method is used to 
-              delete the object associated with the given secondary key in the entity store. 
+              delete the object associated with the given secondary key in the object store. 
               by looking up the primary keys for the given secondary key and performing the 
               <a class="dfnref" href="#deletion-steps">deletion steps</a> for each of the
               primary keys.
@@ -1450,7 +1215,7 @@ interface <dfn id="CursorCallback">CursorCallback</dfn> {
               update the object at which the cursor is currently positioned. If 
               the object is updated, then this method returns true. The update 
               method is only allowed if the <a href="#Cursor" class="idltype"><code>
-              Cursor</code></a> is obtained from an entity store. The key of
+              Cursor</code></a> is obtained from an object store. The key of
               the <var>object</var> parameter must match the key in the current
               cursor position. Otherwise, the database will throw a newly constructed 
               <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
@@ -1465,161 +1230,6 @@ interface <dfn id="CursorCallback">CursorCallback</dfn> {
             </p>
 
           </div>
-          <!--div id="entity-join-sync" class="section">
-            <h4>Entity Join</h4>
-            <p>
-              An entity join is used to perform an equality join on two or more 
-              secondary keys of an entity store. An equality join is a match on
-              all entities in a given entity store that have two or more specific
-              index values. Only exact keys are matched and key ranges may not
-              be used.
-            </p>
-            
-            <div class="example">
-              <p>
-                In a database that stores records about employment records that 
-                includes individuals, their employer and job title, 
-                an application can use an entity join to find an individual
-                for a given title and employer.
-              </p>
-              
-              <x:codeblock language="es">var db = ...
-var employer = db.<a hclass="idltype" ref="#get-index">getIndex</a>('employer', 'employment');
-var title = db.<a class="idltype" href="#get-index">getIndex</a>('title', 'employment');
-var join = employment.<a class="idltype" href="#join">join</a>();
-join.<a class="idltype" href="#add-condition">addCondition</a>(employer, 'ORCL');
-join.<a class="idltype" href="#add-condition">addCondition</a>(title, 'Engineer');
-
-join.<a class="idltype" href="#join-for-each">forEach</a>(function(employee) {
-  // process each employee working at ORCL as an Engineer
-});</x:codeblock>
-            </div>
-            
-            <div>
-              <x:codeblock language="idl">interface <dfn id="EntityJoin">EntityJoin</dfn> {
-  <a class="idltype" href="#add-condition">addCondition</a>(in <a class="idltype" href="#Index">Index</a> index, 
-               in any key);
-};
-
-interface <dfn id="EntityJoinSync">EntityJoinSync</dfn> : <a class="idltype" href="#EntityJoin">EntityJoin</a> {
-  unsigned long long <a class="idltype" href="#join-for-each">forEach</a>(in <a class="idltype" href="#CursorCallback">CursorCallback</a> callback);
-};</x:codeblock>  
-            </div>
-            
-            <p>
-              The <dfn id="add-condition"><code>addCondition()</code></dfn> method is used
-              to add an index condition to the join operation. If the parameter <var>index</var>
-              is already added to this join operation, then a newly constructed 
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-              exception with code 
-              <a class="idlvalue" href="#code-non-transient"><code>NON_TRANSIENT_ERR</code></a>
-              is thrown. If the parameter <var>index</var> is not on the same entity store
-              as the entity join itself, then also, a newly constructed 
-              <a class="idlvalue" href="#DatabaseException"><code>DatabaseException</code></a> 
-              exception with code 
-              <a class="idlvalue" href="#code-non-transient"><code>NON_TRANSIENT_ERR</code></a> 
-              is thrown. The parameter <var>key</var> is used to set a starting point in
-              the index.
-            </p>
-            
-            <p>
-              The <dfn id="entity-join-for-each"><code>forEach()</code></dfn> method 
-              is used to traverse the objects in an entity store that satisfy all the
-              conditions specified in the join. 
-            </p>
-          </div>
-          
-          <div id="sequence-sync" class="section">
-            <h4>Sequence</h4>
-            <p>
-              Sequences provide an arbitrary number of persistent objects that return
-              an increasing or decreasing sequence of integers. Implementations
-              may cache blocks of values for a sequence to reduce contention. 
-              It is not necessary that the implementation
-              provide consecutive values as long as it maintains the monotonically
-              increasing or decreasing sequence of values.
-              It is necessary that values be spaced at least as far apart as the
-              increment value used at the time of creating the sequence.
-            </p>
-            <div class="example">
-              <p>
-                If a sequence is created with the initial value 3 and increment of 2, 
-                then the first value will be 3. Subsequently, a sequence may offer
-                values of 5, 7, and so on. It is also possible that two consecutive
-                calls to obtain the next value produce non-consecutive odd numbers,
-                e.g., 9 and 15.
-              </p>
-            </div>
-            <div>
-              <x:codeblock language="idl">interface <dfn id="Sequence">Sequence</dfn> {
-  readonly attribute DOMString <a class="idltype" href="#sequence-name">name</a>;
-  readonly attribute long long <a class="idltype" href="#sequence-current">current</a>;
-};
-
-interface <dfn id="SequenceSync">SequenceSync</dfn> : <a class="idltype" href="#Sequence">Sequence</a> {
-  <a class="idltype" href="#change-increment">changeIncrement</a>(in long long increment);
-  long long <a class="idltype" href="#sequence-next">next</a>();
-};</x:codeblock>  
-            </div>
-            <p>
-              On getting, <dfn id="sequence-name"><code>name</code></dfn> will
-              provide the name of the sequence.        
-            </p>
-            <p>
-              On getting, <dfn id="sequence-current"><code>current</code></dfn> will
-              provide the present value of the sequence. Unless a value is provided,
-              the initial value of a sequence will be 1.
-            </p>
-            
-            <p>
-              The <dfn id="change-increment"><code>changeIncrement()</code></dfn> 
-              method is used to alter the amount by which the sequence is 
-              incremented (or decremented) each time the <a href="#sequence-next" class="idltype">
-              <code>next()</code></a> method is called.
-            </p>
-            
-            <p>
-              The <dfn id="sequence-next"><code>next()</code></dfn> method is used to 
-              advance the sequence and obtain the next number in the sequence
-              as calculated from its current value and increment. Unless a value is provided,
-              the sequence will increment its value by 1.
-            </p>
-            
-          </div>
-          <div class="section" id="queue-sync">  
-            <h4>Queue</h4>
-            <p>
-              A queue is a simple first-in-first-out store that can hold data sorted
-              by their arrival so as to enable fast insertion and sequential retrieval.
-              Unlike entity stores, queues do not provide externally visible key-based
-              retrieval of values. Nor is it possible to store items with an application
-              specified key.
-            </p>
-            <div>
-              <x:codeblock language="idl">interface <dfn id="Queue">Queue</dfn> {  
-  readonly attribute DOMString <a class="idltype" href="#queue-name">name</a>;
-};
-
-interface <dfn id="QueueSync">QueueSync</dfn> : <a class="idltype" href="#Queue">Queue</a> {
-  <a class="idltype" href="#push">push</a>(in any obj);
-  any <a class="idltype" href="#pop">pop</a>();
-};</x:codeblock>  
-            </div>
-            <p>
-              On getting, <dfn id="queue-name"><code>name</code></dfn> will
-              provide the name of the queue.        
-            </p>
-            <p>
-              The <dfn id="push"><code>push()</code></dfn> method is used to 
-              store the given object at the head of the queue.
-            </p>
-    
-            <p>
-              The <dfn id="pop"><code>pop()</code></dfn> method is used to 
-              delete the object that is at the head of the queue as ordered by their 
-              insertion in to the queue. The deleted object is also returned as result.
-            </p>
-          </div-->
           <div id="transaction-sync" class="section">
             <h4>Transaction</h4>
             <p>
@@ -1908,8 +1518,8 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
             </p>    
           </div>
           
-          <div class="section" id="entity-store">  
-            <h4>Entity Store</h4>
+          <div class="section" id="object-store">  
+            <h4>Object Store</h4>
             <div class="example">				
               <p>
                 In the following example, we open the same database as in the earlier
@@ -1920,22 +1530,22 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
 var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
 dbReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = 
   function() {
-    storeReq = new <a class="idltype" href="#EntityStoreRequest">EntityStoreRequest</a>(dbReq.database);
+    storeReq = new <a class="idltype" href="#ObjectStoreRequest">ObjectStoreRequest</a>(dbReq.database);
     storeReq.<a class="idltype" href="#store-request-open">open</a>('Contact');
   };
 var upgrade = 
   function(upgrade, db) {
-    upgrade.<a class="idltype" href="#create-entity-store">createEntityStore</a>('Contact', 'id');
+    upgrade.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id');
   });
 dbReq.<a class="idltype" href="#database-request-open">open</a>('AddressBook', '1', 'Address Book');</x:codeblock>
     
               <p>
-                An asynchronous call to put an object in the entity store can be performed
+                An asynchronous call to put an object in the object store can be performed
                 once the <code>open()</code> call succeeds.
               </p>
               <x:codeblock language="es">function saveContact(contact, success) {
   storeReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = success;
-  storeReq.<a class="idltype" href="#entity-store-put">put</a>(contact);
+  storeReq.<a class="idltype" href="#object-store-put">put</a>(contact);
 };
 
 var lincoln = {id: 1, name: 'Lincoln', number: '7012'};
@@ -1943,7 +1553,7 @@ saveContact(lincoln, function() {
   //storeReq.<a class="idltype" href="#store-request-result">result</a>.id == 1
 });</x:codeblock>
               <p>
-                Objects in the entity store can be read using their key.
+                Objects in the object store can be read using their key.
               </p>
               <x:codeblock language="es">function loadContact(id, success) {
   storeReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = success;
@@ -1956,7 +1566,7 @@ loadContact(1, function() {
             </div>
               
             <x:codeblock language="idl">[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <dfn id="EntityStoreRequest">EntityStoreRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
+interface <dfn id="ObjectStoreRequest">ObjectStoreRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
   readonly attribute any <a href="#store-request-result">result</a>;
   
   void <a class="idltype" href="#store-request-open">open</a>(  in          DOMString      name,
@@ -1968,19 +1578,19 @@ interface <dfn id="EntityStoreRequest">EntityStoreRequest</dfn> : <a class="idlt
                        
             <p>
               The <dfn id="store-request-put"><code>put()</code></dfn> method is used to 
-              store the given object in the entity store. Insert the object by performing the 
+              store the given object in the object store. Insert the object by performing the 
               <a class="dfnref" href="#insertion-steps">insertion steps</a>.
             </p>
     
             <p>
               The <dfn id="store-request-get"><code>get()</code></dfn> method is used to retrieve
-              the object associated with the given key in the entity store. The following steps 
+              the object associated with the given key in the object store. The following steps 
               must be run for retrieving the object with the following parameters: <var>key</var>.
             </p>
                   
             <p>
               The <dfn id="store-request-delete"><code>delete()</code></dfn> method is used to 
-              delete the object associated with the given key in the entity store. Delete the
+              delete the object associated with the given key in the object store. Delete the
               object by performing the <a href="#deletion-steps">deletion steps</a>.
             </p>    
           </div>
@@ -1990,12 +1600,12 @@ interface <dfn id="EntityStoreRequest">EntityStoreRequest</dfn> : <a class="idlt
 interface <dfn id="IndexRequest">IndexRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
   readonly attribute any <a class="idltype" href="#store-request-result">result</a>;
   
-  void <a class="idltype" href="index-request-open">open</a>(    in DOMString name,
-                in DOMString storeName,
-                in optional boolean forReadonly); 
-  void <a class="idltype" href="#index-request-get">get</a>(     in any key);
-  void <a class="idltype" href="#index-request-get">getValue</a>(in any key);
-  void <a class="idltype" href="#index-request-delete">delete</a>(  in any key);
+  void <a class="idltype" href="index-request-open">open</a>(     in DOMString name,
+                 in DOMString storeName,
+                 in optional boolean forReadonly); 
+  void <a class="idltype" href="#index-request-get">get</a>(      in any key);
+  void <a class="idltype" href="#index-request-get">getObject</a>(in any key);
+  void <a class="idltype" href="#index-request-delete">delete</a>(   in any key);
 };</x:codeblock>  
             
           </div>
@@ -2007,45 +1617,19 @@ interface <dfn id="CursorRequest">CursorRequest</dfn> : <a class="idltype" href=
   readonly attribute unsigned long long <a class="idltype" href="#cursor-request-count">count</a>;
            attribute <a class="idltype" href="#CursorCallback">CursorCallback</a>     <a class="idltype" href="#cursor-request-callback">callback</a>;
            
-  void <a class="idltype" href="#cursor-request-read-store">readStore</a>(     in          DOMString      storeName, 
-                      in optional <a href="#CursorRange">CursorRange</a>    range, 
-                      in optional unsigned short direction);
-  void <a class="idltype" href="#cursor-request-read-index">readIndex</a>(     in          DOMString      storeName, 
-                      in          DOMString      indexName,
-                      in optional <a href="#CursorRange">CursorRange</a>    range, 
-                      in optional unsigned short direction);
-  void <a class="idltype" href="#cursor-request-read-index">readIndexValue</a>(in          DOMString      storeName, 
-                      in          DOMString      indexName,
-                      in optional <a href="#CursorRange">CursorRange</a>    range, 
-                      in optional unsigned short direction);<!--
-  void <a class="idltype" href="#store-request-put">update</a>(in any obj);
-  void <a class="idltype" href="#store-request-delete">delete</a>();-->
+  void <a class="idltype" href="#cursor-request-read-store">readStore</a>(      in          DOMString      storeName, 
+                       in optional <a href="#CursorRange">CursorRange</a>    range, 
+                       in optional unsigned short direction);
+  void <a class="idltype" href="#cursor-request-read-index">readIndex</a>(      in          DOMString      storeName, 
+                       in          DOMString      indexName,
+                       in optional <a href="#CursorRange">CursorRange</a>    range, 
+                       in optional unsigned short direction);
+  void <a class="idltype" href="#cursor-request-read-index-object">readIndexObject</a>(in          DOMString      storeName, 
+                       in          DOMString      indexName,
+                       in optional <a href="#CursorRange">CursorRange</a>    range, 
+                       in optional unsigned short direction);
 };</x:codeblock>  
           </div>
-          <!--div class="section" id="sequence">
-            <h4>Sequence</h4>
-			      <x:codeblock language="idl">[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <dfn id="SequenceRequest">SequenceRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
-  readonly attribute long long <a class="idltype" href="#sequence-request-value">value</a>;
-  
-  void <a class="idltype" href="#sequence-request-open">open</a>(in DOMString name);
-  void <a class="idltype" href="#sequence-request-change">changeIncrement</a>(in long long increment);
-  void <a class="idltype" href="#sequence-request-next">next</a>();
-};</x:codeblock>  
-            
-          </div>
-          <div class="section" id="queue">
-            <h4>Queue</h4>
-			    <x:codeblock language="idl">[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <dfn id="QueueRequest">QueueRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
-  readonly attribute long long <a class="idltype" href="#sequence-request-value">value</a>;
-  
-  void <a class="idltype" href="#queue-request-open">open</a>(in DOMString name);
-  void <a class="idltype" href="#queue-request-push">push</a>(in any obj);
-  void <a class="idltype" href="#queue-request-pop">pop</a>();
-};</x:codeblock>  
-            
-          </div-->
           <div class="section" id="transaction">
             <h4>Transaction</h4>
             <x:codeblock language="idl">interface <dfn id="Transaction">Transaction</dfn> : <a class="idltype" href="#TransactionSync">TransactionSync</a> {
@@ -2217,7 +1801,7 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
               
               <li>
                 Insert the <var>object</var> with <var>key</var> as its key. If any
-                indexes are maintained for objects in this entity store, then perform
+                indexes are maintained for objects in this object store, then perform
                 the following steps for each index. These steps must be run with three
                 parameters: <var>object</var>, <var>key path</var>, and <var>index</var>.
                 
@@ -2262,12 +1846,12 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
               <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a> and terminate these steps.
             </li>            
             <li>
-              Use the <var>key</var> to look up an object in the entity store. Let 
+              Use the <var>key</var> to look up an object in the object store. Let 
               <var>value</var> be that object.
             </li>
             
             <li>
-              If <var>object</var> is not found in the entity store, then throw a newly constructed 
+              If <var>object</var> is not found in the object store, then throw a newly constructed 
               <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
               exception with code
               <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a> and 
@@ -2295,12 +1879,12 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
             </li>            
             
             <li>
-              Use the <var>key</var> to look up an object in the entity store. Let 
+              Use the <var>key</var> to look up an object in the object store. Let 
               <var>object</var> be that object.
             </li>
             
             <li>
-              If any indexes are maintained for objects in this entity store, then perform
+              If any indexes are maintained for objects in this object store, then perform
               the following steps for each index. These steps must be run with three
               parameters: <var>object</var>, <var>key path</var>, and <var>index</var>.
               
@@ -2318,7 +1902,7 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
               </ol>
             </li>
             <li>
-              Delete the object stored with the key <var>key</var> in the entity store. 
+              Delete the object stored with the key <var>key</var> in the object store. 
             </li>
           </ol>
         </div>
@@ -2432,20 +2016,17 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
               <tr>
                 <td><dfn id="code-not-found"><code>NOT_FOUND_ERR</code></dfn></td>
                 <td>The operation failed because the requested database
-                object could not be found. For example, an entity store
+                object could not be found. For example, an object store
                 did not exist but was being opened, or a sequence was 
-                used to create an entity store, but did not exist.</td>
+                used to create an object store, but did not exist.</td>
               </tr>
               
               <tr>
                 <td><dfn id="code-constraint"><code>CONSTRAINT_ERR</code></dfn></td>
                 <td>A mutation operation in the transaction failed due to a
                 because a constraint was not satisfied. For example, an
-                object such as an entity store, sequence, or index already
-                exists and a new one was being attempted to be created.
-                In another example, an object was deleted but was required 
-                to satisfy the foreign key constraint on a related entity
-                store.</td>
+                object such as an object store, sequence, or index already
+                exists and a new one was being attempted to be created.</td>
               </tr>
               
               <tr>
@@ -2523,11 +2104,11 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
           <h3>User tracking</h3>
           
           <p>
-            A third-party host (or any entity capable of getting content 
+            A third-party host (or any object capable of getting content 
             distributed to multiple sites) could use a unique identifier 
             stored in its client-side database to track a user across multiple 
             sessions, building a profile of the user's activities. In conjunction
-            with a site that is aware of the user's real identity (for 
+            with a site that is aware of the user's real idobject (for 
             example an e-commerce site that requires authenticated credentials),
             this could allow oppressive groups to target individuals with
             greater accuracy than in a world with purely anonymous Web usage.
