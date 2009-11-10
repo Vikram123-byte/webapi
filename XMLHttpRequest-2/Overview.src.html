@@ -248,6 +248,9 @@
   <p><dfn id="dfn-obtain-unicode">convert a DOMString to a sequence of Unicode characters</dfn>
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
+  
+  <p>The <dfn id="blob"><code>Blob</code></dfn> interface is defined by the
+  File API specification. [<cite><span>FileAPI</span></cite>]</p>
 
   <p>The terms and algorithms
   <dfn id="url-fragment">&lt;fragment></dfn>,
@@ -259,6 +262,7 @@
   <dfn id="fully-active">fully active</dfn>,
   <dfn id="function"><code>Function</code></dfn>,
   <dfn id="dom-innerhtml" title="dom-innerHTML"><code>innerHTML</code></dfn>,
+  <dfn id="multipart/form-data-encoding-algorithm"><code>multipart/form-data</code> encoding algorithm</dfn>,
   <dfn id="origin">origin</dfn>,
   <dfn id="preferred-mime-name">preferred MIME name</dfn>,
   <dfn id="resolve-a-url">resolve a URL</dfn>,
@@ -349,9 +353,10 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
            attribute boolean <span>withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span>upload</span>;
   void <span>send</span>();
-  void <span>send</span>(<var>XXX</var>);
+  void <span>send</span>(<span>Blob</span> <var>data</var>);
   void <span>send</span>(Document <var>data</var>);
   void <span>send</span>([AllowAny] DOMString? <var>data</var>);
+  void <span>send</span>(<span>FormData</span> <var>data</var>);
   void <span>abort</span>();
 
   // <a href="#response">response</a>
@@ -425,7 +430,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   <h3 id="constructors">Constructors</h3>
 
   <p>When the
-  <dfn id="xmlhttprequest-constructor" title="XMLHttpRequest constructor"><code title="">XMLHttpRequest()</code></dfn>
+  <dfn id="dom-xmlhttprequest" title="XMLHttpRequest constructor"><code title="">XMLHttpRequest()</code></dfn>
   constructor is invoked, the user agent <em class="ct">must</em> return a
   new <code>XMLHttpRequest</code> object.</p>
 
@@ -947,15 +952,20 @@ X-Test: one, two
     <code>null</code>, do not include a <span>request entity body</span>
     and go to the next step.</p>
 
-    <p>Otherwise, let <var>encoding</var> be UTF-8, <var>mime</var> be
+    <p>Otherwise, let <var>encoding</var> be null, <var>mime</var> be
     <code>text/plain</code>, and then follow these rules:</p>
 
     <dl class="switch">
-     <dt class="XXX"><var>data</var> is a <code>XXX</code></dt>
-     
-     <dd class="XXX"><p>Haz new features.</p></dd>
+     <dt>If <var>data</var> is a <code>Blob</code></dt>
 
-     <dt><var>data</var> is a <code>Document</code>
+     <dd>
+      <p>Let <var>mime</var> be <code>application/octet-stream</code>.</p>
+
+      <p>Let the <span>request entity body</span> be the raw data
+      represented by <var>data</var>.</p>
+     </dd>
+
+     <dt>If <var>data</var> is a <code>Document</code>
 
      <dd>
       <p>Let <var>encoding</var> be the <span>preferred MIME name</span> of
@@ -980,11 +990,26 @@ X-Test: one, two
       no effect on what is submitted.</p>
      </dd>
 
-     <dt><var>data</var> is a <code>DOMString</code></dt>
+     <dt>If <var>data</var> is a <code>DOMString</code></dt>
 
-     <dd><p>Let the <span>request entity body</span> be <var>data</var>
-     <span title="convert a DOMString to a sequence of Unicode characters">converted to Unicode</span>
-     and encoded as UTF-8.</p></dd>
+     <dd>
+      <p>Let <var>encoding</var> be UTF-8.</p>
+
+      <p>Let the <span>request entity body</span> be <var>data</var>
+      <span title="convert a DOMString to a sequence of Unicode characters">converted to Unicode</span>
+      and encoded as UTF-8.</p>
+     </dd>
+     
+     <dt>If <var>data</var> is a <code>FormData</code></dt>
+     
+     <dd>
+      <p>Let <var>mime</var> be <code>multipart/form-data</code>.</p>
+
+      <p>Let the <span>request entity body</span> be the result of running
+      the <span><code>multipart/form-data</code> encoding algorithm</span>
+      with <var>data</var> as <var>form data set</var>.</p>
+      
+      <!-- XXX sufficient? prolly not -->
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using
@@ -995,9 +1020,14 @@ X-Test: one, two
     parameters to <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using
-    <code>setRequestHeader()</code> set a <code>Content-Type</code> request
-    header with a value of
+    <code>setRequestHeader()</code> and <var>encoding</var> is not null set
+    a <code>Content-Type</code> request header with a value of
     <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
+    
+    <p>If no <code>Content-Type</code> header has been set using
+    <code>setRequestHeader()</code> and <var>encoding</var> is null set
+    a <code>Content-Type</code> request header with a value of
+    <code><var>mime</var></code>.</p>
 
     <!-- reminder: if we ever change this to always include charset it has
     to be included as the first parameter for compatibility reasons -->
@@ -2078,6 +2108,36 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
   <p class="note">These exceptions might be folded into an update of
   DOM Level 3 Core in due course, as they are appropriate for other API
   specifications as well.</p>
+  
+  
+  
+  <h2 id="the-formdata-interface">The <code title="">FormData</code> Interface</h2>
+  
+  <p>The <code>FormData</code> object represents an ordered collection of
+  entries. Each entry has a name and value.</p>
+  
+  <pre class="idl">[<span title="FormData constructor">Constructor</span>]
+interface <dfn>FormData</dfn> {
+  void <span title="dom-formdata-append">append</span>(DOMString <var>name</var>, <span>Blob</span> <var>value</var>);
+  void <span title="dom-formdata-append">append</span>(DOMString <var>name</var>, DOMString <var>value</var>);
+};</pre>
+
+
+  <h3 id="formdata-constructors">Constructors</h3>
+
+  <p>When the
+  <dfn id="dom-formdata" title="FormData constructor">FormData()</dfn>
+  constructor is invoked, the user agent <em class="ct">must</em> return a
+  new <code>FormData</code> object.</p>
+  
+  <h3>The <code title="">append()</code> method</h3>
+  
+  <p>When the
+  <dfn title="dom-formdata-append" id="dom-formdata-append"><code>append(<var>name</var>, <var>value</var>)</code></dfn>
+  method is invoked, the user agent <em class="ct">must</em> create a new
+  entry with its name set to <var>name</var> and its value set to
+  <var>value</var> and add it to the end of the collection the
+  <code>FormData</code> object represents.</p>
 
 
 
@@ -2137,6 +2197,11 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
    Language Specification</a></cite>, Third Edition. ECMA, December
    1999.</dd>
+   
+   <dt>[<dfn id="ref-fileapi">FileAPI</dfn>]</dt>
+   <dd><cite><a href="http://dev.w3.org/2006/webapi/FileAPI/">File
+   API</a></cite> (work in progress), A. Ranganathan, editor. W3C,
+   2009.</dd>
 
    <dt>[<dfn id="ref-html5">HTML5</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/html/wg/html5/">HTML&nbsp;5</a></cite>
@@ -2159,7 +2224,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    <dt>[<dfn id="ref-pe">PE</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/progress-events/">Progress Events
    1.0</a></cite> (work in progress), C. McCathieNeville, editor. W3C,
-   2007.</dd>
+   2008.</dd>
 
    <dt>[<dfn id="ref-rfc2046">RFC2046</dfn>]</dt>
    <dd><cite><a href="http://ietf.org/rfc/rfc2046">Multipurpose Internet Mail

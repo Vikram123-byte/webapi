@@ -240,6 +240,16 @@
      <li><a href="#exceptions"><span class=secno>3.9 </span>Exceptions</a>
     </ul>
 
+   <li><a href="#the-formdata-interface"><span class=secno>4 </span>The <code
+    title="">FormData</code> Interface</a>
+    <ul class=toc>
+     <li><a href="#formdata-constructors"><span class=secno>4.1
+      </span>Constructors</a>
+
+     <li><a href="#the-append-method"><span class=secno>4.2 </span>The <code
+      title="">append()</code> method</a>
+    </ul>
+
    <li class=no-num><a href="#differences">Differences from
     XMLHttpRequest</a>
 
@@ -368,6 +378,9 @@
    characters</dfn> is defined by the Web IDL specification. [<cite><a
    href="#ref-webidl">WebIDL</a></cite>]
 
+  <p>The <dfn id=blob><code>Blob</code></dfn> interface is defined by the
+   File API specification. [<cite><a href="#ref-fileapi">FileAPI</a></cite>]
+
   <p>The terms and algorithms <dfn id=url-fragment>&lt;fragment></dfn>, <dfn
    id=url-scheme>&lt;scheme></dfn>, <dfn id=document-base-url>document base
    URL</dfn>, <dfn id="document's-character-encoding">document's character
@@ -376,14 +389,16 @@
    type</dfn>, <dfn id=fully-active>fully active</dfn>, <dfn
    id=function><code>Function</code></dfn>, <dfn id=dom-innerhtml
    title=dom-innerHTML><code>innerHTML</code></dfn>, <dfn
-   id=origin>origin</dfn>, <dfn id=preferred-mime-name>preferred MIME
-   name</dfn>, <dfn id=resolve-a-url>resolve a URL</dfn>, <dfn
-   id=same-origin>same origin</dfn>, <dfn id=storage-mutex>storage
-   mutex</dfn>, <dfn id=task>task</dfn>, <dfn id=task-source>task
-   source</dfn>, <dfn id=url>URL</dfn>, <dfn id=url-character-encoding>URL
-   character encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and
-   <dfn id=valid-mime-type>valid MIME type</dfn> are defined by the
-   HTML&nbsp;5 specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
+   id="multipart/form-data-encoding-algorithm"><code>multipart/form-data</code>
+   encoding algorithm</dfn>, <dfn id=origin>origin</dfn>, <dfn
+   id=preferred-mime-name>preferred MIME name</dfn>, <dfn
+   id=resolve-a-url>resolve a URL</dfn>, <dfn id=same-origin>same
+   origin</dfn>, <dfn id=storage-mutex>storage mutex</dfn>, <dfn
+   id=task>task</dfn>, <dfn id=task-source>task source</dfn>, <dfn
+   id=url>URL</dfn>, <dfn id=url-character-encoding>URL character
+   encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and <dfn
+   id=valid-mime-type>valid MIME type</dfn> are defined by the HTML&nbsp;5
+   specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
    RFC 2616. <dfn id=method-token>Method token</dfn> is used as described in
@@ -440,7 +455,7 @@ interface <dfn id=xmlhttprequestupload>XMLHttpRequestUpload</dfn> : <a href="#xm
   // for future use
 };
 
-[<a href="#xmlhttprequest-constructor" title="XMLHttpRequest constructor">Constructor</a>]
+[<a href="#dom-xmlhttprequest" title="XMLHttpRequest constructor">Constructor</a>]
 interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <a href="#function">Function</a> <a href="#onreadystatechange">onreadystatechange</a>;
@@ -462,9 +477,10 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
            attribute boolean <a href="#withcredentials">withCredentials</a>;
   readonly attribute <a href="#xmlhttprequestupload">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
   void <a href="#send">send</a>();
-  void <a href="#send">send</a>(<var>XXX</var>);
+  void <a href="#send">send</a>(<a href="#blob">Blob</a> <var>data</var>);
   void <a href="#send">send</a>(Document <var>data</var>);
   void <a href="#send">send</a>([AllowAny] DOMString? <var>data</var>);
+  void <a href="#send">send</a>(<a href="#formdata">FormData</a> <var>data</var>);
   void <a href="#abort">abort</a>();
 
   // <a href="#response">response</a>
@@ -543,7 +559,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
   <h3 id=constructors><span class=secno>3.3 </span>Constructors</h3>
 
-  <p>When the <dfn id=xmlhttprequest-constructor title="XMLHttpRequest
+  <p>When the <dfn id=dom-xmlhttprequest title="XMLHttpRequest
    constructor"><code title="">XMLHttpRequest()</code></dfn> constructor is
    invoked, the user agent <em class=ct>must</em> return a new <code><a
    href="#xmlhttprequest">XMLHttpRequest</a></code> object.
@@ -1178,16 +1194,19 @@ X-Test: one, two
      href="#request-entity-body">request entity body</a> and go to the next
      step.</p>
 
-    <p>Otherwise, let <var>encoding</var> be UTF-8, <var>mime</var> be
+    <p>Otherwise, let <var>encoding</var> be null, <var>mime</var> be
      <code>text/plain</code>, and then follow these rules:</p>
 
     <dl class=switch>
-     <dt class=XXX><var>data</var> is a <code>XXX</code>
+     <dt>If <var>data</var> is a <code><a href="#blob">Blob</a></code>
 
-     <dd class=XXX>
-      <p>Haz new features.
+     <dd>
+      <p>Let <var>mime</var> be <code>application/octet-stream</code>.</p>
 
-     <dt><var>data</var> is a <code>Document</code>
+      <p>Let the <a href="#request-entity-body">request entity body</a> be
+       the raw data represented by <var>data</var>.</p>
+
+     <dt>If <var>data</var> is a <code>Document</code>
 
      <dd>
       <p>Let <var>encoding</var> be the <a
@@ -1212,13 +1231,28 @@ X-Test: one, two
       <p class=note>Subsequent changes to the <code>Document</code> have no
        effect on what is submitted.</p>
 
-     <dt><var>data</var> is a <code>DOMString</code>
+     <dt>If <var>data</var> is a <code>DOMString</code>
 
      <dd>
+      <p>Let <var>encoding</var> be UTF-8.</p>
+
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        <var>data</var> <a href="#dfn-obtain-unicode" title="convert a
        DOMString to a sequence of Unicode characters">converted to
-       Unicode</a> and encoded as UTF-8.
+       Unicode</a> and encoded as UTF-8.</p>
+
+     <dt>If <var>data</var> is a <code><a
+      href="#formdata">FormData</a></code>
+
+     <dd>
+      <p>Let <var>mime</var> be <code>multipart/form-data</code>.</p>
+
+      <p>Let the <a href="#request-entity-body">request entity body</a> be
+       the result of running the <a
+       href="#multipart/form-data-encoding-algorithm"><code>multipart/form-data</code>
+       encoding algorithm</a> with <var>data</var> as <var>form data
+       set</var>.</p>
+      <!-- XXX sufficient? prolly not -->
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using <code><a
@@ -1230,9 +1264,15 @@ X-Test: one, two
      <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> set a
-     <code>Content-Type</code> request header with a value of
+     href="#setrequestheader">setRequestHeader()</a></code> and
+     <var>encoding</var> is not null set a <code>Content-Type</code> request
+     header with a value of
      <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
+
+    <p>If no <code>Content-Type</code> header has been set using <code><a
+     href="#setrequestheader">setRequestHeader()</a></code> and
+     <var>encoding</var> is null set a <code>Content-Type</code> request
+     header with a value of <code><var>mime</var></code>.</p>
     <!-- reminder: if we ever change this to always include charset it has
     to be included as the first parameter for compatibility reasons -->
     
@@ -2546,6 +2586,37 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
    3 Core in due course, as they are appropriate for other API specifications
    as well.
 
+  <h2 id=the-formdata-interface><span class=secno>4 </span>The <code
+   title="">FormData</code> Interface</h2>
+
+  <p>The <code><a href="#formdata">FormData</a></code> object represents an
+   ordered collection of entries. Each entry has a name and value.
+
+  <pre
+   class=idl>[<a href="#dom-formdata" title="FormData constructor">Constructor</a>]
+interface <dfn id=formdata>FormData</dfn> {
+  void <a href="#dom-formdata-append" title=dom-formdata-append>append</a>(DOMString <var>name</var>, <a href="#blob">Blob</a> <var>value</var>);
+  void <a href="#dom-formdata-append" title=dom-formdata-append>append</a>(DOMString <var>name</var>, DOMString <var>value</var>);
+};</pre>
+
+  <h3 id=formdata-constructors><span class=secno>4.1 </span>Constructors</h3>
+
+  <p>When the <dfn id=dom-formdata title="FormData
+   constructor">FormData()</dfn> constructor is invoked, the user agent <em
+   class=ct>must</em> return a new <code><a
+   href="#formdata">FormData</a></code> object.
+
+  <h3 id=the-append-method><span class=secno>4.2 </span>The <code
+   title="">append()</code> method</h3>
+
+  <p>When the <dfn id=dom-formdata-append
+   title=dom-formdata-append><code>append(<var>name</var>,
+   <var>value</var>)</code></dfn> method is invoked, the user agent <em
+   class=ct>must</em> create a new entry with its name set to <var>name</var>
+   and its value set to <var>value</var> and add it to the end of the
+   collection the <code><a href="#formdata">FormData</a></code> object
+   represents.
+
   <h2 class=no-num id=differences>Differences from XMLHttpRequest</h2>
 
   <p>XMLHttpRequest Level 2 adds the following new features:
@@ -2614,6 +2685,11 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
     href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
     Language Specification</a></cite>, Third Edition. ECMA, December 1999.
 
+   <dt>[<dfn id=ref-fileapi>FileAPI</dfn>]
+
+   <dd><cite><a href="http://dev.w3.org/2006/webapi/FileAPI/">File
+    API</a></cite> (work in progress), A. Ranganathan, editor. W3C, 2009.
+
    <dt>[<dfn id=ref-html5>HTML5</dfn>]
 
    <dd><cite><a
@@ -2642,7 +2718,7 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
    <dt>[<dfn id=ref-pe>PE</dfn>]
 
    <dd><cite><a href="http://www.w3.org/TR/progress-events/">Progress Events
-    1.0</a></cite> (work in progress), C. McCathieNeville, editor. W3C, 2007.
+    1.0</a></cite> (work in progress), C. McCathieNeville, editor. W3C, 2008.
 
    <dt>[<dfn id=ref-rfc2046>RFC2046</dfn>]
 
