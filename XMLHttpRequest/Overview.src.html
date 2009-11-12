@@ -1191,8 +1191,16 @@ X-Test: one, two
 
   <hr>
 
-  <p>When something is said to be a <dfn>network error</dfn> run these
-  steps:</p>
+  <p>When something is said to be a <dfn>network error</dfn> run the
+  <span>request error</span> steps for exception
+  <code>NETWORK_ERR</code>.</p>
+
+  <p>When something is said to be an <dfn>abort error</dfn> run the
+  <span>request error</span> steps for exception
+  <code>ABORT_ERR</code>.</p>
+
+  <p>When something is said to be a <span>request error</span> for
+  exception <var>exception</var> run these steps:</p>
 
   <ol>
    <li><p>Set the <span>response entity body</span> to null.</p></li>
@@ -1203,8 +1211,8 @@ X-Test: one, two
 
    <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
 
-   <li><p>If the <span>asynchronous flag</span> is false raise a
-   <code>NETWORK_ERR</code> exception and terminate the overall set of
+   <li><p>If the <span>asynchronous flag</span> is false raise an
+   <var>exception</var> exception and terminate the overall set of
    steps.</p></li>
 
    <li><p>If the <span>asynchronous flag</span> is true
@@ -1215,35 +1223,8 @@ X-Test: one, two
   </ol>
 
   <p class="note">It is likely that a future version of this specification
-  will dispatch an <code>error</code> event here as well.</p>
-
-  <hr>
-
-  <p>When something is said to be an <dfn>abort error</dfn> run these
-  steps:</p>
-
-  <ol>
-   <li><p>Set the <span>response entity body</span> to null.</p></li>
-
-   <li><p>Set the the <span>error flag</span> to true.</p></li>
-
-   <li><p>Empty the list of <span>author request headers</span>.</p></li>
-
-   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
-
-   <li><p>If the <span>asynchronous flag</span> is false raise a
-   <code>ABORT_ERR</code> exception and terminate the overall set of
-   steps.</p></li>
-
-   <li><p>If the <span>asynchronous flag</span> is true
-   <span>queue a task</span> to
-   <span>dispatch a <code>readystatechange</code> event</span>.</p></li>
-
-   <li><p>Terminate the overall set of steps.</p></li>
-  </ol>
-
-  <p class="note">It is likely that a future version of this specification
-  will dispatch an <code>abort</code> event here as well.</p>
+  will dispatch an <code>error</code>/<code>abort</code> event here as
+  well. (Depending on the type of error.)</p>
 
   <hr>
 
