@@ -1791,146 +1791,23 @@ X-Test: one, two
   <hr>
 
   <p>When something is said to be a <dfn id=network-error>network error</dfn>
-   run these steps:
-
-  <ol>
-   <li>
-    <p>Set the <a href="#response-entity-body">response entity body</a> to
-     null.
-
-   <li>
-    <p>Set the the <a href="#error-flag">error flag</a> to true.
-
-   <li>
-    <p>Empty the list of <a href="#author-request-headers">author request
-     headers</a>.
-
-   <li>
-    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
-
-   <li>
-    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
-     raise a <code><a href="#network-err">NETWORK_ERR</a></code> exception
-     and terminate the overall set of steps.
-
-   <li>
-    <p><a href="#queue-a-task">Queue a task</a> to <a
-     href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a>.</p>
-
-    <p class=note>At this point it is clear that the <a
-     href="#asynchronous-flag">asynchronous flag</a> is true.</p>
-
-   <li>
-    <p><a href="#queue-a-task">Queue a task</a> to <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#event-xhr-error">error</a></code>.
-
-   <li>
-    <p><a href="#queue-a-task">Queue a task</a> to <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#event-xhr-loadend">loadend</a></code>.
-
-   <li>
-    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
-     false, follow these substeps:</p>
-
-    <ol>
-     <li>
-      <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
-       true.
-
-     <li>
-      <p><a href="#queue-a-task">Queue a task</a> to <a
-       href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#event-xhr-error">error</a></code> on the <code><a
-       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
-
-     <li>
-      <p><a href="#queue-a-task">Queue a task</a> to <a
-       href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#event-xhr-loadend">loadend</a></code> on the <code><a
-       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
-    </ol>
-
-   <li>
-    <p>Terminate the overall algorithm.
-  </ol>
-
-  <hr>
+   run the <a href="#request-error">request error</a> steps for exception
+   <code><a href="#network-err">NETWORK_ERR</a></code> and event <code><a
+   href="#event-xhr-error">error</a></code>.
 
   <p>When something is said to be an <dfn id=abort-error>abort error</dfn>
-   run these steps:
-
-  <ol>
-   <li>
-    <p>Set the <a href="#response-entity-body">response entity body</a> to
-     null.
-
-   <li>
-    <p>Set the the <a href="#error-flag">error flag</a> to true.
-
-   <li>
-    <p>Empty the list of <a href="#author-request-headers">author request
-     headers</a>.
-
-   <li>
-    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
-
-   <li>
-    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
-     raise a <code><a href="#abort-err">ABORT_ERR</a></code> exception and
-     terminate the overall set of steps.
-
-   <li>
-    <p><a href="#queue-a-task">Queue a task</a> to <a
-     href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a>.</p>
-
-    <p class=note>At this point it is clear that the <a
-     href="#asynchronous-flag">asynchronous flag</a> is true.</p>
-
-   <li>
-    <p><a href="#queue-a-task">Queue a task</a> to <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code title=abort-event><a href="#event-xhr-abort">abort</a></code>.
-
-   <li>
-    <p><a href="#queue-a-task">Queue a task</a> to <a
-     href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#event-xhr-loadend">loadend</a></code>.
-
-   <li>
-    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
-     false, follow these substeps:</p>
-
-    <ol>
-     <li>
-      <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
-       true.
-
-     <li>
-      <p><a href="#queue-a-task">Queue a task</a> to <a
-       href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code title=abort-event><a href="#event-xhr-abort">abort</a></code> on
-       the <code><a
-       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
-
-     <li>
-      <p><a href="#queue-a-task">Queue a task</a> to <a
-       href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#event-xhr-loadend">loadend</a></code> on the <code><a
-       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
-    </ol>
-
-   <li>
-    <p>Terminate the overall algorithm.
-  </ol>
-
-  <hr>
+   run the <a href="#request-error">request error</a> steps for exception
+   <code><a href="#abort-err">ABORT_ERR</a></code> and event <code
+   title=abort-event><a href="#event-xhr-abort">abort</a></code>.
 
   <p>When something is said to be an <dfn id=timeout-error>timeout
-   error</dfn> run these steps:
+   error</dfn> run the <a href="#request-error">request error</a> steps for
+   exception <code><a href="#timeout-err">TIMEOUT_ERR</a></code> and event
+   <code title=timeout-event><a href="#event-xhr-timeout">timeout</a></code>.
+
+  <p>When something is said to be a <dfn id=request-error>request error</dfn>
+   for exception <var>exception</var> and event <var>event</var> run these
+   steps:
 
   <ol>
    <li>
@@ -1949,8 +1826,8 @@ X-Test: one, two
 
    <li>
     <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
-     raise a <code><a href="#timeout-err">TIMEOUT_ERR</a></code> exception
-     and terminate the overall set of steps.
+     raise an <var>exception</var> exception and terminate the overall set of
+     steps.
 
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
@@ -1963,8 +1840,7 @@ X-Test: one, two
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code title=timeout-event><a
-     href="#event-xhr-timeout">timeout</a></code>.
+     <var>event</var>.
 
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
@@ -1983,8 +1859,7 @@ X-Test: one, two
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code title=timeout-event><a
-       href="#event-xhr-timeout">timeout</a></code> on the <code><a
+       <var>event</var> on the <code><a
        href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
      <li>

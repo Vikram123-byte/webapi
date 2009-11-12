@@ -1445,7 +1445,22 @@ X-Test: one, two
 
   <hr>
 
-  <p>When something is said to be a <dfn>network error</dfn> run these
+  <p>When something is said to be a <dfn>network error</dfn> run the
+  <span>request error</span> steps for exception
+  <code>NETWORK_ERR</code> and event <code>error</code>.</p>
+
+  <p>When something is said to be an <dfn>abort error</dfn> run the
+  <span>request error</span> steps for exception
+  <code>ABORT_ERR</code> and event
+  <code title="abort-event">abort</code>.</p>
+
+  <p>When something is said to be an <dfn>timeout error</dfn> run the
+  <span>request error</span> steps for exception
+  <code>TIMEOUT_ERR</code> and event
+  <code title="timeout-event">timeout</code>.</p>
+
+  <p>When something is said to be a <dfn>request error</dfn> for
+  exception <var>exception</var> and event <var>event</var> run these
   steps:</p>
 
   <ol>
@@ -1457,8 +1472,8 @@ X-Test: one, two
 
    <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
 
-   <li><p>If the <span>asynchronous flag</span> is false raise a
-   <code>NETWORK_ERR</code> exception and terminate the overall set of
+   <li><p>If the <span>asynchronous flag</span> is false raise an
+   <var>exception</var> exception and terminate the overall set of
    steps.</p></li>
 
    <li>
@@ -1468,7 +1483,7 @@ X-Test: one, two
     <span>asynchronous flag</span> is true.</p>
    </li>
 
-   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>error</code>.</p></li>
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <var>event</var>.</p></li>
 
    <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
 
@@ -1480,105 +1495,7 @@ X-Test: one, two
      <li><p>Set the <span>upload complete flag</span> to true.</p></li>
 
      <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code>error</code>
-     on the <code>XMLHttpRequestUpload</code> object.</p></li>
-
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code>loadend</code>
-     on the <code>XMLHttpRequestUpload</code> object.</p></li>
-    </ol>
-   </li>
-
-   <li><p>Terminate the overall algorithm.</p></li>
-  </ol>
-
-  <hr>
-
-  <p>When something is said to be an <dfn>abort error</dfn> run these
-  steps:</p>
-
-  <ol>
-   <li><p>Set the <span>response entity body</span> to null.</p></li>
-
-   <li><p>Set the the <span>error flag</span> to true.</p></li>
-
-   <li><p>Empty the list of <span>author request headers</span>.</p></li>
-
-   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
-
-   <li><p>If the <span>asynchronous flag</span> is false raise a
-   <code>ABORT_ERR</code> exception and terminate the overall set of
-   steps.</p></li>
-
-   <li>
-    <p><span>Queue a task</span> to <span>dispatch a <code>readystatechange</code> event</span>.</p>
-
-    <p class="note">At this point it is clear that the
-    <span>asynchronous flag</span> is true.</p>
-   </li>
-
-   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code title="abort-event">abort</code>.</p></li>
-
-   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
-
-   <li>
-    <p>If the <span>upload complete flag</span> is false, follow these
-    substeps:</p>
-
-    <ol>
-     <li><p>Set the <span>upload complete flag</span> to true.</p></li>
-
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code title="abort-event">abort</code>
-     on the <code>XMLHttpRequestUpload</code> object.</p></li>
-
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code>loadend</code>
-     on the <code>XMLHttpRequestUpload</code> object.</p></li>
-    </ol>
-   </li>
-
-   <li><p>Terminate the overall algorithm.</p></li>
-  </ol>
-
-  <hr>
-
-  <p>When something is said to be an <dfn>timeout error</dfn> run these
-  steps:</p>
-
-  <ol>
-   <li><p>Set the <span>response entity body</span> to null.</p></li>
-
-   <li><p>Set the the <span>error flag</span> to true.</p></li>
-
-   <li><p>Empty the list of <span>author request headers</span>.</p></li>
-
-   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
-
-   <li><p>If the <span>asynchronous flag</span> is false raise a
-   <code>TIMEOUT_ERR</code> exception and terminate the overall set of
-   steps.</p></li>
-
-   <li>
-    <p><span>Queue a task</span> to <span>dispatch a <code>readystatechange</code> event</span>.</p>
-
-    <p class="note">At this point it is clear that the
-    <span>asynchronous flag</span> is true.</p>
-   </li>
-
-   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code title="timeout-event">timeout</code>.</p></li>
-
-   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
-
-   <li>
-    <p>If the <span>upload complete flag</span> is false, follow these
-    substeps:</p>
-
-    <ol>
-     <li><p>Set the <span>upload complete flag</span> to true.</p></li>
-
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code title="timeout-event">timeout</code>
+     <span>dispatch a progress event</span> called <var>event</var>
      on the <code>XMLHttpRequestUpload</code> object.</p></li>
 
      <li><p><span>Queue a task</span> to
