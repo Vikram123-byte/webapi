@@ -35,13 +35,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 10 November 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 November 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091110/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091110/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091112/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091112/</a>
 
     <dt>Latest Version:
 
@@ -105,7 +105,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 10 November 2009 Working Draft of XMLHttpRequest Level 2.
+  <p>This is the 12 November 2009 Working Draft of XMLHttpRequest Level 2.
    Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -187,20 +187,23 @@
        <li><a href="#the-setrequestheader-method"><span class=secno>3.6.2
         </span>The <code title="">setRequestHeader()</code> method</a>
 
-       <li><a href="#the-withcredentials-attribute"><span class=secno>3.6.3
+       <li><a href="#the-timeout-attribute"><span class=secno>3.6.3
+        </span>The <code title="">timeout</code> attribute</a>
+
+       <li><a href="#the-withcredentials-attribute"><span class=secno>3.6.4
         </span>The <code title="">withCredentials</code> attribute</a>
 
-       <li><a href="#the-upload-attribute"><span class=secno>3.6.4 </span>The
+       <li><a href="#the-upload-attribute"><span class=secno>3.6.5 </span>The
         <code title="">upload</code> attribute</a>
 
-       <li><a href="#the-send-method"><span class=secno>3.6.5 </span>The
+       <li><a href="#the-send-method"><span class=secno>3.6.6 </span>The
         <code title="">send()</code> method</a>
 
        <li><a href="#infrastructure-for-the-send-method"><span
-        class=secno>3.6.6 </span>Infrastructure for the <code
+        class=secno>3.6.7 </span>Infrastructure for the <code
         title="">send()</code> method</a>
 
-       <li><a href="#the-abort-method"><span class=secno>3.6.7 </span>The
+       <li><a href="#the-abort-method"><span class=secno>3.6.8 </span>The
         <code title="">abort()</code> method</a>
       </ul>
 
@@ -236,8 +239,6 @@
       </ul>
 
      <li><a href="#events"><span class=secno>3.8 </span>Events summary</a>
-
-     <li><a href="#exceptions"><span class=secno>3.9 </span>Exceptions</a>
     </ul>
 
    <li><a href="#the-formdata-interface"><span class=secno>4 </span>The <code
@@ -249,6 +250,8 @@
      <li><a href="#the-append-method"><span class=secno>4.2 </span>The <code
       title="">append()</code> method</a>
     </ul>
+
+   <li><a href="#exceptions"><span class=secno>5 </span>Exceptions</a>
 
    <li class=no-num><a href="#differences">Differences from
     XMLHttpRequest</a>
@@ -418,9 +421,10 @@
 
   <p>To <dfn id=dispatch-readystatechange-event>dispatch a
    <code>readystatechange</code> event</dfn> means that an event with the
-   name <code><a href="#readystatechange-event">readystatechange</a></code>,
-   which does not bubble and is not cancelable, and which uses the
-   <code>Event</code> interface, is to be dispatched at the <code><a
+   name <code><a
+   href="#event-xhr-readystatechange">readystatechange</a></code>, which does
+   not bubble and is not cancelable, and which uses the <code>Event</code>
+   interface, is to be dispatched at the <code><a
    href="#xmlhttprequest">XMLHttpRequest</a></code> object.
 
   <p class=XXX>To <dfn id=dispatch-progress-event title="dispatch a progress
@@ -448,6 +452,7 @@ interface <dfn id=xmlhttprequesteventtarget>XMLHttpRequestEventTarget</dfn> : Ev
            attribute <a href="#function">Function</a> <a href="#onabort">onabort</a>;
            attribute <a href="#function">Function</a> <a href="#onerror">onerror</a>;
            attribute <a href="#function">Function</a> <a href="#onload">onload</a>;
+           attribute <a href="#function">Function</a> <a href="#ontimeout">ontimeout</a>;
            attribute <a href="#function">Function</a> <a href="#onloadend">onloadend</a>;
 };
 
@@ -474,6 +479,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var><a href="#url">url</a></var>, boolean <var>async</var>, DOMString? <var>user</var>);
   void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var><a href="#url">url</a></var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
   void <a href="#setrequestheader">setRequestHeader</a>(DOMString <var>header</var>, DOMString <var>value</var>);
+           attribute unsigned long <a href="#timeout">timeout</a>;
            attribute boolean <a href="#withcredentials">withCredentials</a>;
   readonly attribute <a href="#xmlhttprequestupload">XMLHttpRequestUpload</a> <a href="#upload">upload</a>;
   void <a href="#send">send</a>();
@@ -587,32 +593,38 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
     <tr>
      <td><dfn id=onloadstart><code>onloadstart</code></dfn>
 
-     <td><code><a href="#loadstart-event">loadstart</a></code>
+     <td><code><a href="#event-xhr-loadstart">loadstart</a></code>
 
     <tr>
      <td><dfn id=onprogress><code>onprogress</code></dfn>
 
-     <td><code><a href="#progress-event">progress</a></code>
+     <td><code><a href="#event-xhr-progress">progress</a></code>
 
     <tr>
      <td><dfn id=onabort><code>onabort</code></dfn>
 
-     <td><code title=abort-event><a href="#abort-event">abort</a></code>
+     <td><code title=abort-event><a href="#event-xhr-abort">abort</a></code>
 
     <tr>
      <td><dfn id=onerror><code>onerror</code></dfn>
 
-     <td><code><a href="#error-event">error</a></code>
+     <td><code><a href="#event-xhr-error">error</a></code>
 
     <tr>
      <td><dfn id=onload><code>onload</code></dfn>
 
-     <td><code><a href="#load-event">load</a></code>
+     <td><code><a href="#event-xhr-load">load</a></code>
+
+    <tr>
+     <td><dfn id=ontimeout><code>ontimeout</code></dfn>
+
+     <td><code title=timeout-event><a
+      href="#event-xhr-timeout">timeout</a></code>
 
     <tr>
      <td><dfn id=onloadend><code>onloadend</code></dfn>
 
-     <td><code><a href="#loadend-event">loadend</a></code>
+     <td><code><a href="#event-xhr-loadend">loadend</a></code>
   </table>
 
   <p>The following is the <a href="#event-handler-attributes-0" title="event
@@ -633,7 +645,8 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
     <tr>
      <td><dfn id=onreadystatechange><code>onreadystatechange</code></dfn>
 
-     <td><code><a href="#readystatechange-event">readystatechange</a></code>
+     <td><code><a
+      href="#event-xhr-readystatechange">readystatechange</a></code>
   </table>
 
   <h3 id=states><span class=secno>3.5 </span>States</h3>
@@ -726,6 +739,11 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    <dt>The <dfn id=request-entity-body>request entity body</dfn>
 
    <dd>The <a href="#entity-body">entity body</a> used in the request.
+
+   <dt>The <dfn id=request-timeout>request timeout</dfn>
+
+   <dd>The amount of milliseconds a request can take before being terminated.
+    By default this is 0 and has no observable effect.
 
    <dt>The <dfn id=credentials-flag>credentials flag</dfn>
 
@@ -1113,14 +1131,42 @@ X-Test: one, two
 ...</code></pre>
   </div>
 
-  <h4 id=the-withcredentials-attribute><span class=secno>3.6.3 </span>The
+  <h4 id=the-timeout-attribute><span class=secno>3.6.3 </span>The <code
+   title="">timeout</code> attribute</h4>
+
+  <p>The <dfn id=timeout><code>timeout</code></dfn> attribute controls the <a
+   href="#request-timeout">request timeout</a>.
+
+  <p>On setting the <code><a href="#timeout">timeout</a></code> attribute
+   these steps <em class=ct>must</em> be run:
+
+  <ol>
+   <li>
+    <p>If the state is not <a href="#opened-state" title="OPENED
+     state">OPENED</a> raise an <code>INVALID_STATE_ERR</code> exception and
+     terminate these steps.
+
+   <li>
+    <p>If the <a href="#send-flag"><code>send()</code> flag</a> is true raise
+     an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
+
+   <li>
+    <p>Set <a href="#request-timeout">request timeout</a> to the given value.
+  </ol>
+
+  <p>On getting, the <code><a href="#timeout">timeout</a></code> attribute
+   <em class=ct>must</em> return the value of the <a
+   href="#request-timeout">request timeout</a>.
+
+  <h4 id=the-withcredentials-attribute><span class=secno>3.6.4 </span>The
    <code title="">withCredentials</code> attribute</h4>
 
   <p>The <dfn id=withcredentials><code>withCredentials</code></dfn> attribute
    controls the <a href="#credentials-flag">credentials flag</a>.
 
-  <p>When the <code><a href="#withcredentials">withCredentials</a></code>
-   attribute is set, the user agent <em class=ct>must</em> run these steps:
+  <p>On setting the <code><a
+   href="#withcredentials">withCredentials</a></code> attribute these steps
+   <em class=ct>must</em> be run:
 
   <ol>
    <li>
@@ -1145,14 +1191,14 @@ X-Test: one, two
    <code>false</code> if the <a href="#credentials-flag">credentials flag</a>
    is false.
 
-  <h4 id=the-upload-attribute><span class=secno>3.6.4 </span>The <code
+  <h4 id=the-upload-attribute><span class=secno>3.6.5 </span>The <code
    title="">upload</code> attribute</h4>
 
   <p>The <dfn id=upload><code>upload</code></dfn> attribute, on getting, <em
    class=ct>must</em> return the associated <code><a
    href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
-  <h4 id=the-send-method><span class=secno>3.6.5 </span>The <code
+  <h4 id=the-send-method><span class=secno>3.6.6 </span>The <code
    title="">send()</code> method</h4>
   <!-- XXX domintro
   <p>The <code>send()</code> method initiates the request and its optional
@@ -1313,14 +1359,14 @@ X-Test: one, two
 
      <li>
       <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-       called <code><a href="#loadstart-event">loadstart</a></code>.
+       called <code><a href="#event-xhr-loadstart">loadstart</a></code>.
 
      <li>
       <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
        false <a href="#dispatch-progress-event">dispatch a progress event</a>
-       called <code><a href="#loadstart-event">loadstart</a></code> on the
-       <code><a href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code>
-       object.
+       called <code><a href="#event-xhr-loadstart">loadstart</a></code> on
+       the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
      <li>
       <p>Return the <code><a href="#send">send()</a></code> method call, but
@@ -1556,7 +1602,7 @@ X-Test: one, two
    href="#setrequestheader">setRequestHeader()</a></code>. This ensures that
    authors have a reasonably predictable API.
 
-  <h4 id=infrastructure-for-the-send-method><span class=secno>3.6.6
+  <h4 id=infrastructure-for-the-send-method><span class=secno>3.6.7
    </span>Infrastructure for the <code title="">send()</code> method</h4>
 
   <p>The <dfn id=cookie-steps>cookie steps</dfn> are as follows:
@@ -1632,6 +1678,13 @@ X-Test: one, two
     <p class=note>This does not include HTTP responses that indicate some
      type of error, such as HTTP status code 410.</p>
 
+   <dt>If <a href="#request-timeout">request timeout</a> is not 0 and since
+    the request started the amount of milliseconds specified by <a
+    href="#request-timeout">request timeout</a> has passed
+
+   <dd>
+    <p>This is a <a href="#timeout-error">timeout error</a>.
+
    <dt>Once all HTTP headers have been received and the <a
     href="#asynchronous-flag">asynchronous flag</a> is true
 
@@ -1686,6 +1739,13 @@ X-Test: one, two
 
    <dd>
     <p>This is an <a href="#abort-error">abort error</a>.
+
+   <dt>If <a href="#request-timeout">request timeout</a> is not 0 and since
+    the request started the amount of milliseconds specified by <a
+    href="#request-timeout">request timeout</a> has passed
+
+   <dd>
+    <p>This is a <a href="#timeout-error">timeout error</a>.
 
    <dt>Once all HTTP headers have been received, the <a
     href="#cross-origin-request-status">cross-origin request status</a> is
@@ -1764,12 +1824,12 @@ X-Test: one, two
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#error-event">error</a></code>.
+     <code><a href="#event-xhr-error">error</a></code>.
 
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#loadend-event">loadend</a></code>.
+     <code><a href="#event-xhr-loadend">loadend</a></code>.
 
    <li>
     <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
@@ -1783,13 +1843,13 @@ X-Test: one, two
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#error-event">error</a></code> on the <code><a
+       <code><a href="#event-xhr-error">error</a></code> on the <code><a
        href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#loadend-event">loadend</a></code> on the <code><a
+       <code><a href="#event-xhr-loadend">loadend</a></code> on the <code><a
        href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
     </ol>
 
@@ -1833,12 +1893,12 @@ X-Test: one, two
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code title=abort-event><a href="#abort-event">abort</a></code>.
+     <code title=abort-event><a href="#event-xhr-abort">abort</a></code>.
 
    <li>
     <p><a href="#queue-a-task">Queue a task</a> to <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#loadend-event">loadend</a></code>.
+     <code><a href="#event-xhr-loadend">loadend</a></code>.
 
    <li>
     <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
@@ -1852,14 +1912,85 @@ X-Test: one, two
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code title=abort-event><a href="#abort-event">abort</a></code> on the
-       <code><a href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code>
-       object.
+       <code title=abort-event><a href="#event-xhr-abort">abort</a></code> on
+       the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#loadend-event">loadend</a></code> on the <code><a
+       <code><a href="#event-xhr-loadend">loadend</a></code> on the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+    </ol>
+
+   <li>
+    <p>Terminate the overall algorithm.
+  </ol>
+
+  <hr>
+
+  <p>When something is said to be an <dfn id=timeout-error>timeout
+   error</dfn> run these steps:
+
+  <ol>
+   <li>
+    <p>Set the <a href="#response-entity-body">response entity body</a> to
+     null.
+
+   <li>
+    <p>Set the the <a href="#error-flag">error flag</a> to true.
+
+   <li>
+    <p>Empty the list of <a href="#author-request-headers">author request
+     headers</a>.
+
+   <li>
+    <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
+
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     raise a <code><a href="#timeout-err">TIMEOUT_ERR</a></code> exception
+     and terminate the overall set of steps.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-readystatechange-event">dispatch a
+     <code>readystatechange</code> event</a>.</p>
+
+    <p class=note>At this point it is clear that the <a
+     href="#asynchronous-flag">asynchronous flag</a> is true.</p>
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code title=timeout-event><a
+     href="#event-xhr-timeout">timeout</a></code>.
+
+   <li>
+    <p><a href="#queue-a-task">Queue a task</a> to <a
+     href="#dispatch-progress-event">dispatch a progress event</a> called
+     <code><a href="#event-xhr-loadend">loadend</a></code>.
+
+   <li>
+    <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
+     false, follow these substeps:</p>
+
+    <ol>
+     <li>
+      <p>Set the <a href="#upload-complete-flag">upload complete flag</a> to
+       true.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code title=timeout-event><a
+       href="#event-xhr-timeout">timeout</a></code> on the <code><a
+       href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
+
+     <li>
+      <p><a href="#queue-a-task">Queue a task</a> to <a
+       href="#dispatch-progress-event">dispatch a progress event</a> called
+       <code><a href="#event-xhr-loadend">loadend</a></code> on the <code><a
        href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
     </ol>
 
@@ -1919,11 +2050,11 @@ X-Test: one, two
 
      <li>
       <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-       called <code><a href="#load-event">load</a></code>.
+       called <code><a href="#event-xhr-load">load</a></code>.
 
      <li>
       <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-       called <code><a href="#loadend-event">loadend</a></code>.
+       called <code><a href="#event-xhr-loadend">loadend</a></code>.
     </ol>
 
    <li>
@@ -1939,12 +2070,12 @@ X-Test: one, two
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#load-event">load</a></code>.
+       <code><a href="#event-xhr-load">load</a></code>.
 
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#loadend-event">loadend</a></code>.
+       <code><a href="#event-xhr-loadend">loadend</a></code>.
     </ol>
   </ol>
 
@@ -1954,8 +2085,8 @@ X-Test: one, two
    notifications</dfn>, while the download is progressing, <a
    href="#queue-a-task">queue a task</a> to <a
    href="#dispatch-progress-event">dispatch a progress event</a> called
-   <code><a href="#progress-event">progress</a></code> about every 50ms or
-   for every byte received, whichever is <em>least</em> frequent.
+   <code><a href="#event-xhr-progress">progress</a></code> about every 50ms
+   or for every byte received, whichever is <em>least</em> frequent.
 
   <hr>
 
@@ -1968,7 +2099,7 @@ X-Test: one, two
      href="#upload-complete-flag">upload complete flag</a> is false, <a
      href="#queue-a-task">queue a task</a> to <a
      href="#dispatch-progress-event">dispatch a progress event</a> called
-     <code><a href="#progress-event">progress</a></code> at the <code><a
+     <code><a href="#event-xhr-progress">progress</a></code> at the <code><a
      href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object
      about every 50ms or for every byte transmitted, whichever is
      <em>least</em> frequent.
@@ -1986,19 +2117,19 @@ X-Test: one, two
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#load-event">load</a></code> at the <code><a
+       <code><a href="#event-xhr-load">load</a></code> at the <code><a
        href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
      <li>
       <p><a href="#queue-a-task">Queue a task</a> to <a
        href="#dispatch-progress-event">dispatch a progress event</a> called
-       <code><a href="#loadend-event">loadend</a></code> at the <code><a
+       <code><a href="#event-xhr-loadend">loadend</a></code> at the <code><a
        href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
     </ol>
   </ul>
   <!-- XXX successfully uploaded? -->
 
-  <h4 id=the-abort-method><span class=secno>3.6.7 </span>The <code
+  <h4 id=the-abort-method><span class=secno>3.6.8 </span>The <code
    title="">abort()</code> method</h4>
 
   <p>When the <dfn id=abort><code>abort()</code></dfn> method is invoked, the
@@ -2049,11 +2180,11 @@ X-Test: one, two
      <li>
       <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
        called <code title=abort-event><a
-       href="#abort-event">abort</a></code>.
+       href="#event-xhr-abort">abort</a></code>.
 
      <li>
       <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-       called <code><a href="#loadend-event">loadend</a></code>.
+       called <code><a href="#event-xhr-loadend">loadend</a></code>.
 
      <li>
       <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
@@ -2067,12 +2198,12 @@ X-Test: one, two
        <li>
         <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
          called <code title=abort-event><a
-         href="#abort-event">abort</a></code> on the <code><a
+         href="#event-xhr-abort">abort</a></code> on the <code><a
          href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
 
        <li>
         <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-         called <code><a href="#loadend-event">loadend</a></code> on the
+         called <code><a href="#event-xhr-loadend">loadend</a></code> on the
          <code><a
          href="#xmlhttprequestupload">XMLHttpRequestUpload</a></code> object.
       </ol>
@@ -2083,7 +2214,7 @@ X-Test: one, two
      state">UNSENT</a>.</p>
 
     <p class=note>No <code><a
-     href="#readystatechange-event">readystatechange</a></code> event is
+     href="#event-xhr-readystatechange">readystatechange</a></code> event is
      dispatched.</p>
   </ol>
 
@@ -2489,7 +2620,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <tbody>
     <tr>
-     <td><dfn id=readystatechange-event><code>readystatechange</code></dfn>
+     <td><dfn
+      id=event-xhr-readystatechange><code>readystatechange</code></dfn>
 
      <td><code>Event</code>
 
@@ -2497,21 +2629,21 @@ Content-Type: text/plain; charset=utf-8</code></pre>
       changes at some seemingly arbitrary times for historical reasons.
 
     <tr>
-     <td><dfn id=loadstart-event><code>loadstart</code></dfn>
+     <td><dfn id=event-xhr-loadstart><code>loadstart</code></dfn>
 
      <td><code>ProgressEvent</code>
 
      <td>When the request starts.
 
     <tr>
-     <td><dfn id=progress-event><code>progress</code></dfn>
+     <td><dfn id=event-xhr-progress><code>progress</code></dfn>
 
      <td><code>ProgressEvent</code>
 
      <td>While loading and sending data.
 
     <tr>
-     <td><dfn id=abort-event title=abort-event><code>abort</code></dfn>
+     <td><dfn id=event-xhr-abort title=abort-event><code>abort</code></dfn>
 
      <td><code>ProgressEvent</code>
 
@@ -2519,59 +2651,35 @@ Content-Type: text/plain; charset=utf-8</code></pre>
       <code><a href="#abort">abort()</a></code> method.
 
     <tr>
-     <td><dfn id=error-event><code>error</code></dfn>
+     <td><dfn id=event-xhr-error><code>error</code></dfn>
 
      <td><code>ProgressEvent</code>
 
      <td>When the request has failed.
 
     <tr>
-     <td><dfn id=load-event><code>load</code></dfn>
+     <td><dfn id=event-xhr-load><code>load</code></dfn>
 
      <td><code>ProgressEvent</code>
 
      <td>When the request has successfully completed.
 
     <tr>
-     <td><dfn id=loadend-event><code>loadend</code></dfn>
+     <td><dfn id=event-xhr-timeout
+      title=timeout-event><code>timeout</code></dfn>
+
+     <td><code>ProgressEvent</code>
+
+     <td>When the author specified timeout has passed before the request
+      could complete.
+
+    <tr>
+     <td><dfn id=event-xhr-loadend><code>loadend</code></dfn>
 
      <td><code>ProgressEvent</code>
 
      <td>When the request has completed (either in success or failure).
   </table>
-
-  <h3 id=exceptions><span class=secno>3.9 </span>Exceptions</h3>
-
-  <p>Several algorithms in this specification may result in an exception
-   being thrown. These exceptions are all part of the group
-   <code>ExceptionCode</code> and use the <code>DOMException</code> object,
-   which is defined in DOM Level 3 Core. In addition this specification
-   extends the <code>ExceptionCode</code> group with several new constants as
-   indicated below. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
-
-  <p class=note>Thus, exceptions used by this specification and not defined
-   in this section are defined by DOM Level 3 Core.
-
-  <pre
-   class=idl>const unsigned short <a href="#security-err">SECURITY_ERR</a> = 18;
-const unsigned short <a href="#network-err">NETWORK_ERR</a> = 19;
-const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
-
-  <p>The <dfn id=security-err><code>SECURITY_ERR</code></dfn> exception is
-   raised if an attempt is made to perform an operation or access some data
-   in a way that would be a security risk or a violation of the user agent's
-   security policy.</p>
-  <!-- http://lists.w3.org/Archives/Public/public-webapi/2006May/0027.html -->
-
-  <p>The <dfn id=network-err><code>NETWORK_ERR</code></dfn> exception is
-   raised when a network error occurs in synchronous requests.
-
-  <p>The <dfn id=abort-err><code>ABORT_ERR</code></dfn> exception is raised
-   when the user aborts a request in synchronous requests.
-
-  <p class=note>These exceptions might be folded into an update of DOM Level
-   3 Core in due course, as they are appropriate for other API specifications
-   as well.
 
   <h2 id=the-formdata-interface><span class=secno>4 </span>The <code
    title="">FormData</code> Interface</h2>
@@ -2603,6 +2711,44 @@ interface <dfn id=formdata>FormData</dfn> {
    and its value set to <var>value</var> and add it to the end of the
    collection the <code><a href="#formdata">FormData</a></code> object
    represents.
+
+  <h2 id=exceptions><span class=secno>5 </span>Exceptions</h2>
+
+  <p>Several algorithms in this specification may result in an exception
+   being thrown. These exceptions are all part of the group
+   <code>ExceptionCode</code> and use the <code>DOMException</code> object,
+   which is defined in DOM Level 3 Core. In addition this specification
+   extends the <code>ExceptionCode</code> group with several new constants as
+   indicated below. [<cite><a href="#ref-dom3core">DOM3Core</a></cite>]
+
+  <p class=note>Thus, exceptions used by this specification and not defined
+   in this section are defined by DOM Level 3 Core.
+
+  <pre
+   class=idl>const unsigned short <a href="#security-err">SECURITY_ERR</a> = 18;
+const unsigned short <a href="#network-err">NETWORK_ERR</a> = 19;
+const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;
+const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
+
+  <p>The <dfn id=security-err><code>SECURITY_ERR</code></dfn> exception is
+   raised if an attempt is made to perform an operation or access some data
+   in a way that would be a security risk or a violation of the user agent's
+   security policy.</p>
+  <!-- http://lists.w3.org/Archives/Public/public-webapi/2006May/0027.html -->
+
+  <p>The <dfn id=network-err><code>NETWORK_ERR</code></dfn> exception is
+   raised when a network error occurs in synchronous requests.
+
+  <p>The <dfn id=abort-err><code>ABORT_ERR</code></dfn> exception is raised
+   when the user aborts a request in synchronous requests.
+
+  <p>The <dfn id=timeout-err><code>TIMEOUT_ERR</code></dfn> exception is
+   raised when the author specified timeout has passed before the request
+   could complete in synchronous requests.
+
+  <p class=note>These exceptions will be folded into an update of DOM Level 3
+   Core in due course, as they are appropriate for other API specifications
+   as well.
 
   <h2 class=no-num id=differences>Differences from XMLHttpRequest</h2>
 

@@ -324,6 +324,7 @@ interface <dfn id="xmlhttprequesteventtarget">XMLHttpRequestEventTarget</dfn> : 
            attribute <span>Function</span> <span>onabort</span>;
            attribute <span>Function</span> <span>onerror</span>;
            attribute <span>Function</span> <span>onload</span>;
+           attribute <span>Function</span> <span>ontimeout</span>;
            attribute <span>Function</span> <span>onloadend</span>;
 };
 
@@ -350,6 +351,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>, DOMString? <var>user</var>);
   void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
   void <span>setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);
+           attribute unsigned long <span>timeout</span>;
            attribute boolean <span>withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span>upload</span>;
   void <span>send</span>();
@@ -466,6 +468,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
      <td><dfn id="onload"><code>onload</code></dfn>
      <td><code>load</code>
     <tr>
+     <td><dfn id="ontimeout"><code>ontimeout</code></dfn>
+     <td><code title="timeout-event">timeout</code>
+    <tr>
      <td><dfn id="onloadend"><code>onloadend</code></dfn>
      <td><code>loadend</code>
   </table>
@@ -563,6 +568,10 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <dt>The <dfn>request entity body</dfn></dt>
    <dd>The <span>entity body</span> used in the request.</dd>
+   
+   <dt>The <dfn>request timeout</dfn></dt>
+   <dd>The amount of milliseconds a request can take before being
+   terminated. By default this is 0 and has no observable effect.</dd>
 
    <dt>The <dfn>credentials flag</dfn></dt>
    <dd>Indicates whether a cross-origin request will include cookie and HTTP
@@ -877,6 +886,30 @@ client.send();
 X-Test: one, two
 ...</code></pre>
   </div>
+  
+  
+  <h4>The <code title="">timeout</code> attribute</h4>
+  
+  <p>The <dfn id="timeout"><code>timeout</code></dfn> attribute controls the
+  <span>request timeout</span>.</p>
+
+  <p>On setting the <code>timeout</code></dfn> attribute these steps
+  <em class="ct">must</em> be run:</p>
+  
+  <ol>
+   <li><p>If the state is not <span title="OPENED state">OPENED</span> raise
+   an <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the <span><code>send()</code> flag</span> is true raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>Set <span>request timeout</span> to the given value.</p></li>
+  </ol>
+  
+  <p>On getting, the <code>timeout</code> attribute <em class="ct">must</em>
+  return the value of the <span>request timeout</span>.</p> 
 
 
   <h4>The <code title="">withCredentials</code> attribute</h4>
@@ -884,8 +917,8 @@ X-Test: one, two
   <p>The <dfn id="withcredentials"><code>withCredentials</code></dfn>
   attribute controls the <span>credentials flag</span>.</p>
 
-  <p>When the <code>withCredentials</code> attribute is set, the user agent
-  <em class="ct">must</em> run these steps:</p>
+  <p>On setting the <code>withCredentials</code> attribute these steps
+  <em class="ct">must</em> be run:</p>
 
   <ol>
    <li><p>If the state is not <span title="OPENED state">OPENED</span> raise
@@ -1336,6 +1369,11 @@ X-Test: one, two
     <p class="note">This does not include HTTP responses that indicate
     some type of error, such as HTTP status code 410.</p>
    </dd>
+   
+   <dt>If <span>request timeout</span> is not 0 and since the request
+   started the amount of milliseconds specified by
+   <span>request timeout</span> has passed</dt>
+   <dd><p>This is a <span>timeout error</span>.</p></dd>
 
    <dt>Once all HTTP headers have been received and the
    <span>asynchronous flag</span> is true</dt>
@@ -1372,6 +1410,11 @@ X-Test: one, two
    <dt>If the <span>cross-origin request status</span> is
    <i title="">abort error</i></dt>
    <dd><p>This is an <span>abort error</span>.</p></dd>
+
+   <dt>If <span>request timeout</span> is not 0 and since the request
+   started the amount of milliseconds specified by
+   <span>request timeout</span> has passed</dt>
+   <dd><p>This is a <span>timeout error</span>.</p></dd>
 
    <dt>Once all HTTP headers have been received, the
    <span>cross-origin request status</span> is <i>success</i>, and the
@@ -1487,6 +1530,55 @@ X-Test: one, two
 
      <li><p><span>Queue a task</span> to
      <span>dispatch a progress event</span> called <code title="abort-event">abort</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code>loadend</code>
+     on the <code>XMLHttpRequestUpload</code> object.</p></li>
+    </ol>
+   </li>
+
+   <li><p>Terminate the overall algorithm.</p></li>
+  </ol>
+
+  <hr>
+
+  <p>When something is said to be an <dfn>timeout error</dfn> run these
+  steps:</p>
+
+  <ol>
+   <li><p>Set the <span>response entity body</span> to null.</p></li>
+
+   <li><p>Set the the <span>error flag</span> to true.</p></li>
+
+   <li><p>Empty the list of <span>author request headers</span>.</p></li>
+
+   <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
+
+   <li><p>If the <span>asynchronous flag</span> is false raise a
+   <code>TIMEOUT_ERR</code> exception and terminate the overall set of
+   steps.</p></li>
+
+   <li>
+    <p><span>Queue a task</span> to <span>dispatch a <code>readystatechange</code> event</span>.</p>
+
+    <p class="note">At this point it is clear that the
+    <span>asynchronous flag</span> is true.</p>
+   </li>
+
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code title="timeout-event">timeout</code>.</p></li>
+
+   <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
+
+   <li>
+    <p>If the <span>upload complete flag</span> is false, follow these
+    substeps:</p>
+
+    <ol>
+     <li><p>Set the <span>upload complete flag</span> to true.</p></li>
+
+     <li><p><span>Queue a task</span> to
+     <span>dispatch a progress event</span> called <code title="timeout-event">timeout</code>
      on the <code>XMLHttpRequestUpload</code> object.</p></li>
 
      <li><p><span>Queue a task</span> to
@@ -2030,78 +2122,51 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    </thead>
    <tbody>
     <tr>
-     <td><dfn id="readystatechange-event"><code>readystatechange</code></dfn></td>
+     <td><dfn id="event-xhr-readystatechange"><code>readystatechange</code></dfn></td>
      <td><code>Event</code></td>
      <td>The <code>readyState</code> attribute changes at some seemingly
      arbitrary times for historical reasons.</td>
     </tr>
     <tr>
-     <td><dfn id="loadstart-event"><code>loadstart</code></dfn></td>
+     <td><dfn id="event-xhr-loadstart"><code>loadstart</code></dfn></td>
      <td><code>ProgressEvent</code></td>
      <td>When the request starts.</td>
     </tr>
     <tr>
-     <td><dfn id="progress-event"><code>progress</code></dfn></td>
+     <td><dfn id="event-xhr-progress"><code>progress</code></dfn></td>
      <td><code>ProgressEvent</code></td>
      <td>While loading and sending data.</td>
     </tr>
     <tr>
-     <td><dfn id="abort-event" title="abort-event"><code>abort</code></dfn></td>
+     <td><dfn id="event-xhr-abort" title="abort-event"><code>abort</code></dfn></td>
      <td><code>ProgressEvent</code></td>
      <td>When the request has been aborted. For instance, by invoking the
      <code>abort()</code> method.</td>
     </tr>
     <tr>
-     <td><dfn id="error-event"><code>error</code></dfn></td>
+     <td><dfn id="event-xhr-error"><code>error</code></dfn></td>
      <td><code>ProgressEvent</code></td>
      <td>When the request has failed.</td>
     </tr>
     <tr>
-     <td><dfn id="load-event"><code>load</code></dfn></td>
+     <td><dfn id="event-xhr-load"><code>load</code></dfn></td>
      <td><code>ProgressEvent</code></td>
      <td>When the request has successfully completed.</td>
     </tr>
     <tr>
-     <td><dfn id="loadend-event"><code>loadend</code></dfn></td>
+     <td><dfn id="event-xhr-timeout" title="timeout-event"><code>timeout</code></dfn></td>
+     <td><code>ProgressEvent</code></td>
+     <td>When the author specified timeout has passed before the request
+     could complete.</td>
+    </tr>
+    <tr>
+     <td><dfn id="event-xhr-loadend"><code>loadend</code></dfn></td>
      <td><code>ProgressEvent</code></td>
      <td>When the request has completed (either in success or failure).</td>
+    </tr>
    </tbody>
   </table>
-
-
-  <h3 id="exceptions">Exceptions</h3>
-
-  <p>Several algorithms in this specification may result in an exception
-  being thrown. These exceptions are all part of the group
-  <code>ExceptionCode</code> and use the <code>DOMException</code> object,
-  which is defined in DOM Level 3 Core. In addition this specification
-  extends the <code>ExceptionCode</code> group with several new
-  constants as indicated below. [<cite><span>DOM3Core</span></cite>]</p>
-
-  <p class="note">Thus, exceptions used by this specification and not
-  defined in this section are defined by DOM Level 3 Core.</p>
-
-  <pre class="idl">const unsigned short <span>SECURITY_ERR</span> = 18;
-const unsigned short <span>NETWORK_ERR</span> = 19;
-const unsigned short <span>ABORT_ERR</span> = 20;</pre>
-
-  <p>The <dfn id="security-err"><code>SECURITY_ERR</code></dfn> exception is
-  raised if an attempt is made to perform an operation or access some data
-  in a way that would be a security risk or a violation of the user agent's
-  security policy.</p>
-
-  <!-- http://lists.w3.org/Archives/Public/public-webapi/2006May/0027.html -->
-
-  <p>The <dfn id="network-err"><code>NETWORK_ERR</code></dfn> exception is
-  raised when a network error occurs in synchronous requests.</p>
-
-  <p>The <dfn id="abort-err"><code>ABORT_ERR</code></dfn> exception is
-  raised when the user aborts a request in synchronous requests.</p>
-
-  <p class="note">These exceptions might be folded into an update of
-  DOM Level 3 Core in due course, as they are appropriate for other API
-  specifications as well.</p>
-  
+ 
   
   
   <h2 id="the-formdata-interface">The <code title="">FormData</code> Interface</h2>
@@ -2131,6 +2196,46 @@ interface <dfn>FormData</dfn> {
   entry with its name set to <var>name</var> and its value set to
   <var>value</var> and add it to the end of the collection the
   <code>FormData</code> object represents.</p>
+
+
+
+  <h2 id="exceptions">Exceptions</h2>
+
+  <p>Several algorithms in this specification may result in an exception
+  being thrown. These exceptions are all part of the group
+  <code>ExceptionCode</code> and use the <code>DOMException</code> object,
+  which is defined in DOM Level 3 Core. In addition this specification
+  extends the <code>ExceptionCode</code> group with several new
+  constants as indicated below. [<cite><span>DOM3Core</span></cite>]</p>
+
+  <p class="note">Thus, exceptions used by this specification and not
+  defined in this section are defined by DOM Level 3 Core.</p>
+
+  <pre class="idl">const unsigned short <span>SECURITY_ERR</span> = 18;
+const unsigned short <span>NETWORK_ERR</span> = 19;
+const unsigned short <span>ABORT_ERR</span> = 20;
+const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
+
+  <p>The <dfn id="security-err"><code>SECURITY_ERR</code></dfn> exception is
+  raised if an attempt is made to perform an operation or access some data
+  in a way that would be a security risk or a violation of the user agent's
+  security policy.</p>
+
+  <!-- http://lists.w3.org/Archives/Public/public-webapi/2006May/0027.html -->
+
+  <p>The <dfn id="network-err"><code>NETWORK_ERR</code></dfn> exception is
+  raised when a network error occurs in synchronous requests.</p>
+
+  <p>The <dfn id="abort-err"><code>ABORT_ERR</code></dfn> exception is
+  raised when the user aborts a request in synchronous requests.</p>
+  
+  <p>The <dfn id="timeout-err"><code>TIMEOUT_ERR</code></dfn> exception is
+  raised when the author specified timeout has passed before the request
+  could complete in synchronous requests.</p>
+
+  <p class="note">These exceptions will be folded into an update of
+  DOM Level 3 Core in due course, as they are appropriate for other API
+  specifications as well.</p>
 
 
 
