@@ -249,7 +249,8 @@
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
   
-  <p>The <dfn id="blob"><code>Blob</code></dfn> interface is defined by the
+  <p>The <dfn id="blob"><code>Blob</code></dfn> and
+  <dfn id="file"><code>File</code></dfn> interfaces are defined by the
   File API specification. [<cite><span>FileAPI</span></cite>]</p>
 
   <p>The terms and algorithms
@@ -985,19 +986,23 @@ X-Test: one, two
     null, do not include a <span>request entity body</span>
     and go to the next step.</p>
 
-    <p>Otherwise, let <var>encoding</var> be null, <var>mime</var> be
-    <code>text/plain</code>, and then follow these rules:</p>
+    <p>Otherwise, let <var>encoding</var> be null, <var>mime type</var> be
+    null, and then follow these rules:</p>
 
     <dl class="switch">
      <dt>If <var>data</var> is a <code>Blob</code></dt>
 
      <dd>
-      <p>Let <var>mime</var> be <code>application/octet-stream</code>.</p>
+      <p>Let <var>mime type</var> be "<code>application/octet-stream</code>".</p>
+      
+      <p>If the object has a
+      <code title="dom-File-mediaType">mediaType</code> attribute that is
+      not the empty string let <var>mime type</var> be its value.</p>
 
       <p>Let the <span>request entity body</span> be the raw data
       represented by <var>data</var>.</p>
      </dd>
-
+     
      <dt>If <var>data</var> is a <code>Document</code>
 
      <dd>
@@ -1007,7 +1012,8 @@ X-Test: one, two
       of <var>data</var>. If <var>encoding</var> is UTF-16 change it to
       UTF-8.</p>
       
-      <p>Let <var>mime</var> be <code>application/xml</code>.</p>
+      <p>Let <var>mime type</var> be "<code>application/xml;charset=</code>"
+      followed by <var>encoding</var>.</p>
 
       <p>Let the <span>request entity body</span> be the result of getting
       the <code title="dom-innerHTML">innerHTML</code> attribute on
@@ -1027,40 +1033,38 @@ X-Test: one, two
 
      <dd>
       <p>Let <var>encoding</var> be UTF-8.</p>
+      
+      <p>Let <var>mime type</var> be "<code>text/plain;charset=UTF-8</code>".</p>
 
       <p>Let the <span>request entity body</span> be <var>data</var>
       <span title="convert a DOMString to a sequence of Unicode characters">converted to Unicode</span>
       and encoded as UTF-8.</p>
      </dd>
-     
+
      <dt>If <var>data</var> is a <code>FormData</code></dt>
      
      <dd>
-      <p>Let <var>mime</var> be <code>multipart/form-data</code>.</p>
+      <p>Let <var>mime type</var> be "<code>multipart/form-data</code>".</p>
 
       <p>Let the <span>request entity body</span> be the result of running
       the <span><code>multipart/form-data</code> encoding algorithm</span>
       with <var>data</var> as <var>form data set</var>.</p>
       
       <!-- XXX sufficient? prolly not -->
+     </dd>
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using
-    <code>setRequestHeader()</code> and its value is a
-    <span>valid MIME type</span> and it has a <code>charset</code>
+    <code>setRequestHeader()</code> whose value is a
+    <span>valid MIME type</span> and has a <code>charset</code>
     parameter whose value is not an <span>ASCII case-insensitive</span>
-    match for <var>encoding</var>, set all the <code>charset</code>
-    parameters to <var>encoding</var>.</p>
+    match for <var>encoding</var>, and <var>encoding</var> is not null, set
+    all the <code>charset</code> parameters of the
+    <code>Content-Type</code> header to <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using
-    <code>setRequestHeader()</code> and <var>encoding</var> is not null set
-    a <code>Content-Type</code> request header with a value of
-    <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
-    
-    <p>If no <code>Content-Type</code> header has been set using
-    <code>setRequestHeader()</code> and <var>encoding</var> is null set
-    a <code>Content-Type</code> request header with a value of
-    <code><var>mime</var></code>.</p>
+    <code>setRequestHeader()</code> set a <code>Content-Type</code> request
+    header with as value <var>mime type</var>.</p>
 
     <!-- reminder: if we ever change this to always include charset it has
     to be included as the first parameter for compatibility reasons -->
@@ -2097,6 +2101,8 @@ interface <dfn>FormData</dfn> {
   void <span title="dom-formdata-append">append</span>(DOMString <var>name</var>, DOMString <var>value</var>);
 };</pre>
 
+  <!--XXX should we deal with File explicitly here? -->
+
 
   <h3 id="formdata-constructors">Constructors</h3>
 
@@ -2171,7 +2177,7 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <li><p>The ability to override the media type and character encoding of
    the response through the <code>overrideMimeType()</code> method.</p></li>
 
-   <li><p>The ability to transfer <code>Blob</code> and
+   <li><p>The ability to transfer <code>Blob</code>, <code>File</code>, and
    <code>FormData</code> objects.</p></li>
 
    <li><p class="XXX">byte streams</p></li>

@@ -35,13 +35,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 November 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 17 November 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091112/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091112/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091117/">http://www.w3.org/TR/2009/ED-XMLHttpRequest2-20091117/</a>
 
     <dt>Latest Version:
 
@@ -105,7 +105,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 12 November 2009 Working Draft of XMLHttpRequest Level 2.
+  <p>This is the 17 November 2009 Working Draft of XMLHttpRequest Level 2.
    Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -381,8 +381,9 @@
    characters</dfn> is defined by the Web IDL specification. [<cite><a
    href="#ref-webidl">WebIDL</a></cite>]
 
-  <p>The <dfn id=blob><code>Blob</code></dfn> interface is defined by the
-   File API specification. [<cite><a href="#ref-fileapi">FileAPI</a></cite>]
+  <p>The <dfn id=blob><code>Blob</code></dfn> and <dfn
+   id=file><code>File</code></dfn> interfaces are defined by the File API
+   specification. [<cite><a href="#ref-fileapi">FileAPI</a></cite>]
 
   <p>The terms and algorithms <dfn id=url-fragment>&lt;fragment></dfn>, <dfn
    id=url-scheme>&lt;scheme></dfn>, <dfn id=document-base-url>document base
@@ -1237,14 +1238,18 @@ X-Test: one, two
      include a <a href="#request-entity-body">request entity body</a> and go
      to the next step.</p>
 
-    <p>Otherwise, let <var>encoding</var> be null, <var>mime</var> be
-     <code>text/plain</code>, and then follow these rules:</p>
+    <p>Otherwise, let <var>encoding</var> be null, <var>mime type</var> be
+     null, and then follow these rules:</p>
 
     <dl class=switch>
      <dt>If <var>data</var> is a <code><a href="#blob">Blob</a></code>
 
      <dd>
-      <p>Let <var>mime</var> be <code>application/octet-stream</code>.</p>
+      <p>Let <var>mime type</var> be "<code>application/octet-stream</code>".</p>
+
+      <p>If the object has a <code title=dom-File-mediaType>mediaType</code>
+       attribute that is not the empty string let <var>mime type</var> be its
+       value.</p>
 
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        the raw data represented by <var>data</var>.</p>
@@ -1258,7 +1263,8 @@ X-Test: one, two
        encoding">character encoding</a> of <var>data</var>. If
        <var>encoding</var> is UTF-16 change it to UTF-8.</p>
 
-      <p>Let <var>mime</var> be <code>application/xml</code>.</p>
+      <p>Let <var>mime type</var> be "<code>application/xml;charset=</code>"
+       followed by <var>encoding</var>.</p>
 
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        the result of getting the <code title=dom-innerHTML><a
@@ -1279,6 +1285,8 @@ X-Test: one, two
      <dd>
       <p>Let <var>encoding</var> be UTF-8.</p>
 
+      <p>Let <var>mime type</var> be "<code>text/plain;charset=UTF-8</code>".</p>
+
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        <var>data</var> <a href="#dfn-obtain-unicode" title="convert a
        DOMString to a sequence of Unicode characters">converted to
@@ -1288,7 +1296,7 @@ X-Test: one, two
       href="#formdata">FormData</a></code>
 
      <dd>
-      <p>Let <var>mime</var> be <code>multipart/form-data</code>.</p>
+      <p>Let <var>mime type</var> be "<code>multipart/form-data</code>".</p>
 
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        the result of running the <a
@@ -1299,23 +1307,18 @@ X-Test: one, two
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> and its value is
-     a <a href="#valid-mime-type">valid MIME type</a> and it has a
+     href="#setrequestheader">setRequestHeader()</a></code> whose value is a
+     <a href="#valid-mime-type">valid MIME type</a> and has a
      <code>charset</code> parameter whose value is not an <a
      href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
-     <var>encoding</var>, set all the <code>charset</code> parameters to
-     <var>encoding</var>.</p>
+     <var>encoding</var>, and <var>encoding</var> is not null, set all the
+     <code>charset</code> parameters of the <code>Content-Type</code> header
+     to <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> and
-     <var>encoding</var> is not null set a <code>Content-Type</code> request
-     header with a value of
-     <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
-
-    <p>If no <code>Content-Type</code> header has been set using <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> and
-     <var>encoding</var> is null set a <code>Content-Type</code> request
-     header with a value of <code><var>mime</var></code>.</p>
+     href="#setrequestheader">setRequestHeader()</a></code> set a
+     <code>Content-Type</code> request header with as value <var>mime
+     type</var>.</p>
     <!-- reminder: if we ever change this to always include charset it has
     to be included as the first parameter for compatibility reasons -->
     
@@ -2567,6 +2570,7 @@ interface <dfn id=formdata>FormData</dfn> {
   void <a href="#dom-formdata-append" title=dom-formdata-append>append</a>(DOMString <var>name</var>, <a href="#blob">Blob</a> <var>value</var>);
   void <a href="#dom-formdata-append" title=dom-formdata-append>append</a>(DOMString <var>name</var>, DOMString <var>value</var>);
 };</pre>
+  <!--XXX should we deal with File explicitly here? -->
 
   <h3 id=formdata-constructors><span class=secno>4.1 </span>Constructors</h3>
 
@@ -2646,8 +2650,9 @@ const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
      href="#overridemimetype">overrideMimeType()</a></code> method.
 
    <li>
-    <p>The ability to transfer <code><a href="#blob">Blob</a></code> and
-     <code><a href="#formdata">FormData</a></code> objects.
+    <p>The ability to transfer <code><a href="#blob">Blob</a></code>,
+     <code><a href="#file">File</a></code>, and <code><a
+     href="#formdata">FormData</a></code> objects.
 
    <li>
     <p class=XXX>byte streams
