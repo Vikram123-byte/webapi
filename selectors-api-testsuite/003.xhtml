@@ -1,7 +1,7 @@
-<html lang="en" dir="ltr" id="html" class="unitTest" title=":root selector" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" dir="ltr" id="html" class="unitTest" title=":root selector">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Selectors-API Test Suite: XHTML+SVG with Selectors Level 3</title>
+  <title>Selectors-API Test Suite: HTML with Selectors Level 3</title>
   <!-- (c) Disruptive Innovations 2008 -->
   <style type="text/css">
     /* TEST 0 : BASIC TESTS */
@@ -31,9 +31,12 @@
     .firstOfType > p { background-color: red }
     .lastOfType > p { background-color: red }
     .empty > .isEmpty { color: red; }
-    html { background-color: red; }
+	.any-namespace div>div { background-color: red; }
+	.no-namespace div>div { background-color: red; }
 
+    html { background-color: red; }
     html.nopass .pass { display: none; }
+
   </style>
   <style type="text/test" id="test">
     /* :target selector */
@@ -190,6 +193,11 @@
     .plus .t1, .plus .t2 { background-color: white; }
     .plus .t1 + .unitTest + .unitTest { background-color: lime; }
     .plus .t1:hover + .unitTest + .unitTest { background-color: red; }
+
+    /* Namespace syntax tests */
+	.any-namespace *|div>div { background-color: lime; }
+	.no-namespace |div>div { background-color: lime; }
+
   </style>
   <style type="text/test" id="error">
     .blox16:not(.blox15[foo="blox14"]) { background-color: red; }
@@ -221,7 +229,7 @@
     .foo..quux { background: red; color: yellow; }
     .bar. { background: red; color: yellow; }
   </style>
-  <script><![CDATA[
+  <script>//<![CDATA[
 	window.onload = function(){
 		document.getElementById("toggle").onclick = function(){
 			document.documentElement.className = this.checked ? "unitTest nopass" : "unitTest";
@@ -230,12 +238,66 @@
 		if ( window.location.hash.indexOf("target") == -1 )
 			window.location.hash = "#target";
 
+		var nsTestFragment = document.createDocumentFragment();
+		var anyNS = document.createElement("div");
+		anyNS.className = "test any-namespace";
+		var noNS = document.createElement("div");
+		noNS.className = "test no-namespace";
+
+		nsTestFragment.appendChild(anyNS);
+		nsTestFragment.appendChild(noNS);
+
+		var div1 = document.createElement("div");
+		var div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		var div3 = document.createElementNS("", "div");
+		var div4 = document.createElementNS("http://www.example.org/ns", "div");
+
+		div1.setAttribute("title", "Any namespace selector, HTML element");
+		div2.setAttribute("title", "Any namespace selector, XHTML element");
+		div3.setAttribute("title", "Any namespace selector, element in no namespace");
+		div4.setAttribute("title", "Any namespace selector, element in other namespace");
+
+		div1.appendChild(document.createElement("div"));
+		div2.appendChild(document.createElement("div"));
+		div3.appendChild(document.createElement("div"));
+		div4.appendChild(document.createElement("div"));
+
+		anyNS.appendChild(div1);
+		anyNS.appendChild(div2);
+		anyNS.appendChild(div3);
+		anyNS.appendChild(div4);
+
+		div1 = document.createElement("div");
+		div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
+		div3 = document.createElementNS("", "div");
+		div4 = document.createElementNS("http://www.example.org/ns", "div");
+
+		div1.setAttribute("title", "No namespace selector, HTML element");
+		div2.setAttribute("title", "No namespace selector, XHTML element");
+		div3.setAttribute("title", "No namespace selector, element in no namespace");
+		div4.setAttribute("title", "No namespace selector, element in other namespace");
+
+		div1.appendChild(document.createElement("div"));
+		div2.appendChild(document.createElement("div"));
+		div3.appendChild(document.createElement("div"));
+		div4.appendChild(document.createElement("div"));
+
+		noNS.appendChild(div1);
+		noNS.appendChild(div2);
+		noNS.appendChild(div3);
+		noNS.appendChild(div4);
+
 		var root = document.getElementById("root");
 		var root2 = document.getElementById("root2");
 		var root3 = document.getElementById("root3");
 		var results = [];
 		var tests = 0, passed = 0;
 		var cache = {};
+
+		root.appendChild(anyNS.cloneNode(true));
+		root.appendChild(noNS.cloneNode(true));
+		root2.appendChild(anyNS);
+		root2.appendChild(noNS);
 
 		var cssElem = document.getElementById("test");
 		var css = (cssElem.innerHTML || cssElem.textContent || cssElem.innerText).split("\n");
@@ -395,7 +457,7 @@
 	
 					try {
 						var found = root.querySelectorAll(query);
-	
+
 						for ( var f = 0; f < found.length; f++ ) {
 							found[f].style.backgroundColor = color;
 						}
@@ -405,7 +467,7 @@
 						assert(expect && pass, type + ".querySelectorAll: " + query);
 					} catch(e){
 						var pass = !expect && typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR || false;
-						assert(pass, type + ".querySelectorAll: " + query);
+						assert(pass, type + ".querySelectorAll: " + query + ", e.code = " + e);
 					}
 
 					if ( expect ) {
@@ -475,9 +537,9 @@
 
 		function jqTests(type, root, select) {
 
-			function query(q, resolver){
+			function query(q){
 				try {
-					return root[select](q, resolver);
+					return root[select](q);
 				} catch(e){
 				  if ( e.message.indexOf("ERR") > -1 || typeof DOMException !== "undefined" && e.code == DOMException.NAMESPACE_ERR ||
 							typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR)
@@ -496,14 +558,14 @@
 				var nq = q.replace(/>/g, "&gt;").replace(/</g, "&lt;");
 
 				var pass = false;
-
+				var results = null;
 				try {
-					var results = query(q);
-					pass = hasPassed( results, ids );
+					results = query(q);
+					pass = hasPassed( results, ids );					
 				} catch(e) {
 				  	pass = typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR;
 				}
-	
+
 				assert( pass, type + ": " + name + " (" + nq + ")" +
 					(pass ? "" : " Expected: " + extra(ids) + " Received: " + extra(results)) );
 
@@ -583,7 +645,7 @@
 			t( "ID Selector w/ Element", "body#body", ["body"], false );
 			t( "ID Selector w/ Element", "ul#first", [] );
 			t( "ID selector with existing ID descendant", "#firstp #simon1", ["simon1"] );
-			t( "ID selector with non-existant descendant", "#firstp #foobar", [] );
+			t( "ID selector with non-existent descendant", "#firstp #foobar", [] );
 
 			t( "ID selector using UTF8", "#台北Táiběi", ["台北Táiběi"] );
 			t( "Multiple ID selectors using UTF8", "#台北Táiběi, #台北", ["台北Táiběi","台北"] );
@@ -604,7 +666,7 @@
 			t( "All Children of ID", "#foo > *", ["sndp", "en", "sap"] );
 			t( "All Children of ID with no children", "#firstUL > *", [] );
 
-			t( "ID selector with non-existant ancestor", "#asdfasdf #foobar", [] ); // bug #986
+			t( "ID selector with non-existent ancestor", "#asdfasdf #foobar", [] ); // bug #986
 
 			//t( "body div#form", [], "ID selector within the context of another element" );
 
@@ -711,17 +773,18 @@
 			t( "Checked UI Element", "#form input:checked", ["radio2","check1"] );
 			t( "Element Preceded By", "p ~ div", ["foo","fx-queue","fx-tests", "moretests"] );
 			t( "Not", "a.blog:not(.link)", ["mark"] );
-      t( "Descendent selector on svg:use", "use g", [] );
-      t( "Child selector on svg:use", "g > use", [] );
-      t( "Empty svg:use", "use:empty", ["use1", "use2", "use3"] );
-      t( "Element selector on SVG", "svg#svg4 circle", ["circle4"] );
+			t( "Descendent selector on svg:use", "use g", [] );
+			t( "Child selector on svg:use", "g > use", [] );
+		 	t( "Empty svg:use", "use:empty", ["use1", "use2", "use3"] );
+			t( "Element selector on SVG", "svg#svg4 circle", ["circle4"] );
 		}
 	};
-  ]]></script>
+  //]]></script>
 </head>
 <body id="body" class="unitTest" title="childhood and element type selectors">
 <h1><a href="http://www.w3.org/TR/selectors-api/">Selectors API</a> Test Suite</h1>
 <p>Testrunner by <a href="http://ejohn.org/">John Resig</a>, tests by <a href="http://ejohn.org/">John Resig</a>, <a href="http://disruptive-innovations.com/zoo/css3tests/selectorTest.html">Disruptive Innovations</a>, <a href="http://www.w3.org/Style/CSS/Test/CSS3/Selectors/20060307/html/index.html">W3C CSS Working Group</a>, <a href="http://jquery.com/test/">jQuery JavaScript Library</a>.</p>
+
 <p><label><input type="checkbox" id="toggle"/> Show only failing tests.</label></p>
 <div id="root">
   <div class="header">
@@ -747,8 +810,8 @@
 
   <div class="test attributeValue">
     <div class="blox6 unitTest" align="center" title="attribute value selector"></div>
-    <div class="blox6 unitTest" foo="&#201;" title="attribute value selector with an entity in the attribute and an escaped value in the selector"></div>
-    <div class="blox6 unitTest" _foo="&#201;" title="attribute value selector with an entity in the attribute, an escaped value in the selector, and a leading underscore in the attribute name"></div>
+    <div class="blox6 unitTest" foo="&#233;" title="attribute value selector with an entity in the attribute and an escaped value in the selector"></div>
+    <div class="blox6 unitTest" _foo="&#233;" title="attribute value selector with an entity in the attribute, an escaped value in the selector, and a leading underscore in the attribute name"></div>
   </div>
 
   <div class="test attributeSpaceSeparatedValues">
@@ -762,21 +825,21 @@
     <div class="unitTest t1" title="[^=] attribute selector"></div>
     <div class="unitTest t2" title="[^=] attribute selector"></div>
     <div class="unitTest t3" align="center" title="[^=] attribute selector looking for empty string"></div>
-    <div class="unitTest t4" foo="&#201;tagada" title="[^=] attribute selector looking for &#201;"></div>
+    <div class="unitTest t4" foo="&#233;tagada" title="[^=] attribute selector looking for &#233;"></div>
   </div>
 
   <div class="test attrEnd">
     <div class="unitTest t1" title="[$=] attribute selector"></div>
     <div class="unitTest t2" title="[$=] attribute selector"></div>
     <div class="unitTest t3" align="center" title="[$=] attribute selector looking for empty string"></div>
-    <div class="unitTest t4" foo="tagada&#201;" title="[$=] attribute selector looking for &#201;"></div>
+    <div class="unitTest t4" foo="tagada&#233;" title="[$=] attribute selector looking for &#233;"></div>
   </div>
 
   <div class="test attrMiddle">
     <div class="unitTest t1" title="[*=] attribute selector"></div>
     <div class="unitTest t2" title="[*=] attribute selector"></div>
     <div class="unitTest t3" align="center" title="[*=] attribute selector looking for empty string"></div>
-    <div class="unitTest t4" foo="tagada&#201;foo" title="[*=] attribute selector looking for &#201;"></div>
+    <div class="unitTest t4" foo="tagada&#233;foo" title="[*=] attribute selector looking for &#233;"></div>
   </div>
 
   <div class="test firstChild">
@@ -956,8 +1019,8 @@
 
   <div class="test attributeValue">
     <div class="blox6 unitTest" align="center" title="attribute value selector"></div>
-    <div class="blox6 unitTest" foo="&#201;" title="attribute value selector with an entity in the attribute and an escaped value in the selector"></div>
-    <div class="blox6 unitTest" _foo="&#201;" title="attribute value selector with an entity in the attribute, an escaped value in the selector, and a leading underscore in the attribute name"></div>
+    <div class="blox6 unitTest" foo="&#233;" title="attribute value selector with an entity in the attribute and an escaped value in the selector"></div>
+    <div class="blox6 unitTest" _foo="&#233;" title="attribute value selector with an entity in the attribute, an escaped value in the selector, and a leading underscore in the attribute name"></div>
   </div>
 
   <div class="test attributeSpaceSeparatedValues">
@@ -971,21 +1034,21 @@
     <div class="unitTest t1" title="[^=] attribute selector"></div>
     <div class="unitTest t2" title="[^=] attribute selector"></div>
     <div class="unitTest t3" align="center" title="[^=] attribute selector looking for empty string"></div>
-    <div class="unitTest t4" foo="&#201;tagada" title="[^=] attribute selector looking for &#201;"></div>
+    <div class="unitTest t4" foo="&#233;tagada" title="[^=] attribute selector looking for &#233;"></div>
   </div>
 
   <div class="test attrEnd">
     <div class="unitTest t1" title="[$=] attribute selector"></div>
     <div class="unitTest t2" title="[$=] attribute selector"></div>
     <div class="unitTest t3" align="center" title="[$=] attribute selector looking for empty string"></div>
-    <div class="unitTest t4" foo="tagada&#201;" title="[$=] attribute selector looking for &#201;"></div>
+    <div class="unitTest t4" foo="tagada&#233;" title="[$=] attribute selector looking for &#233;"></div>
   </div>
 
   <div class="test attrMiddle">
     <div class="unitTest t1" title="[*=] attribute selector"></div>
     <div class="unitTest t2" title="[*=] attribute selector"></div>
     <div class="unitTest t3" align="center" title="[*=] attribute selector looking for empty string"></div>
-    <div class="unitTest t4" foo="tagada&#201;foo" title="[*=] attribute selector looking for &#201;"></div>
+    <div class="unitTest t4" foo="tagada&#233;foo" title="[*=] attribute selector looking for &#233;"></div>
   </div>
 
   <div class="test firstChild">
@@ -1151,6 +1214,7 @@
 	<svg width="12cm" height="4cm" viewBox="0 0 1200 400" version="1.1" id="svg1">
   	<desc id="desc1">Example circle01 - circle filled with red and stroked with blue</desc>
   	<rect id="rect1" x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="2"/>
+
   	<circle id="circle1" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
 	</svg>
 	<!-- svg elements using svg: -->
@@ -1159,32 +1223,31 @@
   	<svg:rect id="rect2" x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="2"/>
   	<svg:circle id="circle2" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
 	</svg:svg>
+
 	<!-- svg using an inline xmlns -->
 	<svg width="12cm" height="4cm" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg3">
   	<desc id="desc3">Example circle01 - circle filled with red and stroked with blue</desc>
   	<rect id="rect3" x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="2"/>
   	<circle id="circle3" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
 	</svg>
-  <svg width="12cm" height="4cm" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg4">
-    <g id="svggroup4">
-      <desc id="desc4">Example circle01 - circle filled with red and stroked with blue</desc>
-      <rect id="rect4" x="450" y="50" width="300" height="300" fill="currentColor"/>
-      <circle id="circle4" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
-    </g>
-   
-    <use id="use1" xlink:href="#svggroup4" color="yellow"/>
-    <use id="use2" x="300" xlink:href="#svggroup4" color="green"/>
-    <use id="use3" x="-300" xlink:href="#svggroup4" color="purple"/>
-  </svg>
+	<svg width="12cm" height="4cm" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="svg4">
+		<g id="svggroup4">
+			<desc id="desc4">Example circle01 - circle filled with red and stroked with blue</desc>
+			<rect id="rect4" x="450" y="50" width="300" height="300" fill="currentColor"/>
+			<circle id="circle4" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
+		</g>
+		<use id="use1" xlink:href="#svggroup4" color="yellow"/>
+		<use id="use2" x="300" xlink:href="#svggroup4" color="green"/>
+		<use id="use3" x="-300" xlink:href="#svggroup4" color="purple"/>
+	</svg>
 	</div>
 
 	<h1 id="header">jQuery Test Suite</h1>
 	<h2 id="banner"></h2>
 	<h2 id="userAgent"></h2>
-	
+
 	<!-- Test HTML -->
 	<div id="nothiddendiv" style="height:1px;background:white;">
-
 		<div id="nothiddendivchild"></div>
 	</div>
 	<!-- this iframe is outside the #main so it won't reload constantly wasting time, but it means the tests must be "safe" and clean up after themselves -->

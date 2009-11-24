@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" id="html" class="unitTest" title=":root selector">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta charset="UTF-8">
   <title>Selectors-API Test Suite: HTML with Selectors Level 3</title>
   <!-- (c) Disruptive Innovations 2008 -->
   <style type="text/css">
@@ -32,8 +32,8 @@
     .firstOfType > p { background-color: red }
     .lastOfType > p { background-color: red }
     .empty > .isEmpty { color: red; }
-	.any-namespace div { background-color: red; }
-	.no-namespace div { background-color: red; }
+	.any-namespace div>div { background-color: red; }
+	.no-namespace div>div { background-color: red; }
 
     html { background-color: red; }
     html.nopass .pass { display: none; }
@@ -196,8 +196,8 @@
     .plus .t1:hover + .unitTest + .unitTest { background-color: red; }
 
     /* Namespace syntax tests */
-	.any-namespace *|div { background-color: lime; }
-	.no-namespace |div { background-color: lime; }
+	.any-namespace *|div>div { background-color: lime; }
+	.no-namespace |div>div { background-color: lime; }
 
   </style>
   <style type="text/test" id="error">
@@ -240,22 +240,28 @@
 			window.location.hash = "#target";
 
 		var nsTestFragment = document.createDocumentFragment();
-		var anyNS = document.createElement("div")
+		var anyNS = document.createElement("div");
 		anyNS.className = "test any-namespace";
-		var noNS = document.createElement("div")
+		var noNS = document.createElement("div");
 		noNS.className = "test no-namespace";
 
-		nsTestFragment.appendChild(anyNS)
-		nsTestFragment.appendChild(noNS)
+		nsTestFragment.appendChild(anyNS);
+		nsTestFragment.appendChild(noNS);
+
 		var div1 = document.createElement("div");
 		var div2 = document.createElementNS("http://www.w3.org/1999/xhtml", "div");
 		var div3 = document.createElementNS("", "div");
 		var div4 = document.createElementNS("http://www.example.org/ns", "div");
 
-		div1.setAttribute("title", "Any namespace selector, HTML element")
-		div2.setAttribute("title", "Any namespace selector, XHTML element")
-		div3.setAttribute("title", "Any namespace selector, element in no namespace")
-		div4.setAttribute("title", "Any namespace selector, element in other namespace")
+		div1.setAttribute("title", "Any namespace selector, HTML element");
+		div2.setAttribute("title", "Any namespace selector, XHTML element");
+		div3.setAttribute("title", "Any namespace selector, element in no namespace");
+		div4.setAttribute("title", "Any namespace selector, element in other namespace");
+
+		div1.appendChild(document.createElement("div"));
+		div2.appendChild(document.createElement("div"));
+		div3.appendChild(document.createElement("div"));
+		div4.appendChild(document.createElement("div"));
 
 		anyNS.appendChild(div1);
 		anyNS.appendChild(div2);
@@ -267,10 +273,15 @@
 		div3 = document.createElementNS("", "div");
 		div4 = document.createElementNS("http://www.example.org/ns", "div");
 
-		div1.setAttribute("title", "No namespace selector, HTML element")
-		div2.setAttribute("title", "No namespace selector, XHTML element")
-		div3.setAttribute("title", "No namespace selector, element in no namespace")
-		div4.setAttribute("title", "No namespace selector, element in other namespace")
+		div1.setAttribute("title", "No namespace selector, HTML element");
+		div2.setAttribute("title", "No namespace selector, XHTML element");
+		div3.setAttribute("title", "No namespace selector, element in no namespace");
+		div4.setAttribute("title", "No namespace selector, element in other namespace");
+
+		div1.appendChild(document.createElement("div"));
+		div2.appendChild(document.createElement("div"));
+		div3.appendChild(document.createElement("div"));
+		div4.appendChild(document.createElement("div"));
 
 		noNS.appendChild(div1);
 		noNS.appendChild(div2);
@@ -285,11 +296,9 @@
 		var cache = {};
 
 		root.appendChild(anyNS.cloneNode(true));
-//		root.appendChild(noNS.cloneNode(true));
-//		root2.appendChild(anyNS.cloneNode(true));
-//		root2.appendChild(noNS.cloneNode(true));
-//		root3.appendChild(anyNS.cloneNode(true));
-//		root3.appendChild(noNS.cloneNode(true));
+		root.appendChild(noNS.cloneNode(true));
+		root2.appendChild(anyNS);
+		root2.appendChild(noNS);
 
 		var cssElem = document.getElementById("test");
 		var css = (cssElem.innerHTML || cssElem.textContent || cssElem.innerText).split("\n");
@@ -529,9 +538,9 @@
 
 		function jqTests(type, root, select) {
 
-			function query(q, resolver){
+			function query(q){
 				try {
-					return root[select](q, resolver);
+					return root[select](q);
 				} catch(e){
 				  if ( e.message.indexOf("ERR") > -1 || typeof DOMException !== "undefined" && e.code == DOMException.NAMESPACE_ERR ||
 							typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR)
@@ -553,7 +562,7 @@
 
 				try {
 					var results = query(q);
-					pass = hasPassed( results, ids );
+					pass = hasPassed( results, ids );					
 				} catch(e) {
 				  	pass = typeof DOMException !== "undefined" && e.code == DOMException.SYNTAX_ERR;
 				}
@@ -772,8 +781,6 @@
 <body id="body" class="unitTest" title="childhood and element type selectors">
 <h1><a href="http://www.w3.org/TR/selectors-api/">Selectors API</a> Test Suite</h1>
 <p>Testrunner by <a href="http://ejohn.org/">John Resig</a>, tests by <a href="http://ejohn.org/">John Resig</a>, <a href="http://disruptive-innovations.com/zoo/css3tests/selectorTest.html">Disruptive Innovations</a>, <a href="http://www.w3.org/Style/CSS/Test/CSS3/Selectors/20060307/html/index.html">W3C CSS Working Group</a>, <a href="http://jquery.com/test/">jQuery JavaScript Library</a>.</p>
-
-<p><strong>NOTE: The tests for the namespace selector syntax are under development and are currently broken.</strong></p>
 
 <p><label><input type="checkbox" id="toggle"/> Show only failing tests.</label></p>
 <div id="root">
@@ -1199,34 +1206,12 @@
   </div>
 </div>
 <div id="root3">
-	<div id="svgs">
-	<!-- svg elements, but in the xhtml namespace -->
-	<svg width="12cm" height="4cm" viewBox="0 0 1200 400" version="1.1" id="svg1">
-  	<desc id="desc1">Example circle01 - circle filled with red and stroked with blue</desc>
-  	<rect id="rect1" x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="2"/>
-  	<circle id="circle1" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
-	</svg>
-	<!-- svg elements using svg: -->
-	<svg:svg width="12cm" height="4cm" viewBox="0 0 1200 400" version="1.1" id="svg2">
-  	<svg:desc id="desc2">Example circle01 - circle filled with red and stroked with blue</svg:desc>
-  	<svg:rect id="rect2" x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="2"/>
-  	<svg:circle id="circle2" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
-	</svg:svg>
-	<!-- svg using an inline xmlns -->
-	<svg width="12cm" height="4cm" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" version="1.1" id="svg3">
-  	<desc id="desc3">Example circle01 - circle filled with red and stroked with blue</desc>
-  	<rect id="rect3" x="1" y="1" width="1198" height="398" fill="none" stroke="blue" stroke-width="2"/>
-  	<circle id="circle3" cx="600" cy="200" r="100" fill="red" stroke="blue" stroke-width="10"  />
-	</svg>
-	</div>
-
 	<h1 id="header">jQuery Test Suite</h1>
 	<h2 id="banner"></h2>
 	<h2 id="userAgent"></h2>
-	
+
 	<!-- Test HTML -->
 	<div id="nothiddendiv" style="height:1px;background:white;">
-
 		<div id="nothiddendivchild"></div>
 	</div>
 	<!-- this iframe is outside the #main so it won't reload constantly wasting time, but it means the tests must be "safe" and clean up after themselves -->
