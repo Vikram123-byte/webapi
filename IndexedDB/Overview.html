@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.18 2009-12-02 22:03:07 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.19 2009-12-08 00:48:15 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -34,6 +34,8 @@
                 company: "Oracle Corp", companyURL: "http://www.oracle.com/" },
           ],
           
+          maxTocLevel: 3,
+          
           wg:           "Web Applications Working Group",
           
           wgURI:        "http://www.w3.org/2008/webapps/",
@@ -44,14 +46,27 @@
       };
     </script>
     <script class="remove">
-      function codeblocks() {
-        document.normalize();
-        
-        var blocks = document.querySelectorAll('codeblock');
-        var sn = new berjon.simpleNode({
+      function examples() {
+        var examples = document.querySelectorAll('div.example');
+        sn = new berjon.simpleNode({
                         "":     "http://www.w3.org/1999/xhtml",
                         "x":    "http://www.w3.org/1999/xhtml"
                     });
+        for (var i = 0; i < examples.length; i++) {
+          var example = examples.item(i);
+          var header = sn.element('div', {'class': 'exampleHeader'}, null, 'Example');
+          example.insertBefore(header, example.firstChild);
+        }
+      }
+      
+      function codeblocks() {
+        document.normalize();
+        sn = new berjon.simpleNode({
+                        "":     "http://www.w3.org/1999/xhtml",
+                        "x":    "http://www.w3.org/1999/xhtml"
+                    });
+        
+        var blocks = document.querySelectorAll('codeblock');
         for (var i = 0; i < blocks.length; i++) {
           var codeblock = blocks.item(i);
           var div = sn.element('div', {'class': 'block'})
@@ -64,8 +79,37 @@
           codeblock.parentNode.replaceChild(div, codeblock);
         }
       }
+      function codeRefs() {
+        var codes = document.querySelectorAll('a>code');
+        for (var i = 0; i < codes.length; i++) {
+          var code = codes.item(i);
+          var a = code.parentNode;
+          a.setAttribute('class', 'idltype');
+          a.setAttribute('href', '#idl-def-' + code.textContent); 
+        }      
+      }
+      function attrRefs() {
+        var attrs = document.querySelectorAll('span.idlAttrType>a');
+        for (var i = 0; i < attrs.length; i++) {
+          var attr = attrs.item(i);
+          if (!attr.textContent.match(/DOMString|unsigned/)) {
+            attr.setAttribute('class', 'idltype');
+            attr.setAttribute('href', '#idl-def-' + attr.textContent); 
+          }
+        }
+      }
+      
       window.onload = function() {
+        examples();
         codeblocks();
+        codeRefs();
+        var attrsReplaced = false;/*
+        document.querySelector('head').addEventListener('DOMNodeRemoved', function(evt) {
+          if (!attrsReplaced) {
+            attrRefs();
+            attrsReplaced = true;
+          }
+        }, false);*/
         (new berjon.respec()).loadAndRun();
       }
     </script>
@@ -92,21 +136,21 @@
         padding: 0.2em;
         vertical-align: top;
       }
+      h4, h5 {
+        display: none
+      }
     </style>
   </head>
 
   <body>
     <section id="abstract">
       <p>
-      This document defines APIs for indexed persistence of records containing values
+      This document defines APIs for a database of records containing values
       and objects. Each record consists of a key and some value. Moreover, the 
-      persistent store maintains indexes over records it stores. An application 
+      database maintains indexes over records it stores. An application 
       developer directly uses an API to locate records either by their key or by
-      using an index and values in it. 
-      </p>
-      <p>
-      An indexed persistent store can be implemented using a B-tree. A
-      query language can be layered on this API.
+      using an index. A query language can be layered on this API. An indexed 
+      database can be implemented using a persistent B-tree data structure. 
       </p>
     </section>
 
@@ -116,7 +160,7 @@
       <p>
         User agents need to store large numbers of objects locally in
         order to satisfy off-line data requirements of Web applications.
-        <cite><a href="#ref-WebStorage">[WebStorage]</a></cite> is useful for
+        [[WEBSTORAGE]] is useful for
         storing pairs of keys and their corresponding values. However, it does 
         not provide in-order retrieval of keys, efficient searching over
         values, or storage of duplicate values for a key. 
@@ -134,7 +178,6 @@
       </p>
       
       <div class="example">
-        <div class="exampleHeader">Example</div>
         <p>
           A script can efficiently find items in an object store that come 
           closest to the required value provided the value is stored in either 
@@ -234,7 +277,7 @@ prepareDatabase(function(evt) {
             A conforming Indexed Database API user agent must also be a
             <em>conforming implementation</em> of the IDL fragments
             of this specification, as described in the
-            “Web IDL” specification. <cite><a href='#ref-WebIDL'>[WEBIDL]</a></cite>
+            “Web IDL” specification. [[!WEBIDL]]
           </p>
           
           <div class="note">
@@ -254,14 +297,14 @@ prepareDatabase(function(evt) {
           <dd>The terms and algorithms <dfn id="document-base-url">document base URL</dfn>,
             <dfn id="event-handler-attributes">event handler attributes</dfn>, 
             <dfn id="event-handler-event-type">event handler event type</dfn>,
-            <dfn id="Function"><code>Function</code></dfn>,
-            <dfn id="origin">origin</dfn>, <dfn id="same-origin">same origin</dfn>,
-            <dfn id="task">task</dfn>, <dfn id="task-source">task source</dfn>, and
-            <dfn id="queue-a-task">queue a task</dfn> are defined by the HTML 5 
-            specification <cite><a href="#ref-HTML5">[HTML5]</a></cite>.
+            <dfn title="Function"><code>Function</code></dfn>,
+            <dfn>origin</dfn>, <dfn>same origin</dfn>,
+            <dfn>task</dfn>, <dfn>task source</dfn>, and
+            <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
+            specification [[!HTML5]].
           </dd>
           <dt>WebWorkers</dt>
-          <dd>This specification adds capabilities to WebWorkers and uses certain concepts defined in this specification <cite><a href="#ref-WebWorkers">[WebWorkers]</a></cite>.</dd>
+          <dd>This specification adds capabilities to WebWorkers and uses certain concepts defined in this specification [[!WEBWORKERS]].</dd>
         </dl>
       </section>
     </section>
@@ -270,19 +313,25 @@ prepareDatabase(function(evt) {
       <h2>Indexed Database API</h2>
       
       <p>
-        Each <a class="dfnref" href="#origin">origin</a> has an associated set 
-        of databases. A database persists keys and values in an ordered manner. 
-        Each <dfn id="dfn-database">database</dfn> comprises:
+        Each <a>origin</a> has an associated set of <a title="database">databases</a>. 
+        A <dfn>database</dfn> persists keys and values in an ordered manner, and comprises:
       </p>
       <ul>
         <li>
-          one or more object stores, each of which hold any number of keys 
+          one or more <dfn title="object store">object stores</dfn>, each of which hold any number of keys 
           and a value for each of those keys. Each key can be accessed randomly.
           Keys may also be accessed in their natural order.
         </li>
         <li>
-          zero or one active <a class="dfnref" href="#dfn-transaction">transaction</a>
-          used to isolate access to object stores.
+          any number of <dfn title="index">indexes</dfn>, each of which references an 
+          <a>object store</a> and holds any number of keys and one or more values
+          for each of those keys. Each value in an index identifies a record 
+          in the <a>object store</a> that the <a>index</a> refers. Each index key can
+          be accessed randomly. Keys may also be accessed in their natural order.
+        </li>
+        <li>
+          zero or one active <a>transaction</a> used to isolate access to 
+          <a title="object store">object stores</a>.
         </li>
       </ul>
       <p>
@@ -298,79 +347,65 @@ prepareDatabase(function(evt) {
         set of names.
       </div>
       <p>
-      Each database also has a current version.
+      Each <a>database</a> also has a current version.
       </p>
       <div class="note">
-        Each <a class="dfnref" href="#dfn-database">database</a> has one version
-        at a time; a <a class="dfnref" href="#dfn-database">database</a> can't
+        Each <a>database</a> has one version at a time; a <a>database</a> can't
         exist in multiple versions at once. Versions are intended to allow authors
         to manage schema changes incrementally and non-destructively, and without
         running the risk of old code (e.g. in another browser window) trying to
-        write to a <a class="dfnref" href="#dfn-database">database</a> with
+        write to a <a>database</a> with
         incorrect assumptions.
       </div>
       <p>
-        When a <a class="dfnref" href="#dfn-database">database</a> is opened, that creates
-        a <dfn id="dfn-connection">connection</dfn>. There can be multiple 
-        <a class="dfnref" href="#dfn-connection">connections</a> to a given 
-        <a class="dfnref" href="#dfn-database">database</a>. A 
-        <a class="dfnref" href="#dfn-connection">connection</a> that is attempting to read a 
-        given piece of data in a <a class="dfnref" href="#dfn-database">database</a> is
-        called a <dfn id="dfn-reader">reader</dfn> and one that is attempting to write that
-        piece of data is called a <dfn id="dfn-writer">writer</dfn>. 
+        When a <a>database</a> is opened, that creates a <dfn>connection</dfn>. There
+        can be multiple <a title="connection">connections</a> to a given 
+        <a>database</a>. A <a>connection</a> that is attempting to read a given piece
+        of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
+        attempting to write that piece of data is called a <dfn>writer</dfn>. 
       </p>
       <section id="database" class="section">
         <h3>Database</h3>
         <p>
-          There is no way to enumerate the <a class="dfnref" href="#dfn-database">databases</a> 
-          available for an <a class="dfnref" href="#origin">origin</a> from this API.
-          A <a class="idltype" href="#Database"><code>Database</code></a> object
-          represents a <a class="dfnref" href="#dfn-connection">connection</a> to
-          a <a class="dfnref" href="#dfn-database">database</a>.
+          A <a><code>Database</code></a> object represents a <a>connection</a> to a 
+          <a>database</a>. There is no way to enumerate the 
+          <a title="database">databases</a> available for an <a>origin</a> from this API. 
         </p>
         
         <dl title="interface Database" class="idl">   
           <dt>readonly attribute DOMString name</dt>
           <dd>
-            On getting, this attribute must return the name of the 
-            <a class="dfnref" href="#dfn-database">database</a>
-            <a class="dfnref" href="#dfn-connection">connected</a> to this object.
+            On getting, this attribute must return the name of the <a>database</a> 
+            <a title="connection">connected</a> to this object.
           </dd>
           <dt>readonly attribute DOMString description</dt>  
           <dd>
-            On getting, this attribute must return the description of the
-            <a class="dfnref" href="#dfn-database">database</a>
-            <a class="dfnref" href="#dfn-connection">connected</a> to this object.
+            On getting, this attribute must return the description of the <a>database</a>
+            <a title="connection">connected</a> to this object.
           </dd>
           <dt>readonly attribute DOMString version</dt>
           <dd>
-            On getting, this attribute must return
-            the current version of the <a class="dfnref" href="#dfn-database">database</a>
-            <a class="dfnref" href="#dfn-connection">connected</a> to this object
-            (as opposed to the expected version of the
-            <a class="idltype" href="#Database"><code>Database</code></a> object).
+            On getting, this attribute must return the current version of the
+            <a>database</a> <a title="connection">connected</a> to this object
+            (as opposed to the expected version of the <a><code>Database</code></a> object).
           </dd>
           <dt>readonly attribute DOMStringList objectStores</dt>
           <dd>
-            On getting, this attribute must return a list of names 
-            of the object stores currently in this database
-            <a class="dfnref" href="#dfn-database">database</a>
-            <a class="dfnref" href="#dfn-connection">connected</a> to this object.
+            On getting, this attribute must return a list of names of the 
+            <a title="object store">object stores</a> currently in this <a>database</a>
+            <a title="connection">connected</a> to this object.
           </dd>
-          <dt>readonly attribute <a class="idltype" href="#Transaction">Transaction</a> currentTransaction</dt>
+          <dt>readonly attribute Transaction currentTransaction</dt>
           <dd>
-            On getting, this
-            attribute must return a <a class="idltype" href="#Transaction"><code>Transaction</code></a> object
+            On getting, this attribute must return a <a><code>Transaction</code></a> object
             corresponding to the transaction that is currently active in the
-            <a class="dfnref" href="#dfn-database">database</a>
-            <a class="dfnref" href="#dfn-connection">connected</a> to this object.
+            <a>database</a> <a title="connection">connected</a> to this object.
           </dd>
         </dl>
         <p>
           The version that the database was opened with is the expected
-          version of this <a class="idltype" href="#Database"><code>Database</code></a> 
-          object. It can be the empty string, in which case there is no
-          expected version — any version is fine.
+          version of this <a><code>Database</code></a> object. It can be the empty string, 
+          in which case there is no expected version — any version is fine.
         </p>
      
       </section>  <!-- Databases -->
@@ -378,8 +413,7 @@ prepareDatabase(function(evt) {
       <section id="sync-database" class="section">
         <h3>Synchronous APIs</h3>
         <p>
-          This API can only be used in a Worker 
-          <cite><a href="#ref-WebWorkers">[WebWorkers]</a></cite>.
+          This API can only be used in a Worker [[!WEBWORKERS]].
         </p>
         <section id="opening-sync" class="section">
           <h4>Opening a database connection</h4>
@@ -387,56 +421,55 @@ prepareDatabase(function(evt) {
             <p>
               In the following example, we open a database synchronously. 
             </p>
-            <codeblock language="es">var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '1', 'Address Book', function(txn, db) {...});</codeblock>
+            <codeblock>var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '1', 'Address Book', function(txn, db) {...});</codeblock>
           </div>
           <p>
             The synchronous API for databases blocks the calling thread until a
-            <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a> object
-            is ready to return. Moreover, this API also throws a 
-            <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a>
-            if an error occurs while the database is being opened.
+            <a><code>DatabaseSync</code></a> object is ready to return. Moreover, 
+            this API also throws a <a><code>DatabaseException</code></a> if an error
+            occurs while the database is being opened.
           </p>
           <dl class="idl" title="[Constructor(in          DOMString       name, 
            in          DOMString       version, 
            in          DOMString       displayName, 
            in optional UpgradeCallback upgrade)] interface DatabaseSync : Database">
-            <dt>ObjectStoreSync getObjectStore(in          DOMString      name,
-                               in optional unsigned short mode)</dt>
+            <dt>ObjectStoreSync getObjectStore()</dt>
             <dd>
               <p> 
-                This method returns an 
-                <a class="idltype" href="#ObjectStoreSync"><code>ObjectStoreSync</code></a> 
-                object to access the object store identified by the given name in the 
-                <a class="dfnref" href="#dfn-database">database</a> to which this 
-                <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a> object
-                is <a class="dfnref" href="#dfn-connection">connected</a>. The mode 
-                passed to this method is used to create the 
+                This method returns an <a><code>ObjectStoreSync</code></a> object to 
+                access the object store identified by the given name in the 
+                <a>database</a> to which this <a><code>DatabaseSync</code></a> object
+                is <a title="connection">connected</a>. 
               </p>
               
-              <p>
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd></dd>
+                <dt>[Optional] unsigned short mode</dt>
+                <dd>The mode used to create the connection.</dd>
+              </dl>
+              <div class="exception" title="DatabaseException">
                 If an object store with the given name, compared in a case-sensitive manner, 
                 does not already exist in the database, then this method will throw a newly constructed 
                 <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
                 exception with code 
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </p>
+                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.                
+              </div>
             </dd>
             <dt><a class="idltype" href="#IndexSync">IndexSync</a>       <a class="idltype" href="#sync-get-index">getIndex</a>(      in          DOMString name, 
                                in          DOMString storeName)</dt>
             <dd>
               <p>
-                This method returns an 
-                <a class="idltype" href="#IndexSync"><code>IndexSync</code></a> 
+                This method returns an <a><code>IndexSync</code></a> 
                 object representing the named index on the given object store in this database.
               </p>
       
-              <p>    
+              <div class="exception" title="DatabaseException">
                 If an index with the given name, compared in a case-sensitive manner, 
                 does not already exist, then this method will throw a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code 
+                <a><code>DatabaseException</code></a> exception with code 
                 <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </p>
+              </div>
             </dd>
             <dt><a class="idltype" href="#TransactionSync">TransactionSync</a> <a class="idltype" href="#sync-transaction">transaction</a>(   in optional DOMStringList storeNames, 
                                in optional unsigned int  timeout)</dt>
@@ -445,11 +478,11 @@ prepareDatabase(function(evt) {
              creation steps</a> with the array of database objects for acquiring locks
              required in this transaction and an optional timeout duration, and return
              the resulting 
-             <a class="idltype" href="#TransactionSync"><code>TransactionSync</code></a> object.
+             <a><code>TransactionSync</code></a> object.
             </dd>
           </dl>  
           <p>
-            The <a href="#DatabaseSync"><code>DatabaseSync</code></a> constructor 
+            The <a><code>DatabaseSync</code></a> constructor 
             takes the following arguments: a database name, a database version,
             a display name, and optionally an upgrade callback and isolation level.
             When this constructor is invoked, the user agent must run the
@@ -463,7 +496,7 @@ prepareDatabase(function(evt) {
             </li>
             <li>
               If the steps were aborted due to an error, then throw a newly constructed
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+              <a><code>DatabaseException</code></a> 
               exception with the code of that error and abort these steps.
             </li>
             <li>
@@ -527,15 +560,15 @@ prepareDatabase(function(evt) {
                 <dt>If these steps are performed to synchronously open a database</dt>
                 <dd>
                   Let <var>result</var> be a newly constructed 
-                  <a class="idltype" href="#DatabaseSync"><code>DatabaseSync</code></a> object
-                  representing a <a class="dfnref" href="#dfn-connection">connection</a> 
+                  <a><code>DatabaseSync</code></a> object
+                  representing a <a>connection</a> 
                   to <var>db</var>.
                 </dd>
                 <dt>If these steps are performed to asynchronously open a database</dt>
                 <dd>
                   Let <var>result</var> be a newly constructed 
-                  <a class="idltype" href="#Database"><code>Database</code></a> object
-                  representing a <a class="dfnref" href="#dfn-connection">connection</a> 
+                  <a><code>Database</code></a> object
+                  representing a <a>connection</a> 
                   to <var>db</var>.
                 </dd>
               </dl>
@@ -551,12 +584,12 @@ prepareDatabase(function(evt) {
                 <li>
                   If a system-level timeout duration is exceeded when 
                   creating the transaction, then abort these steps with
-                  <a class="idlvalue" href="#code-timeout"><code>TIMEOUT_ERR</code></a>.              
+                  <a><code>TIMEOUT_ERR</code></a>.              
                 </li>
   
                 <li>
                   Create a new 
-                  <a class="idltype" href="#Upgrade"><code>Upgrade</code></a>
+                  <a><code>Upgrade</code></a>
                   object called <var>upgrade</var> for the transaction just created.
                 </li>
                 <li>
@@ -566,7 +599,7 @@ prepareDatabase(function(evt) {
                   </p>
                   <p>
                     If the callback throws an exception, abort these steps with 
-                    <a class="idlvalue" href="#code-unknown"><code>UNKNOWN_ERR</code></a>.
+                    <a><code>UNKNOWN_ERR</code></a>.
                   </p>
                 </li>
                 <li>
@@ -594,7 +627,7 @@ prepareDatabase(function(evt) {
               In the following example, a database can be initially setup with an object
               store where the <em>id</em> property on stored objects is used as the key.
             </p>
-            <codeblock language="es">var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
+            <codeblock>var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
 var upgrade = 
 function(changes, db) {
   changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id');
@@ -605,7 +638,7 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
               Later this database can be upgraded to add a secondary key 
               for the contact name.
             </p>
-            <codeblock language="es">var upgrade = 
+            <codeblock>var upgrade = 
 function(changes, db) {
   // db.version === '1'
   changes.<a class="idltype" href="#create-index">createIndex</a>('ContactName', 'Contact', 'name', Index.MANY_TO_ONE);
@@ -613,30 +646,8 @@ function(changes, db) {
 };
 var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '2', 'Address Book', upgrade);</codeblock>
           </div>
-          <codeblock language="idl">interface <dfn id="Upgrade">Upgrade</dfn> {
-void <a class="idltype" href="#create-object-store">createObjectStore</a>(in          DOMString name, 
-                       in          DOMString primaryKeyPath, 
-                       in optional boolean   autoIncrement) 
-                       raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-void <a class="idltype" href="#create-index">createIndex</a>(      in          DOMString      name, 
-                       in          DOMString      storeName,
-                       in          DOMString      keyPath, 
-                       in optional unsigned short cardinality) 
-                       raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-
-void <a class="idltype" href="#remove-object-store">removeObjectStore</a>(in DOMString storeName) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-void <a class="idltype" href="#remove-index">removeIndex</a>(     in DOMString indexName, 
-                      in DOMString storeName) 
-                      raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-};
-
-[Callback=FunctionOnly, NoInterfaceObject]
-interface <dfn id="UpgradeCallback">UpgradeCallback</dfn> {
-void upgrade(in <a class="idltype" href="#Upgrade">Upgrade</a>  txn,
-             in <a class="idltype" href="#Database">Database</a> db);
-};</codeblock>
-          <dl>
-            <dt><dfn id="create-object-store"><code>createObjectStore()</code></dfn></dt>
+          <dl class="idl" title="interface Upgrade">
+            <dt>void createObjectStore()</dt>
             <dd>
               <p> 
                 This method creates a new object store with the given name. The path of the 
@@ -648,22 +659,23 @@ void upgrade(in <a class="idltype" href="#Upgrade">Upgrade</a>  txn,
                 sequence is used to populate a value in the object at the key path and that value
                 is stored as the key value for the object. 
               </p>
-              
-              <p>    
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd></dd>
+                <dt>DOMString primaryKeyPath</dt>
+                <dd></dd>
+                <dt>optional boolean autoIncrement</dt>
+                <dd></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>CONSTRAINT_ERR</code></a></dt>
+                <dd>
                 If an object store with the same name, compared in a
-                case-sensitive manner, already exists, then this method will throw a
-                newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code
-                <a class="idlvalue" href="#code-constraint"><code>CONSTRAINT_ERR</code></a>.
-                If a sequence name is given for generating primary keys but a sequence with
-                that name does not exist, then this method will throw a
-                newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </p>
+                case-sensitive manner, already exists.
+                </dd>
+              </dl>
             </dd>
-            
-            <dt><dfn id="create-index" class="idltype"><code>createIndex()</code></dfn></dt>
+            <dt>void createIndex()</dt>
             <dd>
               <p>
                 This method is used to define a new index on this object store. An index is 
@@ -671,51 +683,77 @@ void upgrade(in <a class="idltype" href="#Upgrade">Upgrade</a>  txn,
                 and cardinality - and two optional parameters - action to be performed when 
                 related object is deleted, and the name of the related object. 
               </p>
-      
-              <p>    
+              <dl class="parameters">
+                <dt>DOMString      name</dt>
+                <dd></dd>
+                <dt>DOMString      storeName</dt>
+                <dd></dd>
+                <dt>DOMString      keyPath</dt>
+                <dd></dd>
+                <dt>optional unsigned short cardinality</dt>
+                <dd></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>CONSTRAINT_ERR</code></a></dt>
+                <dd>
                 If an index with the same name, compared in a
-                case-sensitive manner, already exists, then this method will throw a
-                newly constructed <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code
-                <a class="idlvalue" href="#code-constraint"><code>CONSTRAINT_ERR</code></a>.
-                If the object store with the given name does not exist, then this method will
-                throw a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </p>            
+                case-sensitive manner, already exists.
+                </dd>
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the object store with the given name does not exist.            
+                </dd>
+              </dl>
             </dd>
-                          
-            <dt><dfn id="remove-object-store"><code>removeObjectStore()</code></dfn></dt>
+            <dt>void removeObjectStore()</dt>
             <dd>
               <p>
                 This method is used to destroy the object store as well as all associated indices. 
               </p>
               
-              <p>    
+              <dl class="parameters">
+                <dt>DOMString storeName</dt>
+                <dd></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
                 If an object store with the given name, compared in a case-sensitive manner, 
-                does not already exist, then this method will throw a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code 
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </p>
-            </dd>          
-
-            <dt><dfn id="remove-index"><code>removeIndex()</code></dfn></dt>
+                does not already exist.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void removeIndex()</dt>
             <dd>
               <p>
                 This method is used to destroy the named index on the given object store. 
               </p>
-              
-              <p>    
-                If an index with the given name does not exist on the named object store, 
-                then this method will throw a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code 
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </p>
-            </dd>          
-          </dl>   
+              <dl class="parameters">
+                <dt>DOMString indexName</dt>
+                <dd></dd>
+                <dt>DOMString storeName</dt>
+                <dd></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If an index with the given name does not exist on the named object store.   
+                </dd>
+              </dl>
+            </dd>
+          </dl>
+          
+          <dl class="idl" title="[Callback=FunctionOnly, NoInterfaceObject] interface UpgradeCallback">
+            <dt>void upgrade()</dt>
+            <dd>
+              <dl class="parameters">
+                <dt>Upgrade  txn</dt>
+                <dd></dd>
+                <dt>Database db</dt>
+                <dd></dd>
+              </dl>
+            </dd>
+          </dl>
         </section>
         <section class="section" id="object-store-sync">  
           <h4>Object Store</h4>
@@ -728,10 +766,10 @@ void upgrade(in <a class="idltype" href="#Upgrade">Upgrade</a>  txn,
           </p>
           
           <p>
-            Each <a href="#ObjectStore" class="idltype"><code>ObjectStore</code></a>
+            Each <a><code>ObjectStore</code></a>
              object provides access to a set of key/value pairs, which are sometimes
              called items. Values can be any data type supported by the 
-             <span>structured clone algorithm</span> <cite><a href="#ref-HTML5">[HTML5]</a></cite>. 
+             <span>structured clone algorithm</span> [[!HTML5]]. 
              Keys themselves can be of any simple data type. They can be extracted
              from objects being stored or generated from a monotonic sequence.
           </p>
@@ -747,7 +785,7 @@ void upgrade(in <a class="idltype" href="#Upgrade">Upgrade</a>  txn,
               This object store is designed to auto generate keys for each
               new object added to <em>Contact</em>.
             </p>
-            <codeblock language="es">var upgrade = function(changes, db) {
+            <codeblock>var upgrade = function(changes, db) {
               changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id', true);
             });
 
@@ -756,7 +794,7 @@ var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBo
               Using this database, we can store objects in the <em>Contact</em>
               object store. 
             </p>
-            <codeblock language="es">var store = db.<a class="idltype" href="#sync-get-object-store">getObjectStore</a>('Contact');
+            <codeblock>var store = db.<a class="idltype" href="#sync-get-object-store">getObjectStore</a>('Contact');
 
 var lincoln = {name: 'Lincoln', number: '7012'};
 var contact = store.<a class="idltype" href="#object-store-put">put</a>(lincoln);
@@ -764,25 +802,25 @@ var contact = store.<a class="idltype" href="#object-store-put">put</a>(lincoln)
             <p>
               A stored value can be retrieved using the same key used for storage.
             </p>
-            <codeblock language="es">var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
+            <codeblock>var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
 // contact.name === 'Lincoln'</codeblock>
             <p>
               A second put operation will
               replace the object stored by the first put operation.
             </p>
-            <codeblock language="es">var abraham = {id: 1, name: 'Abraham', number: '2107'};
+            <codeblock>var abraham = {id: 1, name: 'Abraham', number: '2107'};
 store.<a class="idltype" href="#object-store-put">put</a>(abraham);</codeblock>
             <p>
               Now when the object store is read with the same key, the result 
               is different compared to the object read earlier.
             </p>
-            <codeblock language="es">var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
+            <codeblock>var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
 // contact.id === 1 &amp;&amp; contact.name === 'Abraham';</codeblock>
             <p>
               Additionally, all the objects of an object store matching a certain
               range of secondary or primary keys can be retrieved in key order.
             </p>
-            <codeblock language="es">var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(2, 4, <a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> &amp; <a class="idlvalue" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a>);
+            <codeblock>var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(2, 4, <a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> &amp; <a class="idlvalue" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a>);
 var count = store.<a class="idltype" href="#store-for-each">forEach</a>(function(key, cursor, value) {
             // each value is a contact and each key is the id for that  
             // contact whose id is between 2 and 4, both inclusive
@@ -796,85 +834,103 @@ var count = store.<a class="idltype" href="#store-for-each">forEach</a>(function
             and refer to a primary key somewhere in the object store.
           </p>
           
-          <codeblock language="idl">interface <dfn id="ObjectStore">ObjectStore</dfn> {  
-         const     unsigned short <a href="#READ_WRITE">READ_WRITE</a>    = 1;
-         const     unsigned short <a href="#READ_ONLY">READ_ONLY</a>     = 2;
-         const     unsigned short <a href="#DETACHED_READ">DETACHED_READ</a> = 6;
+          <dl title="interface ObjectStore" class="idl">
+            <dt>const     unsigned short <a href="#READ_WRITE">READ_WRITE</a>    = 1</dt>
+            <dd></dd>
+            <dt>const     unsigned short <a href="#READ_ONLY">READ_ONLY</a>     = 2</dt>
+            <dd></dd>
+            <dt>const     unsigned short <a href="#DETACHED_READ">DETACHED_READ</a> = 6</dt>
+            <dd></dd>
 
-readonly attribute DOMString      <a class="idltype" href="#object-store-name">name</a>;
-readonly attribute DOMString      <a class="idltype" href="#object-store-key-path">keyPath</a>;
-readonly attribute DOMStringList  <a class="idltype" href="#object-store-index-names">indexNames</a>;
-readonly attribute unsigned short <a class="idltype" href="#mode">mode</a>;
-};
-
-interface <dfn id="ObjectStoreSync">ObjectStoreSync</dfn> : <a class="idltype" href="#ObjectStore">ObjectStore</a> {
-unsigned long long <a class="idltype" href="#store-for-each">forEach</a>(in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
-                           in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
-                           in optional unsigned short direction);
-
-any                <a class="idltype" href="#object-store-put">put</a>(    in any obj) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-void               <a class="idltype" href="#object-store-delete">delete</a>( in any key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-any                <a class="idltype" href="#object-store-get">get</a>(    in any key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-};</codeblock>
-      
-        <p>
-          On getting, <dfn id="object-store-name"><code>name</code></dfn> will
-          provide the name of the object store.        
-        </p>
-
-        <p>
-          On getting, <dfn id="object-store-key-path"><code>keyPath</code></dfn> will
-          provide the path of the key used as the primary key of objects stored in this
-          object store. This path can be the empty string if the object value is used
-          as the key.
-        </p>
-        
-        <p>
-          On getting, <dfn id="object-store-index-names"><code>indexNames</code></dfn> will
-          provide a list of the names of indexes on objects in this object store.
-        </p>
-        
-        <p>
-          The <dfn id="object-store-put"><code>put()</code></dfn> method is used to 
-          store the given object in the object store. Insert the object by performing the 
-          <a class="dfnref" href="#insertion-steps">insertion steps</a>.
-        </p>
-
-        <p>
-          The <dfn id="object-store-get"><code>get()</code></dfn> method is used to retrieve
-          the object associated with the given key in the object store. The following steps 
-          must be run for retrieving the object with the following parameters: <var>key</var>.
-        </p>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>          
+            On getting, provide the name of the object store.        
+            </dd>
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+            On getting, provide the path of the key used as the primary key of objects
+            stored in this object store. This path can be the empty string if the
+            object value is used as the key.
+            </dd>
+            <dt>readonly attribute DOMStringList  indexNames</dt>
+            <dd>
+            On getting, provide a list of the names of indexes on objects in this
+            object store.
+            </dd>
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd></dd>
+          </dl>
           
-        <ol>
-          <li>
-            If <var>key</var> is not defined or null, then throw a newly constructed 
-            <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-            exception with code
-            <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
-            and terminate these steps.
-          </li>            
-          <li>
-            Use the <var>key</var> to look up an object in the object store. Let 
-            <var>value</var> be that object.
-          </li>
-          
-          <li>
-            If <var>object</var> is not found in the object store, then throw a newly constructed 
-            <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-            exception with code
-            <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
-            and terminate these steps.
-          </li>
-        </ol>
-
-        <p>
-          The <dfn id="object-store-delete"><code>delete()</code></dfn> method is used to 
-          delete the object associated with the given key in the object store. Delete the
-          object by performing the <a class="dfnref" href="#deletion-steps">deletion steps</a>.
-        </p>
-
-          
+          <dl title="interface ObjectStoreSync : ObjectStore" class="idl">
+            <dt>unsigned long long forEach()</dt>
+            <dd>
+              <dl class="parameters">
+                <dt>CursorCallback callback</dt>
+                <dd></dd>
+                <dt>optional CursorRange    range</dt>
+                <dd></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd></dd>
+              </dl>
+            </dd>
+            <dt>any put()</dt>
+            <dd>
+              The <dfn id="object-store-put"><code>put()</code></dfn> method is used to 
+              store the given object in the object store. Insert the object by performing the 
+              <a class="dfnref" href="#insertion-steps">insertion steps</a>.
+              <dl class="parameters">
+                <dt>any obj</dt>
+                <dd></dd>
+              </dl>
+              <div class="exception" title="DatabaseException">
+              </div>
+            </dd>
+            <dt>void delete()</dt>
+            <dd>
+              The <dfn id="object-store-delete"><code>delete()</code></dfn> method is used to 
+              delete the object associated with the given key in the object store. Delete the
+              object by performing the <a class="dfnref" href="#deletion-steps">deletion steps</a>.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd></dd>
+              </dl>
+              <div class="exception" title="DatabaseException">
+              </div>
+            </dd>
+            <dt>any get()</dt>
+            <dd>
+              This method is used to retrieve
+              the object associated with the given key in the object store. The following steps 
+              must be run for retrieving the object with the following parameters: <var>key</var>.
+              <ol>
+                <li>
+                  If <var>key</var> is not defined or null, then throw a newly constructed 
+                  <a><code>DatabaseException</code></a> 
+                  exception with code
+                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
+                  and terminate these steps.
+                </li>            
+                <li>
+                  Use the <var>key</var> to look up an object in the object store. Let 
+                  <var>value</var> be that object.
+                </li>
+                
+                <li>
+                  If <var>object</var> is not found in the object store, then throw a newly constructed 
+                  <a><code>DatabaseException</code></a> 
+                  exception with code
+                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
+                  and terminate these steps.
+                </li>
+              </ol>
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd></dd>
+              </dl>
+              <div class="exception" title="DatabaseException">
+              </div>
+            </dd>
+          </dl>                
         </section>
         <section id="index-sync" class="section">  
           <h4>Index</h4>
@@ -891,7 +947,7 @@ any                <a class="idltype" href="#object-store-get">get</a>(    in an
               function above were redefined as below, an index would be maintained
               on the <em>name</em> property of objects in <em>Contact</em>.
             </p>
-            <codeblock language="es">var upgrade = function(changes, db) {<!--
+            <codeblock>var upgrade = function(changes, db) {<!--
               changes.<a class="idltype" href="#create-sequence">createSequence</a>('ContactSeq');-->
               changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id', true);
               changes.<a class="idltype" href="#create-index">createIndex</a>('ContactName', 'Contact', 'name', Index.MANY_TO_ONE);
@@ -900,14 +956,14 @@ any                <a class="idltype" href="#object-store-get">get</a>(    in an
               For example, the id of an object with <em>name</em> property value as
               'Lincoln' can be retrieved using this <em>ContactName</em> index.
             </p>
-            <codeblock language="es">var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
+            <codeblock>var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
 var id = index.<a class="idltype" href="#index-get">get</a>('Lincoln');
 // id === 1</codeblock>              
             <p>
               If, however, we wanted to retrieve the object with <em>name</em> property 
               value as 'Lincoln' can be retrieved using this <em>ContactName</em> index.
             </p>
-            <codeblock language="es">var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
+            <codeblock>var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
 var contact = index.<a class="idltype" href="#index-get-object">getObject</a>('Lincoln');
 // contact.id === 1</codeblock>              
             <p>
@@ -918,7 +974,7 @@ var contact = index.<a class="idltype" href="#index-get-object">getObject</a>('L
               other hand, when objects are retrieved using the <em>ContactName</em>
               index, they are arranged by the value of the <em>name</em> attribute. 
             </p>
-            <codeblock language="es">var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
+            <codeblock>var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
 var count = index.<a class="idltype" href="#index-for-each">forEachObject</a>(function(key, cursor, value) {
             // each value is a contact and each key is the name for that  
             // contact whose name's first letter is either L or M
@@ -927,94 +983,123 @@ var count = index.<a class="idltype" href="#index-for-each">forEachObject</a>(fu
               If, on the other hand, we only want to names but not the contact
               objects for a given range, then we can use a different mechanism for that.
             </p>
-            <codeblock language="es">var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
+            <codeblock>var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
 var count = index.<a class="idltype" href="#index-for-each">forEach</a>(function(key, cursor) {
             // each key is the id of a contact  
             // whose name's first letter is either L or M
             }, range);</codeblock>
           </div>
               
-          <codeblock language="idl">interface <dfn id="Index">Index</dfn> {  
-         const     unsigned short <a class="idlvalue" href="#ONE_TO_ONE">ONE_TO_ONE</a>   = 0;
-         const     unsigned short <a class="idlvalue" href="#MANY_TO_ONE">MANY_TO_ONE</a>  = 1;
-         const     unsigned short <a class="idlvalue" href="#ONE_TO_MANY">ONE_TO_MANY</a>  = 2;
-         const     unsigned short <a class="idlvalue" href="#MANY_TO_MANY">MANY_TO_MANY</a> = 3;
-
-readonly attribute DOMString      <a class="idltype" href="#index-name">name</a>;
-readonly attribute DOMString      <a class="idltype" href="#index-key-path">keyPath</a>;
-readonly attribute unsigned short <a class="idltype" href="#index-cardinality">cardinality</a>;
-};
-
-interface <dfn id="IndexSync">IndexSync</dfn>: <a class="idltype" href="#Index">Index</a> { 
-unsigned long long <a class="idltype" href="#for-each">forEach</a>(      in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
-                                 in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
-                                 in optional unsigned short direction);
-unsigned long long <a class="idltype" href="#for-each">forEachObject</a>(in          <a class="idltype" href="#CursorCallback">CursorCallback</a> callback,
-                                 in optional <a class="idltype" href="#CursorRange">CursorRange</a>    range, 
-                                 in optional unsigned short direction);
-any                <a class="idltype" href="#sync-index-get">get</a>(          in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-any                <a class="idltype" href="#sync-index-get-object">getObject</a>(    in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-void               <a class="idltype" href="#sync-index-delete">delete</a>(       in          any            key) raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-};</codeblock>
-          <p>
-            The <dfn id="ONE_TO_ONE">ONE_TO_ONE</dfn> cardinality option indicates
+          <dl class="idl" title="interface Index">
+            <dt>const     unsigned short ONE_TO_ONE   = 0</dt>
+            <dd>indicates
             that the secondary key is unique to the object. If an object is stored
             with a secondary key that already exists in the object store.
-          </p>
-          <p>
-            The <dfn id="MANY_TO_ONE">MANY_TO_ONE</dfn> cardinality option indicates
+            </dd>
+            <dt>const     unsigned short MANY_TO_ONE  = 1</dt>
+            <dd>indicates
             the secondary key may be used for multiple objects in the object store. 
             That is, the key appears more than once, but for each stored object it
             can be used only once. 
-          </p>
-          <p>
-            The <dfn id="ONE_TO_MANY">ONE_TO_MANY</dfn> cardinality option indicates
+            </dd>
+            <dt>const     unsigned short ONE_TO_MANY = 2</dt>
+            <dd>indicates
             that the secondary key might be used more than once for a given object. 
             Secondary keys themselves are assumed to be unique, but multiple instances
             of the secondary key can be used per object. 
-          </p>
-          <p>
-            The <dfn id="MANY_TO_MANY">MANY_TO_MANY</dfn> cardinality option indicates
+            </dd>
+            <dt>const     unsigned short MANY_TO_MANY = 3</dt>
+            <dd>indicates
             there can be multiple keys for any given object, and for any given key
             there can be many related objects. 
-          </p>
-          <p>
-            On getting, <dfn id="index-name"><code>name</code></dfn> will
-            provide the name of the index.        
-          </p>
-  
-          <p>
-            On getting, <dfn id="index-key-path"><code>keyPath</code></dfn> will
-            provide the path of the key used as the secondary key of objects stored in this
-            index. This path can be the empty string if the object value is used
-            as the key.
-          </p>
-          
-          <p>
-            On getting, <dfn id="index-cardinality"><code>cardinality</code></dfn> will
-            describe whether duplicate objects can be found in the index for a given
-            secondary key. If the cardinality is <a class="idlvalue" href="#ONE_TO_ONE">
-            <code>ONE_TO_ONE</code></a> or <a class="idlvalue" href="#ONE_TO_MANY">
-            <code>ONE_TO_MANY</code></a>, duplicates will not occur. For the other 
-            cardinality levels, duplicates may occur.
-          </p>
-          
-          <p>
-            The <dfn id="sync-index-get"><code>get()</code></dfn> method is used to 
-            retrieve the object associated with the given secondary key in the object store
-            by looking up the primary keys for the given secondary key and performing the 
-            <a class="dfnref" href="#retrieval-steps">retrieval steps</a> for each of
-            the primary keys.
-          </p>
+            </dd>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the name of the index.        
+            </dd>
+    
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, 
+              provide the path of the key used as the secondary key of objects stored in this
+              index. This path can be the empty string if the object value is used
+              as the key.
+            </dd>
+            
+            <dt>readonly attribute unsigned short cardinality</dt>
+            <dd>
+              On getting, 
+              describe whether duplicate objects can be found in the index for a given
+              secondary key. If the cardinality is <a class="idlvalue" href="#ONE_TO_ONE">
+              <code>ONE_TO_ONE</code></a> or <a class="idlvalue" href="#ONE_TO_MANY">
+              <code>ONE_TO_MANY</code></a>, duplicates will not occur. For the other 
+              cardinality levels, duplicates may occur.
+            </dd>
+          </dl>  
 
-          <p>
-            The <dfn id="sync-index-delete"><code>delete()</code></dfn> method is used to 
-            delete the object associated with the given secondary key in the object store. 
-            by looking up the primary keys for the given secondary key and performing the 
-            <a class="dfnref" href="#deletion-steps">deletion steps</a> for each of the
-            primary keys.
-          </p>
-
+          <dl class="idl" title="interface IndexSync: Index">
+            <dt>unsigned long long forEach()</dt>
+            <dd>
+              <dl class="parameters">
+                <dt>CursorCallback callback</dt>
+                <dd> </dd>
+                <dt>optional CursorRange  range</dt>
+                <dd> </dd>
+                <dt>optional unsigned short direction</dt>
+                <dd> </dd>
+              </dl>
+            </dd>
+            <dt>unsigned long long forEachObject()</dt>
+            <dd>
+              <dl class="parameters">
+                <dt>CursorCallback callback</dt>
+                <dd> </dd>
+                <dt>optional CursorRange  range</dt>
+                <dd> </dd>
+                <dt>optional unsigned short direction</dt>
+                <dd> </dd>
+              </dl>
+            </dd>
+            <dt>any get()</dt>
+            <dd>
+              <p>
+                The <dfn id="sync-index-get"><code>get()</code></dfn> method is used to 
+                retrieve the object associated with the given secondary key in the object store
+                by looking up the primary keys for the given secondary key and performing the 
+                <a class="dfnref" href="#retrieval-steps">retrieval steps</a> for each of
+                the primary keys.
+              </p>
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd></dd>
+              </dl>
+              <div title="DatabaseException" class="exception">
+              </div>
+            </dd>
+            <dt>any getObject()</dt>
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd></dd>
+              </dl>
+              <div title="DatabaseException" class="exception">
+              </div>
+            <dt>void delete()</dt>
+            <dd>
+              <p>
+                The <dfn id="sync-index-delete"><code>delete()</code></dfn> method is used to 
+                delete the object associated with the given secondary key in the object store. 
+                by looking up the primary keys for the given secondary key and performing the 
+                <a class="dfnref" href="#deletion-steps">deletion steps</a> for each of the
+                primary keys.
+              </p>
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd></dd>
+              </dl>
+              <div title="DatabaseException" class="exception">
+              </div>
+            </dd>
+          </dl>
         </section>
         <section class="section" id="cursor-sync">  
           <h4>Cursor</h4>
@@ -1043,7 +1128,7 @@ void               <a class="idltype" href="#sync-index-delete">delete</a>(     
               cursor callback returns true, then the iteration is 
               stopped.
             </p>
-            <codeblock language="es">var objects = ...
+            <codeblock>var objects = ...
 var cursor = objects.forEach(function(object) {;
 // act on each object and return true to exit the cursor  
 });</codeblock>
@@ -1052,7 +1137,7 @@ var cursor = objects.forEach(function(object) {;
               To start at the last item and end in the first item,
               the cursor should be created with the direction parameter.
             </p>
-            <codeblock language="es">var objects = ...
+            <codeblock>var objects = ...
 var count = objects.forEach(function(object) {;
 // act on each object and return true to exit the cursor  
 }, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#PREV">PREV</a>);</codeblock>
@@ -1064,7 +1149,7 @@ var count = objects.forEach(function(object) {;
               start key and the direction parameter. 
             </p>
             
-            <codeblock language="es">var objects = ...
+            <codeblock>var objects = ...
 var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(<a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INDIVIDUAL">INDIVIDUAL</a>, key);
 objects.forEach(function(object) {
 // act on each object and return true to exit the cursor  
@@ -1081,51 +1166,96 @@ objects.forEach(function(object) {
               from the beginning of the range to its end.
             </p>
   
-            <codeblock language="es">var objects = ...
+            <codeblock>var objects = ...
 var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(<a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> &amp; <a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a>, start, end);
 objects.forEach(function(object) {
 // act on each object and return true to exit the cursor  
 }, range);</codeblock>
           </div>
-          <codeblock language="idl">interface <dfn id="Cursor">Cursor</dfn> {
-         const     unsigned short     <a class="idlvalue" href="#NEXT">NEXT</a> = 0;
-         const     unsigned short     <a class="idlvalue" href="#NEXT_NO_DUP">NEXT_NO_DUPLICATE</a> = 1;
-         const     unsigned short     <a class="idlvalue" href="#PREV">PREV</a> = 2;
-         const     unsigned short     <a class="idlvalue" href="#PREV_NO_DUP">PREV_NO_DUPLICATE</a> = 3;
+          <dl title="interface Cursor" class="idl">
+            <dt>const     unsigned short     NEXT = 0</dt>
+            <dd>indicates
+            that cursor should yield all values, including duplicates 
+            starting from the beginning of the range to its end.
+            </dd>
+            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
+            <dd>indicates that cursor should return all values, skipping over duplicate
+            objects for every key starting from the beginning of the range to 
+            its end. For every key with duplicate values, only the first value
+            is yielded.</dd>
+            <dt>const     unsigned short     PREV = 2</dt>
+            <dd>
+            indicates
+            that cursor should yield all values, including duplicates 
+            starting from the end of the range to its beginning.
+            </dd>
+            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
+            <dd>indicates that cursor should return all values, skipping over duplicate
+            objects for every key starting from the end of the range to its
+            beginning. For every key with duplicate values, only the first value
+            is yielded.
+            </dd>
 
-readonly attribute unsigned short     <a class="idltype" href="#direction">direction</a>;
-readonly attribute unsigned long long <a class="idltype" href="#count">count</a>;
+            <dt>readonly attribute unsigned short     direction</dt>
+            <dd>            
+            On getting, provide the traversal direction of the cursor.
+            </dd>
+            <dt>readonly attribute unsigned long long count</dt>
+            <dd>             
+              On getting, provide the total number of objects that share the current key.
+            </dd>
 
-void    <a class="idltype" href="#continue">continue</a>(in optional <a href="#CursorRange">CursorRange</a> skipTo);
-boolean <a class="idltype" href="#update">update</a>(  in          any         obj);
-void    <a class="idltype" href="#cursor-delete">delete</a>();
-};
+            <dt>void    continue()</dt>
+            <dd>(in optional <a href="#CursorRange">CursorRange</a> skipTo);</dd>
+            
+            <dt>boolean update()</dt>
+            <dd>
+              <p>
+                This method is used to 
+                update the object at which the cursor is currently positioned. If 
+                the object is updated, then this method returns true. The update 
+                method is only allowed if the <a><code>
+                Cursor</code></a> is obtained from an object store. The key of
+                the <var>object</var> parameter must match the key in the current
+                cursor position. Otherwise, the database will throw a newly constructed 
+                <a><code>DatabaseException</code></a> 
+                exception with code <a><code>DATA_ERR</code></a>.
+              </p>
+            (  in          any         obj);</dd>
+            
+            <dt>void    delete()</dt>
+            <dd>          
+              <p>
+                This method
+                is used to delete the object at which the cursor is currently
+                positioned. The <a href="#cursor-delete" class="idltype"><code>delete()</code></a> 
+                method will return false if this method is called more than once 
+                inside a <a><code>CursorCallback</code></a>.
+              </p>
+            </dd>
+          </dl>
+          <dl class="idl" title="[Constructor(in unsigned short mode, in optional any start, in optional end)] interface CursorRange"> 
+            <dt>const     unsigned short INCLUDE_START = 1</dt>
+            <dd> </dd>
+            <dt>const     unsigned short INCLUDE_END = 2</dt>
+            <dd> </dd>
+            <dt>const     unsigned short INDIVIDUAL = 4</dt>
+            <dd> </dd>
+            <dt>readonly attribute any start</dt>
+            <dd> </dd>
+            <dt>readonly attribute any end</dt>
+            <dd> </dd>
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd> </dd>
+          </dl>
 
-[Constructor(in unsigned short mode, in optional any start, in optional end)]
-interface <dfn id="CursorRange">CursorRange</dfn> {
-         const     unsigned short <a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> = 1;
-         const     unsigned short <a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a> = 2;
-         const     unsigned short <a class="idlvalue" href="#INDIVIDUAL">INDIVIDUAL</a> = 4;
-
-readonly attribute any            <a class="idltype" href="#range-start">start</a>;
-readonly attribute any            <a class="idltype" href="#range-end">end</a>;
-readonly attribute unsigned short <a class="idltype" href="#range-mode">mode</a>;
-};
-
-[FunctionOnly, NoInterfaceObject]
-interface <dfn id="CursorCallback">CursorCallback</dfn> {
-bool handle(in          any    key, 
+          <dl class="idl" title="[FunctionOnly, NoInterfaceObject] interface CursorCallback"> 
+            <dt>bool handle()</dt>
+            <dd>in          any    key, 
             in          <a class="idltype" href="#Cursor">Cursor</a> cursor,
             in optional any    value);
-};</codeblock>
-          <p>
-            On getting <dfn id="count"><code>count</code></dfn>, the user agent
-            returns the total number of objects that share the current key.
-          </p>
-          <p>
-            On getting <dfn id="direction"><code>direction</code></dfn>, the user agent
-            returns the the traversal direction of the cursor.
-          </p>
+};</dd>
+          </dl>
           <p>
             The <dfn id="for-each" class="idltype"><code>forEach()</code></dfn>
             method is used to navigate items in a cursor in the direction
@@ -1153,53 +1283,6 @@ bool handle(in          any    key,
             range conditions have been satisfied.
           </p>
           
-          <p>
-            The <dfn id="NEXT"><code>NEXT</code></dfn> direction indicates
-            that cursor should yield all values, including duplicates 
-            starting from the beginning of the range to its end.
-          </p>
-          
-          <p>
-            The <dfn id="NEXT_NO_DUP"><code>NEXT_NO_DUPLICATE</code></dfn> direction 
-            indicates that cursor should return all values, skipping over duplicate
-            objects for every key starting from the beginning of the range to 
-            its end. For every key with duplicate values, only the first value
-            is yielded.
-          </p>
-          
-          <p>
-            The <dfn id="PREV"><code>PREV</code></dfn> direction indicates
-            that cursor should yield all values, including duplicates 
-            starting from the end of the range to its beginning.
-          </p>
-          
-          <p>
-            The <dfn id="PREV_NO_DUP"><code>PREV_NO_DUPLICATE</code></dfn> direction 
-            indicates that cursor should return all values, skipping over duplicate
-            objects for every key starting from the end of the range to its
-            beginning. For every key with duplicate values, only the first value
-            is yielded.
-          </p>
-          
-          <p>
-            The <dfn id="update"><code>update()</code></dfn> method is used to 
-            update the object at which the cursor is currently positioned. If 
-            the object is updated, then this method returns true. The update 
-            method is only allowed if the <a href="#Cursor" class="idltype"><code>
-            Cursor</code></a> is obtained from an object store. The key of
-            the <var>object</var> parameter must match the key in the current
-            cursor position. Otherwise, the database will throw a newly constructed 
-            <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-            exception with code <a class="idlvalue" href="#code-data"><code>DATA_ERR</code></a>.
-          </p>
-          <p>
-            The <dfn id="cursor-delete"><code>delete()</code></dfn> method
-            is used to delete the object at which the cursor is currently
-            positioned. The <a href="#cursor-delete" class="idltype"><code>delete()</code></a> 
-            method will return false if this method is called more than once 
-            inside a <a class="idltype" href="#CursorCallback"><code>CursorCallback</code></a>.
-          </p>
-
         </section>
         <section id="transaction-sync" class="section">
           <h4>Transaction</h4>
@@ -1215,7 +1298,7 @@ bool handle(in          any    key,
           </p>
           
           <p>
-            A <a class="idltype" href="#Database"><code>Database</code></a> object may
+            A <a><code>Database</code></a> object may
             have at most one transaction at any given time. 
           </p>
           
@@ -1225,29 +1308,26 @@ bool handle(in          any    key,
             storage resources that are locked by a long running transaction.         
           </p>                    
 
-          <codeblock language="idl">interface <dfn id="TransactionSync">TransactionSync</dfn> {  
-void <a class="idltype" href="#abort">abort</a>()  raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-void <a class="idltype" href="#commit">commit</a>() raises <a class="idltype" href="#DatabaseException">DatabaseException</a>;
-};</codeblock>
-
-        <dl>
-          <dt><dfn id="abort"><code>abort()</code></dfn></dt>
-          <dd>
-            This method is used to signal
-            the need to cancel the effects of database operations performed in a 
-            transaction. To perform this method, the database ignores all the changes
-            performed in this transaction through calls to this 
-            <a class="idltype" href="#Transaction"><code>Transaction</code></a> object.
-          </dd>
-          <dt><dfn id="commit"><code>commit()</code></dfn></dt>
-          <dd>
-            This method is used to signal
-            the normal and satisfactory completion of a transaction to the database. At
-            this point, the database durably stores the result of all the operations
-            performed in this transaction through calls to this 
-            <a class="idltype" href="#Transaction"><code>Transaction</code></a> object.
-          </dd>       
-        </dl>
+          <dl class="idl" title="interface TransactionSync">
+            <dt>void abort()</dt>
+            <dd>
+              This method is used to signal
+              the need to cancel the effects of database operations performed in a 
+              transaction. To perform this method, the database ignores all the changes
+              performed in this transaction through calls to this 
+              <a><code>Transaction</code></a> object.
+              <div class="exception" title="DatabaseException"></div>
+            </dd>
+            <dt>void commit()</dt>
+            <dd>
+              This method is used to signal
+              the normal and satisfactory completion of a transaction to the database. At
+              this point, the database durably stores the result of all the operations
+              performed in this transaction through calls to this 
+              <a><code>Transaction</code></a> object.
+              <div class="exception" title="DatabaseException"></div>
+            </dd>
+          </dl>
           <p>
             The API for a transaction consists of mechanisms for committing
             and rolling back the effects of database operations performed
@@ -1266,7 +1346,7 @@ void <a class="idltype" href="#commit">commit</a>() raises <a class="idltype" hr
           
           <p>
             When the user agent is to <dfn id="create-a-transaction-object">create a
-            <a class="idltype" href="#Transaction"><code>Transaction</code></a> object</dfn>
+            <a><code>Transaction</code></a> object</dfn>
             it must run the following steps:
           </p>
           
@@ -1281,7 +1361,7 @@ void <a class="idltype" href="#commit">commit</a>() raises <a class="idltype" hr
                   <li>
                     If any of the objects in this array is not a database object,
                     then set <var>code</var> to
-                    <a class="idlvalue" href="#code-non-transient"><code>NON_TRANSIENT_ERR</code></a>
+                    <a><code>NON_TRANSIENT_ERR</code></a>
                     and jump to the last step.
                   </li>
                   <li>
@@ -1309,19 +1389,19 @@ void <a class="idltype" href="#commit">commit</a>() raises <a class="idltype" hr
             <li>
               If a timeout duration is passed to these steps and is exceeded when 
               acquiring locks, then set <var>code</var> to 
-              <a class="idlvalue" href="#code-timeout"><code>TIMEOUT_ERR</code></a> and
+              <a><code>TIMEOUT_ERR</code></a> and
               jump to the last step.
             </li>
 
             <li>
               Open a new transaction to the database, and create a
-              <code><a class="idltype" href="#Transaction">Transaction</a></code> object
+              <code><a>Transaction</a></code> object
               that represents that transaction. Let <var>transaction</var> be this object.
             </li>
             
             <li>
               Set the current transaction of this 
-              <a class="idltype" href="#Database"><code>Database</code></a> object
+              <a><code>Database</code></a> object
               to <var>transaction</var>.
             </li>
             <li>
@@ -1332,20 +1412,20 @@ void <a class="idltype" href="#commit">commit</a>() raises <a class="idltype" hr
               asynchronously, then run the 
               <a class="dfnref" href="#database-failure-steps">database failure steps</a>
               with the code <var>code</var>. Otherwise, raise a newly constructed 
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+              <a><code>DatabaseException</code></a> 
               exception exception with the code <var>code</var>.
             </li>
           </ol>
                     
           <p>
             Once a transaction is aborted or committed, that 
-            <a class="idltype" href="#Transaction"><code>Transaction</code></a> 
+            <a><code>Transaction</code></a> 
             object can no longer be used. If any calls are made on that
              object, then the database will throw a newly constructed 
-            <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-            exception with code <a href="#code-non-transient"><code>NON_TRANSIENT_ERR</code></a>. 
+            <a><code>DatabaseException</code></a> 
+            exception with code <a><code>NON_TRANSIENT_ERR</code></a>. 
             To perform database operations under the control of a new transaction, 
-            a fresh <a class="idltype" href="#Transaction"><code>Transaction</code></a>
+            a fresh <a><code>Transaction</code></a>
             object is needed.
           </p>
         </section> <!-- Transaction -->
@@ -1356,27 +1436,30 @@ void <a class="idltype" href="#commit">commit</a>() raises <a class="idltype" hr
         <p>
           The asynchronous database API returns without blocking the calling thread.
           This API can only be used in a Window or in a Worker 
-          <cite><a href="#ref-WebWorkers">[WebWorkers]</a></cite>.
+          [[!WEBWORKERS]].
         </p>
-          <codeblock language="idl">[NoInterfaceObject]
-interface <dfn id="DBRequest">DBRequest</dfn> {
-void <a class="idltype" href="#abort">abort</a>();
+        <dl class="idl" title="[NoInterfaceObject] interface DBRequest"> 
+          <dt>void abort()</dt>
+          <dd> </dd>
+          <dt>const     unsigned short INITIAL = 0</dt>
+          <dd> </dd>
+          <dt>const     unsigned short LOADING = 1</dt>
+          <dd> </dd>
+          <dt>const     unsigned short DONE = 2</dt>
+          <dd> </dd>
+          <dt>readonly attribute unsigned short readyState</dt>
+          <dd> </dd>
+          <dt>readonly attribute DatabaseError error</dt>
+          <dd> </dd>
 
-// states
-         const     unsigned short <a class="idlvalue" href="#INITIAL">INITIAL</a> = 0;
-         const     unsigned short <a class="idlvalue" href="#LOADING">LOADING</a> = 1;
-         const     unsigned short <a class="idlvalue" href="#DONE">DONE</a> = 2;
+          <dt>attribute Function onsuccess</dt>
+          <dd> </dd>
+          <dt>attribute Function onerror</dt>
+          <dd> </dd>
+        </dl>
 
-readonly attribute unsigned short <a class="idltype" href="#readyState">readyState</a>;
-
-readonly attribute <a class="idltype" href="#DatabaseError">DatabaseError</a>  <a class="idltype" href="#error">error</a>;
-
-//event handler attributes
-         attribute Function       <a class="idltype" href="#handler-request-onsuccess">onsuccess</a>;
-         attribute Function       <a class="idltype" href="#handler-request-onerror">onerror</a>;
-};
-
-<a class="idltype" href="#DBRequest">DBRequest</a> implements EventTarget;</codeblock>
+        <div class="idl" title="DBRequest implements EventTarget"></div>
+        
         <section class="section" id="events non-normative">
           <h4>Event summary</h4>
           <p>
@@ -1398,7 +1481,7 @@ readonly attribute <a class="idltype" href="#DatabaseError">DatabaseError</a>  <
               </tr>
               <tr>
                 <td><dfn id="event-error"><code>error</code></dfn></td>
-                <td><a class="idltype" href="#DatabaseErrorEvent"><code>DatabaseErrorEvent</code></a></td>
+                <td><a><code>DatabaseErrorEvent</code></a></td>
                 <td>There was an error performing the database request.</td>
               </tr>
               <tr>
@@ -1420,14 +1503,14 @@ readonly attribute <a class="idltype" href="#DatabaseError">DatabaseError</a>  <
           <p>
             This interface provides methods for opening databases and accessing
             database objects using event handler attributes
-            <cite><a href="#ref-DOM3Events">[DOM3Events]</a></cite>. 
+            [[!DOM-LEVEL-3-EVENTS]]. 
           </p>
           <div class="example">       
             <p>
               In the following example, we open a database asynchronously. Various event
               handlers are registered for responding to various situations.
             </p>
-            <codeblock language="es">var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
+            <codeblock>var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
 dbReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = function(evt) {...};
 dbReq.<a class="idltype" href="#handler-request-onerror">onerror</a> = function(evt) {...};
 dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Address Book', function(txn, db) {...});</codeblock>
@@ -1437,52 +1520,63 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
             If an error occurs while opening the database, an error handler is invoked.
             Otherwise, a success handler is invoked.
           </p>
-          <codeblock language="idl">interface <dfn id="DatabaseRequest">DatabaseRequest</dfn> : <a href="#DBRequest">DBRequest</a>{
-readonly attribute <a class="idltype" href="#Database">Database</a> <a href="#request-database">database</a>;
+          <dl class="idl" title="interface DatabaseRequest : DBRequest">
+            <dt>readonly attribute Database database</dt>
+            <dd> </dd>
 
-void <a class="idltype" href="#database-request-open">open</a>(in          DOMString       name, 
-          in          DOMString       version, 
-          in          DOMString       displayName, 
-          in optional <a class="idltype" href="#UpgradeCallback">UpgradeCallback</a> upgrade,
-          in optional unsigned short  isolation);
-};</codeblock>  
-          <p>
-            The <dfn id="database-request-open"><code>open()</code></dfn>
-            method takes the following arguments: a database name, a database
-            version, a display name, an optional upgrade callback, and an optional 
-            isolation level. When called, this method must return immediately and 
-            asynchronously perform the following steps, with all but the first two
-            and last steps being run atomically:
-          </p>
-          
-          <ol>
- 
-            <li>
-              <span>Queue a task</span> to fire an event with the name <code>success</code>,
-              with no namespace, which does not bubble, is not cancelable, and which uses the
-              <a class="idltype" href="#DatabaseEvent"><code>DatabaseEvent</code></a> interface
-              and <var>result</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
-            </li>
-          </ol>
-        
-          <p>
-            The <dfn id="database-failure-steps">database failure steps</dfn> performed with an 
-            error code are as follows:
-          </p>
-        
-          <ol>
-            <li>
-              Create a <a href="#DatabaseError" class="idltype">DatabaseError</a> object 
-              <var>error</var> where code is the error code passed to these steps and status is 0.
-            </li>
-            <li>
-              <span>Queue a task</span> to fire an event with the name <code>error</code>,
-              with no namespace, which does not bubble, is not cancelable, and which uses the
-              <a class="idltype" href="#DatabaseErrorEvent"><code>DatabaseErrorEvent</code></a> interface
-              and <var>error</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
-            </li>
-          </ol>
-                  
+            <dt>void open()</dt>
+            <dd>
+              <dl class="parameters">
+                <dt>DOMString       name</dt>
+                <dd></dd>
+                <dt>DOMString       version</dt>
+                <dd> </dd>
+                <dt>DOMString       displayName</dt>
+                <dd> </dd>
+                <dt>optional UpgradeCallback upgrade</dt>
+                <dd> </dd>
+                <dt>unsigned short  isolation</dt>
+                <dd> </dd>
+              </dl>
+              <p>
+                This
+                method takes the following arguments: a database name, a database
+                version, a display name, an optional upgrade callback, and an optional 
+                isolation level. When called, this method must return immediately and 
+                asynchronously perform the following steps, with all but the first two
+                and last steps being run atomically:
+              </p>
+              
+              <ol>
+     
+                <li>
+                  <span>Queue a task</span> to fire an event with the name <code>success</code>,
+                  with no namespace, which does not bubble, is not cancelable, and which uses the
+                  <a><code>DatabaseEvent</code></a> interface
+                  and <var>result</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
+                </li>
+              </ol>
+            
+              <p>
+                The <dfn id="database-failure-steps">database failure steps</dfn> performed with an 
+                error code are as follows:
+              </p>
+            
+              <ol>
+                <li>
+                  Create a <a><code>DatabaseError</code></a> object 
+                  <var>error</var> where code is the error code passed to these steps and status is 0.
+                </li>
+                <li>
+                  <span>Queue a task</span> to fire an event with the name <code>error</code>,
+                  with no namespace, which does not bubble, is not cancelable, and which uses the
+                  <a><code>DatabaseErrorEvent</code></a> interface
+                  and <var>error</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
+                </li>
+              </ol>
+            </dd>
+          </dl>  
+                          
           <p>
             The <span>task source</span> for these tasks is the 
             <dfn id="database-access-task-source">database access task source</dfn>.
@@ -1497,7 +1591,7 @@ void <a class="idltype" href="#database-request-open">open</a>(in          DOMSt
               example using the asynchronous API. The <code>storeReq</code> is
               initialized with an <code>open()</code> call.
             </p>
-            <codeblock language="es">var store = storeReq = null;
+            <codeblock>var store = storeReq = null;
 var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
 dbReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = 
   function() {
@@ -1514,7 +1608,7 @@ dbReq.<a class="idltype" href="#database-request-open">open</a>('AddressBook', '
                 An asynchronous call to put an object in the object store can be performed
                 once the <code>open()</code> call succeeds.
               </p>
-              <codeblock language="es">function saveContact(contact, success) {
+              <codeblock>function saveContact(contact, success) {
   storeReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = success;
   storeReq.<a class="idltype" href="#object-store-put">put</a>(contact);
 };
@@ -1526,7 +1620,7 @@ saveContact(lincoln, function() {
               <p>
                 Objects in the object store can be read using their key.
               </p>
-              <codeblock language="es">function loadContact(id, success) {
+              <codeblock>function loadContact(id, success) {
   storeReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = success;
   storeReq.<a class="idltype" href="#store-get">get</a>(id);
 };
@@ -1536,147 +1630,186 @@ loadContact(1, function() {
 });</codeblock>
             </div>
               
-            <codeblock language="idl">[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <dfn id="ObjectStoreRequest">ObjectStoreRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
-  readonly attribute any <a href="#store-request-result">result</a>;
-  
-  void <a class="idltype" href="#store-request-open">open</a>(  in          DOMString      name,
-              in optional unsigned short mode);
-  void <a class="idltype" href="#store-request-put">put</a>(   in          any            obj);
-  void <a class="idltype" href="#store-request-get">get</a>(   in          any            key);
-  void <a class="idltype" href="#store-request-delete">delete</a>(in          any            key);
-};</codeblock>  
-                       
-            <p>
-              The <dfn id="store-request-put"><code>put()</code></dfn> method is used to 
-              store the given object in the object store. Insert the object by performing the 
-              <a class="dfnref" href="#insertion-steps">insertion steps</a>.
-            </p>
-    
-            <p>
-              The <dfn id="store-request-get"><code>get()</code></dfn> method is used to retrieve
-              the object associated with the given key in the object store. The following steps 
-              must be run for retrieving the object with the following parameters: <var>key</var>.
-            </p>
-                  
-            <p>
-              The <dfn id="store-request-delete"><code>delete()</code></dfn> method is used to 
-              delete the object associated with the given key in the object store. Delete the
-              object by performing the <a href="#deletion-steps">deletion steps</a>.
-            </p>    
+            <dl class="idl" title="[Constructor(in Database db)] interface ObjectStoreRequest : DBRequest">
+              <dt>readonly attribute any result</dt>
+              <dd> </dd>
+              <dt>void open()</dt>
+              <dd>
+                <dl class="parameters">
+                  <dt>DOMString       name</dt>
+                  <dd></dd>
+                  <dt>optional unsigned short mode</dt>
+                  <dd> </dd>
+                </dl>
+              </dd>
+              <dt>any put()</dt>
+              <dd>
+                <p>
+                  This method is used to 
+                  store the given object in the object store. Insert the object by performing the 
+                  <a class="dfnref" href="#insertion-steps">insertion steps</a>.
+                </p>
+                <dl class="parameters">
+                  <dt>any obj</dt>
+                  <dd></dd>
+                </dl>
+                <div class="exception" title="DatabaseException">
+                </div>
+              </dd>
+              <dt>void delete()</dt>
+              <dd>
+                <p>
+                  The <dfn id="store-request-delete"><code>delete()</code></dfn> method is used to 
+                  delete the object associated with the given key in the object store. Delete the
+                  object by performing the <a href="#deletion-steps">deletion steps</a>.
+                </p>    
+                <dl class="parameters">
+                  <dt>any key</dt>
+                  <dd></dd>
+                </dl>
+                <div class="exception" title="DatabaseException">
+                </div>
+              </dd>
+              <dt>any get()</dt>
+              <dd>
+                <p>
+                  The <dfn id="store-request-get"><code>get()</code></dfn> method is used to retrieve
+                  the object associated with the given key in the object store. The following steps 
+                  must be run for retrieving the object with the following parameters: <var>key</var>.
+                </p>
+                <dl class="parameters">
+                  <dt>any key</dt>
+                  <dd></dd>
+                </dl>
+                <div class="exception" title="DatabaseException">
+                </div>
+              </dd>
+            </dl>  
           </section>
           
           <section id="index" class="section">  
             <h4>Index</h4>
-            <codeblock language="idl">[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <dfn id="IndexRequest">IndexRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
-  readonly attribute any <a class="idltype" href="#store-request-result">result</a>;
-  
-  void <a class="idltype" href="index-request-open">open</a>(     in DOMString name,
-                 in DOMString storeName,
-                 in optional boolean forReadonly); 
-  void <a class="idltype" href="#index-request-get">get</a>(      in any key);
-  void <a class="idltype" href="#index-request-get">getObject</a>(in any key);
-  void <a class="idltype" href="#index-request-delete">delete</a>(   in any key);
-};</codeblock>  
+            <dl class="idl" title="[Constructor(in Database db)] interface IndexRequest : DBRequest">
+              <dt>readonly attribute any result</dt>
+              <dd></dd>
+              <dt>void open()</dt>
+              <dd>(     in DOMString name,
+                             in DOMString storeName,
+                             in optional boolean forReadonly)</dd>
+              <dt>void get()</dt>
+              <dd>(      in any key);</dd>
+              <dt>void getObject()</dt>
+              <dd>(in any key);</dd>
+              <dt>void delete()</dt>
+              <dd>(   in any key);</dd>
+            </dl>  
             
           </section>
           
           <section class="section" id="cursor">
             <h4>Cursor</h4>
         
-            <codeblock language="idl">[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <dfn id="CursorRequest">CursorRequest</dfn> : <a class="idltype" href="#DBRequest">DBRequest</a> {
-  readonly attribute unsigned long long <a class="idltype" href="#cursor-request-count">count</a>;
-           attribute <a class="idltype" href="#CursorCallback">CursorCallback</a>     <a class="idltype" href="#cursor-request-callback">callback</a>;
-           
-  void <a class="idltype" href="#cursor-request-read-store">readStore</a>(      in          DOMString      storeName, 
-                       in optional <a href="#CursorRange">CursorRange</a>    range, 
-                       in optional unsigned short direction);
-  void <a class="idltype" href="#cursor-request-read-index">readIndex</a>(      in          DOMString      storeName, 
-                       in          DOMString      indexName,
-                       in optional <a href="#CursorRange">CursorRange</a>    range, 
-                       in optional unsigned short direction);
-  void <a class="idltype" href="#cursor-request-read-index-object">readIndexObject</a>(in          DOMString      storeName, 
-                       in          DOMString      indexName,
-                       in optional <a href="#CursorRange">CursorRange</a>    range, 
-                       in optional unsigned short direction);
-};</codeblock>  
+            <dl class="idl" title="[Constructor(in Database db)] interface CursorRequest : DBRequest">
+              <dt>readonly attribute unsigned long long count</dt>
+                  <dd></dd>
+              <dt>attribute CursorCallback callback</dt>
+                  <dd></dd>
+              <dt>void readStore()</dt>
+              <dd>(      in          DOMString      storeName, 
+                                 in optional <a href="#CursorRange">CursorRange</a>    range, 
+                                 in optional unsigned short direction)</dd>
+              <dt>void readIndex()</dt>
+              <dd>(      in          DOMString      storeName, 
+                                 in          DOMString      indexName,
+                                 in optional <a href="#CursorRange">CursorRange</a>    range, 
+                                 in optional unsigned short direction)</dd>
+              <dt>void readIndexObject()</dt>
+              <dd>(in          DOMString      storeName, 
+                                 in          DOMString      indexName,
+                                 in optional <a href="#CursorRange">CursorRange</a>    range, 
+                                 in optional unsigned short direction);</dd>
+          </dl>  
           </section>
           
           <section class="section" id="transaction">
             <h4>Transaction</h4>
-            <codeblock language="idl">interface <dfn id="Transaction">Transaction</dfn> : <a class="idltype" href="#TransactionSync">TransactionSync</a> {
-// events
-            attribute Function <a class="idltype" href="#handler-request-oncommitted">oncommitted</a>;
-            attribute Function <a class="idltype" href="#handler-request-onaborted">onaborted</a>;
-};
+            <dl class="idl" title="interface Transaction : TransactionSync">
+              <dt>attribute Function oncommitted</dt>
+              <dd></dd>
+              <dt>attribute Function onaborted</dt>
+              <dd></dd>
+            </dl>
 
-[Constructor(in <a class="idltype" href="#Database">Database</a> db)]
-interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> : <a class="idltype" href="#DBRequest">DBRequest</a> {
-  readonly attribute <a class="idltype" href="#Transaction">Transaction</a> <a href="#request-transaction">transaction</a>;
-  
-  void <a class="idltype" href="#transaction-request-open">open</a>(in optional DOMStringList storeNames,
-            in optional unsigned int  timeout);
-};</codeblock>  
-            <p><dfn id="transaction-request-open"><code>open()</code></dfn>
-              When called, this
-              method must immediately return and then asynchronously perform the
-              <a href="#transaction-steps">transaction steps</a>.
-            </p>
-            <p>
-              The <dfn id="transaction-steps">transaction steps</dfn> are as follows. 
-              These steps are invoked with a
-              transaction callback, and the following optional arguments - a success
-              callback, an error callback, an array of database objects for acquiring
-              locks required in this transaction, and a timeout duration.
-            </p>
-            
-            <ol>
-              <li>
-                 Perform the <a href="#create-a-transaction-object">transaction creation steps</a> 
-                 with the array of database objects and timeout duration passed to these
-                 steps. Let the resulting
-                 <code><a class="idltype" href="#Transaction">Transaction</a></code>
-                 object be <var title="">transaction</var>.
-              </li>
-              
-              <li>
-                <span>Queue a task</span> to invoke the <em>transaction callback</em> 
-                with <var>transaction</var> as its only argument, and wait for 
-                that task to be run.
-              </li>
-              
-              <li>
-                If the callback couldn't be called (e.g. it was null), or if the
-                callback was invoked and raised an exception, jump to the last step.
-              </li>
-  
-              <li>
-                <span>Queue a task</span> to invoke the <em>success callback</em>.
-              </li>
-  
-              <li>
-                End these steps. 
-              </li>
-              
-              <li>This step is only used when something goes wrong.
+            <dl class="idl" title="[Constructor(in Database db)] interface TransactionRequest : DBRequest">
+              <dt>readonly attribute Transaction transaction</dt>
+              <dd> </dd>
+              <dt>void open()</dt>
+              <dd>
+                <p>
+                  When called, this
+                  method must immediately return and then asynchronously perform the
+                  <a href="#transaction-steps">transaction steps</a>.
+                </p>
+                <p>
+                  The <dfn id="transaction-steps">transaction steps</dfn> are as follows. 
+                  These steps are invoked with a
+                  transaction callback, and the following optional arguments - a success
+                  callback, an error callback, an array of database objects for acquiring
+                  locks required in this transaction, and a timeout duration.
+                </p>
+                
                 <ol>
                   <li>
-                    If <var>transaction</var> is still not committed or rolled back,
-                    then rollback the transaction.
+                     Perform the <a href="#create-a-transaction-object">transaction creation steps</a> 
+                     with the array of database objects and timeout duration passed to these
+                     steps. Let the resulting <a><code>Transaction</code></a>
+                     object be <var title="">transaction</var>.
                   </li>
                   
                   <li>
-                    If an error callback was passed to these steps, then <span>queue a task</span> 
-                    to invoke the it with a newly constructed 
-                    <a class="idltype" href="#DatabaseError"><code>DatabaseError</code></a>
-                    with code
-                    <a class="idlvalue" href="#code-unknown"><code>UNKNOWN_ERR</code></a>.
+                    <span>Queue a task</span> to invoke the <em>transaction callback</em> 
+                    with <var>transaction</var> as its only argument, and wait for 
+                    that task to be run.
+                  </li>
+                  
+                  <li>
+                    If the callback couldn't be called (e.g. it was null), or if the
+                    callback was invoked and raised an exception, jump to the last step.
+                  </li>
+      
+                  <li>
+                    <span>Queue a task</span> to invoke the <em>success callback</em>.
+                  </li>
+      
+                  <li>
+                    End these steps. 
+                  </li>
+                  
+                  <li>This step is only used when something goes wrong.
+                    <ol>
+                      <li>
+                        If <var>transaction</var> is still not committed or rolled back,
+                        then rollback the transaction.
+                      </li>
+                      
+                      <li>
+                        If an error callback was passed to these steps, then <span>queue a task</span> 
+                        to invoke the it with a newly constructed 
+                        <a><code>DatabaseError</code></a>
+                        with code
+                        <a><code>UNKNOWN_ERR</code></a>.
+                      </li>
+                    </ol>
                   </li>
                 </ol>
-              </li>
-            </ol>
+                <dl class="parameters">
+                  <dt>optional DOMStringList storeNames</dt>
+                  <dd> </dd>
+                  <dt>optional unsigned int  timeout</dt>
+                  <dd> </dd>
+                </dl>
+              </dd>
+            </dl>  
         </section>        
         <section class="section" id="event-handler">
           <h4>Events</h4>
@@ -1697,25 +1830,25 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
                 <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
                 <td> <code><a class="idltype" href="#event-success">success</a></code></td>
                 <td> 
-                  <code><a class="idltype" href="#DBRequest">DatabaseRequest</a></code>
+                  <code><a>DatabaseRequest</a></code>
                 </td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
                 <td> <code><a class="idltype" href="#event-error">error</a></code></td>
                 <td> 
-                  <code><a class="idltype" href="#DBRequest">DatabaseRequest</a></code>
+                  <code><a>DatabaseRequest</a></code>
                 </td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-oncommitted"><code>oncommitted</code></dfn> </td>
                 <td> <code><a class="idltype" href="#event-commit">commit</a></code></td>        
-                <td> <code><a class="idltype" href="#TransactionRequest">TransactionRequest</a></code></td>
+                <td> <code><a>TransactionRequest</a></code></td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-onaborted"><code>onaborted</code></dfn> </td>
                 <td> <code><a class="idltype" href="#event-abort">abort</a></code></td>        
-                <td> <code><a class="idltype" href="#TransactionRequest">TransactionRequest</a></code></td>
+                <td> <code><a>TransactionRequest</a></code></td>
               </tr>
             </tbody>
           </table>        
@@ -1745,13 +1878,13 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
                     If the database does not contain a sequence whose name matches, compared 
                     in a case-sensitive manner, with <var>sequence name</var>, then 
                     throw a newly constructed 
-                    <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                    exception with code <a class="idlvalue" href="#code-data"><code>CONSTRAINT_ERR</code></a>
+                    <a><code>DatabaseException</code></a> 
+                    exception with code <a><code>CONSTRAINT_ERR</code></a>
                     and terminate these steps.
                   </li>
                   <li>
                     Let <var>sequence</var> be the 
-                    <a href="#Sequence" class="idltype"><code>Sequence</code></a> object
+                    <a><code>Sequence</code></a> object
                     for the <var>sequence name</var> 
                   </li>
                     
@@ -1768,8 +1901,8 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
               
               <li>
                 If the <var>key</var> is not defined or null, then throw a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code <a class="idlvalue" href="#code-data"><code>DATA_ERR</code></a>
+                <a><code>DatabaseException</code></a> 
+                exception with code <a><code>DATA_ERR</code></a>
                 and terminate these steps.
               </li>
               
@@ -1815,9 +1948,9 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
           <ol>
             <li>
               If <var>key</var> is not defined or null, then throw a newly constructed 
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+              <a><code>DatabaseException</code></a> 
               exception with code
-              <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a> and terminate these steps.
+              <a><code>NOT_FOUND_ERR</code></a> and terminate these steps.
             </li>            
             <li>
               Use the <var>key</var> to look up an object in the object store. Let 
@@ -1826,9 +1959,9 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
             
             <li>
               If <var>object</var> is not found in the object store, then throw a newly constructed 
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+              <a><code>DatabaseException</code></a> 
               exception with code
-              <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a> and 
+              <a><code>NOT_FOUND_ERR</code></a> and 
               terminate these steps.
             </li>
           </ol>
@@ -1844,9 +1977,9 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
           <ol>
             <li>
               If <var>key</var> is not defined or null, then throw a newly constructed 
-              <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
+              <a><code>DatabaseException</code></a> 
               exception with code
-              <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a> and 
+              <a><code>NOT_FOUND_ERR</code></a> and 
               terminate these steps.
             </li>            
             
@@ -1884,186 +2017,99 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
         <h3>Exceptions and Errors</h3>
         <p>
           Errors in the asynchronous database API are reported using 
-          callbacks that have a 
-          <a class="idltype" href="#DatabaseError"><code>DatabaseError</code></a> 
+          callbacks that have a <a><code>DatabaseError</code></a> 
           object as one of their arguments.
         </p>
-        <codeblock language="idl">interface <dfn id="DatabaseError">DatabaseError</dfn> {
-  const unsigned short <a class="idlvalue" href="#code-unknown">UNKNOWN_ERR</a>       = 0;
-  const unsigned short <a class="idlvalue" href="#code-non-transient">NON_TRANSIENT_ERR</a> = 1; 
-  const unsigned short <a class="idlvalue" href="#code-version">VERSION_ERR</a>       = 2; 
-  const unsigned short <a class="idlvalue" href="#code-not-found">NOT_FOUND_ERR</a>     = 3;
-  const unsigned short <a class="idlvalue" href="#code-constraint">CONSTRAINT_ERR</a>    = 4;
-  const unsigned short <a class="idlvalue" href="#code-data">DATA_ERR</a>          = 5;
-  const unsigned short <a class="idlvalue" href="#code-feature">FEATURE_ERR</a>       = 6;
-  const unsigned short <a class="idlvalue" href="#code-serial">SERIAL_ERR</a>        = 11;
-  const unsigned short <a class="idlvalue" href="#code-too_large">TOO_LARGE_ERR</a>     = 12;
-  const unsigned short <a class="idlvalue" href="#code-recoverable">RECOVERABLE_ERR</a>   = 21;<!--
-  const unsigned short QUOTA_ERR = 22;-->
-  const unsigned shrot <a class="idlvalue" href="#code-transient">TRANSIENT_ERR</a>     = 31;
-  const unsigned short <a class="idlvalue" href="#code-deadlock">TIMEOUT_ERR</a>       = 32;
-        unsigned short <a class="idltype" href="#error-code">code</a>;
-        int            <a class="idltype" href="#error-status">status</a>;
-        DOMString      <a class="idltype" href="#error-message">message</a>;
-};</codeblock>  
-        <p>
-          The <dfn id="error-code">code</dfn> IDL attribute must return
-          the most appropriate code.
-        </p>
-        
-        <p>
-          The <dfn id="error-status">status</dfn> IDL attribute must return
-          the detailed error status of the database.
-        </p>
-        
-        <p>
-          The <dfn id="error-message">message</dfn> IDL attribute must
-          return an error message describing the error encountered. 
-          The message should be localized to the user's language.
-        </p>
+        <dl class="idl" title="interface DatabaseError">
+          <dt>attribute unsigned short code</dt>
+          <dd>
+            Return the most appropriate code.
+          </dd>
+          <dt>attribute int status</dt>
+          <dd>
+            Return the detailed error status of the database.
+          </dd>
+          <dt>attribute DOMString message</dt>
+          <dd>
+            Return an error message describing the exception raised. 
+            The message should be localized to the user's language.
+          </dd>
+        </dl>  
 
-        <codeblock language="idl">exception <dfn id="DatabaseException">DatabaseException</dfn> {
-  const unsigned short <a class="idlvalue" href="#code-unknown">UNKNOWN_ERR</a>       = 0;
-  const unsigned short <a class="idlvalue" href="#code-non-transient">NON_TRANSIENT_ERR</a> = 1; 
-  const unsigned short <a class="idlvalue" href="#code-version">VERSION_ERR</a>       = 2; 
-  const unsigned short <a class="idlvalue" href="#code-not-found">NOT_FOUND_ERR</a>     = 3;
-  const unsigned short <a class="idlvalue" href="#code-constraint">CONSTRAINT_ERR</a>    = 4;
-  const unsigned short <a class="idlvalue" href="#code-data">DATA_ERR</a>          = 5;
-  const unsigned short <a class="idlvalue" href="#code-feature">FEATURE_ERR</a>       = 6;
-  const unsigned short <a class="idlvalue" href="#code-serial">SERIAL_ERR</a>        = 11;
-  const unsigned short <a class="idlvalue" href="#code-too_large">TOO_LARGE_ERR</a>     = 12;
-  const unsigned short <a class="idlvalue" href="#code-recoverable">RECOVERABLE_ERR</a>   = 21;<!--
-  const unsigned short QUOTA_ERR = 22;-->
-  const unsigned shrot <a class="idlvalue" href="#code-transient">TRANSIENT_ERR</a>     = 31;
-  const unsigned short <a class="idlvalue" href="#code-deadlock">TIMEOUT_ERR</a>       = 32;
-        unsigned short <a class="idltype" href="#exception-code">code</a>;
-        int            <a class="idltype" href="#exception-status">status</a>;
-        DOMString      <a class="idltype" href="#exception-message">message</a>;
-};</codeblock>  
-
-        <p>
-          The <dfn id="exception-code">code</dfn> IDL attribute must return
-          the most appropriate code.
-        </p>
-        
-        <p>
-          The <dfn id="exception-status">status</dfn> IDL attribute must return
-          the detailed error status of the database.
-        </p>
-        
-        <p>
-          The <dfn id="exception-message">message</dfn> IDL attribute must
-          return an error message describing the exception raised. 
-          The message should be localized to the user's language.
-        </p>
-        <p>
-          The error codes and their meanings are given below.
-        </p>
-        <table>
-          <thead><tr><th>Constant</th><th>Situation</th></tr></thead>
-          <tbody>
-            <tr>
-              <td><dfn id="code-unknown"><code>UNKNOWN_ERR</code></dfn></td>
-              <td>The operation failed for reasons unrelated to the database
-                itself and not covered by any other error code.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-non-transient"><code>NON_TRANSIENT_ERR</code></dfn></td>
-              <td>This error occurred because an operation was not allowed on 
-              an object. A retry of the same operation would fail unless the
-              cause of the error is corrected.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-version"><code>VERSION_ERR</code></dfn></td>
-              <td>The operation failed because the actual database version was
-              not what was expected or no upgrade function was passed even though
-              the requested version was not found or the upgrade function threw
-              an exception.
-              </td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-not-found"><code>NOT_FOUND_ERR</code></dfn></td>
-              <td>The operation failed because the requested database
-              object could not be found. For example, an object store
-              did not exist but was being opened, or a sequence was 
-              used to create an object store, but did not exist.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-constraint"><code>CONSTRAINT_ERR</code></dfn></td>
-              <td>A mutation operation in the transaction failed due to a
-              because a constraint was not satisfied. For example, an
-              object such as an object store, sequence, or index already
-              exists and a new one was being attempted to be created.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-data"><code>DATA_ERR</code></dfn></td>
-              <td>Data provided to an operation does not meet requirements,
-              e.g., if the increment value for a sequence is set to 0.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-feature"><code>FEATURE_ERR</code></dfn></td>
-              <td>A feature defined in this API was used but is not supported
-              by the underlying implementation.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-serial"><code>SERIAL_ERR</code></dfn></td>
-              <td>The operation failed because of the size of the data set 
-              being returned or because there was a problem in serializing or 
-              deserializing the object being processed.</td>
-            </tr>
-
-            <tr>
-              <td><dfn id="code-too_large"><code>TOO_LARGE_ERR</code></dfn></td>
-              <td>The operation failed because the data returned from the
-              database was too large.</td>
-            </tr>
-            
-            <tr>
-              <td><dfn id="code-recoverable"><code>RECOVERABLE_ERR</code></dfn></td>
-              <td>The operation failed because the database was prevented
-              from taking an action. The operation might be able to succeed
-              if the application performs some recovery steps and retries
-              the entire transaction. For example, there was not enough 
-              remaining storage space, or the storage quota was reached
-              and the user declined to give more space to the database.</td>
-            </tr>
-           
-            <!--tr>
-              <td><dfn id="code-quota" title="dom-DatabaseException-code-QUOTA"><code>QUOTA_ERR</code></dfn></td>
-              <td><dfn id="code-4" title="code-4">4</dfn></td>
-              <td>The statement failed because there was not enough remaining
+        <dl class="idl" title="exception DatabaseException">
+          <dt>const unsigned short UNKNOWN_ERR = 0</dt>
+          <dd>The operation failed for reasons unrelated to the database
+            itself and not covered by any other error code.</dd>
+          <dt>const unsigned short NON_TRANSIENT_ERR = 1</dt>
+          <dd>This error occurred because an operation was not allowed on 
+          an object. A retry of the same operation would fail unless the
+          cause of the error is corrected.</dd>
+          <dt>const unsigned short VERSION_ERR = 2</dt> 
+          <dd>The operation failed because the actual database version was
+          not what was expected or no upgrade function was passed even though
+          the requested version was not found or the upgrade function threw
+          an exception.
+          </dd>
+          <dt>const unsigned short NOT_FOUND_ERR = 3</dt>
+          <dd>The operation failed because the requested database
+          object could not be found. For example, an object store
+          did not exist but was being opened, or a sequence was 
+          used to create an object store, but did not exist.</dd>
+          <dt>const unsigned short CONSTRAINT_ERR = 4</dt>
+          <dd>A mutation operation in the transaction failed due to a
+          because a constraint was not satisfied. For example, an
+          object such as an object store, sequence, or index already
+          exists and a new one was being attempted to be created.</dd>
+          <dt>const unsigned short DATA_ERR = 5</dt>
+          <dd>Data provided to an operation does not meet requirements,
+          e.g., if the increment value for a sequence is set to 0.</dd>
+          <dt>const unsigned short FEATURE_ERR = 6</dt>
+          <dd>A feature defined in this API was used but is not supported
+          by the underlying implementation.</dd>
+          <dt>const unsigned short SERIAL_ERR = 11</dt>
+          <dd>The operation failed because of the size of the data set 
+          being returned or because there was a problem in serializing or 
+          deserializing the object being processed.</dd>
+          <dt>const unsigned short TOO_LARGE_ERR = 12</dt>
+          <dd>The operation failed because the data returned from the
+          database was too large.</dd>
+          <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
+          <dd>The operation failed because the database was prevented
+          from taking an action. The operation might be able to succeed
+          if the application performs some recovery steps and retries
+          the entire transaction. For example, there was not enough 
+          remaining storage space, or the storage quota was reached
+          and the user declined to give more space to the database.</dd>
+          <!--const unsigned short QUOTA_ERR = 22;
+              <dd>The statement failed because there was not enough remaining
    storage space, or the storage quota was reached and the user
-   declined to give more space to the database.</td>
-            </tr-->
-            <tr>
-              <td><dfn id="code-transient"><code>TRANSIENT_ERR</code></dfn></td>
-              <td>The operation failed because of some temporary problems.
-              The failed operation might be able to succeed when the
-              operation is retried without any intervention by 
-              application-level functionality.</td>
-            </tr>
-           
-            <tr>
-              <td><dfn id="code-timeout"><code>TIMEOUT_ERR</code></dfn></td>
-              <td>A lock for the transaction could not be obtained in a
-              reasonable time.</td>
-            </tr>
-
-            <tr>
-              <td><dfn id="code-deadlock"><code>DEADLOCK_ERR</code></dfn></td>
-              <td>The current transaction was automatically rolled back
-              by the database becuase of deadlock or other transaction
-              serialization failures.</td>
-            </tr>
-          </tbody>
-        </table>
+   declined to give more space to the database.</dd>-->
+          <dt>const unsigned shrot TRANSIENT_ERR = 31</dt>
+          <dd>The operation failed because of some temporary problems.
+          The failed operation might be able to succeed when the
+          operation is retried without any intervention by 
+          application-level functionality.</dd>
+          <dt>const unsigned short TIMEOUT_ERR = 32</dt>
+          <dd>A lock for the transaction could not be obtained in a
+          reasonable time.</dd>
+          <dt>const unsigned short DEADLOCK_ERR = 33</dt>
+          <dd>The current transaction was automatically rolled back
+          by the database becuase of deadlock or other transaction
+          serialization failures.</dd>
+          <dt>attribute unsigned short code</dt>
+          <dd>
+            Return the most appropriate code.
+          </dd>
+          <dt>attribute int status</dt>
+          <dd>
+            Return the detailed error status of the database.
+          </dd>
+          <dt>attribute DOMString message</dt>
+          <dd>
+            Return an error message describing the exception raised. 
+            The message should be localized to the user's language.
+          </dd>
+        </dl>  
       </section>     
     </section> <!-- API -->      
       
@@ -2115,7 +2161,7 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
           <dd>          
             <p>User agents should present the database feature
             to the user in a way that associates them strongly with HTTP
-            session cookies. <a href="#ref-COOKIES">[COOKIES]</a></p>
+            session cookies. [[!COOKIES]]</p>
         
             <p>This might encourage users to view such storage with healthy
             suspicion.</p>
@@ -2269,52 +2315,7 @@ interface <a class="idltype" href="#TransactionRequest">TransactionRequest</a> :
       </section>
     </section> <!-- authorization -->
     
-    <section id='references' class='appendix section'>
-      <h2>References</h2>
-
-      <section id='normative-references' class='section'>
-        <h3>Normative references</h3>
-
-        <dl>
-          <dt id="ref-COOKIES">[COOKIES]</dt>
-          <dd>
-            <cite><a href="http://tools.ietf.org/html/draft-abarth-cookie">HTTP State
-              Management Mechanism</a></cite>, A. Barth. IETF, August 2009.
-          </dd>
-          <dt><dfn id="ref-HTML5">[HTML5]</dfn></dt>
-          <dd>
-            <cite><a href="http://www.w3.org/TR/html5/">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>, 
-            Ian Hickson, editor, W3C Working Draft, August 2009.
-          </dd>
-          <dt><dfn id="ref-RFC2119">[RFC2119]</dfn></dt>
-          <dd>
-            <cite><a href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a></cite>,
-            S. Bradner. IETF, March 1997.
-          </dd>
-          <dt><dfn id="ref-WebIDL">[WebIDL]</dfn></dt>
-          <dd>
-            <cite><a href="http://www.w3.org/TR/WebIDL/">Web IDL</a></cite>,
-            Cameron McCormack, editor. W3C Working Draft, December 2008.
-          </dd>
-          <dt><dfn id="ref-WebStorage">[WebStorage]</dfn></dt>
-          <dd>
-            <cite><a href="http://dev.w3.org/html5/webstorage/">Web Storage</a></cite>,
-            Ian Hickson, editor. W3C Working Draft, September 2009.
-          </dd>
-          <dt><dfn id="ref-WebWorkers">[WebWorkers]</dfn></dt>
-          <dd>
-            <cite><a href="http://www.w3.org/TR/workers/">Web Workers</a></cite>,
-            Ian Hickson, editor. W3C Working Draft, April 2009.
-          </dd>
-        </dl>
-      </section>
-
-      <!--section id='informative-references' class='section'>
-        <h3>Informative references</h3>
-
-      </section-->
-    </section>
-    <section class="section" id="requirements">
+    <section class="appendix section" id="requirements">
       <h2>Requirements</h2>
       <div class="ednote">
         Requirements will be written with an aim to verify that these were actually
