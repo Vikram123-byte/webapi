@@ -3,21 +3,21 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.19 2009-12-08 00:48:15 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.20 2009-12-11 01:30:18 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
       var respecConfig = {
           specStatus:           "ED",
           
-          shortName:            "websimpledb",
+          shortName:            "WebSimpleDB",
 
           // publishDate:  "2009-09-29",
 
           previousPublishDate:  "2009-09-29",
           previousMaturity:  "WD",
 
-          edDraftURI:           "http://dev.w3.org/2006/webapi/websimpledb/",
+          edDraftURI:           "http://dev.w3.org/2006/webapi/WebSimpleDB/",
 
           // if this is a LCWD, uncomment and set the end of its review period
           // lcEnd: "2009-08-05",
@@ -30,7 +30,7 @@
           // editors, add as many as you like
           // only "name" is required
           editors:  [
-              { name: "Nikunj Mehta", url: "mailto:nikunj.mehta@oracle.com",
+              { name: "Nikunj Mehta", url: "mailto:nikunj@o-micron.com",
                 company: "Oracle Corp", companyURL: "http://www.oracle.com/" },
           ],
           
@@ -88,28 +88,10 @@
           a.setAttribute('href', '#idl-def-' + code.textContent); 
         }      
       }
-      function attrRefs() {
-        var attrs = document.querySelectorAll('span.idlAttrType>a');
-        for (var i = 0; i < attrs.length; i++) {
-          var attr = attrs.item(i);
-          if (!attr.textContent.match(/DOMString|unsigned/)) {
-            attr.setAttribute('class', 'idltype');
-            attr.setAttribute('href', '#idl-def-' + attr.textContent); 
-          }
-        }
-      }
-      
       window.onload = function() {
         examples();
         codeblocks();
         codeRefs();
-        var attrsReplaced = false;/*
-        document.querySelector('head').addEventListener('DOMNodeRemoved', function(evt) {
-          if (!attrsReplaced) {
-            attrRefs();
-            attrsReplaced = true;
-          }
-        }, false);*/
         (new berjon.respec()).loadAndRun();
       }
     </script>
@@ -136,7 +118,7 @@
         padding: 0.2em;
         vertical-align: top;
       }
-      h4, h5 {
+      h5 {
         display: none
       }
     </style>
@@ -145,12 +127,13 @@
   <body>
     <section id="abstract">
       <p>
-      This document defines APIs for a database of records containing values
-      and objects. Each record consists of a key and some value. Moreover, the 
-      database maintains indexes over records it stores. An application 
-      developer directly uses an API to locate records either by their key or by
-      using an index. A query language can be layered on this API. An indexed 
-      database can be implemented using a persistent B-tree data structure. 
+        This document defines APIs for a database of records holding simple values
+        and hierarchical objects. Each record consists of a key and some value. 
+        Moreover, the database maintains indexes over records it stores. An
+        application developer directly uses an API to locate records either by
+        their key or by using an index. A query language can be layered on this
+        API. An indexed database can be implemented using a persistent B-tree data
+        structure. 
       </p>
     </section>
 
@@ -174,12 +157,12 @@
         of traversing keys in a deterministic order. This is often implemented
         through the use of persistent B-tree data structures that are considered
         efficient for insertion and deletion as well as in-order traversal of
-        very large numbers of data items.
+        very large numbers of data records.
       </p>
       
       <div class="example">
         <p>
-          A script can efficiently find items in an object store that come 
+          A script can efficiently find records in an object store that come 
           closest to the required value provided the value is stored in either 
           a primary or a secondary key.
           In the following example, the 'books' object store holds data about
@@ -190,15 +173,17 @@
           matching author is located.
         </p>
         <codeblock>
-var upgrade = function(changes, db) {
-  changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('books', 'isbn');
-  changes.<a class="idltype" href="#create-index">createIndex</a>('BookAuthor', 'Book', 'author', <a href="#Index" class="idltype">Index</a>.<a href="#MANY_TO_ONE" class="idlvalue">MANY_TO_ONE</a>);
-  // now db.<a class="idltype" href="#version">version</a> === '1.0'
-};
-var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('books', '1.0', 'Book store', upgrade);
-var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('BookAuthor', 'Book', true);
+var db = <a>openDatabaseSync</a>('books', 'Book store', false);
+if (db.version !== '1.0') {
+  var olddb = <a>openDatabaseSync</a>('books', 'Book store');
+  olddb.<a>createObjectStore</a>('books', 'isbn');
+  olddb.<a>createIndex</a>('BookAuthor', 'books', 'author', false);
+  olddb.<a>setVersion</a>("1.0");  
+}
+// db.<a>version</a> === "1.0";  
+var index = db.<a>getIndex</a>('BookAuthor', true);
 var author = ...
-var matching = index.<a class="idltype" href="#sync-index-get">get</a>(author);
+var matching = index.<a>get</a>(author);
 if (matching)
   report(matching.isbn, matching.name, matching.author);
 else
@@ -214,38 +199,38 @@ else
         <codeblock>
 var request = null;
 function prepareDatabase(ready, error) {
-  request = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
-  request.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = ready;
-  request.<a class="idltype" href="#handler-request-onerror">onerror</a> = error;
+  request = new <a>DatabaseRequest</a>();
+  request.<a>onsuccess</a> = ready;
+  request.<a>onerror</a> = error;
   var upgrade = 
     function(changes, db) {
-      changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('docids', 'id');
-      // now db.<a class="idltype" href="#version">version</a> === '1.0'
+      changes.<a>createObjectStore</a>('docids', 'id');
+      // now db.<a>version</a> === '1.0'
     };
-  request.<a class="idltype" href="#database-open">open</a>('documents', '1.0', 'Offline document storage', upgrade);
+  request.<a>open</a>('documents', '1.0', 'Offline document storage', upgrade);
 }
 
 function showDocCount(db, span) {
-  var storeRequest = new <a class="idltype" href="#ObjectStoreRequest">ObjectStoreRequest</a>(db);
-  storeRequest.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = 
+  var storeRequest = new <a>ObjectStoreRequest</a>(db);
+  storeRequest.<a>onsuccess</a> = 
     function() {
-      var store = storeRequest.<a class="idltype" href="#request-store">store</a>, total = 0;
-      var cursorRequest = new <a class="idltype" href="#CursorRequest">CursorRequest</a>(store);
-      cursorRequest.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = 
+      var store = storeRequest.<a>store</a>, total = 0;
+      var cursorRequest = new <a>CursorRequest</a>(store);
+      cursorRequest.<a>onsuccess</a> = 
         function() {
           span.textContent = total;
         };
-      cursorRequest.<a class="idltype" href="#cursor-open">open</a>(function(item, cursor) { 
-          total += cursor.<a class="idltype" href="#count">count</a>; 
-        }, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#NEXT_NO_DUP">NEXT_NO_DUPLICATE</a>);
+      cursorRequest.<a>open</a>(function(record, cursor) { 
+          total += cursor.<a>count</a>; 
+        }, <a>Cursor</a>.<a>NEXT_NO_DUPLICATE</a>);
     };
-  storeRequest.<a class="idltype" href="#object-store-open">open</a>('docids', true);
+  storeRequest.<a>open</a>('docids', true);
 };
 
 prepareDatabase(function(evt) {
   // got database
   var span = document.getElementById('doc-count');
-  showDocCount(request.<a class="idltype" href="#request-database">database</a>, span);
+  showDocCount(request.<a>database</a>, span);
   }, function (evt) {
   // error getting database
   var error = request.error;
@@ -298,9 +283,9 @@ prepareDatabase(function(evt) {
             <dfn id="event-handler-attributes">event handler attributes</dfn>, 
             <dfn id="event-handler-event-type">event handler event type</dfn>,
             <dfn title="Function"><code>Function</code></dfn>,
-            <dfn>origin</dfn>, <dfn>same origin</dfn>,
-            <dfn>task</dfn>, <dfn>task source</dfn>, and
-            <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
+            <dfn>origin</dfn>, <dfn>same origin</dfn>, <dfn>structured clone</dfn>,
+            <dfn>structured clone algorithm</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
+            and <dfn title="queue-a-task">queue a task</dfn> are defined by the HTML 5 
             specification [[!HTML5]].
           </dd>
           <dt>WebWorkers</dt>
@@ -312,204 +297,453 @@ prepareDatabase(function(evt) {
     <section id="database-api" class="section">
       <h2>Indexed Database API</h2>
       
-      <p>
-        Each <a>origin</a> has an associated set of <a title="database">databases</a>. 
-        A <dfn>database</dfn> persists keys and values in an ordered manner, and comprises:
-      </p>
-      <ul>
-        <li>
-          one or more <dfn title="object store">object stores</dfn>, each of which hold any number of keys 
-          and a value for each of those keys. Each key can be accessed randomly.
-          Keys may also be accessed in their natural order.
-        </li>
-        <li>
-          any number of <dfn title="index">indexes</dfn>, each of which references an 
-          <a>object store</a> and holds any number of keys and one or more values
-          for each of those keys. Each value in an index identifies a record 
-          in the <a>object store</a> that the <a>index</a> refers. Each index key can
-          be accessed randomly. Keys may also be accessed in their natural order.
-        </li>
-        <li>
-          zero or one active <a>transaction</a> used to isolate access to 
-          <a title="object store">object stores</a>.
-        </li>
-      </ul>
-      <p>
-        Each database has a name and a human readable description. 
-        All strings including the empty string are valid database names. 
-        Database names must be compared in a case-sensitive manner.
-      </p>
-      
-      <div class="note">
-        Implementations can support this even in environments that only
-        support a subset of all strings as database names by mapping
-        database names (e.g. using a hashing algorithm) to the supported
-        set of names.
-      </div>
-      <p>
-      Each <a>database</a> also has a current version.
-      </p>
-      <div class="note">
-        Each <a>database</a> has one version at a time; a <a>database</a> can't
-        exist in multiple versions at once. Versions are intended to allow authors
-        to manage schema changes incrementally and non-destructively, and without
-        running the risk of old code (e.g. in another browser window) trying to
-        write to a <a>database</a> with
-        incorrect assumptions.
-      </div>
-      <p>
-        When a <a>database</a> is opened, that creates a <dfn>connection</dfn>. There
-        can be multiple <a title="connection">connections</a> to a given 
-        <a>database</a>. A <a>connection</a> that is attempting to read a given piece
-        of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
-        attempting to write that piece of data is called a <dfn>writer</dfn>. 
-      </p>
-      <section id="database" class="section">
-        <h3>Database</h3>
+      <section id="constructs" class="section">
+      <h3>Constructs</h3>
         <p>
-          A <a><code>Database</code></a> object represents a <a>connection</a> to a 
-          <a>database</a>. There is no way to enumerate the 
-          <a title="database">databases</a> available for an <a>origin</a> from this API. 
+          An indexed database is made of records holding simple values
+          and hierarchical objects. Each record consists of a key and some value. 
         </p>
         
-        <dl title="interface Database" class="idl">   
-          <dt>readonly attribute DOMString name</dt>
-          <dd>
-            On getting, this attribute must return the name of the <a>database</a> 
-            <a title="connection">connected</a> to this object.
-          </dd>
-          <dt>readonly attribute DOMString description</dt>  
-          <dd>
-            On getting, this attribute must return the description of the <a>database</a>
-            <a title="connection">connected</a> to this object.
-          </dd>
-          <dt>readonly attribute DOMString version</dt>
-          <dd>
-            On getting, this attribute must return the current version of the
-            <a>database</a> <a title="connection">connected</a> to this object
-            (as opposed to the expected version of the <a><code>Database</code></a> object).
-          </dd>
-          <dt>readonly attribute DOMStringList objectStores</dt>
-          <dd>
-            On getting, this attribute must return a list of names of the 
-            <a title="object store">object stores</a> currently in this <a>database</a>
-            <a title="connection">connected</a> to this object.
-          </dd>
-          <dt>readonly attribute Transaction currentTransaction</dt>
-          <dd>
-            On getting, this attribute must return a <a><code>Transaction</code></a> object
-            corresponding to the transaction that is currently active in the
-            <a>database</a> <a title="connection">connected</a> to this object.
-          </dd>
-        </dl>
-        <p>
-          The version that the database was opened with is the expected
-          version of this <a><code>Database</code></a> object. It can be the empty string, 
-          in which case there is no expected version — any version is fine.
-        </p>
-     
-      </section>  <!-- Databases -->
-      
-      <section id="sync-database" class="section">
-        <h3>Synchronous APIs</h3>
-        <p>
-          This API can only be used in a Worker [[!WEBWORKERS]].
-        </p>
-        <section id="opening-sync" class="section">
-          <h4>Opening a database connection</h4>
-          <div class="example">       
-            <p>
-              In the following example, we open a database synchronously. 
-            </p>
-            <codeblock>var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '1', 'Address Book', function(txn, db) {...});</codeblock>
-          </div>
-          <p>
-            The synchronous API for databases blocks the calling thread until a
-            <a><code>DatabaseSync</code></a> object is ready to return. Moreover, 
-            this API also throws a <a><code>DatabaseException</code></a> if an error
-            occurs while the database is being opened.
-          </p>
-          <dl class="idl" title="[Constructor(in          DOMString       name, 
-           in          DOMString       version, 
-           in          DOMString       displayName, 
-           in optional UpgradeCallback upgrade)] interface DatabaseSync : Database">
-            <dt>ObjectStoreSync getObjectStore()</dt>
-            <dd>
-              <p> 
-                This method returns an <a><code>ObjectStoreSync</code></a> object to 
-                access the object store identified by the given name in the 
-                <a>database</a> to which this <a><code>DatabaseSync</code></a> object
-                is <a title="connection">connected</a>. 
-              </p>
-              
-              <dl class="parameters">
-                <dt>DOMString name</dt>
-                <dd></dd>
-                <dt>[Optional] unsigned short mode</dt>
-                <dd>The mode used to create the connection.</dd>
-              </dl>
-              <div class="exception" title="DatabaseException">
-                If an object store with the given name, compared in a case-sensitive manner, 
-                does not already exist in the database, then this method will throw a newly constructed 
-                <a class="idltype" href="#DatabaseException"><code>DatabaseException</code></a> 
-                exception with code 
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.                
-              </div>
-            </dd>
-            <dt><a class="idltype" href="#IndexSync">IndexSync</a>       <a class="idltype" href="#sync-get-index">getIndex</a>(      in          DOMString name, 
-                               in          DOMString storeName)</dt>
-            <dd>
-              <p>
-                This method returns an <a><code>IndexSync</code></a> 
-                object representing the named index on the given object store in this database.
-              </p>
-      
-              <div class="exception" title="DatabaseException">
-                If an index with the given name, compared in a case-sensitive manner, 
-                does not already exist, then this method will throw a newly constructed 
-                <a><code>DatabaseException</code></a> exception with code 
-                <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>.
-              </div>
-            </dd>
-            <dt><a class="idltype" href="#TransactionSync">TransactionSync</a> <a class="idltype" href="#sync-transaction">transaction</a>(   in optional DOMStringList storeNames, 
-                               in optional unsigned int  timeout)</dt>
-            <dd>
-             Perform the <a class="dfnref" href="#create-a-transaction-object">transaction
-             creation steps</a> with the array of database objects for acquiring locks
-             required in this transaction and an optional timeout duration, and return
-             the resulting 
-             <a><code>TransactionSync</code></a> object.
-            </dd>
-          </dl>  
-          <p>
-            The <a><code>DatabaseSync</code></a> constructor 
-            takes the following arguments: a database name, a database version,
-            a display name, and optionally an upgrade callback and isolation level.
-            When this constructor is invoked, the user agent must run the
-            following steps:
-          </p>
-
-          <ol>
-            <li>
-              Perform the <a class="dfnref" href="#database-open-steps">database opening steps</a>,
-              and call its result as <var>result</var>.
-            </li>
-            <li>
-              If the steps were aborted due to an error, then throw a newly constructed
-              <a><code>DatabaseException</code></a> 
-              exception with the code of that error and abort these steps.
-            </li>
-            <li>
-              Return <var>result</var>.
-            </li>
-          </ol>
+        <section id="key-construct" class="section">
+          <h5>Keys</h5>
           
           <p>
-            When the user agent is to perform <dfn id="database-open-steps">
-            database opening steps</dfn>, with a database name, a database
-            version, a display name, and optionally an upgrade callback,
-            it must perform the following steps
-            with all but the first two and the last steps being run atomically:
+            In order to efficiently retrieve records stored in an indexed
+            database, a user agent needs to organize each record by its key. 
+            <a>Conforming user agents</a> MUST support the use of values
+            of IDL data types <code>DOMString</code> and <code>long</code> 
+            as well as the value <code>null</code> as keys.
+          </p>
+          
+          <p>
+            For purposes of comparison, a <code>DOMString</code> key is always 
+            evaluated higher than any <code>long</code> key. Moreover, 
+            <code>null</code> always evaluates lower than any 
+            <code>DOMString</code> or <code>long</code> key.
+          </p>
+          <div class="note">
+            Only data types with natural ordering can be used as keys. 
+            The ECMAScript <code>undefined</code> cannot be used as a key.
+          </div>
+        </section>
+        
+        <section id="value-construct" class="section">
+          <h5>Values</h5>
+          <p>
+            Values can be any data type supported by the <a>structured clone algorithm</a> 
+            [[!HTML5]]. This includes simple types such as <code>DOMString</code>
+            and <code>Date</code> as well as <code>Object</code> and <code>Array</code>
+            instances.
+          </p>
+          
+          <p>
+            A database may choose to derive a key from the contents of
+            the value being stored. In such a case, only <code>Object</code> 
+            instances may be stored as values. Only the direct enumerable
+            properties of a stored <code>Object</code> instance can be 
+            used to derive a key value.
+          </p>
+        </section>
+        
+        <section class="section" id="object-store-concept">  
+          <h4>Object Store</h4>
+          <p>
+            An <dfn>object store</dfn> is a persistent storage that holds 
+            key-value pairs, also called <dfn title="record">records</dfn>. An 
+            <a>object store</a>'s <a title="record">records</a> are sorted by
+            keys so as to enable fast insertion and look up as well as ordered retrieval. 
+            Every <a>object store</a> has a <dfn title="object store name">name</dfn>.
+          </p>
+          
+          <p>
+            An <a>object store</a> must have a unique <dfn>key generator</dfn>,
+            if it uses keys generated from a monotonically
+            increasing sequence. Alternatively, if an application provides keys,
+            they can either be identified as a part of the value being stored,
+            also called <dfn>in-line keys</dfn>, or be identified separately, also
+            called <dfn>out-of-line keys</dfn>. No two <a title="record">records</a>
+            in an <a>object store</a> may be identified by the same key. An
+            <a>object store</a> must have a <dfn title="object store key path">key path</dfn> 
+            if it uses <a>in-line keys</a>. The <a>key path</a> MUST be the name of
+            an enumerated property of all objects being stored in that 
+            <a>object store</a>.
+          </p>
+          
+          <p>
+            Concurrent access to an <a>object store</a> MAY be isolated in one of 
+            three <dfn title="mode">modes</dfn>. Any number of <a title="reader">readers</a>
+            may concurrently access an <a>object store</a>. A <a>writer</a> is not allowed
+            if there is any <a>reader</a> concurrently accesing the <a>object store</a>,
+            unless the <a>reader</a> is detached, i.e., looking at a snapshot view
+            of the data that does not change once created. 
+          </p>
+          <div class="ednote">
+            The detached reading behavior needs more explanation.
+          </div>
+          <p>
+            The <a><code>ObjectStore</code></a> interface is used to access the metadata
+            of an <a>object store</a>.
+          </p>
+          <dl title="interface ObjectStore" class="idl">
+            <dt>const     unsigned short READ_WRITE    = 0</dt>
+            <dd>Modification operations are allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short READ_ONLY    = 1</dt>
+            <dd>Modification operations are not allowed on the <a>object store</a>
+            in this mode.</dd>
+            <dt>const     unsigned short SNAPSHOT_READ = 2</dt>
+            <dd>This mode is used solely for reading from a snapshot of the data
+            in the <a>object store</a>.</dd>
+
+            <dt>readonly attribute unsigned short mode</dt>
+            <dd>On getting, provide the <a>mode</a> for isolating access to data inside
+            this <a>object store</a></dd>
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>          
+              On getting, provide the <a title="object store name">name</a> of this
+              object store.        
+            </dd>
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="object store key path">key path</a>
+              of this <a>object store</a>. If this attribute is <code>null</code>,
+              the application MUST provide a key value for each modification operation.
+            </dd>
+            <dt>readonly attribute DOMStringList  indexNames</dt>
+            <dd>
+            On getting, provide a list of the names of <a title="index">indexes</a> on 
+            objects in this <a>object store</a>.
+            </dd>
+          </dl>
+        </section> <!-- Object store -->
+        
+        <section id="index-concept" class="section">
+          <h4>Index</h4>
+          <p>
+            <a title="record">Records</a> in an <a>object store</a> can be retrieved by 
+            means of the <a title="record">record's</a> key. However, that may not be
+            always adequate to recall <a title="record">records</a>. An <a>index</a> is
+            used to lookup records in an <a>object store</a> other than through a
+            <a>record</a> key.
+          </p>
+          <p>
+            An <dfn>index</dfn> is a specialized persistent store that holds key-value 
+            pairs such that each value is the key of objects in the <dfn>referenced</dfn>
+            <a>object store</a>. An <a>index</a> may allow duplicate  values for a key,
+            unlike an <a>object store</a>, only if its <dfn>unique</dfn> flag is not set. 
+            Every <a>index</a> has a <dfn title="index name">name</dfn>.
+          </p>
+          <p>
+            If an <a>index</a> is <dfn>auto-populated</dfn>, then the user agent populates
+            records using the values stored in the <a>referenced</a> <a>object store</a>.
+            An <a>auto-populated</a> <a>index</a> must have a 
+            <dfn title="index key path">key path</dfn>, which MUST be the name of an
+            enumerated property of all objects being stored in the <a>referenced</a> 
+            <a>object store</a>. The <a>auto-populated</a> <a>index</a> record 
+            corresponding to an <a>object store</a> record MUST satisfy the following 
+            <dfn>index maintenance conditions</dfn>:
+          </p>
+          <ul>
+            <li><a>index</a> record key = value of the enumerated property at the 
+            <a title="index key path">key path<a> in the <a>object store</a> record value</li>
+            <li><a>index</a> record value = <a>object store</a> record key</li>
+          </ul>
+          <p>
+            The <a><code>Index</code></a> interface is used to access the metadata
+            of an <a>index</a>.
+          </p>
+          <dl class="idl" title="interface Index">
+            <dt>readonly attribute DOMString      name</dt>
+            <dd>
+              On getting, provide the <a title="index name">name</a> of this <a>index</a>.        
+            </dd>
+            <dt>readonly attribute DOMString      storeName</dt>
+            <dd>
+              On getting, provide the <a title="object store name">name</a> of this
+              <a title="index">index's</a> <a>referenced</a> <a>object store</a>.
+            </dd>
+        
+            <dt>readonly attribute DOMString      keyPath</dt>
+            <dd>
+              On getting, provide the <a title="index key path">key path<a> of this
+              <a>index</a>. If this attribute is <code>null</code>,
+              this <a>index</a> is not <a>auto-populated</a>.
+            </dd>
+            
+            <dt>readonly attribute boolean unique</dt>
+            <dd>
+              On getting, provide the <a>unique</a> flag of this <a>index</a>.
+            </dd>
+          </dl>  
+        </section> <!-- Index -->
+        
+       <section id="database-concept" class="section">
+          <h4>Database</h4>
+          <p>
+            Each <a>origin</a> has an associated set of <a title="database">databases</a>. 
+            A <dfn>database</dfn> comprises:
+          </p>
+          <ul>
+            <li>
+              one or more <a title="object store">object stores</a> and
+            </li>
+            <li>
+              any number of <a title="index">indexes</a>.
+            </li>
+          </ul>
+          <p>
+            Each <a>database</a> has a <a title="valid-name">valid</a> 
+            <dfn title="database name">name</dfn> and a human readable description
+            A <dfn title="valid-name">valid name</dfn> is any string including
+            the empty string. Names must be compared in a case-sensitive manner.
+          </p>
+          
+          <div class="note">
+            Implementations can support this even in environments that only
+            support a subset of all strings as database names by mapping
+            database names (e.g. using a hashing algorithm) to the supported
+            set of names.
+          </div>
+          <p>
+          Each <a>database</a> also has a current <dfn>version</dfn>.
+          </p>
+          <div class="note">
+            Each <a>database</a> has one version at a time; a <a>database</a> can't
+            exist in multiple versions at once. 
+          </div>
+          <p>
+            The <a>object store</a> <a title="object store name">name</a> and <a>index</a> 
+            <a title="index name">name</a> MUST be <a title="valid-name">valid</a> and 
+            unique within the <a>database</a>.
+          </p>
+          <p>
+            When a <a>database</a> is opened, that creates a <dfn>connection</dfn>. There
+            may be multiple <a title="connection">connections</a> to a given <a>database</a> 
+            at any given time. A <a>connection</a> that is attempting to read a given piece
+            of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
+            attempting to write that piece of data is called a <dfn>writer</dfn>. There
+            may be zero or one active <a>transaction</a> in a <a>connection</a>.
+          </p>
+          <p>
+            A <a><code>Database</code></a> object represents a <a>connection</a> to a 
+            <a>database</a>. There is no way to enumerate the 
+            <a title="database">databases</a> available for an <a>origin</a> from this API. 
+          </p>
+          
+          <dl title="interface Database" class="idl">   
+            <dt>readonly attribute DOMString name</dt>
+            <dd>
+              On getting, this attribute must return the <a title="database name">name</a>
+              of the <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString description</dt>  
+            <dd>
+              On getting, this attribute must return the description of the
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMString version</dt>
+            <dd>
+              On getting, this attribute must return the <a>version</a> of this
+              <a>database</a>. This attribute has the <a>null</a> value when the
+              <a title="connection">connected</a> <a>database</a> is first created.
+            </dd>
+            <dt>readonly attribute DOMStringList objectStores</dt>
+            <dd>
+              On getting, this attribute must return a list of names of the 
+              <a title="object store">object stores</a> currently in the 
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute DOMStringList indexes</dt>
+            <dd>
+              On getting, this attribute must return a list of names of the 
+              <a title="index">indexes</a> currently in the 
+              <a title="connection">connected</a> <a>database</a>.
+            </dd>
+            <dt>readonly attribute Transaction currentTransaction</dt>
+            <dd>
+              On getting, this attribute must return a <a><code>Transaction</code></a> object
+              corresponding to the <a>transaction</a> that is currently active in this
+              <a>database</a> <a>connection</a>.
+            </dd>
+          </dl>
+        </section>  <!-- Database -->
+        
+        <section class="section" id="range-concept">
+          <h4>Key Range</h4>
+          <p>
+            An individual record can be retrieved from an <a>object store</a> using 
+            either the record's key or the key applicable for some <a>index</a> that
+            <a title="referenced">references</a> that <a>object store</a>. Multiple
+            records can be fetched using a <a>key range</a>. A <dfn>key range</dfn> 
+            is a continuous interval over some data type used for keys.
+          </p>
+          <p>
+            A <a>key range</a> may be left-bounded or right-bounded if there is a value
+            that is, respectively, smaller than or larger than all its elements. A
+            <a>key range</a> is said to be bounded if it is both left- and right-bounded
+            and unbounded otherwise. A <dfn title="valid key range">valid</dfn>
+            <a>key range</a> must be either half-bounded or bounded. A <a>key range</a>
+            may be open, i.e., not including its endpoints or closed, i.e., including
+            its endpoints. A <a>key range</a> may be degenerate if it consists of a 
+            single value.
+          </p>
+          <p>
+            The <a><code>KeyRange</code></a> interface is used to define a <a>key range</a>.
+          </p>
+          <dl class="idl" title="interface KeyRange"> 
+            <dt>const     unsigned short DEGENERATE = 0</dt>
+            <dd>This flag indicates a degenerate <a>key range</a>.</dd>
+            <dt>const     unsigned short LEFT_OPEN = 1</dt>
+            <dd>This flag indicates a left-open <a>key range</a>.</dd>
+            <dt>const     unsigned short RIGHT_OPEN = 2</dt>
+            <dd>This flag indicates a right-open <a>key range</a>.</dd>
+            <dt>const     unsigned short LEFT_BOUND = 4</dt>
+            <dd>This flag indicates a left-bound <a>key range</a>.</dd>
+            <dt>const     unsigned short RIGHT_BOUND = 8</dt>
+            <dd>This flag indicates a right-bound <a>key range</a>.</dd>
+            <dt>readonly attribute any left</dt>
+            <dd>This value is the left-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute any right</dt>
+            <dd>This value is the right-bound of the <a>key range</a>.</dd>
+            <dt>readonly attribute unsigned short flags</dt>
+            <dd>Flags for bounding values</dd>
+            <dt>KeyRange degenerate()</dt>
+            <dd>
+              Create a new degenerate <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The only value</dd>
+              </dl>
+            </dd>
+            <dt>KeyRange leftBound()</dt>
+            <dd>
+              Create a new left-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The left bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+            <dt>KeyRange rightBound()</dt>
+            <dd>
+              Create a new right-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any bound</dt>
+                <dd>The right bound value</dd>
+                <dt>optional boolean open</dt>
+                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+            <dt>KeyRange bound()</dt>
+            <dd>
+              Create a new right-bound <a>key range</a>.
+              <dl class="parameters">
+                <dt>any left</dt>
+                <dd>The left-bound value</dd>
+                <dt>any right</dt>
+                <dd>The right-bound value</dd>
+                <dt>optional boolean openLeft</dt>
+                <dd>Is the left-bound value included in the <a>key range</a>.</dd>
+                <dt>optional boolean openRight</dt>
+                <dd>Is the right-bound value included in the <a>key range</a>.</dd>
+              </dl>
+            </dd>
+          </dl>
+        </section> <!-- Key Range -->
+        
+        <section id="cursor-concept" class="section">
+          <h4>Cursor</h4>
+          <p>
+            <a title="cursor">Cursors</a> are a transient mechanism used to 
+            iterate over multiple records in a database. The storage operations
+            are performed on the underlying <a>index</a> or an <a>object store</a>.
+          </p>
+          
+          <p>
+            A <dfn>cursor</dfn> comprises a series of records in either an
+            <a>index</a> or an <a>object store</a>. A <a title="cursor">cursor</a>
+            maintains a <dfn>position</dfn> over this series, which moves in a
+            <dfn>direction</dfn> that is either monotonically increasing or 
+            decreasing order of the record keys. 
+          </p>
+          
+          <dl title="interface Cursor" class="idl">
+            <dt>const     unsigned short     NEXT = 0</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically increasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+            <dt>const     unsigned short     PREV = 2</dt>
+            <dd>
+              indicates that <a>cursor</a> should yield all records, including  
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys.
+            </dd>
+            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
+            <dd>
+              indicates that this <a>cursor</a> should yield all records, not including
+              duplicates and its <a>direction</a> is monotonically decreasing 
+              order of keys. For every key with duplicate values, only the first
+              record is yielded.
+            </dd>
+
+            <dt>readonly attribute unsigned short     direction</dt>
+            <dd>            
+            On getting, provide the traversal <a>direction</a> of the <a>cursor</a>.
+            </dd>
+          </dl>          
+        </section> <!-- Cursor -->
+        
+        <section id="transaction-concept" class="section">
+          <h4>Transaction</h4>
+          <p>
+            A <dfn>transaction</dfn> has a <dfn>scope</dfn> and a <a>database</a>.
+            A <a title="transaction">transaction's</a> <a>scope</a> is either static
+            or dynamic. If the scope is static, it can cover either all the
+            <a title="object store">object stores</a> and <a title="index">indexes</a>
+            in a <a>database</a> or it may include a subset of them.
+          </p>
+          <p>
+            A <a>connection</a> may have at most one <a>transaction</a> at any
+            given time. Moreover, there may not be any overlap among the
+            <a title="scope">scopes</a> of all open <a title="connection">connections</a>
+            to a given <a>database</a>.
+          </p>
+          <p>
+            <a title="transaction">Transactions</a> offer some protection from 
+            application and system failures. A <a>transaction</a> may be used to
+            store multiple data records or to conditionally modify certain data 
+            records. A <a>transaction</a> represents an atomic and durable set of 
+            data access and mutation operations. 
+          </p>
+          
+          <p>  
+            <a title="transaction">Transactions</a> are expected to be short
+            lived. Conforming user agents may terminate 
+            <a title="transaction">transactions</a> that take too long to
+            complete in order to free up storage resources that are locked by
+            a long running <a>transaction</a>.
+          </p>
+        </section> <!-- Transaction -->
+      </section>  
+      
+      <section class="section" id="algorithms">
+        <h3>Algorithms</h3>
+        <section class="section" id="opening">
+          <h4>Opening the database</h4>
+          <p>
+            The <dfn>steps for opening a database</dfn> are as follows. These steps
+            MUST be run with a database name and description. All but the first two
+            and the last steps MUST be run atomically:
           </p>
           
           <ol>
@@ -529,32 +763,11 @@ prepareDatabase(function(evt) {
             </li>
             
             <li>
-              If the database version provided is not the empty string, and
-              the <var>db</var>'s version is different than the version provided
-              to these steps, then set the <var>needs upgrade</var> flag.
-            </li>
-            
-            <li>
               If no database with the given name from the origin <var>origin</var>
-              exists, then 
-                <ol>
-                  <li>
-                    Create the database <var>db</var> with the name and
-                    display name passed to these steps, and let <var>db</var>'s 
-                    version be the empty string.
-                  </li>
-                  <li>
-                    Set the <var>needs upgrade</var> flag. 
-                  </li>
-                </ol>
+              exists, then create the database <var>db</var> with the name and
+              description passed to these steps.
             </li>
   
-            <li>
-              If <var>needs upgrade</var> flag is set and no upgrade callback is passed to 
-              these steps, then abort these steps 
-              with <code>INVALID_STATE_ERR</code>.
-            </li>
-            
             <li>Pick the appropriate steps:
               <dl class="switch">
                 <dt>If these steps are performed to synchronously open a database</dt>
@@ -575,293 +788,673 @@ prepareDatabase(function(evt) {
             </li>
   
             <li>
-              If <var>needs upgrade</var> is true, then 
-              perform the following steps:
+              Return <var>result</var>.
+            </li>
+          </ol>        
+        </section>
+        
+        <section class="section" id="object store insertion">
+          <h4>Object Store Storage steps</h4>
+          <p>
+            The <dfn>steps for storing a record into an object store</dfn> are as follows. 
+            These steps MUST be run with four parameters: the <a>object store</a>,
+            a value, an optional key, and an optional no-overwrite flag.
+          </p>
+          <ol>
+            <li>
+              Let <var>store</var> be the <a>object store</a>, <var>key</var> be
+              the key and <var>value</var> be the value passed to these steps.
+            </li>
+            <li>
+              If <var>store</var> uses <a>out-of-line keys</a> but no <a>key 
+              generator</a>, then a key MUST be passed to these steps. If not, 
+              terminate these steps and set error code <a><code>DATA_ERR</code></a>.
+            </li>
+            <li>
+              If <var>store</var> uses <a>in-line keys</a>, then 
+              let <var>key</var> be the property of <var>object</var> at  
+              <var>store</var>'s <a title="object store key path">key path</a>.
+            </li>
+            <li>
+              If <var>key</var> is defined and not null, then skip the next step.
+            </li>
+            <li>
+              Produce a <a>structured clone</a> of <var>value</var> and call it
+              <var>object</var>.
+            </li>
+            <li>
+              Perform the following steps.              
               <ol>
                 <li>
-                  Create an exclusive transaction for <var>result</var>.
+                  Using <var>store</var>'s <a>key generator</a>, produce the next
+                  key and store it as <var>key</var>.
                 </li>
                 <li>
-                  If a system-level timeout duration is exceeded when 
-                  creating the transaction, then abort these steps with
-                  <a><code>TIMEOUT_ERR</code></a>.              
-                </li>
-  
-                <li>
-                  Create a new 
-                  <a><code>Upgrade</code></a>
-                  object called <var>upgrade</var> for the transaction just created.
-                </li>
-                <li>
-                  <p>
-                    <span>Queue a task</span> to invoke the upgrade callback with <var>upgrade</var>
-                    and <var>result</var> as its arguments.
-                  </p>
-                  <p>
-                    If the callback throws an exception, abort these steps with 
-                    <a><code>UNKNOWN_ERR</code></a>.
-                  </p>
-                </li>
-                <li>
-                  Wait for task to be completed.
-                </li>
-                <li>
-                  Commit the transaction for <var>upgrade</var>.
-                </li>
-                <li>
-                  Store the verson passed to this method in <var>db</var>.
+                  If <var>store</var> uses <a>in-line keys</a>, then store 
+                  <var>key</var> as the property value for <var>object</var> at  
+                  <var>store</var>'s <a title="object store key path">key path</a>.
                 </li>
               </ol>
             </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and 
+              a record already exists with its key being <var>key</var>, then 
+              terminate these steps and set error code <a><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              <p>
+                Store a record in <var>store</var> containing <var>key</var> as its key  
+                and <var>object</var> as its value. If any <a title="index">indexes</a>  
+                are <a>auto-populated</a> for <var>store</var>, then store a record
+                in that index according to <a>index maintenance conditions</a>.
+              </p>
+              <div class="note">
+                Storing would mean inserting if no record exists for that key
+                or updating an existing record, otherwise. <a title="auto-populated">
+                Auto populated<a> <a>index</a> record will also be respectively
+                inserted or updated depending on what storing results in.
+              </div>
+            </li>
             
             <li>
-              Return <var>result</var>.
+              Return the <var>key</var>.
             </li>
           </ol>
         </section>
-          
-        <section id="upgrading-sync" class="section"> 
-          <h4>Upgrading databases</h4>            
-          <div class="example">       
-            <p>
-              In the following example, a database can be initially setup with an object
-              store where the <em>id</em> property on stored objects is used as the key.
-            </p>
-            <codeblock>var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
-var upgrade = 
-function(changes, db) {
-  changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id');
-  // after this - db.<a class="idltype" href="#version">version</a> === '1'          
-};
-dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Address Book', upgrade);</codeblock>
-            <p>
-              Later this database can be upgraded to add a secondary key 
-              for the contact name.
-            </p>
-            <codeblock>var upgrade = 
-function(changes, db) {
-  // db.version === '1'
-  changes.<a class="idltype" href="#create-index">createIndex</a>('ContactName', 'Contact', 'name', Index.MANY_TO_ONE);
-  // after this - db.<a class="idltype" href="#version">version</a> === '2'
-};
-var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '2', 'Address Book', upgrade);</codeblock>
-          </div>
-          <dl class="idl" title="interface Upgrade">
-            <dt>void createObjectStore()</dt>
-            <dd>
-              <p> 
-                This method creates a new object store with the given name. The path of the 
-                primary key in objects stored in this object store is required to correctly
-                create a unique identifier for each object. This path cannot be the empty string.
-                <!--The empty string is a valid value for this parameter, and it 
-                results in the entire value of objects to be used as the key value. -If a path 
-                is specified and--> If an optional sequence name is also provided, then the named
-                sequence is used to populate a value in the object at the key path and that value
-                is stored as the key value for the object. 
+        
+        <section id="index insertion" class="section">
+          <h4>Index Storage steps</h4>
+          <p>
+            The <dfn>steps for storing a record into an index</dfn> are as follows. 
+            These steps MUST be run with four parameters: the <a>index</a>,
+            a key, a value, and a no-overwrite flag.
+          </p>
+          <ol>
+            <li>
+              Let <var>index</var> be the <a>index</a>, <var>key</var> be
+              the key and <var>value</var> be the value passed to these steps.
+            </li>
+            <li>
+              If <var>index</var> has a <a title="index key path">key path</a>,
+              then terminate these steps and set error code <a><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              If the no-overwrite flag was passed to these steps and is set, and 
+              a record already exists in <var>index</var> with its key being 
+              <var>key</var>, then terminate these steps and set error code 
+              <a><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              If no record exists in <var>index</var>'s <a>referenced</a>
+              <a>object store</a> whose key is <var>value</var>, then terminate
+              these steps and set error code <a><code>CONSTRAINT_ERR</code></a>.
+            </li>
+            <li>
+              <p>
+                Store a record in <var>index</var> containing <var>key</var> as its key  
+                and <var>value</var> as its value. 
               </p>
+              <div class="note">
+                Storing would mean inserting if no record exists for that key
+                or updating an existing record, otherwise. 
+              </div>
+            </li>
+            
+            <li>
+              Return the <var>key</var>.
+            </li>
+          </ol>        
+        </section>
+        
+        <section id="object store retrieval" class="section">
+          <h4>Object Store Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a record from an object store</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>object store</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Return the a new <a>structured clone</a> of the value in the record with 
+              key <var>key</var> in <var>store</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section id="index retrieval" class="section">
+          <h4>Index Referenced Value Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a record from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Let <var>value</var> be the value of the record with key <var>key</var>
+              in <var>index</var>.
+            </li>
+            <li>
+              Return the value for the record with key <var>value</var> in 
+              <var>index</var>'s <a>referenced</a> <a>object store</a>.
+            </li>
+          </ol>
+        </section>
+        
+        <section id="index retrieval" class="section">
+          <h4>Index Value Retrieval steps</h4>
+          <p>
+            The <dfn>steps for retrieving a value from an index</dfn> are
+            as follows. These steps MUST be run with two parameters - the record 
+            key and the <a>index</a>.
+          </p>
+            
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a><code>NOT_FOUND_ERR</code></a>.
+            </li>
+            <li>
+              Return the value of the record with key <var>key</var>
+              in <var>index</var>.
+            </li>
+          </ol>
+        </section>
+        
+        <section id="object store deletion" class="section">
+          <h4>Obejct Store Deletion steps</h4>
+          <p>
+            The <dfn>steps for deleting a record from an object store</dfn> 
+            are as follows. These steps MUST be run with two parameters: the key
+            of the record to be deleted and the <a>object store</a>.
+          </p>
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>store</var> be the <a>object
+              store</a> passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>store</var>,
+              then terminate these steps and set error code
+              <a><code>NOT_FOUND_ERR</code></a>.
+            </li>            
+            <li>
+               If any <a title="index">indexes</a> are <a>auto-populated</a> for
+               <var>store</var>, then remove the record in that index according to
+               <a>index maintenance conditions</a>.
+            </li>
+            
+            <li>
+              Remove the record from <var>store</var> with key <var>key</var>. 
+            </li>
+          </ol>
+        </section>
+        <section id="index deletion" class="section">
+          <h4>Index Deletion steps</h4>
+          <p>
+            The <dfn>steps for deleting a record from an index</dfn> 
+            are as follows. These steps MUST be run with two parameters: the key
+            of the record to be deleted and the <a>index</a>.
+          </p>
+          <ol>
+            <li>
+              Let <var>key</var> be the key and <var>index</var> be the <a>index</a>
+              passed to these steps.
+            </li>
+            <li>
+              If no record exists with key <var>key</var> in <var>index</var>,
+              then terminate these steps and set error code
+              <a><code>NOT_FOUND_ERR</code></a>.
+            </li>            
+            <li>
+              Remove the records from <var>index</var> with key <var>key</var>. 
+            </li>
+          </ol>
+        </section>
+        <section class="section" id="transaction creation">
+          <h4>Transaction Creation steps</h4>
+          <p>
+            When the user agent is to <dfn>create a <a>transaction</a></dfn>
+            it must run the following steps. These steps MUST be run with 
+            two parameters - <a>database</a> and an optional list of names of 
+            <a title="index">indexes</a> and <a title="object store">object stores</a>
+            in the database to be locked.
+          </p>
+          
+          <ol>
+            <li>
+              Pick the appropriate steps:
+              <dl class="switch">
+                <dt>If these steps are not called with a list of database objects</dt>
+                <dd>Acquire a lock on the entire database.</dd>
+                <dt>If these steps are called with a non-empty list of database objects</dt>
+                <dd><ol>
+                  <li>
+                    If any of the objects in this array is not a database object,
+                    then set <var>code</var> to <a><code>NON_TRANSIENT_ERR</code></a>
+                    and jump to the last step.
+                  </li>
+                  <li>
+                    Acquire appropriate locks on each of the database objects and
+                    the objects they depend on in an ordered sequence. 
+                    <div class="note">
+                      If the database does not allow fine grained locking,
+                      then a user agent may obtain a shared or exclusive lock on the database.
+                    </div>
+                  </li>
+                </ol></dd>
+                <dt>If these steps are called with an empty array of database objects</dt>
+                <dd>
+                    Do not acquire locks on any database objects now. Locks are obtained as
+                    the application attempts to access those objects.
+                    <div class="note">
+                      Using the database in this style may lead to deadlocks. Programmers
+                      must use caution to acquire and release database objects in the same
+                      global order to avoid deadlocks.
+                    </div>
+                </dd>
+              </dl>
+            </li>
+
+            <li>
+              If a timeout duration is passed to these steps and is exceeded when 
+              acquiring locks, then set <var>code</var> to 
+              <a><code>TIMEOUT_ERR</code></a> and jump to the last step.
+            </li>
+
+            <li>
+              Open a new transaction to the database, and create a
+              <code><a>Transaction</a></code> object
+              that represents that transaction. Let <var>transaction</var> be this object.
+            </li>
+            
+            <li>
+              Set the current transaction of this <a><code>Database</code></a> object
+              to <var>transaction</var>.
+            </li>
+            <li>
+              Return <var>transaction</var>. End these steps.
+            </li>
+            <li>
+              This step is only performed in case of error. If this step is performed
+              asynchronously, then run the 
+              <a class="dfnref" href="#database-failure-steps">database failure steps</a>
+              with the code <var>code</var>. Otherwise, raise a newly constructed 
+              <a><code>DatabaseException</code></a> 
+              exception exception with the code <var>code</var>.
+            </li>
+          </ol>        
+        </section>
+      </section>
+      
+      <section id="sync-database" class="section">
+        <h3>Synchronous APIs</h3>
+        <p>
+          This API can only be used in a Worker [[!WEBWORKERS]].
+        </p>
+        <section id="opening-sync" class="section">
+          <h4>Opening a database connection</h4>
+          <p class="idl" title="WorkerUtils implements EnvironmentSync">
+            Worker objects MUST implement the interface to synchronously open
+            database connections.
+          </p>
+          
+          <dl class="idl" title="[Supplemental, NoInterfaceObject] interface EnvironmentSync">
+            <dt>DatabaseSync openDatabaseSync()</dt>
+            <dd>
               <dl class="parameters">
                 <dt>DOMString name</dt>
-                <dd></dd>
-                <dt>DOMString primaryKeyPath</dt>
-                <dd></dd>
+                <dd> </dd>
+                <dt>DOMString description</dt>
+                <dd> </dd>
+                <dt>optional boolean modifyDatabase</dt>
+                <dd>This defaults to true</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>UNKNOWN_ERR</dt>
+                <dd>if an error occurs while the <a>database</a> <a>connection</a> 
+                is being opened.</dd>
+              </dl>
+              <p>
+                The synchronous API for databases blocks the calling thread until a
+                <a><code>DatabaseSync</code></a> object is ready to return.
+                When this method is invoked, the user agent must run the
+                following steps:
+              </p>
+    
+              <ol>
+                <li>
+                  Perform the <a class="dfnref" href="#database-open-steps">database opening steps</a>,
+                  and call its result as <var>result</var>.
+                </li>
+                <li>
+                  If the steps were aborted due to an error, then throw a newly constructed
+                  <a><code>DatabaseException</code></a> 
+                  exception with the code of that error and abort these steps.
+                </li>
+                <li>
+                  Return <var>result</var>.
+                </li>
+              </ol>              
+            </dd>
+          </dl>
+        </section>
+        
+        <section id="database-interface" class="section">
+          <h4>Database connection</h4>
+          <dl class="idl" title="interface DatabaseSync : Database">
+            <dt>ObjectStoreSync createObjectStore()</dt>
+            <dd>
+              <p>
+                This method creates a and returns a new <a>object store</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+              </p>
+              <dl class="parameters">
+                <dt>[Null=Empty] DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
+                <dt>[Null=Null] DOMString keyPath</dt>
+                <dd>The <a title="object store key path">key path</a> of a new 
+                <a>object store</a>. If <a>null</a> path is specified, then the 
+                <a>object store</a> created will not have a <a>key path</a> and will
+                use <a>out-of-line keys</a>.</dd>
                 <dt>optional boolean autoIncrement</dt>
-                <dd></dd>
+                <dd>Whether the <a>object store</a> created should have a 
+                <a>key generator</a>.</dd>
               </dl>
               <dl class="exception" title="DatabaseException">
                 <dt><a><code>CONSTRAINT_ERR</code></a></dt>
                 <dd>
-                If an object store with the same name, compared in a
-                case-sensitive manner, already exists.
+                If an <a>object store</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
                 </dd>
               </dl>
             </dd>
-            <dt>void createIndex()</dt>
+            <dt>ObjectStoreSync getObjectStore()</dt>
             <dd>
               <p>
-                This method is used to define a new index on this object store. An index is 
-                created using four required parameters - name, object store name, key path, 
-                and cardinality - and two optional parameters - action to be performed when 
-                related object is deleted, and the name of the related object. 
+                This method opens the <a>object store</a> with the given name
+                in the <a title="connection">connected</a> <a>database</a> for the
+                <a>mode</a> specified.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of an existing 
+                <a>object store</a></dd>
+                <dt>optional unsigned short mode</dt>
+                <dd>The <a>mode</a> used to access the <a>object store</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If an <a>object store</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>IndexSync createIndex()</dt>
+            <dd>
+              <p>
+                This method creates a and returns a new <a>index</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
               </p>
               <dl class="parameters">
-                <dt>DOMString      name</dt>
-                <dd></dd>
-                <dt>DOMString      storeName</dt>
-                <dd></dd>
+                <dt>[Null=Empty] DOMString      name</dt>
+                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                <dt>[Null=Empty] DOMString      storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>
                 <dt>DOMString      keyPath</dt>
-                <dd></dd>
-                <dt>optional unsigned short cardinality</dt>
-                <dd></dd>
+                <dd>The <a title="index key path">key path used by the new
+                <a>index</a></dd>
+                <dt>optional boolean unique</dt>
+                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
               </dl>
               <dl class="exception" title="DatabaseException">
                 <dt><a><code>CONSTRAINT_ERR</code></a></dt>
                 <dd>
-                If an index with the same name, compared in a
-                case-sensitive manner, already exists.
+                If an <a>index</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
                 </dd>
                 <dt><a><code>NOT_FOUND_ERR</code></a></dt>
                 <dd>
-                If the object store with the given name does not exist.            
+                If the <a>object store</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>IndexSync getIndex()</dt>
+            <dd>
+              <p>
+                This method opens the <a>index</a> with the given name
+                in the <a title="connection">connected</a> <a>database</a> for the
+                <a>mode</a> specified.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>      
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>index</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
                 </dd>
               </dl>
             </dd>
             <dt>void removeObjectStore()</dt>
             <dd>
               <p>
-                This method is used to destroy the object store as well as all associated indices. 
+                This method is used to destroy an <a>object store</a> with the 
+                given name as well as all <a title="index">indexes</a> that are 
+                <a title="referenced">referencing</a> that <a>object store</a>.
               </p>
               
               <dl class="parameters">
                 <dt>DOMString storeName</dt>
-                <dd></dd>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a></dd>
               </dl>
               <dl class="exception" title="DatabaseException">
                 <dt><a><code>NOT_FOUND_ERR</code></a></dt>
                 <dd>
-                If an object store with the given name, compared in a case-sensitive manner, 
-                does not already exist.
+                If the <a>object store</a> with the given name, compared in a
+                case-sensitive manner, does not already exist
+                in the <a title="connection">connected</a> <a>database</a>.      
                 </dd>
               </dl>
             </dd>
             <dt>void removeIndex()</dt>
             <dd>
               <p>
-                This method is used to destroy the named index on the given object store. 
+                This method is used to destroy an <a>index</a> with the 
+                given name. 
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
-                <dd></dd>
-                <dt>DOMString storeName</dt>
-                <dd></dd>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
               <dl class="exception" title="DatabaseException">
                 <dt><a><code>NOT_FOUND_ERR</code></a></dt>
                 <dd>
-                If an index with the given name does not exist on the named object store.   
+                If the <a>index</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
                 </dd>
               </dl>
             </dd>
-          </dl>
-          
-          <dl class="idl" title="[Callback=FunctionOnly, NoInterfaceObject] interface UpgradeCallback">
-            <dt>void upgrade()</dt>
+            <dt>void setVersion()</dt>
             <dd>
+              This method is used to set the <a>version</a> of the 
+              <a title="connection">connected</a> <a>database</a>.
               <dl class="parameters">
-                <dt>Upgrade  txn</dt>
-                <dd></dd>
-                <dt>Database db</dt>
-                <dd></dd>
+                <dt>[Null=Null] DOMString      version</dt>
+                <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
-          </dl>
+            <dt>TransactionSync transaction()</dt>
+            <dd>
+              Perform the <a>steps for creating a transaction</a> with the list of 
+              database objects for acquiring locks 
+              required in this transaction and an optional timeout duration, and return
+              the resulting <a><code>TransactionSync</code></a> object.
+              <dl class="parameters">
+                <dt>optional DOMStringList storeNames</dt>
+                <dd>The names of <a title="object store">object stores</a> and 
+                <a title="index">indexes</a> in the <a>scope</a> of the new
+                <a>transaction</a></dd>
+                <dt>optional unsigned int timeout</dt>
+                <dd>The interval which this operation is allowed to take to
+                reserve all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a>. The default
+                is user agent specific</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>TIMEOUT_ERR</code></a></dt>
+                <dd>
+                If reserving all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a> takes longer 
+                than the specified interval.
+                </dd>
+              </dl>
+            </dd>
+          </dl>  
         </section>
+          
         <section class="section" id="object-store-sync">  
           <h4>Object Store</h4>
-          <p>
-            An object store is a persistent structure that holds key-value pairs sorted
-            by keys so as to enable fast insertion and look up as well as ordered retrieval.
-            The store provides a mechanism by which to read and write stored objects. 
-            Operations on an object store must follow the transaction used to create 
-            or obtain the object store.
-          </p>
-          
-          <p>
-            Each <a><code>ObjectStore</code></a>
-             object provides access to a set of key/value pairs, which are sometimes
-             called items. Values can be any data type supported by the 
-             <span>structured clone algorithm</span> [[!HTML5]]. 
-             Keys themselves can be of any simple data type. They can be extracted
-             from objects being stored or generated from a monotonic sequence.
-          </p>
-          <p>
-            An object store does not allow multiple items to be stored with the same primary.
-            key. If the same key is used to store a different item, then it will replace
-            the object currently stored with the same key.
-          </p>
           <div class="example">       
             <p>
-              In the following example, we set up an object store to use the 
-              property <em>id</em> from objects to store as the key. 
-              This object store is designed to auto generate keys for each
-              new object added to <em>Contact</em>.
+              In the following example, we set up an <a>object store</a> to use the 
+              <a title="object store key path">key path</a> <em>id</em>. This
+              <a>object store</a> is also designed to use a <a>key generator</a>.
             </p>
-            <codeblock>var upgrade = function(changes, db) {
-              changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id', true);
-            });
-
-var db = new <a class="idltype" href="#DatabaseSync">DatabaseSync</a>('AddressBook', '1', 'Address Book', upgrade);</codeblock>
+            <codeblock>var db = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+if (db.version !== '1.0') {
+   var olddb = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+   olddb.<a>createObjectStore</a>('Contact', 'id', true);
+}</codeblock>
             <p>
-              Using this database, we can store objects in the <em>Contact</em>
-              object store. 
+              Using this <a>database</a>, we can store records in the <em>Contact</em>
+              <a>object store</a>. 
             </p>
-            <codeblock>var store = db.<a class="idltype" href="#sync-get-object-store">getObjectStore</a>('Contact');
+            <codeblock>var store = db.<a>getObjectStore</a>('Contact');
 
 var lincoln = {name: 'Lincoln', number: '7012'};
-var contact = store.<a class="idltype" href="#object-store-put">put</a>(lincoln);
+var contact = store.<a>put</a>(lincoln);
 // contact.id === 1</codeblock>
             <p>
-              A stored value can be retrieved using the same key used for storage.
+              A stored value can be retrieved using the same key used by the
+              first put operation.
             </p>
-            <codeblock>var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
+            <codeblock>var contact = store.<>get</a>(1);
 // contact.name === 'Lincoln'</codeblock>
             <p>
-              A second put operation will
-              replace the object stored by the first put operation.
+              A second put operation will overwrite the record stored by the first 
+              put operation.
             </p>
             <codeblock>var abraham = {id: 1, name: 'Abraham', number: '2107'};
-store.<a class="idltype" href="#object-store-put">put</a>(abraham);</codeblock>
+store.<a>put</a>(abraham);</codeblock>
             <p>
               Now when the object store is read with the same key, the result 
               is different compared to the object read earlier.
             </p>
-            <codeblock>var contact = store.<a class="idltype" href="#object-store-get">get</a>(1);
+            <codeblock>var contact = store.<a>get</a>(1);
 // contact.id === 1 &amp;&amp; contact.name === 'Abraham';</codeblock>
             <p>
-              Additionally, all the objects of an object store matching a certain
-              range of secondary or primary keys can be retrieved in key order.
+              Additionally, all the <a>records</a> of an <a>object store</a> 
+              matching a certain <a>key range</a> can be retrieved in key order.
             </p>
-            <codeblock>var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(2, 4, <a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> &amp; <a class="idlvalue" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a>);
-var count = store.<a class="idltype" href="#store-for-each">forEach</a>(function(key, cursor, value) {
+            <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>(2, 4);
+var count = store.<a>forEach</a>(function(key, cursor, value) {
             // each value is a contact and each key is the id for that  
             // contact whose id is between 2 and 4, both inclusive
             }, range);</codeblock>
           </div>
-          <p>
-            An object store arranges stored objects by their key, also referred to 
-            as the primary key. Each object contains the value of its primary key. 
-            Additionally, object stores may also have one or more secondary keys 
-            declared for stored objects. Indices store data about secondary keys
-            and refer to a primary key somewhere in the object store.
-          </p>
-          
-          <dl title="interface ObjectStore" class="idl">
-            <dt>const     unsigned short <a href="#READ_WRITE">READ_WRITE</a>    = 1</dt>
-            <dd></dd>
-            <dt>const     unsigned short <a href="#READ_ONLY">READ_ONLY</a>     = 2</dt>
-            <dd></dd>
-            <dt>const     unsigned short <a href="#DETACHED_READ">DETACHED_READ</a> = 6</dt>
-            <dd></dd>
-
-            <dt>readonly attribute DOMString      name</dt>
-            <dd>          
-            On getting, provide the name of the object store.        
-            </dd>
-            <dt>readonly attribute DOMString      keyPath</dt>
-            <dd>
-            On getting, provide the path of the key used as the primary key of objects
-            stored in this object store. This path can be the empty string if the
-            object value is used as the key.
-            </dd>
-            <dt>readonly attribute DOMStringList  indexNames</dt>
-            <dd>
-            On getting, provide a list of the names of indexes on objects in this
-            object store.
-            </dd>
-            <dt>readonly attribute unsigned short mode</dt>
-            <dd></dd>
-          </dl>
           
           <dl title="interface ObjectStoreSync : ObjectStore" class="idl">
+            <dt>any put()</dt>
+            <dd>
+              Store the given value in this <a>object store</a> by following
+              the <a>steps for storing a record into an object store</a>. The
+              returned object from this method is the key for the stored record.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>This <a>object store</a> uses <a>out-of-line</a> keys and
+                no <a>key generator</a> but the <var>key</var> parameter was not
+                passed</dd>
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>The <var>noOverwrite</var> parameter was true and a record
+                exists in this <a>object store</a> for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void delete()</dt>
+            <dd>
+              Remove the record from this <a>object store</a> by following
+              the <a>steps for deleting a record from an object store</a>
+              corresponding to the given key.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>object store</a> 
+                for the key <var>key</var parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>any get()</dt>
+            <dd>
+              Retrieve the value from this <a>object store</a> for the record 
+              corresponding to the given key by following the
+              <a>steps for retrieving a record from an object store</a>. The
+              value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>object store</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
             <dt>unsigned long long forEach()</dt>
             <dd>
               <dl class="parameters">
@@ -873,72 +1466,10 @@ var count = store.<a class="idltype" href="#store-for-each">forEach</a>(function
                 <dd></dd>
               </dl>
             </dd>
-            <dt>any put()</dt>
-            <dd>
-              The <dfn id="object-store-put"><code>put()</code></dfn> method is used to 
-              store the given object in the object store. Insert the object by performing the 
-              <a class="dfnref" href="#insertion-steps">insertion steps</a>.
-              <dl class="parameters">
-                <dt>any obj</dt>
-                <dd></dd>
-              </dl>
-              <div class="exception" title="DatabaseException">
-              </div>
-            </dd>
-            <dt>void delete()</dt>
-            <dd>
-              The <dfn id="object-store-delete"><code>delete()</code></dfn> method is used to 
-              delete the object associated with the given key in the object store. Delete the
-              object by performing the <a class="dfnref" href="#deletion-steps">deletion steps</a>.
-              <dl class="parameters">
-                <dt>any key</dt>
-                <dd></dd>
-              </dl>
-              <div class="exception" title="DatabaseException">
-              </div>
-            </dd>
-            <dt>any get()</dt>
-            <dd>
-              This method is used to retrieve
-              the object associated with the given key in the object store. The following steps 
-              must be run for retrieving the object with the following parameters: <var>key</var>.
-              <ol>
-                <li>
-                  If <var>key</var> is not defined or null, then throw a newly constructed 
-                  <a><code>DatabaseException</code></a> 
-                  exception with code
-                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
-                  and terminate these steps.
-                </li>            
-                <li>
-                  Use the <var>key</var> to look up an object in the object store. Let 
-                  <var>value</var> be that object.
-                </li>
-                
-                <li>
-                  If <var>object</var> is not found in the object store, then throw a newly constructed 
-                  <a><code>DatabaseException</code></a> 
-                  exception with code
-                  <a class="idlvalue" href="#code-not-found"><code>NOT_FOUND_ERR</code></a>
-                  and terminate these steps.
-                </li>
-              </ol>
-              <dl class="parameters">
-                <dt>any key</dt>
-                <dd></dd>
-              </dl>
-              <div class="exception" title="DatabaseException">
-              </div>
-            </dd>
           </dl>                
         </section>
         <section id="index-sync" class="section">  
           <h4>Index</h4>
-          <p>
-            Usually database objects are retrieved by means of the object's key. However,
-            the key used for an object will not always contain the information required
-            to provide rapid access to the data that may be needed. 
-          </p>
           
           <div class="example">
             <p>
@@ -947,24 +1478,23 @@ var count = store.<a class="idltype" href="#store-for-each">forEach</a>(function
               function above were redefined as below, an index would be maintained
               on the <em>name</em> property of objects in <em>Contact</em>.
             </p>
-            <codeblock>var upgrade = function(changes, db) {<!--
-              changes.<a class="idltype" href="#create-sequence">createSequence</a>('ContactSeq');-->
-              changes.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id', true);
-              changes.<a class="idltype" href="#create-index">createIndex</a>('ContactName', 'Contact', 'name', Index.MANY_TO_ONE);
+            <codeblock>var upgrade = function(changes, db) {
+              changes.<a>createObjectStore</a>('Contact', 'id', true);
+              changes.<a>createIndex</a>('ContactName', 'Contact', 'name', false);
             });</codeblock>
             <p>
               For example, the id of an object with <em>name</em> property value as
               'Lincoln' can be retrieved using this <em>ContactName</em> index.
             </p>
-            <codeblock>var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
-var id = index.<a class="idltype" href="#index-get">get</a>('Lincoln');
+            <codeblock>var index = db.<a>getIndex</a>('ContactName', 'Contact');
+var id = index.<a>get</a>('Lincoln');
 // id === 1</codeblock>              
             <p>
               If, however, we wanted to retrieve the object with <em>name</em> property 
               value as 'Lincoln' can be retrieved using this <em>ContactName</em> index.
             </p>
-            <codeblock>var index = db.<a class="idltype" href="#sync-get-index">getIndex</a>('ContactName', 'Contact');
-var contact = index.<a class="idltype" href="#index-get-object">getObject</a>('Lincoln');
+            <codeblock>var index = db.<a>getIndex</a>('ContactName', 'Contact');
+var contact = index.<a>getObject</a>('Lincoln');
 // contact.id === 1</codeblock>              
             <p>
               Additionally, all the objects of an object store matching a certain
@@ -974,8 +1504,8 @@ var contact = index.<a class="idltype" href="#index-get-object">getObject</a>('L
               other hand, when objects are retrieved using the <em>ContactName</em>
               index, they are arranged by the value of the <em>name</em> attribute. 
             </p>
-            <codeblock>var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
-var count = index.<a class="idltype" href="#index-for-each">forEachObject</a>(function(key, cursor, value) {
+            <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>('L', 'M');
+var count = index.<a>forEachObject</a>(function(key, cursor, value) {
             // each value is a contact and each key is the name for that  
             // contact whose name's first letter is either L or M
             }, range);</codeblock>
@@ -983,60 +1513,13 @@ var count = index.<a class="idltype" href="#index-for-each">forEachObject</a>(fu
               If, on the other hand, we only want to names but not the contact
               objects for a given range, then we can use a different mechanism for that.
             </p>
-            <codeblock>var range = new <a class="idltype" href="#CursorRange">CursorRange</a>('L', 'M');
-var count = index.<a class="idltype" href="#index-for-each">forEach</a>(function(key, cursor) {
+            <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>('L', 'M');
+var count = index.<a>forEach</a>(function(key, cursor) {
             // each key is the id of a contact  
             // whose name's first letter is either L or M
             }, range);</codeblock>
           </div>
               
-          <dl class="idl" title="interface Index">
-            <dt>const     unsigned short ONE_TO_ONE   = 0</dt>
-            <dd>indicates
-            that the secondary key is unique to the object. If an object is stored
-            with a secondary key that already exists in the object store.
-            </dd>
-            <dt>const     unsigned short MANY_TO_ONE  = 1</dt>
-            <dd>indicates
-            the secondary key may be used for multiple objects in the object store. 
-            That is, the key appears more than once, but for each stored object it
-            can be used only once. 
-            </dd>
-            <dt>const     unsigned short ONE_TO_MANY = 2</dt>
-            <dd>indicates
-            that the secondary key might be used more than once for a given object. 
-            Secondary keys themselves are assumed to be unique, but multiple instances
-            of the secondary key can be used per object. 
-            </dd>
-            <dt>const     unsigned short MANY_TO_MANY = 3</dt>
-            <dd>indicates
-            there can be multiple keys for any given object, and for any given key
-            there can be many related objects. 
-            </dd>
-            <dt>readonly attribute DOMString      name</dt>
-            <dd>
-              On getting, provide the name of the index.        
-            </dd>
-    
-            <dt>readonly attribute DOMString      keyPath</dt>
-            <dd>
-              On getting, 
-              provide the path of the key used as the secondary key of objects stored in this
-              index. This path can be the empty string if the object value is used
-              as the key.
-            </dd>
-            
-            <dt>readonly attribute unsigned short cardinality</dt>
-            <dd>
-              On getting, 
-              describe whether duplicate objects can be found in the index for a given
-              secondary key. If the cardinality is <a class="idlvalue" href="#ONE_TO_ONE">
-              <code>ONE_TO_ONE</code></a> or <a class="idlvalue" href="#ONE_TO_MANY">
-              <code>ONE_TO_MANY</code></a>, duplicates will not occur. For the other 
-              cardinality levels, duplicates may occur.
-            </dd>
-          </dl>  
-
           <dl class="idl" title="interface IndexSync: Index">
             <dt>unsigned long long forEach()</dt>
             <dd>
@@ -1060,44 +1543,78 @@ var count = index.<a class="idltype" href="#index-for-each">forEach</a>(function
                 <dd> </dd>
               </dl>
             </dd>
-            <dt>any get()</dt>
+            <dt>any put()</dt>
             <dd>
-              <p>
-                The <dfn id="sync-index-get"><code>get()</code></dfn> method is used to 
-                retrieve the object associated with the given secondary key in the object store
-                by looking up the primary keys for the given secondary key and performing the 
-                <a class="dfnref" href="#retrieval-steps">retrieval steps</a> for each of
-                the primary keys.
-              </p>
+              Store the given value in this <a>index</a> by following
+              the <a>steps for storing a record into an index</a>. The
+              returned object from this method is the key for the stored record.
               <dl class="parameters">
-                <dt>any key</dt>
-                <dd></dd>
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key</dd>
               </dl>
-              <div title="DatabaseException" class="exception">
-              </div>
+              <dl class="exception" title="DatabaseException">
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>The <var>noOverwrite</var> parameter was true and a record
+                exists in this <a>object store</a> for the key <var>key</var> 
+                parameter or this <a>index</a> is <a>auto-populated</a> or if no
+                record exists with key <var>value</var> parameter in the <a>index</a>'s
+                <a>referenced</a> <a>object store</a>.
+                </dd>
+              </dl>
             </dd>
             <dt>any getObject()</dt>
+            <dd>
+              Retrieve the value from this <a>index</a>'s <a>referenced</a>
+              <a>object store</a> for the record corresponding to the given key
+              by following the <a>steps for retrieving a record from an index</a>.
+              The value returned from this method is the retrieved value.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd></dd>
+                <dd>Key identifying the record to be retrieved</dd>
               </dl>
-              <div title="DatabaseException" class="exception">
-              </div>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>any get()</dt>
+            <dd>
+              Retrieve the value from this <a>index</a> for the record 
+              corresponding to the given key by following the 
+              <a>steps for retrieving a value from an index</a>.
+              The value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
             <dt>void delete()</dt>
             <dd>
-              <p>
-                The <dfn id="sync-index-delete"><code>delete()</code></dfn> method is used to 
-                delete the object associated with the given secondary key in the object store. 
-                by looking up the primary keys for the given secondary key and performing the 
-                <a class="dfnref" href="#deletion-steps">deletion steps</a> for each of the
-                primary keys.
-              </p>
+              Remove the records from this <a>index</a> by following
+              the <a>steps for deleting a record from an index</a>
+              corresponding to the given key.
               <dl class="parameters">
                 <dt>any key</dt>
-                <dd></dd>
+                <dd>Key identifying the record to be removed</dd>
               </dl>
-              <div title="DatabaseException" class="exception">
-              </div>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var parameter.
+                </dd>
+              </dl>
             </dd>
           </dl>
         </section>
@@ -1117,13 +1634,13 @@ var count = index.<a class="idltype" href="#index-for-each">forEach</a>(function
           <p>
             The initial position of a cursor is set by specifying the
             direction in which the cursor should iterate over matching
-            items. Once the cursor is created, it yield items only in 
+            records. Once the cursor is created, it yield records only in 
             that direction.
           </p>
           <div class="example">
             <p>
               By default, a cursor walks over objects starting at the
-              first item and ending at the last item including
+              first record and ending at the last record including
               all the duplicates encountered along the way. If the
               cursor callback returns true, then the iteration is 
               stopped.
@@ -1134,7 +1651,7 @@ var cursor = objects.forEach(function(object) {;
 });</codeblock>
             
             <p>
-              To start at the last item and end in the first item,
+              To start at the last record and end in the first record,
               the cursor should be created with the direction parameter.
             </p>
             <codeblock>var objects = ...
@@ -1143,14 +1660,14 @@ var count = objects.forEach(function(object) {;
 }, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#PREV">PREV</a>);</codeblock>
 
             <p>
-              To start at a certain key and end in the last item, i.e.,
+              To start at a certain key and end in the last record, i.e.,
               for a lower-bounded cursor, while skipping duplicates,
               the cursor should be created with both the required 
               start key and the direction parameter. 
             </p>
             
             <codeblock>var objects = ...
-var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(<a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INDIVIDUAL">INDIVIDUAL</a>, key);
+var range = <a class="idltype" href="#KeyRange">KeyRange</a>.leftBound(key);
 objects.forEach(function(object) {
 // act on each object and return true to exit the cursor  
 }, range, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#NEXT_NO_DUP">NEXT_NO_DUPLICATE</a>);</codeblock>
@@ -1167,7 +1684,7 @@ objects.forEach(function(object) {
             </p>
   
             <codeblock>var objects = ...
-var range = new <a class="idltype" href="#CursorRange">CursorRange</a>(<a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_START">INCLUDE_START</a> &amp; <a class="idltype" href="#CursorRange">CursorRange</a>.<a class="idlvalue" href="#INCLUDE_END">INCLUDE_END</a>, start, end);
+var range = <a class="idltype" href="#KeyRange">KeyRange</a>.bound(start, end);
 objects.forEach(function(object) {
 // act on each object and return true to exit the cursor  
 }, range);</codeblock>
@@ -1206,7 +1723,7 @@ objects.forEach(function(object) {
             </dd>
 
             <dt>void    continue()</dt>
-            <dd>(in optional <a href="#CursorRange">CursorRange</a> skipTo);</dd>
+            <dd>(in optional KeyRange skipTo);</dd>
             
             <dt>boolean update()</dt>
             <dd>
@@ -1234,20 +1751,6 @@ objects.forEach(function(object) {
               </p>
             </dd>
           </dl>
-          <dl class="idl" title="[Constructor(in unsigned short mode, in optional any start, in optional end)] interface CursorRange"> 
-            <dt>const     unsigned short INCLUDE_START = 1</dt>
-            <dd> </dd>
-            <dt>const     unsigned short INCLUDE_END = 2</dt>
-            <dd> </dd>
-            <dt>const     unsigned short INDIVIDUAL = 4</dt>
-            <dd> </dd>
-            <dt>readonly attribute any start</dt>
-            <dd> </dd>
-            <dt>readonly attribute any end</dt>
-            <dd> </dd>
-            <dt>readonly attribute unsigned short mode</dt>
-            <dd> </dd>
-          </dl>
 
           <dl class="idl" title="[FunctionOnly, NoInterfaceObject] interface CursorCallback"> 
             <dt>bool handle()</dt>
@@ -1258,7 +1761,7 @@ objects.forEach(function(object) {
           </dl>
           <p>
             The <dfn id="for-each" class="idltype"><code>forEach()</code></dfn>
-            method is used to navigate items in a cursor in the direction
+            method is used to navigate records in a cursor in the direction
             identified by the <var>direction</var> parameter, which can be
             either of <a class="idlvalue" href="#NEXT"><code>NEXT</code></a>,
             <a class="idlvalue" href="#NEXT_NO_DUP"><code>NEXT_NO_DUPLICATE</code></a>,
@@ -1287,14 +1790,14 @@ objects.forEach(function(object) {
         <section id="transaction-sync" class="section">
           <h4>Transaction</h4>
           <p>
-            A <dfn id="dfn-transaction">transaction</dfn> represents an atomic and durable set of 
+            A <dfn>transaction</dfn> represents an atomic and durable set of 
             database access and mutation operations. Transactions offer data protection
             from application or system failures. 
           </p>
           
           <p>
-            A transaction may be used to store multiple data items or to conditionally 
-            modify certain data items. 
+            A transaction may be used to store multiple data records or to conditionally 
+            modify certain data records. 
           </p>
           
           <p>
@@ -1344,78 +1847,6 @@ objects.forEach(function(object) {
             time.
           </div>
           
-          <p>
-            When the user agent is to <dfn id="create-a-transaction-object">create a
-            <a><code>Transaction</code></a> object</dfn>
-            it must run the following steps:
-          </p>
-          
-          <ol>
-            <li>
-              Pick the appropriate steps:
-              <dl class="switch">
-                <dt>If these steps are not called with an array of database objects</dt>
-                <dd>Acquire a lock on the entire database.</dd>
-                <dt>If these steps are called with a non-empty array of database objects</dt>
-                <dd><ol>
-                  <li>
-                    If any of the objects in this array is not a database object,
-                    then set <var>code</var> to
-                    <a><code>NON_TRANSIENT_ERR</code></a>
-                    and jump to the last step.
-                  </li>
-                  <li>
-                    Acquire appropriate locks on each of the database objects and
-                    the objects they depend on in an ordered sequence. 
-                    <div class="note">
-                      If the database does not allow fine grained locking,
-                      then a user agent may obtain a shared or exclusive lock on the database.
-                    </div>
-                  </li>
-                </ol></dd>
-                <dt>If these steps are called with an empty array of database objects</dt>
-                <dd>
-                    Do not acquire locks on any database objects now. Locks are obtained as
-                    the application attempts to access those objects.
-                    <div class="note">
-                      Using the database in this style may lead to deadlocks. Programmers
-                      must use caution to acquire and release database objects in the same
-                      global order to avoid deadlocks.
-                    </div>
-                </dd>
-              </dl>
-            </li>
-
-            <li>
-              If a timeout duration is passed to these steps and is exceeded when 
-              acquiring locks, then set <var>code</var> to 
-              <a><code>TIMEOUT_ERR</code></a> and
-              jump to the last step.
-            </li>
-
-            <li>
-              Open a new transaction to the database, and create a
-              <code><a>Transaction</a></code> object
-              that represents that transaction. Let <var>transaction</var> be this object.
-            </li>
-            
-            <li>
-              Set the current transaction of this 
-              <a><code>Database</code></a> object
-              to <var>transaction</var>.
-            </li>
-            <li>
-              Return <var>transaction</var>. End these steps.
-            </li>
-            <li>
-              This step is only performed in case of error. If this step is performed
-              asynchronously, then run the 
-              <a class="dfnref" href="#database-failure-steps">database failure steps</a>
-              with the code <var>code</var>. Otherwise, raise a newly constructed 
-              <a><code>DatabaseException</code></a> 
-              exception exception with the code <var>code</var>.
-            </li>
-          </ol>
                     
           <p>
             Once a transaction is aborted or committed, that 
@@ -1854,165 +2285,7 @@ loadContact(1, function() {
           </table>        
         </section>
       </section>
-      
-      <section class="section" id="algorithms">
-        <h3>Algorithms</h3>
-        <section class="section" id="insertion">
-          <h4>Insertion steps</h4>
-            The <dfn id="insertion-steps">insertion steps</dfn> are as follows. 
-            These steps must be run with three parameters: <var>object</var>, 
-            <var>key path</var>, and optional <var>sequence name</var>.
-            <ol>
-              <li>
-                Let <var>key</var> be the property of the <var>object</var> at the 
-                <var>key path</var>.
-              </li>
-              <li>
-                If <var>key</var> is defined and not null, then skip the next step.
-              </li>
-              <li>
-                If the <var>sequence name</var> is defined for the insertion steps, 
-                then perform the following steps.              
-                <ol>
-                  <li>
-                    If the database does not contain a sequence whose name matches, compared 
-                    in a case-sensitive manner, with <var>sequence name</var>, then 
-                    throw a newly constructed 
-                    <a><code>DatabaseException</code></a> 
-                    exception with code <a><code>CONSTRAINT_ERR</code></a>
-                    and terminate these steps.
-                  </li>
-                  <li>
-                    Let <var>sequence</var> be the 
-                    <a><code>Sequence</code></a> object
-                    for the <var>sequence name</var> 
-                  </li>
-                    
-                  <li>
-                    From the <var>sequence</var> get the next value. Store that value as
-                    <var>key</var>.
-                  </li>
-                  <li>
-                    Store <var>key</var> as the property value for the <var>object</var> at the 
-                    <var>key path</var>.
-                  </li>
-                </ol>
-              </li>
-              
-              <li>
-                If the <var>key</var> is not defined or null, then throw a newly constructed 
-                <a><code>DatabaseException</code></a> 
-                exception with code <a><code>DATA_ERR</code></a>
-                and terminate these steps.
-              </li>
-              
-              <li>
-                Insert the <var>object</var> with <var>key</var> as its key. If any
-                indexes are maintained for objects in this object store, then perform
-                the following steps for each index. These steps must be run with three
-                parameters: <var>object</var>, <var>key path</var>, and <var>index</var>.
-                
-                <ol>
-                  <li>
-                    Let <var>value</var> be the property of the <var>object</var> at the 
-                    <var>key path</var>.
-                  </li>
-                  <li>
-                    Let <var>index key path</var> be the key path of <var>index</var>.                             
-                  </li>
-                  <li>
-                    Let <var>key</var> be the property of the <var>object</var> at the 
-                    <var>index key path</var>.
-                  </li>
-                  <li>
-                    Insert the <var>value</var> with <var>key</var> as its key in the
-                    <var>index</var>.
-                  </li>
-                </ol>
-            </li>
             
-            <li>
-              Return the <var>key</var>.
-            </li>
-          </ol>
-        </section>
-        
-        <section id="retrieval" class="section">
-          <h4>Retrieval steps</h4>
-          <p>
-            The <dfn id="retrieval-steps">retrieval steps</dfn> are as follows.
-            These steps must be run for retrieving the object with the following
-            parameters: <var>key</var>.
-          </p>
-            
-          <ol>
-            <li>
-              If <var>key</var> is not defined or null, then throw a newly constructed 
-              <a><code>DatabaseException</code></a> 
-              exception with code
-              <a><code>NOT_FOUND_ERR</code></a> and terminate these steps.
-            </li>            
-            <li>
-              Use the <var>key</var> to look up an object in the object store. Let 
-              <var>value</var> be that object.
-            </li>
-            
-            <li>
-              If <var>object</var> is not found in the object store, then throw a newly constructed 
-              <a><code>DatabaseException</code></a> 
-              exception with code
-              <a><code>NOT_FOUND_ERR</code></a> and 
-              terminate these steps.
-            </li>
-          </ol>
-        </section>
-        
-        <section id="deletion" class="section">
-          <h4>Deletion steps</h4>
-          <p>
-            The <dfn id="deletion-steps">deletion steps</dfn> are as follows. 
-            These steps must be run with one parameter: <var>key</var>, 
-            <var>key path</var>, and optional <var>sequence name</var>.
-          </p>
-          <ol>
-            <li>
-              If <var>key</var> is not defined or null, then throw a newly constructed 
-              <a><code>DatabaseException</code></a> 
-              exception with code
-              <a><code>NOT_FOUND_ERR</code></a> and 
-              terminate these steps.
-            </li>            
-            
-            <li>
-              Use the <var>key</var> to look up an object in the object store. Let 
-              <var>object</var> be that object.
-            </li>
-            
-            <li>
-              If any indexes are maintained for objects in this object store, then perform
-              the following steps for each index. These steps must be run with three
-              parameters: <var>object</var>, <var>key path</var>, and <var>index</var>.
-              
-              <ol>
-                <li>
-                  Let <var>index key path</var> be the key path of <var>index</var>.                             
-                </li>
-                <li>
-                  Let <var>value</var> be the property of the <var>object</var> at the 
-                  <var>index key path</var>.
-                </li>
-                <li>
-                  Delete the record for <var>value</var> from <var>index</var>.
-                </li>
-              </ol>
-            </li>
-            <li>
-              Delete the object stored with the key <var>key</var> in the object store. 
-            </li>
-          </ol>
-        </section>
-      </section>
-      
       <section id="database-exception" class="section">
         <h3>Exceptions and Errors</h3>
         <p>
@@ -2305,7 +2578,7 @@ loadContact(1, function() {
         
         <p>Letting third-party sites write data to the persistent storage of
         other domains can result in <em>information spoofing</em>, which is
-        equally dangerous. For example, a hostile site could add items to a
+        equally dangerous. For example, a hostile site could add records to a
         user's wishlist; or a hostile site could set a user's session
         identifier to a known ID that the hostile site can then use to track
         the user's actions on the victim site.</p>
