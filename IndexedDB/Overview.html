@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.20 2009-12-11 01:30:18 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.21 2009-12-11 18:39:16 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -289,7 +289,8 @@ prepareDatabase(function(evt) {
             specification [[!HTML5]].
           </dd>
           <dt>WebWorkers</dt>
-          <dd>This specification adds capabilities to WebWorkers and uses certain concepts defined in this specification [[!WEBWORKERS]].</dd>
+          <dd>The term <dfn title="Worker"><code>Worker</code></dfn> is defined by
+          the WebWorkers specification [[!WEBWORKERS]].</dd>
         </dl>
       </section>
     </section>
@@ -492,6 +493,11 @@ prepareDatabase(function(evt) {
             </li>
           </ul>
           <p>
+            The <a title="object store">object stores</a> and 
+            <a title="index">indexes</a> of a <a>database</a> are also referred as
+            its <dfn>objects</dfn>.
+          </p>
+          <p>
             Each <a>database</a> has a <a title="valid-name">valid</a> 
             <dfn title="database name">name</dfn> and a human readable description
             A <dfn title="valid-name">valid name</dfn> is any string including
@@ -522,7 +528,7 @@ prepareDatabase(function(evt) {
             at any given time. A <a>connection</a> that is attempting to read a given piece
             of data in a <a>database</a> is called a <dfn>reader</dfn> and one that is
             attempting to write that piece of data is called a <dfn>writer</dfn>. There
-            may be zero or one active <a>transaction</a> in a <a>connection</a>.
+            may be zero or one <dfn>active</dfn> <a>transaction</a> in a <a>connection</a>.
           </p>
           <p>
             A <a><code>Database</code></a> object represents a <a>connection</a> to a 
@@ -562,7 +568,7 @@ prepareDatabase(function(evt) {
             <dt>readonly attribute Transaction currentTransaction</dt>
             <dd>
               On getting, this attribute must return a <a><code>Transaction</code></a> object
-              corresponding to the <a>transaction</a> that is currently active in this
+              corresponding to the <a>transaction</a> that is <a>active</a> in this
               <a>database</a> <a>connection</a>.
             </dd>
           </dl>
@@ -661,7 +667,7 @@ prepareDatabase(function(evt) {
           </p>
           
           <p>
-            A <dfn>cursor</dfn> comprises a series of records in either an
+            A <dfn>cursor</dfn> comprises a <dfn>range</dfn> of records in either an
             <a>index</a> or an <a>object store</a>. A <a title="cursor">cursor</a>
             maintains a <dfn>position</dfn> over this series, which moves in a
             <dfn>direction</dfn> that is either monotonically increasing or 
@@ -1041,11 +1047,15 @@ prepareDatabase(function(evt) {
             When the user agent is to <dfn>create a <a>transaction</a></dfn>
             it must run the following steps. These steps MUST be run with 
             two parameters - <a>database</a> and an optional list of names of 
-            <a title="index">indexes</a> and <a title="object store">object stores</a>
-            in the database to be locked.
+            <a>database</a> <a>objects</a> to be reserved.
           </p>
           
           <ol>
+            <li>
+              If the <a>database</a> passed to these steps has an <a>active</a>
+              <a>transaction</a>, then terminate these steps and set error code
+              <a><code>NON_TRANSIENT_ERR</code></a>.
+            </li>
             <li>
               Pick the appropriate steps:
               <dl class="switch">
@@ -1114,13 +1124,16 @@ prepareDatabase(function(evt) {
       <section id="sync-database" class="section">
         <h3>Synchronous APIs</h3>
         <p>
-          This API can only be used in a Worker [[!WEBWORKERS]].
+          This API can only be used in a <a title="Worker"><code>Worker</code></a>.
         </p>
         <section id="opening-sync" class="section">
           <h4>Opening a database connection</h4>
+          <p>
+            <a title="Worker"><code>Worker</code></a> objects MUST implement the 
+            interface to synchronously <a title="steps for opening a database">open</a>
+            <a>database</a> <a title="connection">connections</a>.
+          </p>
           <p class="idl" title="WorkerUtils implements EnvironmentSync">
-            Worker objects MUST implement the interface to synchronously open
-            database connections.
           </p>
           
           <dl class="idl" title="[Supplemental, NoInterfaceObject] interface EnvironmentSync">
@@ -1166,6 +1179,11 @@ prepareDatabase(function(evt) {
         
         <section id="database-interface" class="section">
           <h4>Database connection</h4>
+          <p>
+            A <a>database</a> <a>connection</a> can be used to manipulate the 
+            <a>objects</a> of that <a>database</a>. That is also the only means of
+            obtaining a <a>transaction</a> for that <a>database</a>.
+          </p>
           <dl class="idl" title="interface DatabaseSync : Database">
             <dt>ObjectStoreSync createObjectStore()</dt>
             <dd>
@@ -1355,9 +1373,10 @@ prepareDatabase(function(evt) {
               <a>object store</a> is also designed to use a <a>key generator</a>.
             </p>
             <codeblock>var db = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
-if (db.version !== '1.0') {
+if (db.version !== '1') {
    var olddb = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
    olddb.<a>createObjectStore</a>('Contact', 'id', true);
+   olddb.<a>setVersion</a>('1');
 }</codeblock>
             <p>
               Using this <a>database</a>, we can store records in the <em>Contact</em>
@@ -1455,15 +1474,22 @@ var count = store.<a>forEach</a>(function(key, cursor, value) {
                 </dd>
               </dl>
             </dd>
-            <dt>unsigned long long forEach()</dt>
+            <dt>void forEach()</dt>
             <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this
+              <a>object store</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. The user agent calls the 
+              <var>callback</var> function for every record in the <a>cursor</a>'s 
+              <a>range</a>. The 
               <dl class="parameters">
                 <dt>CursorCallback callback</dt>
-                <dd></dd>
-                <dt>optional CursorRange    range</dt>
-                <dd></dd>
+                <dd>The callback function to invoke for every record</dd>
+                <dt>optional KeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
-                <dd></dd>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
           </dl>                
@@ -1473,36 +1499,34 @@ var count = store.<a>forEach</a>(function(key, cursor, value) {
           
           <div class="example">
             <p>
-              An object can be retrieved using <em>secondary</em> keys, provided these keys
-              are defined for the object store holding such objects. If the <code>upgrade()</code>
-              function above were redefined as below, an index would be maintained
-              on the <em>name</em> property of objects in <em>Contact</em>.
+              An <a>index</a> can be created for retrieving records other than
+              by using record keys. Continuing the earlier example, an auto-populated
+              index could be maintained on the <em>name</em> property of objects
+              in the <em>Contact</em> <a>object store</a>.
             </p>
-            <codeblock>var upgrade = function(changes, db) {
-              changes.<a>createObjectStore</a>('Contact', 'id', true);
-              changes.<a>createIndex</a>('ContactName', 'Contact', 'name', false);
-            });</codeblock>
+            <codeblock>var db = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+if (db.version === '1') {
+   var olddb = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+   olddb.<a>createObjectStore</a>('Contact', 'id', true);
+   olddb.<a>createIndex</a>('ContactName', 'Contact', 'name', false);
+   olddb.<a>setVersion</a>('2');
+}</codeblock>
             <p>
-              For example, the id of an object with <em>name</em> property value as
-              'Lincoln' can be retrieved using this <em>ContactName</em> index.
+              For example, the <em>id</em> of an object with the <em>name</em> 
+              property value 'Lincoln' can be retrieved using the 
+              <em>ContactName</em> <a>index</a>.
             </p>
-            <codeblock>var index = db.<a>getIndex</a>('ContactName', 'Contact');
+            <codeblock>var index = db.<a>getIndex</a>('ContactName');
 var id = index.<a>get</a>('Lincoln');
 // id === 1</codeblock>              
             <p>
-              If, however, we wanted to retrieve the object with <em>name</em> property 
-              value as 'Lincoln' can be retrieved using this <em>ContactName</em> index.
-            </p>
-            <codeblock>var index = db.<a>getIndex</a>('ContactName', 'Contact');
-var contact = index.<a>getObject</a>('Lincoln');
-// contact.id === 1</codeblock>              
-            <p>
-              Additionally, all the objects of an object store matching a certain
-              range of secondary or primary keys can be retrieved in key order. 
-              When objects are retrieved from the <em>Contact</em> object store, 
+              Additionally, all the records of an <a>object store</a> matching
+              a certain range index keys can be retrieved in key order. When
+              objects are retrieved from the <em>Contact</em> <a>object store</a>, 
               they are arranged by the value of the <em>id</em> attribute. On the
               other hand, when objects are retrieved using the <em>ContactName</em>
-              index, they are arranged by the value of the <em>name</em> attribute. 
+              <a>index</a>, they are arranged by the value of the <em>name</em> 
+              property. 
             </p>
             <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>('L', 'M');
 var count = index.<a>forEachObject</a>(function(key, cursor, value) {
@@ -1510,7 +1534,7 @@ var count = index.<a>forEachObject</a>(function(key, cursor, value) {
             // contact whose name's first letter is either L or M
             }, range);</codeblock>
             <p>
-              If, on the other hand, we only want to names but not the contact
+              If, on the other hand, we only want the names but not the <em>Contact</em>
               objects for a given range, then we can use a different mechanism for that.
             </p>
             <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>('L', 'M');
@@ -1521,26 +1545,44 @@ var count = index.<a>forEach</a>(function(key, cursor) {
           </div>
               
           <dl class="idl" title="interface IndexSync: Index">
-            <dt>unsigned long long forEach()</dt>
+            <dt>void forEachObject()</dt>
             <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this 
+              <a>index</a>'s <a>referenced</a> <a>object store</a> as arranged by
+              this <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. The user agent calls the 
+              <var>callback</var> function for every record in the <a>cursor</a>'s 
+              <a>range</a>.
               <dl class="parameters">
                 <dt>CursorCallback callback</dt>
-                <dd> </dd>
-                <dt>optional CursorRange  range</dt>
-                <dd> </dd>
+                <dd>The callback function to invoke for every record. The callback
+                will be invoked with the key from the index and the corresponding
+                value from the <a>referenced</a> <a>object store</a>.</dd>
+                <dt>optional KeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
-                <dd> </dd>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
-            <dt>unsigned long long forEachObject()</dt>
+            <dt>void forEach()</dt>
             <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this 
+              <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. The user agent calls the 
+              <var>callback</var> function for every record in the <a>cursor</a>'s 
+              <a>range</a>. 
               <dl class="parameters">
                 <dt>CursorCallback callback</dt>
-                <dd> </dd>
-                <dt>optional CursorRange  range</dt>
-                <dd> </dd>
+                <dd>The callback function to invoke for every record. The callback
+                will be invoked with the key and value from the index.</dd>
+                <dt>optional KeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
-                <dd> </dd>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
             <dt>any put()</dt>
@@ -1621,43 +1663,34 @@ var count = index.<a>forEach</a>(function(key, cursor) {
         <section class="section" id="cursor-sync">  
           <h4>Cursor</h4>
           <p>
-            Cursors are a mechanism by which applications iterate over 
-            the records in a database. Cursors can be used to get, put,
-            and delete database records. If a database allows duplicate 
-            records, then cursors are the only mechanism by which to
-            access anything other than the first duplicate for a given 
-            key. Although storage operations can be performed on a 
-            cursor, a cursor itself is a transient object with all the
-            real storage happening in objects that yield the cursor.
-          </p>
-          
-          <p>
-            The initial position of a cursor is set by specifying the
-            direction in which the cursor should iterate over matching
-            records. Once the cursor is created, it yield records only in 
-            that direction.
+            Using the synchronous API, an application can process all the records
+            in the <a>cursor</a>'s <a>range</a>. No two values provided by the
+            user agent to callbacks processing data in this <a>cursor</a> can be
+            identical.
           </p>
           <div class="example">
             <p>
-              By default, a cursor walks over objects starting at the
+              By default, a <a>cursor</a> walks over objects starting at the
               first record and ending at the last record including
               all the duplicates encountered along the way. If the
               cursor callback returns true, then the iteration is 
               stopped.
             </p>
             <codeblock>var objects = ...
-var cursor = objects.forEach(function(object) {;
-// act on each object and return true to exit the cursor  
+var cursor = objects.forEach(function(cursor, value) {
+  // act on each object and return true to exit the cursor  
+  cursor.continue();
 });</codeblock>
             
             <p>
-              To start at the last record and end in the first record,
-              the cursor should be created with the direction parameter.
+              To start at the last record and end in the first record, the cursor 
+              should be created with the direction parameter <a><code>PREV</code></a>.
             </p>
             <codeblock>var objects = ...
-var count = objects.forEach(function(object) {;
-// act on each object and return true to exit the cursor  
-}, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#PREV">PREV</a>);</codeblock>
+var count = objects.forEach(function(cursor, value) {;
+  // act on each object and return true to exit the cursor  
+  cursor.continue();
+}, <a>Cursor</a>.<a>PREV</a>);</codeblock>
 
             <p>
               To start at a certain key and end in the last record, i.e.,
@@ -1667,10 +1700,11 @@ var count = objects.forEach(function(object) {;
             </p>
             
             <codeblock>var objects = ...
-var range = <a class="idltype" href="#KeyRange">KeyRange</a>.leftBound(key);
-objects.forEach(function(object) {
-// act on each object and return true to exit the cursor  
-}, range, <a class="idltype" href="#Cursor">Cursor</a>.<a class="idlvalue" href="#NEXT_NO_DUP">NEXT_NO_DUPLICATE</a>);</codeblock>
+var range = <a>KeyRange</a>.leftBound(key);
+objects.forEach(function(cursor, value) {
+  // act on each object and return true to exit the cursor  
+  cursor.continue();
+}, range, <a>Cursor</a>.<a>NEXT_NO_DUPLICATE</a>);</codeblock>
         
             <p>
               It is also possible to create a bounded cursor, i.e., with
@@ -1684,180 +1718,134 @@ objects.forEach(function(object) {
             </p>
   
             <codeblock>var objects = ...
-var range = <a class="idltype" href="#KeyRange">KeyRange</a>.bound(start, end);
-objects.forEach(function(object) {
-// act on each object and return true to exit the cursor  
+var range = <a>KeyRange</a>.bound(start, end);
+objects.forEach(function(cursor, value) {
+  // act on each object and return true to exit the cursor
+  cursor.continue();
 }, range);</codeblock>
           </div>
-          <dl title="interface Cursor" class="idl">
-            <dt>const     unsigned short     NEXT = 0</dt>
-            <dd>indicates
-            that cursor should yield all values, including duplicates 
-            starting from the beginning of the range to its end.
-            </dd>
-            <dt>const     unsigned short     NEXT_NO_DUPLICATE = 1</dt>
-            <dd>indicates that cursor should return all values, skipping over duplicate
-            objects for every key starting from the beginning of the range to 
-            its end. For every key with duplicate values, only the first value
-            is yielded.</dd>
-            <dt>const     unsigned short     PREV = 2</dt>
+          <dl class="idl" title="[FunctionOnly, NoInterfaceObject] interface CursorCallback"> 
+            <dt>bool handle()</dt>
             <dd>
-            indicates
-            that cursor should yield all values, including duplicates 
-            starting from the end of the range to its beginning.
+              Callback to process a single record at the <a>cursor</a>'s 
+              <a>position</a>. If this callback returns a <code>true</code>
+              value, then the <a>cursor</a> traversal is exited whether or not all
+              the records in the <a>cursor</a> have been examined by the callback.
+              <dl class="parameters">
+                <dt>CursorSync cursor</dt>
+                <dd></dd>
+                <dt>any key</dt>
+                <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+                <dt>any value</dt>
+                <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+              </dl>
             </dd>
-            <dt>const     unsigned short     PREV_NO_DUPLICATE = 3</dt>
-            <dd>indicates that cursor should return all values, skipping over duplicate
-            objects for every key starting from the end of the range to its
-            beginning. For every key with duplicate values, only the first value
-            is yielded.
-            </dd>
-
-            <dt>readonly attribute unsigned short     direction</dt>
-            <dd>            
-            On getting, provide the traversal direction of the cursor.
-            </dd>
+          </dl>
+          
+          <dl title="interface CursorSync: Cursor" class="idl">
             <dt>readonly attribute unsigned long long count</dt>
             <dd>             
               On getting, provide the total number of objects that share the current key.
             </dd>
 
-            <dt>void    continue()</dt>
-            <dd>(in optional KeyRange skipTo);</dd>
+            <dt>bool    continue()</dt>
+            <dd>
+              Advance the <a>cursor</a> to the next position along its <a>direction</a>
+              to the item whose key matches the optional parameter. If no such
+              parameter is provided, advance to the immediate next position. If
+              the <a>cursor</a> has reached the end of its <a>range</a>, then this
+              method returns false, otherwise it returns true.
+              <dl class="parameters">
+                <dt>optional any key</dt>
+                <dd>The next key to position this <a>cursor</a> at</dd>
+              </dl>
+            </dd>
             
             <dt>boolean update()</dt>
             <dd>
               <p>
-                This method is used to 
-                update the object at which the cursor is currently positioned. If 
-                the object is updated, then this method returns true. The update 
-                method is only allowed if the <a><code>
-                Cursor</code></a> is obtained from an object store. The key of
-                the <var>object</var> parameter must match the key in the current
-                cursor position. Otherwise, the database will throw a newly constructed 
-                <a><code>DatabaseException</code></a> 
-                exception with code <a><code>DATA_ERR</code></a>.
+                Update the record at which the <a>cursor</a> is currently positioned.
               </p>
-            (  in          any         obj);</dd>
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The updated value to store for the key in this <a>cursor</a>'s
+                <a>position</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
+                and the property at the <a title="object store key path">key path</a>
+                does not match the key in this <a>cursor</a>'s <a>position</a>.
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The underlying <a>index</a> or <a>object store</a> does not
+                support updating the item because it is open in the 
+                <a><code>READ_ONLY</code></a> or <a><code>DETACHED_READ</code></a>
+                <a>mode</a>.</dd>
+              </dl>
+            </dd>
             
             <dt>void    delete()</dt>
             <dd>          
               <p>
-                This method
-                is used to delete the object at which the cursor is currently
-                positioned. The <a href="#cursor-delete" class="idltype"><code>delete()</code></a> 
-                method will return false if this method is called more than once 
-                inside a <a><code>CursorCallback</code></a>.
+                Delete the object at the <a>cursor</a>'s <a>position</a>.
               </p>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The underlying <a>index</a> or <a>object store</a> does not
+                support updating the item because it is open in the 
+                <a><code>READ_ONLY</code></a> or <a><code>DETACHED_READ</code></a>
+                <a>mode</a>.</dd>
+              </dl>
             </dd>
           </dl>
-
-          <dl class="idl" title="[FunctionOnly, NoInterfaceObject] interface CursorCallback"> 
-            <dt>bool handle()</dt>
-            <dd>in          any    key, 
-            in          <a class="idltype" href="#Cursor">Cursor</a> cursor,
-            in optional any    value);
-};</dd>
-          </dl>
-          <p>
-            The <dfn id="for-each" class="idltype"><code>forEach()</code></dfn>
-            method is used to navigate records in a cursor in the direction
-            identified by the <var>direction</var> parameter, which can be
-            either of <a class="idlvalue" href="#NEXT"><code>NEXT</code></a>,
-            <a class="idlvalue" href="#NEXT_NO_DUP"><code>NEXT_NO_DUPLICATE</code></a>,
-            <a class="idlvalue" href="#PREV"><code>PREV</code></a>, or
-            <a class="idlvalue" href="#PREV_NO_DUP"><code>PREV_NO_DUPLICATE</code></a>.
-            If <var>direction</var> is unspecified, then the cursor uses
-            the <a class="idlvalue" href="#NEXT"><code>NEXT</code></a> direction.
-            The parameters <var>inclusiveFrom</var> and <var>inclusiveTo</var>
-            are used to signal whether ranges are open or closed on the
-            range boundaries.
-          </p>
-          
-          <p>
-            For each object that matches the cursor condition, the user agent
-            calls the <a href="#CursorCallback" class="idltype"><code>
-            CursorCallback</code></a>. This <var>callback</var> is passed two
-            parameters - the object that matches the cursor condition, and
-            a <a href="#Cursor" class="idltype"><code>Cursor</code></a> object
-            to make changes to the database at the <a href="#Cursor" class="idltype"><code>
-            Cursor</code></a> position. If this callback returns a <code>true</code>
-            value, then the cursor traversal is exited whether or not the
-            range conditions have been satisfied.
-          </p>
-          
         </section>
         <section id="transaction-sync" class="section">
           <h4>Transaction</h4>
           <p>
-            A <dfn>transaction</dfn> represents an atomic and durable set of 
-            database access and mutation operations. Transactions offer data protection
-            from application or system failures. 
+            When an application <a title="create a transaction">creates</a> a 
+            <a>transaction</a> synchronously, it blocks until the user agent is able
+            to reserve the required <a>database</a> <a>objects</a>.
           </p>
-          
-          <p>
-            A transaction may be used to store multiple data records or to conditionally 
-            modify certain data records. 
-          </p>
-          
-          <p>
-            A <a><code>Database</code></a> object may
-            have at most one transaction at any given time. 
-          </p>
-          
-          <p>  
-            Transactions are expected to be short lived. Conforming user agents may
-            terminate transactions that take too long to complete in order to free up
-            storage resources that are locked by a long running transaction.         
-          </p>                    
-
           <dl class="idl" title="interface TransactionSync">
             <dt>void abort()</dt>
             <dd>
-              This method is used to signal
-              the need to cancel the effects of database operations performed in a 
-              transaction. To perform this method, the database ignores all the changes
-              performed in this transaction through calls to this 
-              <a><code>Transaction</code></a> object.
-              <div class="exception" title="DatabaseException"></div>
+              This method is used to signal the need to cancel the effects of
+              operations performed in this <a>transaction</a>. To perform
+              this method, the user agent ignores all the changes performed to the
+              <a>objects</a> of this <a>database</a> since the creation of this 
+              <a>transaction</a>.
+              <dl class="exception" title="DatabaseException">
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
             </dd>
             <dt>void commit()</dt>
             <dd>
-              This method is used to signal
-              the normal and satisfactory completion of a transaction to the database. At
-              this point, the database durably stores the result of all the operations
-              performed in this transaction through calls to this 
-              <a><code>Transaction</code></a> object.
-              <div class="exception" title="DatabaseException"></div>
+              This method is used to signal the normal and satisfactory completion
+              of a <a>transaction</a>. At this point, the user agent should durably
+              store all the changes performed to the <a>objects</a> of this 
+              <a>database</a> since the creation of this <a>transaction</a>.
+              <dl class="exception" title="DatabaseException">
+                <dt>RECOVERABLE_ERR</dt>
+                <dd>If this <a>transaction</a>'s <a>scope</a> is <a>dynamic</a>, and
+                the user agent cannot commit all the changes due to another 
+                <a>transaction</a>.
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
             </dd>
           </dl>
-          <p>
-            The API for a transaction consists of mechanisms for committing
-            and rolling back the effects of database operations performed
-            in that transaction. However, asynchronous databases also 
-            automatically commit a transaction whenever the transaction
-            callback completes. Asynchronous databases also automatically
-            rollback a transaction if an error occurs inside the transaction
-            callback.
-          </p>
           <div class="note">
-            Applications must not assume that committing the transaction
+            Applications must not assume that committing the <a>transaction</a>
             produces an instantaneously durable result. The user agent
             may delay flushing data to durable storage until an appropriate
             time.
           </div>
-          
-                    
+                              
           <p>
-            Once a transaction is aborted or committed, that 
-            <a><code>Transaction</code></a> 
-            object can no longer be used. If any calls are made on that
-             object, then the database will throw a newly constructed 
-            <a><code>DatabaseException</code></a> 
-            exception with code <a><code>NON_TRANSIENT_ERR</code></a>. 
-            To perform database operations under the control of a new transaction, 
-            a fresh <a><code>Transaction</code></a>
-            object is needed.
+            Once a <a>transaction</a> is aborted or committed, the <a>active</a> 
+            <a>transaction</a> on this <a>database</a> <a>connection</a> is removed.
+            A new <a>transaction</a> can be created to perform operations atomically.
           </p>
         </section> <!-- Transaction -->
         
@@ -2336,9 +2324,9 @@ loadContact(1, function() {
           <dt>const unsigned short DATA_ERR = 5</dt>
           <dd>Data provided to an operation does not meet requirements,
           e.g., if the increment value for a sequence is set to 0.</dd>
-          <dt>const unsigned short FEATURE_ERR = 6</dt>
-          <dd>A feature defined in this API was used but is not supported
-          by the underlying implementation.</dd>
+          <dt>const unsigned short NOT_ALLOWED_ERR = 6</dt>
+          <dd>A mutation operation was attempted on a database that
+          did not allow mutations.</dd>
           <dt>const unsigned short SERIAL_ERR = 11</dt>
           <dd>The operation failed because of the size of the data set 
           being returned or because there was a problem in serializing or 
