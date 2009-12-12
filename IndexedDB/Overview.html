@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.22 2009-12-11 21:43:20 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.23 2009-12-12 00:23:01 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -172,22 +172,61 @@
           for a given author. If an exact match is not found, the next
           matching author is located.
         </p>
-        <codeblock>
-var db = <a>openDatabaseSync</a>('books', 'Book store', false);
+        <codeblock>var db = indexedDB.<a>open</a>('books', 'Book store', false);
 if (db.version !== '1.0') {
-  var olddb = <a>openDatabaseSync</a>('books', 'Book store');
+  var olddb = indexedDB.<a>open</a>('books', 'Book store');
   olddb.<a>createObjectStore</a>('books', 'isbn');
   olddb.<a>createIndex</a>('BookAuthor', 'books', 'author', false);
   olddb.<a>setVersion</a>("1.0");  
 }
 // db.<a>version</a> === "1.0";  
-var index = db.<a>getIndex</a>('BookAuthor', true);
+var index = db.<a>openIndex</a>('BookAuthor');
 var matching = index.<a>get</a>('fred');
 if (matching)
   report(matching.isbn, matching.name, matching.author);
 else
   report(null);</codeblock>
         <p>
+        The next example performs the exact same logic as above asynchronously.
+        </p>
+        <codeblock>function findFred() {
+  db.request.onsuccess = function() {
+    var index = db.request.result;
+    index.request.onsuccess = function() {
+      var matching = index.request.result;
+      if (matching)
+        report(matching.isbn, matching.name, matching.author);
+      else
+        report(null);    
+    }
+    index.<a>get</a>('fred');
+  }
+  db.<a>openIndex</a>('BookAuthor');
+}
+
+indexedDB.request.onsuccess = function() {
+  var db = indexedDB.request.result;
+  if (db.version !== '1.0') {
+    indexedDB.request.onsuccess = function() {
+      var olddb = indexedDB.request.result;
+      olddb.request.onsuccess = function() {
+        olddb.request.onsuccess = function() {
+          olddb.request.onsuccess = function() {
+            findFred(db);
+          }
+          olddb.<a>setVersion</a>("1.0");   
+        }
+        olddb.<a>createIndex</a>('BookAuthor', 'books', 'author', false);        
+      }
+      olddb.<a>createObjectStore</a>('books', 'isbn');
+    }
+    indexedDB.<a>open</a>('books', 'Book store');
+  }
+  findFred(db);
+};        
+indexedDB.<a>open</a>('books', 'Book store', false);
+        </codeblock>
+        <!--p>
         Here is an example of a script using this API. First, a function
         <code>prepareDatabase()</code> is defined. This function tries to create 
         the database if necessary, giving it one object store called "docids" with
@@ -234,7 +273,7 @@ prepareDatabase(function(evt) {
   // error getting database
   var error = request.error;
   alert(error.message);
-});</codeblock>
+});</codeblock-->
       </div>
     </section>
 
@@ -1122,21 +1161,26 @@ prepareDatabase(function(evt) {
       
       <section id="sync-database" class="section">
         <h3>Synchronous APIs</h3>
-        <p>
+        <!--p>
           This API can only be used in a <a title="Worker"><code>Worker</code></a>.
-        </p>
+        </p-->
         <section id="opening-sync" class="section">
           <h4>Opening a database connection</h4>
           <p>
             <a title="Worker"><code>Worker</code></a> objects MUST implement the 
-            interface to synchronously <a title="steps for opening a database">open</a>
-            <a>database</a> <a title="connection">connections</a>.
+            <a><code>EnvironmentSync</code></a> interface.
           </p>
           <p class="idl" title="WorkerUtils implements EnvironmentSync">
           </p>
           
-          <dl class="idl" title="[Supplemental, NoInterfaceObject] interface EnvironmentSync">
-            <dt>DatabaseSync openDatabaseSync()</dt>
+          <dl class="idl" title="interface EnvironmentSync">
+            <dt>readonly attribute IndexedDatabase indexedDB</dt>
+            <dd>This attribute provides applications a means of accessing
+              capabilities of indexed databases.</dd>
+          </dl>
+          
+          <dl class="idl" title="[Supplemental, NoInterfaceObject] interface IndexedDatabase">
+            <dt>DatabaseSync open()</dt>
             <dd>
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -1211,7 +1255,7 @@ prepareDatabase(function(evt) {
                 </dd>
               </dl>
             </dd>
-            <dt>ObjectStoreSync getObjectStore()</dt>
+            <dt>ObjectStoreSync openObjectStore()</dt>
             <dd>
               <p>
                 This method opens the <a>object store</a> with the given name
@@ -1266,7 +1310,7 @@ prepareDatabase(function(evt) {
                 </dd>
               </dl>
             </dd>
-            <dt>IndexSync getIndex()</dt>
+            <dt>IndexSync openIndex()</dt>
             <dd>
               <p>
                 This method opens the <a>index</a> with the given name
@@ -1371,9 +1415,9 @@ prepareDatabase(function(evt) {
               <a title="object store key path">key path</a> <em>id</em>. This
               <a>object store</a> is also designed to use a <a>key generator</a>.
             </p>
-            <codeblock>var db = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+            <codeblock>var db = indexedDB.<a>open</a>('AddressBook', 'Address Book');
 if (db.version !== '1') {
-   var olddb = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+   var olddb = indexedDB.<a>open</a>('AddressBook', 'Address Book');
    olddb.<a>createObjectStore</a>('Contact', 'id', true);
    olddb.<a>setVersion</a>('1');
 }</codeblock>
@@ -1381,7 +1425,7 @@ if (db.version !== '1') {
               Using this <a>database</a>, we can store records in the <em>Contact</em>
               <a>object store</a>. 
             </p>
-            <codeblock>var store = db.<a>getObjectStore</a>('Contact');
+            <codeblock>var store = db.<a>openObjectStore</a>('Contact');
 
 var lincoln = {name: 'Lincoln', number: '7012'};
 var contact = store.<a>put</a>(lincoln);
@@ -1409,7 +1453,7 @@ store.<a>put</a>(abraham);</codeblock>
               matching a certain <a>key range</a> can be retrieved in key order.
             </p>
             <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>(2, 4);
-var cursor = store.<a>cursor</a>(range);
+var cursor = store.<a>openCursor</a>(range);
 // each value is a contact and each key is the id for that  
 // contact whose id is between 2 and 4, both inclusive
 cursor.continue();</codeblock>
@@ -1473,7 +1517,7 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>CursorSync cursor()</dt>
+            <dt>CursorSync openCursor()</dt>
             <dd>
               Create a <a>cursor</a> over the <a>records</a> of this
               <a>object store</a>. The <a>range</a> of this <a>cursor</a> matches 
@@ -1501,9 +1545,9 @@ cursor.continue();</codeblock>
               index could be maintained on the <em>name</em> property of objects
               in the <em>Contact</em> <a>object store</a>.
             </p>
-            <codeblock>var db = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+            <codeblock>var db = indexedDB.<a>open</a>('AddressBook', 'Address Book');
 if (db.version === '1') {
-   var olddb = <a>openDatabaseSync</a>('AddressBook', 'Address Book');
+   var olddb = indexedDB.<a>open</a>('AddressBook', 'Address Book');
    olddb.<a>createObjectStore</a>('Contact', 'id', true);
    olddb.<a>createIndex</a>('ContactName', 'Contact', 'name', false);
    olddb.<a>setVersion</a>('2');
@@ -1513,7 +1557,7 @@ if (db.version === '1') {
               property value 'Lincoln' can be retrieved using the 
               <em>ContactName</em> <a>index</a>.
             </p>
-            <codeblock>var index = db.<a>getIndex</a>('ContactName');
+            <codeblock>var index = db.<a>openIndex</a>('ContactName');
 var id = index.<a>get</a>('Lincoln');
 // id === 1</codeblock>              
             <p>
@@ -1526,7 +1570,7 @@ var id = index.<a>get</a>('Lincoln');
               property. 
             </p>
             <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>('L', 'M');
-var cursor = index.<a>cursor</a>(range);
+var cursor = index.<a>openCursor</a>(range);
 // each value is a contact and each key is the name for that  
 // contact whose name's first letter is either L or M
 cursor.continue();</codeblock>
@@ -1535,14 +1579,14 @@ cursor.continue();</codeblock>
               objects for a given range, then we can use a different mechanism for that.
             </p>
             <codeblock>var range = new <a>KeyRange</a>.<a>bound</a>('L', 'M');
-var cursor = index.<a>cursorObjects</a>(range);
+var cursor = index.<a>openObjectCursor</a>(range);
 // each value is a contact and each key is the name for that  
 // contact whose name's first letter is either L or M
 cursor.continue();</codeblock>
           </div>
               
           <dl class="idl" title="interface IndexSync: Index">
-            <dt>void cursorObjects()</dt>
+            <dt>void openObjectCursor()</dt>
             <dd>
               Create a <a>cursor</a> over the <a>records</a> of this 
               <a>index</a>'s <a>referenced</a> <a>object store</a> as arranged by
@@ -1557,7 +1601,7 @@ cursor.continue();</codeblock>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
             </dd>
-            <dt>void forEach()</dt>
+            <dt>void openCursor()</dt>
             <dd>
               Create a <a>cursor</a> over the <a>records</a> of this 
               <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
@@ -1663,7 +1707,7 @@ cursor.continue();</codeblock>
               stopped.
             </p>
             <codeblock>var objects = ...
-var cursor = objects.cursor();
+var cursor = objects.openCursor();
 // act on each object and continue the cursor to its end
 cursor.continue();
 </codeblock>
@@ -1673,7 +1717,7 @@ cursor.continue();
               should be created with the direction parameter <a><code>PREV</code></a>.
             </p>
             <codeblock>var objects = ...
-var count = objects.cursor(<a>Cursor</a>.<a>PREV</a>);
+var count = objects.openCursor(<a>Cursor</a>.<a>PREV</a>);
 // act on each object and continue the cursor to its end
 cursor.continue();
 </codeblock>
@@ -1687,7 +1731,7 @@ cursor.continue();
             
             <codeblock>var objects = ...
 var range = <a>KeyRange</a>.leftBound(key);
-objects.cursor(range, <a>Cursor</a>.<a>NEXT_NO_DUPLICATE</a>);
+objects.openCursor(range, <a>Cursor</a>.<a>NEXT_NO_DUPLICATE</a>);
 // act on each object and continue the cursor to its end
 cursor.continue();
 </codeblock>
@@ -1705,7 +1749,7 @@ cursor.continue();
   
             <codeblock>var objects = ...
 var range = <a>KeyRange</a>.bound(start, end);
-objects.cursor(range);
+objects.openCursor(range);
 // act on each object and continue the cursor to its end
 cursor.continue();
 </codeblock>
@@ -1818,7 +1862,7 @@ cursor.continue();
           This API can only be used in a <code>Window</code> or in a 
           <a><code>Worker</code></a>.
         </p>
-        <dl class="idl" title="[NoInterfaceObject] interface DBRequest"> 
+        <dl class="idl" title="interface DBRequest"> 
           <dt>void abort()</dt>
           <dd> </dd>
           <dt>const     unsigned short INITIAL = 0</dt>
@@ -1830,6 +1874,8 @@ cursor.continue();
           <dt>readonly attribute unsigned short readyState</dt>
           <dd> </dd>
           <dt>readonly attribute DatabaseError error</dt>
+          <dd> </dd>
+          <dt>readonly attribute any result</dt>
           <dd> </dd>
 
           <dt>attribute Function onsuccess</dt>
@@ -1851,7 +1897,7 @@ cursor.continue();
             as follows:
           </p>
           <table>
-            <thead><tr><th>Event name</th><th>Interface</th><th>Dispatched when...</th></tr></thead>
+            <thead><tr><th>Event name</th><th>Dispatched when...</th></tr></thead>
             <tbody>
               <tr>
                 <td><dfn id="event-success"><code>success</code></dfn></td>
@@ -1863,16 +1909,6 @@ cursor.continue();
                 <td><dfn id="event-error"><code>error</code></dfn></td>
                 <td><a><code>DatabaseErrorEvent</code></a></td>
                 <td>There was an error performing the database request.</td>
-              </tr>
-              <tr>
-                <td><dfn id="event-commit"><code>commit</code></dfn></td>
-                <td><code>Event</code></td>
-                <td>The transaction commit has been completed.</td>
-              </tr>
-              <tr>
-                <td><dfn id="event-abort"><code>abort</code></dfn></td>
-                <td><code>Event</code></td>
-                <td>The transaction abort has been completed.</td>
               </tr>
             </tbody>
           </table>
@@ -1900,67 +1936,59 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
             If an error occurs while opening the database, an error handler is invoked.
             Otherwise, a success handler is invoked.
           </p>
-          <dl class="idl" title="interface DatabaseRequest : DBRequest">
-            <dt>readonly attribute Database database</dt>
+          <p>
+            <a title="Window"><code>Window</code></a> objects MUST implement the 
+            <a><code>Environment</code></a> interface.
+          </p>
+          <p class="idl" title="Window implements Environment">
+          </p>
+          
+          <dl class="idl" title="interface Environment">
+            <dt>readonly attribute IndexedDatabaseRequest indexedDB</dt>
+            <dd>This attribute provides applications a means of accessing
+              capabilities of indexed databases.</dd>
+          </dl>
+          <dl class="idl" title="interface IndexedDatabaseRequest : IndexedDatabase">
+            <dt>readonly attribute DBRequest request</dt>
             <dd> </dd>
-
-            <dt>void open()</dt>
-            <dd>
-              <dl class="parameters">
-                <dt>DOMString       name</dt>
-                <dd></dd>
-                <dt>DOMString       version</dt>
-                <dd> </dd>
-                <dt>DOMString       displayName</dt>
-                <dd> </dd>
-                <dt>optional UpgradeCallback upgrade</dt>
-                <dd> </dd>
-                <dt>unsigned short  isolation</dt>
-                <dd> </dd>
-              </dl>
-              <p>
-                This
-                method takes the following arguments: a database name, a database
-                version, a display name, an optional upgrade callback, and an optional 
-                isolation level. When called, this method must return immediately and 
-                asynchronously perform the following steps, with all but the first two
-                and last steps being run atomically:
-              </p>
-              
-              <ol>
-     
-                <li>
-                  <span>Queue a task</span> to fire an event with the name <code>success</code>,
-                  with no namespace, which does not bubble, is not cancelable, and which uses the
-                  <a><code>DatabaseEvent</code></a> interface
-                  and <var>result</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
-                </li>
-              </ol>
+          </dl>
+          <p>
+            <span>Queue a task</span> to fire an event with the name <code>success</code>,
+            with no namespace, which does not bubble, is not cancelable, and which uses the
+            <a><code>DatabaseEvent</code></a> interface
+            and <var>result</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
+          </p>
             
-              <p>
-                The <dfn id="database-failure-steps">database failure steps</dfn> performed with an 
-                error code are as follows:
-              </p>
-            
-              <ol>
-                <li>
-                  Create a <a><code>DatabaseError</code></a> object 
-                  <var>error</var> where code is the error code passed to these steps and status is 0.
-                </li>
-                <li>
-                  <span>Queue a task</span> to fire an event with the name <code>error</code>,
-                  with no namespace, which does not bubble, is not cancelable, and which uses the
-                  <a><code>DatabaseErrorEvent</code></a> interface
-                  and <var>error</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
-                </li>
-              </ol>
-            </dd>
-          </dl>  
+          <p>
+            The <dfn id="database-failure-steps">database failure steps</dfn> performed with an 
+            error code are as follows:
+          </p>
+        
+          <ol>
+            <li>
+              Create a <a><code>DatabaseError</code></a> object 
+              <var>error</var> where code is the error code passed to these steps and status is 0.
+            </li>
+            <li>
+              <span>Queue a task</span> to fire an event with the name <code>error</code>,
+              with no namespace, which does not bubble, is not cancelable, and which uses the
+              <a><code>DatabaseErrorEvent</code></a> interface
+              and <var>error</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
+            </li>
+          </ol>
                           
           <p>
             The <span>task source</span> for these tasks is the 
             <dfn id="database-access-task-source">database access task source</dfn>.
           </p>    
+        </section>
+        
+        <section class="section" id="database-async-interface">
+          <h4>Async Database connection</h4>
+          <dl class="idl" title="interface DatabaseRequest : IndexedDatabase">
+            <dt>readonly attribute DBRequest request</dt>
+            <dd> </dd>
+          </dl>
         </section>
         
         <section class="section" id="object-store">  
@@ -2010,225 +2038,60 @@ loadContact(1, function() {
 });</codeblock>
             </div>
               
-            <dl class="idl" title="[Constructor(in Database db)] interface ObjectStoreRequest : DBRequest">
-              <dt>readonly attribute any result</dt>
+            <dl class="idl" title="interface ObjectStoreRequest : ObjectStoreSync">
+              <dt>readonly attribute DBRequest request</dt>
               <dd> </dd>
-              <dt>void open()</dt>
-              <dd>
-                <dl class="parameters">
-                  <dt>DOMString       name</dt>
-                  <dd></dd>
-                  <dt>optional unsigned short mode</dt>
-                  <dd> </dd>
-                </dl>
-              </dd>
-              <dt>any put()</dt>
-              <dd>
-                <p>
-                  This method is used to 
-                  store the given object in the object store. Insert the object by performing the 
-                  <a class="dfnref" href="#insertion-steps">insertion steps</a>.
-                </p>
-                <dl class="parameters">
-                  <dt>any obj</dt>
-                  <dd></dd>
-                </dl>
-                <div class="exception" title="DatabaseException">
-                </div>
-              </dd>
-              <dt>void delete()</dt>
-              <dd>
-                <p>
-                  The <dfn id="store-request-delete"><code>delete()</code></dfn> method is used to 
-                  delete the object associated with the given key in the object store. Delete the
-                  object by performing the <a href="#deletion-steps">deletion steps</a>.
-                </p>    
-                <dl class="parameters">
-                  <dt>any key</dt>
-                  <dd></dd>
-                </dl>
-                <div class="exception" title="DatabaseException">
-                </div>
-              </dd>
-              <dt>any get()</dt>
-              <dd>
-                <p>
-                  The <dfn id="store-request-get"><code>get()</code></dfn> method is used to retrieve
-                  the object associated with the given key in the object store. The following steps 
-                  must be run for retrieving the object with the following parameters: <var>key</var>.
-                </p>
-                <dl class="parameters">
-                  <dt>any key</dt>
-                  <dd></dd>
-                </dl>
-                <div class="exception" title="DatabaseException">
-                </div>
-              </dd>
-            </dl>  
+            </dl>
           </section>
           
           <section id="index" class="section">  
             <h4>Index</h4>
-            <dl class="idl" title="[Constructor(in Database db)] interface IndexRequest : DBRequest">
-              <dt>readonly attribute any result</dt>
-              <dd></dd>
-              <dt>void open()</dt>
-              <dd>(     in DOMString name,
-                             in DOMString storeName,
-                             in optional boolean forReadonly)</dd>
-              <dt>void get()</dt>
-              <dd>(      in any key);</dd>
-              <dt>void getObject()</dt>
-              <dd>(in any key);</dd>
-              <dt>void delete()</dt>
-              <dd>(   in any key);</dd>
-            </dl>  
+
+            <dl class="idl" title="interface IndexRequest : IndexSync">
+              <dt>readonly attribute DBRequest request</dt>
+              <dd> </dd>
+            </dl>
             
           </section>
           
           <section class="section" id="cursor">
             <h4>Cursor</h4>
         
-            <dl class="idl" title="[Constructor(in Database db)] interface CursorRequest : DBRequest">
-              <dt>readonly attribute unsigned long long count</dt>
-                  <dd></dd>
-              <dt>attribute CursorCallback callback</dt>
-                  <dd></dd>
-              <dt>void readStore()</dt>
-              <dd>(      in          DOMString      storeName, 
-                                 in optional <a href="#CursorRange">CursorRange</a>    range, 
-                                 in optional unsigned short direction)</dd>
-              <dt>void readIndex()</dt>
-              <dd>(      in          DOMString      storeName, 
-                                 in          DOMString      indexName,
-                                 in optional <a href="#CursorRange">CursorRange</a>    range, 
-                                 in optional unsigned short direction)</dd>
-              <dt>void readIndexObject()</dt>
-              <dd>(in          DOMString      storeName, 
-                                 in          DOMString      indexName,
-                                 in optional <a href="#CursorRange">CursorRange</a>    range, 
-                                 in optional unsigned short direction);</dd>
-          </dl>  
+            <dl class="idl" title="interface CursorRequest : CursorSync">
+              <dt>readonly attribute DBRequest request</dt>
+              <dd> </dd>
+            </dl>
           </section>
           
           <section class="section" id="transaction">
             <h4>Transaction</h4>
-            <dl class="idl" title="interface Transaction : TransactionSync">
-              <dt>attribute Function oncommitted</dt>
-              <dd></dd>
-              <dt>attribute Function onaborted</dt>
-              <dd></dd>
+            <dl class="idl" title="interface TransactionRequest : TransactionSync">
+              <dt>readonly attribute DBRequest request</dt>
+              <dd> </dd>
             </dl>
 
-            <dl class="idl" title="[Constructor(in Database db)] interface TransactionRequest : DBRequest">
-              <dt>readonly attribute Transaction transaction</dt>
-              <dd> </dd>
-              <dt>void open()</dt>
-              <dd>
-                <p>
-                  When called, this
-                  method must immediately return and then asynchronously perform the
-                  <a href="#transaction-steps">transaction steps</a>.
-                </p>
-                <p>
-                  The <dfn id="transaction-steps">transaction steps</dfn> are as follows. 
-                  These steps are invoked with a
-                  transaction callback, and the following optional arguments - a success
-                  callback, an error callback, an array of database objects for acquiring
-                  locks required in this transaction, and a timeout duration.
-                </p>
-                
-                <ol>
-                  <li>
-                     Perform the <a href="#create-a-transaction-object">transaction creation steps</a> 
-                     with the array of database objects and timeout duration passed to these
-                     steps. Let the resulting <a><code>Transaction</code></a>
-                     object be <var title="">transaction</var>.
-                  </li>
-                  
-                  <li>
-                    <span>Queue a task</span> to invoke the <em>transaction callback</em> 
-                    with <var>transaction</var> as its only argument, and wait for 
-                    that task to be run.
-                  </li>
-                  
-                  <li>
-                    If the callback couldn't be called (e.g. it was null), or if the
-                    callback was invoked and raised an exception, jump to the last step.
-                  </li>
-      
-                  <li>
-                    <span>Queue a task</span> to invoke the <em>success callback</em>.
-                  </li>
-      
-                  <li>
-                    End these steps. 
-                  </li>
-                  
-                  <li>This step is only used when something goes wrong.
-                    <ol>
-                      <li>
-                        If <var>transaction</var> is still not committed or rolled back,
-                        then rollback the transaction.
-                      </li>
-                      
-                      <li>
-                        If an error callback was passed to these steps, then <span>queue a task</span> 
-                        to invoke the it with a newly constructed 
-                        <a><code>DatabaseError</code></a>
-                        with code
-                        <a><code>UNKNOWN_ERR</code></a>.
-                      </li>
-                    </ol>
-                  </li>
-                </ol>
-                <dl class="parameters">
-                  <dt>optional DOMStringList storeNames</dt>
-                  <dd> </dd>
-                  <dt>optional unsigned int  timeout</dt>
-                  <dd> </dd>
-                </dl>
-              </dd>
-            </dl>  
-        </section>        
+          </section>        
         <section class="section" id="event-handler">
           <h4>Events</h4>
           <p>
             The following are the <span>event handlers</span> (and their corresponding 
             <span>event handler event types</span>) that must be supported, as IDL
-            attributes, by objects implementing the various interfaces:
+            attributes, by objects implementing the <a><code>DBRequest</code></a> interface:
           </p>
           
           <table>
             <thead><tr>
               <th><span>Event handler</span> </th>
-              <th>Supported by interfaces</th>
               <th><span>Event handler event type</span></th>
             </tr></thead>
             <tbody>
               <tr>
                 <td><dfn id="handler-request-onsuccess"><code>onsuccess</code></dfn> </td>
                 <td> <code><a class="idltype" href="#event-success">success</a></code></td>
-                <td> 
-                  <code><a>DatabaseRequest</a></code>
-                </td>
               </tr>
               <tr>
                 <td><dfn id="handler-request-onerror"><code>onerror</code></dfn> </td>
                 <td> <code><a class="idltype" href="#event-error">error</a></code></td>
-                <td> 
-                  <code><a>DatabaseRequest</a></code>
-                </td>
-              </tr>
-              <tr>
-                <td><dfn id="handler-request-oncommitted"><code>oncommitted</code></dfn> </td>
-                <td> <code><a class="idltype" href="#event-commit">commit</a></code></td>        
-                <td> <code><a>TransactionRequest</a></code></td>
-              </tr>
-              <tr>
-                <td><dfn id="handler-request-onaborted"><code>onaborted</code></dfn> </td>
-                <td> <code><a class="idltype" href="#event-abort">abort</a></code></td>        
-                <td> <code><a>TransactionRequest</a></code></td>
               </tr>
             </tbody>
           </table>        
