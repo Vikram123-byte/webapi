@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.23 2009-12-12 00:23:01 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.24 2009-12-13 19:56:53 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -137,7 +137,7 @@
       </p>
     </section>
 
-    <section id='introduction' class='section non-normative'>
+    <section id='introduction' class='section informative'>
       <h2>Introduction</h2>
 
       <p>
@@ -628,15 +628,14 @@ prepareDatabase(function(evt) {
             and unbounded otherwise. A <dfn title="valid key range">valid</dfn>
             <a>key range</a> must be either half-bounded or bounded. A <a>key range</a>
             may be open, i.e., not including its endpoints or closed, i.e., including
-            its endpoints. A <a>key range</a> may be degenerate if it consists of a 
-            single value.
+            its endpoints. A <a>key range</a> may consist of a single value.
           </p>
           <p>
             The <a><code>KeyRange</code></a> interface is used to define a <a>key range</a>.
           </p>
           <dl class="idl" title="interface KeyRange"> 
-            <dt>const     unsigned short DEGENERATE = 0</dt>
-            <dd>This flag indicates a degenerate <a>key range</a>.</dd>
+            <dt>const     unsigned short SINGLE = 0</dt>
+            <dd>This flag indicates a single-valued <a>key range</a>.</dd>
             <dt>const     unsigned short LEFT_OPEN = 1</dt>
             <dd>This flag indicates a left-open <a>key range</a>.</dd>
             <dt>const     unsigned short RIGHT_OPEN = 2</dt>
@@ -651,9 +650,9 @@ prepareDatabase(function(evt) {
             <dd>This value is the right-bound of the <a>key range</a>.</dd>
             <dt>readonly attribute unsigned short flags</dt>
             <dd>Flags for bounding values</dd>
-            <dt>KeyRange degenerate()</dt>
+            <dt>KeyRange single()</dt>
             <dd>
-              Create a new degenerate <a>key range</a>.
+              Create a new single-valued <a>key range</a>.
               <dl class="parameters">
                 <dt>any bound</dt>
                 <dd>The only value</dd>
@@ -786,21 +785,11 @@ prepareDatabase(function(evt) {
           <h4>Opening the database</h4>
           <p>
             The <dfn>steps for opening a database</dfn> are as follows. These steps
-            MUST be run with a database name and description. All but the first two
-            and the last steps MUST be run atomically:
+            MUST be run with an origin, a database name and description. All the 
+            steps MUST be run atomically:
           </p>
           
           <ol>
-            <li>Pick the appropriate steps
-              <dl class="switch">
-                <dt>If this method is invoked from an active document</dt>
-                <dd>Let <var>origin</var> be the origin of the active document 
-                from which the method was invoked.</dd>
-                <dt>If this method is invoked from a worker</dt>
-                <dd>Let <var>origin</var> be the origin of the scripts in the worker.</dd>
-              </dl>
-            </li>
-            
             <li>
               If there is already a database with the given name from the origin
               <var>origin</var>, then let <var>db</var> be that database.
@@ -812,25 +801,10 @@ prepareDatabase(function(evt) {
               description passed to these steps.
             </li>
   
-            <li>Pick the appropriate steps:
-              <dl class="switch">
-                <dt>If these steps are performed to synchronously open a database</dt>
-                <dd>
-                  Let <var>result</var> be a newly constructed 
-                  <a><code>DatabaseSync</code></a> object
-                  representing a <a>connection</a> 
-                  to <var>db</var>.
-                </dd>
-                <dt>If these steps are performed to asynchronously open a database</dt>
-                <dd>
-                  Let <var>result</var> be a newly constructed 
-                  <a><code>Database</code></a> object
-                  representing a <a>connection</a> 
-                  to <var>db</var>.
-                </dd>
-              </dl>
+            <li>
+              Create a <a>connection</a> to <var>db</var> and call it <var>result</var>.
             </li>
-  
+            
             <li>
               Return <var>result</var>.
             </li>
@@ -1179,21 +1153,23 @@ prepareDatabase(function(evt) {
               capabilities of indexed databases.</dd>
           </dl>
           
-          <dl class="idl" title="[Supplemental, NoInterfaceObject] interface IndexedDatabase">
+          <dl class="idl" title="interface IndexedDatabase">
             <dt>DatabaseSync open()</dt>
             <dd>
               <dl class="parameters">
                 <dt>DOMString name</dt>
-                <dd> </dd>
+                <dd>The <a title="database name">name</a> for the <a>database</a></dd>
                 <dt>DOMString description</dt>
-                <dd> </dd>
+                <dd>The description for the <a>database</a></dd>
                 <dt>optional boolean modifyDatabase</dt>
                 <dd>This defaults to true</dd>
               </dl>
               <dl class="exception" title="DatabaseException">
                 <dt>UNKNOWN_ERR</dt>
                 <dd>if an error occurs while the <a>database</a> <a>connection</a> 
-                is being opened.</dd>
+                is being opened</dd>
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>if the <var>name</var> parameter is not <a>valid</a></dd>
               </dl>
               <p>
                 The synchronous API for databases blocks the calling thread until a
@@ -1204,16 +1180,24 @@ prepareDatabase(function(evt) {
     
               <ol>
                 <li>
-                  Perform the <a class="dfnref" href="#database-open-steps">database opening steps</a>,
-                  and call its result as <var>result</var>.
+                  Let <var>origin</var> be the origin of the scripts in the worker.
                 </li>
                 <li>
-                  If the steps were aborted due to an error, then throw a newly constructed
+                  Perform the <a>steps for opening a database</a>, with <var>origin</var>,
+                  the <var>name</var> parameter and <var>description</var> parameter, and 
+                  call its result as <var>result</var>.
+                </li>
+                <li>
+                  If the steps were aborted with an error code, then throw a newly constructed
                   <a><code>DatabaseException</code></a> 
                   exception with the code of that error and abort these steps.
                 </li>
                 <li>
-                  Return <var>result</var>.
+                  Create a <a><code>DatabaseSync</code></a> object using <var>result</var>
+                  and call it <var>db</var>.
+                </li>
+                <li>
+                  Return <var>db</var>.
                 </li>
               </ol>              
             </dd>
@@ -1853,88 +1837,170 @@ cursor.continue();
             A new <a>transaction</a> can be created to perform operations atomically.
           </p>
         </section> <!-- Transaction -->
-        
+        <section id="database-exception" class="section">
+          <h3>Exceptions and Errors</h3>
+          <p>
+            Errors in the asynchronous database API are reported using 
+            callbacks that have a <a><code>DatabaseError</code></a> 
+            object as one of their arguments.
+          </p>
+          <dl class="idl" title="exception DatabaseException">
+            <dt>const unsigned short UNKNOWN_ERR = 0</dt>
+            <dd>The operation failed for reasons unrelated to the database
+              itself and not covered by any other error code.</dd>
+            <dt>const unsigned short NON_TRANSIENT_ERR = 1</dt>
+            <dd>This error occurred because an operation was not allowed on 
+            an object. A retry of the same operation would fail unless the
+            cause of the error is corrected.</dd>
+            <dt>const unsigned short VERSION_ERR = 2</dt> 
+            <dd>The operation failed because the actual database version was
+            not what was expected or no upgrade function was passed even though
+            the requested version was not found or the upgrade function threw
+            an exception.
+            </dd>
+            <dt>const unsigned short NOT_FOUND_ERR = 3</dt>
+            <dd>The operation failed because the requested database
+            object could not be found. For example, an object store
+            did not exist but was being opened, or a sequence was 
+            used to create an object store, but did not exist.</dd>
+            <dt>const unsigned short CONSTRAINT_ERR = 4</dt>
+            <dd>A mutation operation in the transaction failed due to a
+            because a constraint was not satisfied. For example, an
+            object such as an object store, sequence, or index already
+            exists and a new one was being attempted to be created.</dd>
+            <dt>const unsigned short DATA_ERR = 5</dt>
+            <dd>Data provided to an operation does not meet requirements,
+            e.g., if the increment value for a sequence is set to 0.</dd>
+            <dt>const unsigned short NOT_ALLOWED_ERR = 6</dt>
+            <dd>A mutation operation was attempted on a database that
+            did not allow mutations.</dd>
+            <dt>const unsigned short SERIAL_ERR = 11</dt>
+            <dd>The operation failed because of the size of the data set 
+            being returned or because there was a problem in serializing or 
+            deserializing the object being processed.</dd>
+            <dt>const unsigned short TOO_LARGE_ERR = 12</dt>
+            <dd>The operation failed because the data returned from the
+            database was too large.</dd>
+            <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
+            <dd>The operation failed because the database was prevented
+            from taking an action. The operation might be able to succeed
+            if the application performs some recovery steps and retries
+            the entire transaction. For example, there was not enough 
+            remaining storage space, or the storage quota was reached
+            and the user declined to give more space to the database.</dd>
+            <!--const unsigned short QUOTA_ERR = 22;
+                <dd>The statement failed because there was not enough remaining
+     storage space, or the storage quota was reached and the user
+     declined to give more space to the database.</dd>-->
+            <dt>const unsigned shrot TRANSIENT_ERR = 31</dt>
+            <dd>The operation failed because of some temporary problems.
+            The failed operation might be able to succeed when the
+            operation is retried without any intervention by 
+            application-level functionality.</dd>
+            <dt>const unsigned short TIMEOUT_ERR = 32</dt>
+            <dd>A lock for the transaction could not be obtained in a
+            reasonable time.</dd>
+            <dt>const unsigned short DEADLOCK_ERR = 33</dt>
+            <dd>The current transaction was automatically rolled back
+            by the database becuase of deadlock or other transaction
+            serialization failures.</dd>
+            <dt>attribute unsigned short code</dt>
+            <dd>
+              Return the most appropriate error code.
+            </dd>
+            <dt>attribute DOMString message</dt>
+            <dd>
+              Return an error message describing the exception raised. 
+              The message should be localized to the user's language.
+            </dd>
+          </dl>  
+        </section>     
       </section>
       <section class="section" id="async-api"> 
         <h3>Asynchronous APIs</h3>
         <p>
           The asynchronous API returns without blocking the calling thread.
-          This API can only be used in a <code>Window</code> or in a 
-          <a><code>Worker</code></a>.
+          This API can only be used in a <code>Window</code>. Asynchronous 
+          APIs are essentially the same as the synchronous ones except that 
+          the result of an operation is not available when the operation
+          returns.
         </p>
-        <dl class="idl" title="interface DBRequest"> 
-          <dt>void abort()</dt>
-          <dd> </dd>
-          <dt>const     unsigned short INITIAL = 0</dt>
-          <dd> </dd>
-          <dt>const     unsigned short LOADING = 1</dt>
-          <dd> </dd>
-          <dt>const     unsigned short DONE = 2</dt>
-          <dd> </dd>
-          <dt>readonly attribute unsigned short readyState</dt>
-          <dd> </dd>
-          <dt>readonly attribute DatabaseError error</dt>
-          <dd> </dd>
-          <dt>readonly attribute any result</dt>
-          <dd> </dd>
-
-          <dt>attribute Function onsuccess</dt>
-          <dd> </dd>
-          <dt>attribute Function onerror</dt>
-          <dd> </dd>
-        </dl>
-
-        <div class="idl" title="DBRequest implements EventTarget"></div>
-        
-        <section class="section" id="events non-normative">
+        <section class="section informative" id="events">
           <h4>Event summary</h4>
           <p>
-            Events are fired during asynchronous database access as database objects
-            are created and data is consumed from these objects. As requests for
-            database objects are made, the user agent loads information about them
-            into memory and when the required object handle is available, it 
-            alerts the application through the firing of events. The events are
-            as follows:
+            Events are fired during asynchronous access as <a>database</a> 
+            <a>objects</a> are created and data is consumed from these objects. 
+            As requests are made to <a>database</a> <a>objects</a>,, the user 
+            agent loads information about them into memory and when the required
+            object handle is available, it alerts the application through the
+            firing of events. The events are as follows:
           </p>
           <table>
             <thead><tr><th>Event name</th><th>Dispatched when...</th></tr></thead>
             <tbody>
               <tr>
                 <td><dfn id="event-success"><code>success</code></dfn></td>
-                <td><code>Event</code></td>
                 <td>The database request has been completed and its results are 
                 available.</td>
               </tr>
               <tr>
                 <td><dfn id="event-error"><code>error</code></dfn></td>
-                <td><a><code>DatabaseErrorEvent</code></a></td>
                 <td>There was an error performing the database request.</td>
               </tr>
             </tbody>
           </table>
         </section>
         
-        <section class="section" id="opening">
-          <h4>The DatabaseRequest Interface</h4>
+        <section class="section" id="request-api">
+          <h4>Database Request API</h4>
           <p>
-            This interface provides methods for opening databases and accessing
-            database objects using event handler attributes
-            [[!DOM-LEVEL-3-EVENTS]]. 
+            The <a><code>DBRequest</code></a> provides means to access results of asynchronous 
+            requests to <a title="database">databases</a> and <a>database</a> <a>objects</a>
+            using <a>event handler attributes</a> [[!DOM-LEVEL-3-EVENTS]]. 
           </p>
           <div class="example">       
             <p>
               In the following example, we open a database asynchronously. Various event
               handlers are registered for responding to various situations.
             </p>
-            <codeblock>var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
-dbReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = function(evt) {...};
-dbReq.<a class="idltype" href="#handler-request-onerror">onerror</a> = function(evt) {...};
-dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Address Book', function(txn, db) {...});</codeblock>
+            <codeblock>indexedDB.request.<a>onsuccess</a> = function(evt) {...};
+indexedDB.request.<a>onerror</a> = function(evt) {...};
+indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </div>
+          <dl class="idl" title="interface DBRequest"> 
+            <dt>void abort()</dt>
+            <dd>Discontinue the in-flight request and return the <code>readyState</code> to
+            <a><code>INITIAL</code></a>.</dd>
+            <dt>const     unsigned short INITIAL = 0</dt>
+            <dd>This state indicates that a request has not been started.</dd>
+            <dt>const     unsigned short LOADING = 1</dt>
+            <dd>This state indicates that a request has been started but its results is not
+            yet available.</dd>
+            <dt>const     unsigned short DONE = 2</dt>
+            <dd>This state indicates that a result to a previous request is available in
+            the <code>result</code> attribute.</dd>
+            <dt>readonly attribute unsigned short readyState</dt>
+            <dd>The state of this object</dd>
+            <dt>readonly attribute DatabaseError error</dt>
+            <dd>The error that occurred during the requested operation</dd>
+            <dt>readonly attribute any result</dt>
+            <dd>The result of a successful requested operation</dd>
+  
+            <dt>attribute Function onsuccess</dt>
+            <dd>The event handler for <a title="event-success">success event</a></dd>
+            <dt>attribute Function onerror</dt>
+            <dd>The event handler for <a title="event-error">error event</a></dd>
+          </dl>
+  
+          <div class="idl" title="DBRequest implements EventTarget"></div>
+        </section>
+        
+        <section class="section" id="requests">
+          <h4>Asynchronous Request API</h4>
           <p>
-            This API uses an event handler mechanism to obtain database objects.
-            If an error occurs while opening the database, an error handler is invoked.
-            Otherwise, a success handler is invoked.
+            Asynchronous APIs use the <a><code>DBRequest</code></a> interface to perform
+            operations. If an error occurs while performing the operation, an error
+            handler is invoked. Otherwise, a success handler is invoked.
           </p>
           <p>
             <a title="Window"><code>Window</code></a> objects MUST implement the 
@@ -1948,9 +2014,502 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
             <dd>This attribute provides applications a means of accessing
               capabilities of indexed databases.</dd>
           </dl>
-          <dl class="idl" title="interface IndexedDatabaseRequest : IndexedDatabase">
+          <dl class="idl" title="interface IndexedDatabaseRequest">
+            <dt>readonly attribute DBRequest request</dt>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
+            <dt>void open()</dt>
+            <dd>
+              <p>
+                This method returns immediately and runs the
+                following steps in a different thread.
+                If an error occurs while the <a>database</a> <a>connection</a> 
+                is being opened, then this object's request error is populated 
+                with a new <a><code>DatabaseError</code></a> object whose code is set
+                to <a><code>UNKNOWN_ERR</code></a>.
+              </p>
+    
+              <ol>
+                <li>
+                  Let <var>origin</var> be the origin of the active document from which
+                  the method was invoked.                
+                </li>
+                <li>
+                  Perform the <a>steps for opening a database</a>, with <var>origin</var>,
+                  the <var>name</var> parameter and <var>description</var> parameter, and 
+                  call its result as <var>result</var>.
+                </li>
+                <li>
+                  If the steps were aborted with an error code, then set this request's
+                  error with that code and abort these steps.
+                </li>
+                <li>
+                  Create a <a><code>DatabaseRequest</code></a> object for <var>result</var>
+                  and call it <var>db</var>.
+                </li>
+                <li>
+                  Set the <a>result</a> of this object's request to <var>db</var>.
+              </ol>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="database name">name</a> for the <a>database</a></dd>
+                <dt>DOMString description</dt>
+                <dd>The description for the <a>database</a></dd>
+                <dt>optional boolean modifyDatabase</dt>
+                <dd>This defaults to true</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>if the <var>name</var> parameter is not <a>valid</a></dd>
+              </dl>
+            </dd>
+          </dl>
+          <div class="ednote">
+            The rest of the API documentation needs to reflect the async behavior.
+          </div>
+          <dl class="idl" title="interface DatabaseRequest : Database">
             <dt>readonly attribute DBRequest request</dt>
             <dd> </dd>
+            <dt>void createObjectStore()</dt>
+            <dd>
+              <p>
+                This method creates a and returns a new <a>object store</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+                If an <a>object store</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>, then this object's request error is populated 
+                with a new <a><code>DatabaseError</code></a> object whose code is set
+                to <a><code>CONSTRAINT_ERR</code></a>.
+              </p>
+              <dl class="parameters">
+                <dt>[Null=Empty] DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of a new <a>object store</a></dd>
+                <dt>[Null=Null] DOMString keyPath</dt>
+                <dd>The <a title="object store key path">key path</a> of a new 
+                <a>object store</a>. If <a>null</a> path is specified, then the 
+                <a>object store</a> created will not have a <a>key path</a> and will
+                use <a>out-of-line keys</a>.</dd>
+                <dt>optional boolean autoIncrement</dt>
+                <dd>Whether the <a>object store</a> created should have a 
+                <a>key generator</a>.</dd>
+              </dl>
+            </dd>
+            <dt>void openObjectStore()</dt>
+            <dd>
+              <p>
+                This method opens the <a>object store</a> with the given name
+                in the <a title="connection">connected</a> <a>database</a> for the
+                <a>mode</a> specified.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="object store name">name</a> of an existing 
+                <a>object store</a></dd>
+                <dt>optional unsigned short mode</dt>
+                <dd>The <a>mode</a> used to access the <a>object store</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If an <a>object store</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void createIndex()</dt>
+            <dd>
+              <p>
+                This method creates a and returns a new <a>index</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+              </p>
+              <dl class="parameters">
+                <dt>[Null=Empty] DOMString      name</dt>
+                <dd>The <a title="index name">name</a> of a new <a>index</a></dd>
+                <dt>[Null=Empty] DOMString      storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a> <a>referenced</a> by the new <a>index</a></dd>
+                <dt>DOMString      keyPath</dt>
+                <dd>The <a title="index key path">key path used by the new
+                <a>index</a></dd>
+                <dt>optional boolean unique</dt>
+                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>CONSTRAINT_ERR</code></a></dt>
+                <dd>
+                If an <a>index</a> with the same name, compared in a case-sensitive
+                manner, already exists in the <a title="connection">connected</a> 
+                <a>database</a>.
+                </dd>
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>object store</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void openIndex()</dt>
+            <dd>
+              <p>
+                This method opens the <a>index</a> with the given name
+                in the <a title="connection">connected</a> <a>database</a> for the
+                <a>mode</a> specified.
+              </p>              
+              <dl class="parameters">
+                <dt>DOMString name</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>      
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>index</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void removeObjectStore()</dt>
+            <dd>
+              <p>
+                This method is used to destroy an <a>object store</a> with the 
+                given name as well as all <a title="index">indexes</a> that are 
+                <a title="referenced">referencing</a> that <a>object store</a>.
+              </p>
+              
+              <dl class="parameters">
+                <dt>DOMString storeName</dt>
+                <dd>The <a title="object store name">name</a> of an existing
+                <a>object store</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>object store</a> with the given name, compared in a
+                case-sensitive manner, does not already exist
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void removeIndex()</dt>
+            <dd>
+              <p>
+                This method is used to destroy an <a>index</a> with the 
+                given name. 
+              </p>
+              <dl class="parameters">
+                <dt>DOMString indexName</dt>
+                <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
+                <dd>
+                If the <a>index</a> with the given name does not exist 
+                in the <a title="connection">connected</a> <a>database</a>.      
+                </dd>
+              </dl>
+            </dd>
+            <dt>void setVersion()</dt>
+            <dd>
+              This method is used to set the <a>version</a> of the 
+              <a title="connection">connected</a> <a>database</a>.
+              <dl class="parameters">
+                <dt>[Null=Null] DOMString      version</dt>
+                <dd>The <a>version</a> to store in the <a>database</a></dd>
+              </dl>
+            </dd>
+            <dt>void transaction()</dt>
+            <dd>
+              Perform the <a>steps for creating a transaction</a> with the list of 
+              database objects for acquiring locks 
+              required in this transaction and an optional timeout duration, and return
+              the resulting <a><code>TransactionSync</code></a> object.
+              <dl class="parameters">
+                <dt>optional DOMStringList storeNames</dt>
+                <dd>The names of <a title="object store">object stores</a> and 
+                <a title="index">indexes</a> in the <a>scope</a> of the new
+                <a>transaction</a></dd>
+                <dt>optional unsigned int timeout</dt>
+                <dd>The interval which this operation is allowed to take to
+                reserve all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a>. The default
+                is user agent specific</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt><a><code>TIMEOUT_ERR</code></a></dt>
+                <dd>
+                If reserving all the <a>database</a> objects identified in the new
+                <a title="transaction">transaction's</a> <a>scope</a> takes longer 
+                than the specified interval.
+                </dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface ObjectStoreRequest : ObjectStore">
+            <dt>readonly attribute DBRequest request</dt>
+            <dd> </dd>
+            <dt>void put()</dt>
+            <dd>
+              Store the given value in this <a>object store</a> by following
+              the <a>steps for storing a record into an object store</a>. The
+              returned object from this method is the key for the stored record.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>This <a>object store</a> uses <a>out-of-line</a> keys and
+                no <a>key generator</a> but the <var>key</var> parameter was not
+                passed</dd>
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>The <var>noOverwrite</var> parameter was true and a record
+                exists in this <a>object store</a> for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void delete()</dt>
+            <dd>
+              Remove the record from this <a>object store</a> by following
+              the <a>steps for deleting a record from an object store</a>
+              corresponding to the given key.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>object store</a> 
+                for the key <var>key</var parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void get()</dt>
+            <dd>
+              Retrieve the value from this <a>object store</a> for the record 
+              corresponding to the given key by following the
+              <a>steps for retrieving a record from an object store</a>. The
+              value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>object store</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void openCursor()</dt>
+            <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this
+              <a>object store</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. The user agent calls the 
+              <var>callback</var> function for every record in the <a>cursor</a>'s 
+              <a>range</a>.  
+              <dl class="parameters">
+                <dt>optional KeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface IndexRequest : Index">
+            <dt>readonly attribute DBRequest request</dt>
+            <dd> </dd>
+            <dt>void openObjectCursor()</dt>
+            <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this 
+              <a>index</a>'s <a>referenced</a> <a>object store</a> as arranged by
+              this <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>.
+              <dl class="parameters">
+                <dt>optional KeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+            <dt>void openCursor()</dt>
+            <dd>
+              Create a <a>cursor</a> over the <a>records</a> of this 
+              <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
+              the <a>key range</a> specified as the <var>range</var> parameter, or
+              if that parameter is not specified or <code>null</code>, then the 
+              range includes all the <a>records</a>. 
+              <dl class="parameters">
+                <dt>optional KeyRange    range</dt>
+                <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
+                <dt>optional unsigned short direction</dt>
+                <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+            </dd>
+            <dt>void put()</dt>
+            <dd>
+              Store the given value in this <a>index</a> by following
+              the <a>steps for storing a record into an index</a>. The
+              returned object from this method is the key for the stored record.
+              <dl class="parameters">
+                <dt>any value</dt>
+                <dd>The value to be stored in the record</dd>
+                <dt>optional any key</dt>
+                <dd>The key used to identify the record</dd>
+                <dt>optional boolean noOverwrite</dt>
+                <dd>Whether to overwrite an existing record with the same key</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>CONSTRAINT_ERR</dt>
+                <dd>The <var>noOverwrite</var> parameter was true and a record
+                exists in this <a>object store</a> for the key <var>key</var> 
+                parameter or this <a>index</a> is <a>auto-populated</a> or if no
+                record exists with key <var>value</var> parameter in the <a>index</a>'s
+                <a>referenced</a> <a>object store</a>.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void getObject()</dt>
+            <dd>
+              Retrieve the value from this <a>index</a>'s <a>referenced</a>
+              <a>object store</a> for the record corresponding to the given key
+              by following the <a>steps for retrieving a record from an index</a>.
+              The value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void get()</dt>
+            <dd>
+              Retrieve the value from this <a>index</a> for the record 
+              corresponding to the given key by following the 
+              <a>steps for retrieving a value from an index</a>.
+              The value returned from this method is the retrieved value.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be retrieved</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var> parameter.
+                </dd>
+              </dl>
+            </dd>
+            <dt>void delete()</dt>
+            <dd>
+              Remove the records from this <a>index</a> by following
+              the <a>steps for deleting a record from an index</a>
+              corresponding to the given key.
+              <dl class="parameters">
+                <dt>any key</dt>
+                <dd>Key identifying the record to be removed</dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>A record did not exist in this <a>index</a> 
+                for the key <var>key</var parameter.
+                </dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface CursorRequest : Cursor">
+            <dt>readonly attribute DBRequest request</dt>
+            <dd> </dd>
+            <dt>readonly attribute any key</dt>
+            <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+            <dt>readonly attribute any value</dt>
+            <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.</dd>
+            <dt>readonly attribute unsigned long long count</dt>
+            <dd>             
+              On getting, provide the total number of objects that share the current key.
+            </dd>
+            <dt>void update(in any value)</dt>
+            <dd>
+              Set the value for the record at the <a>cursor</a>'s <a>position</a>.
+              <dl class="exception" title="DatabaseException">
+                <dt>DATA_ERR</dt>
+                <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
+                and the property at the <a title="object store key path">key path</a>
+                does not match the key in this <a>cursor</a>'s <a>position</a>.
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The underlying <a>index</a> or <a>object store</a> does not
+                support updating the item because it is open in the 
+                <a><code>READ_ONLY</code></a> or <a><code>DETACHED_READ</code></a>
+                <a>mode</a>.</dd>
+              </dl>
+            </dd>
+            <dt>void    continue()</dt>
+            <dd>
+              Advance the <a>cursor</a> to the next position along its <a>direction</a>
+              to the item whose key matches the optional parameter. If no such
+              parameter is provided, advance to the immediate next position. If
+              the <a>cursor</a> has reached the end of its <a>range</a>, then this
+              method returns false, otherwise it returns true.
+              <dl class="parameters">
+                <dt>optional any key</dt>
+                <dd>The next key to position this <a>cursor</a> at</dd>
+              </dl>
+            </dd>
+            
+            <dt>void    delete()</dt>
+            <dd>          
+              <p>
+                Delete the object at the <a>cursor</a>'s <a>position</a>.
+              </p>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>The underlying <a>index</a> or <a>object store</a> does not
+                support updating the item because it is open in the 
+                <a><code>READ_ONLY</code></a> or <a><code>DETACHED_READ</code></a>
+                <a>mode</a>.</dd>
+              </dl>
+            </dd>
+          </dl>
+          <dl class="idl" title="interface TransactionRequest : Transaction">
+            <dt>readonly attribute DBRequest request</dt>
+            <dd> </dd>
+            <dt>void abort()</dt>
+            <dd>
+              This method is used to signal the need to cancel the effects of
+              operations performed in this <a>transaction</a>. To perform
+              this method, the user agent ignores all the changes performed to the
+              <a>objects</a> of this <a>database</a> since the creation of this 
+              <a>transaction</a>.
+              <dl class="exception" title="DatabaseException">
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
+            </dd>
+            <dt>void commit()</dt>
+            <dd>
+              This method is used to signal the normal and satisfactory completion
+              of a <a>transaction</a>. At this point, the user agent should durably
+              store all the changes performed to the <a>objects</a> of this 
+              <a>database</a> since the creation of this <a>transaction</a>.
+              <dl class="exception" title="DatabaseException">
+                <dt>RECOVERABLE_ERR</dt>
+                <dd>If this <a>transaction</a>'s <a>scope</a> is <a>dynamic</a>, and
+                the user agent cannot commit all the changes due to another 
+                <a>transaction</a>.
+                <dt>NON_TRANSIENT_ERR</dt>
+                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
+              </dl>
+            </dd>
           </dl>
           <p>
             <span>Queue a task</span> to fire an event with the name <code>success</code>,
@@ -1982,95 +2541,7 @@ dbReq.<a class="idltype" href="#database-open">open</a>('AddressBook', '1', 'Add
             <dfn id="database-access-task-source">database access task source</dfn>.
           </p>    
         </section>
-        
-        <section class="section" id="database-async-interface">
-          <h4>Async Database connection</h4>
-          <dl class="idl" title="interface DatabaseRequest : IndexedDatabase">
-            <dt>readonly attribute DBRequest request</dt>
-            <dd> </dd>
-          </dl>
-        </section>
-        
-        <section class="section" id="object-store">  
-          <h4>Object Store</h4>
-          <div class="example">       
-            <p>
-              In the following example, we open the same database as in the earlier
-              example using the asynchronous API. The <code>storeReq</code> is
-              initialized with an <code>open()</code> call.
-            </p>
-            <codeblock>var store = storeReq = null;
-var dbReq = new <a class="idltype" href="#DatabaseRequest">DatabaseRequest</a>();
-dbReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = 
-  function() {
-    storeReq = new <a class="idltype" href="#ObjectStoreRequest">ObjectStoreRequest</a>(dbReq.database);
-    storeReq.<a class="idltype" href="#store-request-open">open</a>('Contact');
-  };
-var upgrade = 
-  function(upgrade, db) {
-    upgrade.<a class="idltype" href="#create-object-store">createObjectStore</a>('Contact', 'id');
-  });
-dbReq.<a class="idltype" href="#database-request-open">open</a>('AddressBook', '1', 'Address Book');</codeblock>
-    
-              <p>
-                An asynchronous call to put an object in the object store can be performed
-                once the <code>open()</code> call succeeds.
-              </p>
-              <codeblock>function saveContact(contact, success) {
-  storeReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = success;
-  storeReq.<a class="idltype" href="#object-store-put">put</a>(contact);
-};
-
-var lincoln = {id: 1, name: 'Lincoln', number: '7012'};
-saveContact(lincoln, function() {
-  //storeReq.<a class="idltype" href="#store-request-result">result</a>.id == 1
-});</codeblock>
-              <p>
-                Objects in the object store can be read using their key.
-              </p>
-              <codeblock>function loadContact(id, success) {
-  storeReq.<a class="idltype" href="#handler-request-onsuccess">onsuccess</a> = success;
-  storeReq.<a class="idltype" href="#store-get">get</a>(id);
-};
-
-loadContact(1, function() {
-  // storeReq.<a class="idltype" href="#store-request-result">result</a>.id === 1 &amp;&amp; storeReq.result.name === 'Lincoln';
-});</codeblock>
-            </div>
-              
-            <dl class="idl" title="interface ObjectStoreRequest : ObjectStoreSync">
-              <dt>readonly attribute DBRequest request</dt>
-              <dd> </dd>
-            </dl>
-          </section>
-          
-          <section id="index" class="section">  
-            <h4>Index</h4>
-
-            <dl class="idl" title="interface IndexRequest : IndexSync">
-              <dt>readonly attribute DBRequest request</dt>
-              <dd> </dd>
-            </dl>
-            
-          </section>
-          
-          <section class="section" id="cursor">
-            <h4>Cursor</h4>
-        
-            <dl class="idl" title="interface CursorRequest : CursorSync">
-              <dt>readonly attribute DBRequest request</dt>
-              <dd> </dd>
-            </dl>
-          </section>
-          
-          <section class="section" id="transaction">
-            <h4>Transaction</h4>
-            <dl class="idl" title="interface TransactionRequest : TransactionSync">
-              <dt>readonly attribute DBRequest request</dt>
-              <dd> </dd>
-            </dl>
-
-          </section>        
+                  
         <section class="section" id="event-handler">
           <h4>Events</h4>
           <p>
@@ -2096,106 +2567,26 @@ loadContact(1, function() {
             </tbody>
           </table>        
         </section>
-      </section>
-            
-      <section id="database-exception" class="section">
-        <h3>Exceptions and Errors</h3>
-        <p>
-          Errors in the asynchronous database API are reported using 
-          callbacks that have a <a><code>DatabaseError</code></a> 
-          object as one of their arguments.
-        </p>
-        <dl class="idl" title="interface DatabaseError">
-          <dt>attribute unsigned short code</dt>
-          <dd>
-            Return the most appropriate code.
-          </dd>
-          <dt>attribute int status</dt>
-          <dd>
-            Return the detailed error status of the database.
-          </dd>
-          <dt>attribute DOMString message</dt>
-          <dd>
-            Return an error message describing the exception raised. 
-            The message should be localized to the user's language.
-          </dd>
-        </dl>  
-
-        <dl class="idl" title="exception DatabaseException">
-          <dt>const unsigned short UNKNOWN_ERR = 0</dt>
-          <dd>The operation failed for reasons unrelated to the database
-            itself and not covered by any other error code.</dd>
-          <dt>const unsigned short NON_TRANSIENT_ERR = 1</dt>
-          <dd>This error occurred because an operation was not allowed on 
-          an object. A retry of the same operation would fail unless the
-          cause of the error is corrected.</dd>
-          <dt>const unsigned short VERSION_ERR = 2</dt> 
-          <dd>The operation failed because the actual database version was
-          not what was expected or no upgrade function was passed even though
-          the requested version was not found or the upgrade function threw
-          an exception.
-          </dd>
-          <dt>const unsigned short NOT_FOUND_ERR = 3</dt>
-          <dd>The operation failed because the requested database
-          object could not be found. For example, an object store
-          did not exist but was being opened, or a sequence was 
-          used to create an object store, but did not exist.</dd>
-          <dt>const unsigned short CONSTRAINT_ERR = 4</dt>
-          <dd>A mutation operation in the transaction failed due to a
-          because a constraint was not satisfied. For example, an
-          object such as an object store, sequence, or index already
-          exists and a new one was being attempted to be created.</dd>
-          <dt>const unsigned short DATA_ERR = 5</dt>
-          <dd>Data provided to an operation does not meet requirements,
-          e.g., if the increment value for a sequence is set to 0.</dd>
-          <dt>const unsigned short NOT_ALLOWED_ERR = 6</dt>
-          <dd>A mutation operation was attempted on a database that
-          did not allow mutations.</dd>
-          <dt>const unsigned short SERIAL_ERR = 11</dt>
-          <dd>The operation failed because of the size of the data set 
-          being returned or because there was a problem in serializing or 
-          deserializing the object being processed.</dd>
-          <dt>const unsigned short TOO_LARGE_ERR = 12</dt>
-          <dd>The operation failed because the data returned from the
-          database was too large.</dd>
-          <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
-          <dd>The operation failed because the database was prevented
-          from taking an action. The operation might be able to succeed
-          if the application performs some recovery steps and retries
-          the entire transaction. For example, there was not enough 
-          remaining storage space, or the storage quota was reached
-          and the user declined to give more space to the database.</dd>
-          <!--const unsigned short QUOTA_ERR = 22;
-              <dd>The statement failed because there was not enough remaining
-   storage space, or the storage quota was reached and the user
-   declined to give more space to the database.</dd>-->
-          <dt>const unsigned shrot TRANSIENT_ERR = 31</dt>
-          <dd>The operation failed because of some temporary problems.
-          The failed operation might be able to succeed when the
-          operation is retried without any intervention by 
-          application-level functionality.</dd>
-          <dt>const unsigned short TIMEOUT_ERR = 32</dt>
-          <dd>A lock for the transaction could not be obtained in a
-          reasonable time.</dd>
-          <dt>const unsigned short DEADLOCK_ERR = 33</dt>
-          <dd>The current transaction was automatically rolled back
-          by the database becuase of deadlock or other transaction
-          serialization failures.</dd>
-          <dt>attribute unsigned short code</dt>
-          <dd>
-            Return the most appropriate code.
-          </dd>
-          <dt>attribute int status</dt>
-          <dd>
-            Return the detailed error status of the database.
-          </dd>
-          <dt>attribute DOMString message</dt>
-          <dd>
-            Return an error message describing the exception raised. 
-            The message should be localized to the user's language.
-          </dd>
-        </dl>  
-      </section>     
+        <section id="database-exception" class="section">
+          <h3><code>DatabaseError</code> Interface</h3>
+          <p>
+            Errors in the asynchronous database API are reported using 
+            callbacks that have a <a><code>DatabaseError</code></a> 
+            object as one of their arguments.
+          </p>
+          <dl class="idl" title="interface DatabaseError">
+            <dt>attribute unsigned short code</dt>
+            <dd>
+              Return the most appropriate error code.
+            </dd>
+            <dt>attribute DOMString message</dt>
+            <dd>
+              Return an error message describing the exception raised. 
+              The message should be localized to the user's language.
+            </dd>
+          </dl>  
+        </section>
+      </section>            
     </section> <!-- API -->      
       
     <section id="privacy" class="section">
