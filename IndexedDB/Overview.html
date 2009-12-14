@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.24 2009-12-13 19:56:53 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.25 2009-12-14 19:10:31 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -417,7 +417,7 @@ prepareDatabase(function(evt) {
             of the data that does not change once created. 
           </p>
           <div class="ednote">
-            The detached reading behavior needs more explanation.
+            The detached reading behavior may need more explanation.
           </div>
           <p>
             The <a><code>ObjectStore</code></a> interface is used to access the metadata
@@ -654,7 +654,7 @@ prepareDatabase(function(evt) {
             <dd>
               Create a new single-valued <a>key range</a>.
               <dl class="parameters">
-                <dt>any bound</dt>
+                <dt>any value</dt>
                 <dd>The only value</dd>
               </dl>
             </dd>
@@ -1123,11 +1123,9 @@ prepareDatabase(function(evt) {
             </li>
             <li>
               This step is only performed in case of error. If this step is performed
-              asynchronously, then run the 
-              <a class="dfnref" href="#database-failure-steps">database failure steps</a>
-              with the code <var>code</var>. Otherwise, raise a newly constructed 
+              synchronously, then raise a newly constructed 
               <a><code>DatabaseException</code></a> 
-              exception exception with the code <var>code</var>.
+              exception <var>exception</var> with the code <var>code</var>.
             </li>
           </ol>        
         </section>
@@ -1135,9 +1133,6 @@ prepareDatabase(function(evt) {
       
       <section id="sync-database" class="section">
         <h3>Synchronous APIs</h3>
-        <!--p>
-          This API can only be used in a <a title="Worker"><code>Worker</code></a>.
-        </p-->
         <section id="opening-sync" class="section">
           <h4>Opening a database connection</h4>
           <p>
@@ -1462,6 +1457,9 @@ cursor.continue();</codeblock>
                 <dd>This <a>object store</a> uses <a>out-of-line</a> keys and
                 no <a>key generator</a> but the <var>key</var> parameter was not
                 passed</dd>
+                <dt>SERIAL_ERR</dt>
+                <dd>The data being stored could not be serialized by the internal
+                structured cloning algorithm</dt>
                 <dt>CONSTRAINT_ERR</dt>
                 <dd>The <var>noOverwrite</var> parameter was true and a record
                 exists in this <a>object store</a> for the key <var>key</var> parameter.
@@ -1495,6 +1493,9 @@ cursor.continue();</codeblock>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
               <dl class="exception" title="DatabaseException">
+                <dt>SERIAL_ERR</dt>
+                <dd>The data being stored could not be deserialized by the internal
+                structured cloning algorithm</dt>
                 <dt>NOT_FOUND_ERR</dt>
                 <dd>A record did not exist in this <a>object store</a> 
                 for the key <var>key</var> parameter.
@@ -1507,14 +1508,18 @@ cursor.continue();</codeblock>
               <a>object store</a>. The <a>range</a> of this <a>cursor</a> matches 
               the <a>key range</a> specified as the <var>range</var> parameter, or
               if that parameter is not specified or <code>null</code>, then the 
-              range includes all the <a>records</a>. The user agent calls the 
-              <var>callback</var> function for every record in the <a>cursor</a>'s 
-              <a>range</a>.  
+              range includes all the <a>records</a>. 
               <dl class="parameters">
                 <dt>optional KeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
+              </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>No records exist in this <a>object store</a> 
+                for the requested <a>key range</a>.
+                </dd>
               </dl>
             </dd>
           </dl>                
@@ -1584,6 +1589,12 @@ cursor.continue();</codeblock>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>No records exist in this <a>index</a> 
+                for the requested <a>key range</a>.
+                </dd>
+              </dl>
             </dd>
             <dt>void openCursor()</dt>
             <dd>
@@ -1598,6 +1609,12 @@ cursor.continue();</codeblock>
                 <dt>optional unsigned short direction</dt>
                 <dd>The <a>cursor<a>'s required <a>direction</a></dd>
               </dl>
+              <dl class="exception" title="DatabaseException">
+                <dt>NOT_FOUND_ERR</dt>
+                <dd>No records exist in this <a>index</a> 
+                for the requested <a>key range</a>.
+                </dd>
+              </dl>
             </dd>
             <dt>any put()</dt>
             <dd>
@@ -1610,12 +1627,13 @@ cursor.continue();</codeblock>
                 <dt>optional any key</dt>
                 <dd>The key used to identify the record</dd>
                 <dt>optional boolean noOverwrite</dt>
-                <dd>Whether to overwrite an existing record with the same key</dd>
+                <dd>Whether to overwrite an existing record with the same key. This defaults
+                to <code>false</code>.</dd>
               </dl>
               <dl class="exception" title="DatabaseException">
                 <dt>CONSTRAINT_ERR</dt>
-                <dd>The <var>noOverwrite</var> parameter was true and a record
-                exists in this <a>object store</a> for the key <var>key</var> 
+                <dd>The <var>noOverwrite</var> parameter was <code>true</code> and a 
+                record exists in this <a>index</a> for the key <var>key</var> 
                 parameter or this <a>index</a> is <a>auto-populated</a> or if no
                 record exists with key <var>value</var> parameter in the <a>index</a>'s
                 <a>referenced</a> <a>object store</a>.
@@ -1748,6 +1766,9 @@ cursor.continue();
                 <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
                 and the property at the <a title="object store key path">key path</a>
                 does not match the key in this <a>cursor</a>'s <a>position</a>.
+                <dt>SERIAL_ERR</dt>
+                <dd>The data being stored could not be serialized by the internal
+                structured cloning algorithm</dt>
                 <dt>NOT_ALLOWED_ERR</dt>
                 <dd>The underlying <a>index</a> or <a>object store</a> does not
                 support updating the item because it is open in the 
@@ -1838,12 +1859,7 @@ cursor.continue();
           </p>
         </section> <!-- Transaction -->
         <section id="database-exception" class="section">
-          <h3>Exceptions and Errors</h3>
-          <p>
-            Errors in the asynchronous database API are reported using 
-            callbacks that have a <a><code>DatabaseError</code></a> 
-            object as one of their arguments.
-          </p>
+          <h3>The <code>DatabaseException</code> Interface</h3>
           <dl class="idl" title="exception DatabaseException">
             <dt>const unsigned short UNKNOWN_ERR = 0</dt>
             <dd>The operation failed for reasons unrelated to the database
@@ -1852,35 +1868,24 @@ cursor.continue();
             <dd>This error occurred because an operation was not allowed on 
             an object. A retry of the same operation would fail unless the
             cause of the error is corrected.</dd>
-            <dt>const unsigned short VERSION_ERR = 2</dt> 
-            <dd>The operation failed because the actual database version was
-            not what was expected or no upgrade function was passed even though
-            the requested version was not found or the upgrade function threw
-            an exception.
-            </dd>
-            <dt>const unsigned short NOT_FOUND_ERR = 3</dt>
+            <dt>const unsigned short NOT_FOUND_ERR = 2</dt>
             <dd>The operation failed because the requested database
             object could not be found. For example, an object store
-            did not exist but was being opened, or a sequence was 
-            used to create an object store, but did not exist.</dd>
-            <dt>const unsigned short CONSTRAINT_ERR = 4</dt>
+            did not exist but was being opened.</dd>
+            <dt>const unsigned short CONSTRAINT_ERR = 3</dt>
             <dd>A mutation operation in the transaction failed due to a
             because a constraint was not satisfied. For example, an
-            object such as an object store, sequence, or index already
+            object such as an object store or index already
             exists and a new one was being attempted to be created.</dd>
-            <dt>const unsigned short DATA_ERR = 5</dt>
-            <dd>Data provided to an operation does not meet requirements,
-            e.g., if the increment value for a sequence is set to 0.</dd>
-            <dt>const unsigned short NOT_ALLOWED_ERR = 6</dt>
+            <dt>const unsigned short DATA_ERR = 4</dt>
+            <dd>Data provided to an operation does not meet requirements.</dd>
+            <dt>const unsigned short NOT_ALLOWED_ERR = 5</dt>
             <dd>A mutation operation was attempted on a database that
             did not allow mutations.</dd>
             <dt>const unsigned short SERIAL_ERR = 11</dt>
             <dd>The operation failed because of the size of the data set 
             being returned or because there was a problem in serializing or 
             deserializing the object being processed.</dd>
-            <dt>const unsigned short TOO_LARGE_ERR = 12</dt>
-            <dd>The operation failed because the data returned from the
-            database was too large.</dd>
             <dt>const unsigned short RECOVERABLE_ERR = 21</dt>
             <dd>The operation failed because the database was prevented
             from taking an action. The operation might be able to succeed
@@ -1930,7 +1935,7 @@ cursor.continue();
           <p>
             Events are fired during asynchronous access as <a>database</a> 
             <a>objects</a> are created and data is consumed from these objects. 
-            As requests are made to <a>database</a> <a>objects</a>,, the user 
+            As requests are made to <a>database</a> <a>objects</a>, the user 
             agent loads information about them into memory and when the required
             object handle is available, it alerts the application through the
             firing of events. The events are as follows:
@@ -1952,16 +1957,16 @@ cursor.continue();
         </section>
         
         <section class="section" id="request-api">
-          <h4>Database Request API</h4>
+          <h4>The <code>DBRequest</code> Interface</h4>
           <p>
-            The <a><code>DBRequest</code></a> provides means to access results of asynchronous 
-            requests to <a title="database">databases</a> and <a>database</a> <a>objects</a>
-            using <a>event handler attributes</a> [[!DOM-LEVEL-3-EVENTS]]. 
+            The <a><code>DBRequest</code></a> interface provides means to access results of  
+            asynchronous requests to <a title="database">databases</a> and <a>database</a> 
+            <a>objects</a> using <a>event handler attributes</a> [[!DOM-LEVEL-3-EVENTS]]. 
           </p>
           <div class="example">       
             <p>
-              In the following example, we open a database asynchronously. Various event
-              handlers are registered for responding to various situations.
+              In the following example, we open a <a>database</a> asynchronously. Various 
+              event handlers are registered for responding to various situations.
             </p>
             <codeblock>indexedDB.request.<a>onsuccess</a> = function(evt) {...};
 indexedDB.request.<a>onerror</a> = function(evt) {...};
@@ -1970,7 +1975,8 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           <dl class="idl" title="interface DBRequest"> 
             <dt>void abort()</dt>
             <dd>Discontinue the in-flight request and return the <code>readyState</code> to
-            <a><code>INITIAL</code></a>.</dd>
+            <a><code>INITIAL</code></a>. No <code>result</code> or <code>error</code> is
+            set.</dd>
             <dt>const     unsigned short INITIAL = 0</dt>
             <dd>This state indicates that a request has not been started.</dd>
             <dt>const     unsigned short LOADING = 1</dt>
@@ -1991,18 +1997,35 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>attribute Function onerror</dt>
             <dd>The event handler for <a title="event-error">error event</a></dd>
           </dl>
-  
           <div class="idl" title="DBRequest implements EventTarget"></div>
+          <p>
+            When a request is made, the <code>readyState</code> changes to 
+            <code>LOADING</code>. Once the result of the request is available, the
+            <code>readyState</code> changes to <code>DONE</code>, the result of
+            the request is placed in <code>result</code>, and <a>aueue a task</a> to fire
+            an event with the name <code>success</code>, with no namespace, which does not
+            bubble, is not cancelable, and which uses the <a><code>Event</code></a> 
+            interface at each <code>Window</code> object.
+          </p>
+          <p>
+            If an exception occurs while performing the operation, the 
+            <code>readyState</code> changes to <code>DONE</code>, the error information
+            is placed in a new <a><code>DatabaseError</code></a> object at the
+            <a><code>error</code></a> attribute, and <a>queue a task</a> to fire an event 
+            with the name <code>error</code>, with no namespace, which does not bubble, is 
+            not cancelable, and which uses the <code>Event</code> 
+            interface and <var>error</var> at each <code>Window</code> object.
+          </p>
+           
+          <p>
+            The <span>task source</span> for these tasks is the 
+            <dfn id="database-access-task-source">database access task source</dfn>.
+          </p>    
         </section>
         
         <section class="section" id="requests">
           <h4>Asynchronous Request API</h4>
-          <p>
-            Asynchronous APIs use the <a><code>DBRequest</code></a> interface to perform
-            operations. If an error occurs while performing the operation, an error
-            handler is invoked. Otherwise, a success handler is invoked.
-          </p>
-          <p>
+         <p>
             <a title="Window"><code>Window</code></a> objects MUST implement the 
             <a><code>Environment</code></a> interface.
           </p>
@@ -2014,6 +2037,14 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dd>This attribute provides applications a means of accessing
               capabilities of indexed databases.</dd>
           </dl>
+           <p>
+            Every interface for making asynchronous requests includes a 
+            <a><code>DBRequest</code></a> object that communicates back to the requesting
+            application through events. 
+            This design means that only a single request can be active on any <a>database</a>
+            or <a title="objects">object</a> handle at a time. If a second request is
+            started, the user agent MUST abort any previous active request.
+          </p>
           <dl class="idl" title="interface IndexedDatabaseRequest">
             <dt>readonly attribute DBRequest request</dt>
             <dd>The request associated with this object, which will be used to
@@ -2064,22 +2095,23 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
           </dl>
-          <div class="ednote">
-            The rest of the API documentation needs to reflect the async behavior.
-          </div>
           <dl class="idl" title="interface DatabaseRequest : Database">
             <dt>readonly attribute DBRequest request</dt>
-            <dd> </dd>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
             <dt>void createObjectStore()</dt>
             <dd>
               <p>
-                This method creates a and returns a new <a>object store</a> with the
-                given name in the <a title="connection">connected</a> <a>database</a>.
-                If an <a>object store</a> with the same name, compared in a case-sensitive
-                manner, already exists in the <a title="connection">connected</a> 
-                <a>database</a>, then this object's request error is populated 
-                with a new <a><code>DatabaseError</code></a> object whose code is set
-                to <a><code>CONSTRAINT_ERR</code></a>.
+                This method returns immediately and creates a new <a>object store</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a>. If an <a>object store</a> with the same name, compared
+                in a case-sensitive manner, already exists in the 
+                <a title="connection">connected</a> <a>database</a>, then this object's
+                request error is populated with a new <a><code>DatabaseError</code></a>
+                object whose code is set to <a><code>CONSTRAINT_ERR</code></a>. If the
+                <a>object store</a> is created, the result of this object's request is
+                set to a new <a><code>ObjectStoreRequest</code></a> for that 
+                <a>object store</a>.
               </p>
               <dl class="parameters">
                 <dt>[Null=Empty] DOMString name</dt>
@@ -2097,9 +2129,15 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>void openObjectStore()</dt>
             <dd>
               <p>
-                This method opens the <a>object store</a> with the given name
-                in the <a title="connection">connected</a> <a>database</a> for the
-                <a>mode</a> specified.
+                This method returns immediately and opens the <a>object store</a> with 
+                the given name in the <a title="connection">connected</a> <a>database</a>
+                for the <a>mode</a> specified. If an <a>object store</a> with the given
+                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request error is populated with a new 
+                <a><code>DatabaseError</code></a> object whose code is set to 
+                <a><code>NOT_FOUND_ERR</code></a>. If the <a>object store</a> is opened,
+                the result of this object's request is set to a new 
+                <a><code>ObjectStoreRequest</code></a> for that <a>object store</a>.
               </p>              
               <dl class="parameters">
                 <dt>DOMString name</dt>
@@ -2108,20 +2146,24 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>optional unsigned short mode</dt>
                 <dd>The <a>mode</a> used to access the <a>object store</a></dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
-                <dd>
-                If an <a>object store</a> with the same name, compared in a case-sensitive
-                manner, already exists in the <a title="connection">connected</a> 
-                <a>database</a>.
-                </dd>
-              </dl>
             </dd>
             <dt>void createIndex()</dt>
             <dd>
               <p>
-                This method creates a and returns a new <a>index</a> with the
-                given name in the <a title="connection">connected</a> <a>database</a>.
+                This method returns immediately and creates a new <a>index</a>
+                with the given name and parameters in the 
+                <a title="connection">connected</a> <a>database</a>. If an <a>index</a> 
+                with the same name, compared in a case-sensitive manner, already exists
+                in the <a title="connection">connected</a> <a>database</a>, then this 
+                object's request error is populated with a new 
+                <a><code>DatabaseError</code></a> object whose code is set to 
+                <a><code>CONSTRAINT_ERR</code></a>. If the <a>object store</a> with the
+                given name does not exist in the <a title="connection">connected</a> 
+                <a>database</a> then this object's request error is populated with a new 
+                <a><code>DatabaseError</code></a> object whose code is set to 
+                <a><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is created, the
+                result of this object's request is set to a new 
+                <a><code>IndexRequest</code></a> for that <a>index</a>.
               </p>
               <dl class="parameters">
                 <dt>[Null=Empty] DOMString      name</dt>
@@ -2135,45 +2177,37 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>optional boolean unique</dt>
                 <dd>The <a>unique</a> flag for the new <a>index</a></dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt><a><code>CONSTRAINT_ERR</code></a></dt>
-                <dd>
-                If an <a>index</a> with the same name, compared in a case-sensitive
-                manner, already exists in the <a title="connection">connected</a> 
-                <a>database</a>.
-                </dd>
-                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
-                <dd>
-                If the <a>object store</a> with the given name does not exist 
-                in the <a title="connection">connected</a> <a>database</a>.      
-                </dd>
-              </dl>
             </dd>
             <dt>void openIndex()</dt>
             <dd>
               <p>
-                This method opens the <a>index</a> with the given name
-                in the <a title="connection">connected</a> <a>database</a> for the
-                <a>mode</a> specified.
+                This method returns immediately and opens the <a>index</a> with the
+                given name in the <a title="connection">connected</a> <a>database</a>.
+                If an <a>index</a> with the given
+                name does not exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request error is populated with a new 
+                <a><code>DatabaseError</code></a> object whose code is set to 
+                <a><code>NOT_FOUND_ERR</code></a>. If the <a>index</a> is opened,
+                the result of this object's request is set to a new 
+                <a><code>IndexRequest</code></a> for that <a>index</a>.
               </p>              
               <dl class="parameters">
                 <dt>DOMString name</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>      
-              <dl class="exception" title="DatabaseException">
-                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
-                <dd>
-                If the <a>index</a> with the given name does not exist 
-                in the <a title="connection">connected</a> <a>database</a>.      
-                </dd>
-              </dl>
             </dd>
             <dt>void removeObjectStore()</dt>
             <dd>
               <p>
-                This method is used to destroy an <a>object store</a> with the 
-                given name as well as all <a title="index">indexes</a> that are 
-                <a title="referenced">referencing</a> that <a>object store</a>.
+                This method returns immediately and destroys the <a>object store</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a> as well as all <a title="index">indexes</a> that are 
+                <a title="referenced">referencing</a> that <a>object store</a>. If an 
+                <a>object store</a> with the given name does not exist in the 
+                <a title="connection">connected</a> <a>database</a>, 
+                then this object's request error is populated with a new 
+                <a><code>DatabaseError</code></a> object whose code is set to 
+                <a><code>NOT_FOUND_ERR</code></a>. 
               </p>
               
               <dl class="parameters">
@@ -2181,36 +2215,26 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a title="object store name">name</a> of an existing
                 <a>object store</a></dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
-                <dd>
-                If the <a>object store</a> with the given name, compared in a
-                case-sensitive manner, does not already exist
-                in the <a title="connection">connected</a> <a>database</a>.      
-                </dd>
-              </dl>
             </dd>
             <dt>void removeIndex()</dt>
             <dd>
               <p>
-                This method is used to destroy an <a>index</a> with the 
-                given name. 
+                This method returns immediately and destroys the <a>index</a>
+                with the given name in the <a title="connection">connected</a> 
+                <a>database</a>. If an <a>index</a> with the given name does not 
+                exist in the <a title="connection">connected</a> <a>database</a>, 
+                then this object's request error is populated with a new 
+                <a><code>DatabaseError</code></a> object whose code is set to 
+                <a><code>NOT_FOUND_ERR</code></a>. 
               </p>
               <dl class="parameters">
                 <dt>DOMString indexName</dt>
                 <dd>The <a title="index name">name</a> of an existing <a>index</a></dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt><a><code>NOT_FOUND_ERR</code></a></dt>
-                <dd>
-                If the <a>index</a> with the given name does not exist 
-                in the <a title="connection">connected</a> <a>database</a>.      
-                </dd>
-              </dl>
             </dd>
             <dt>void setVersion()</dt>
             <dd>
-              This method is used to set the <a>version</a> of the 
+              This method returns immediately and sets the <a>version</a> of the 
               <a title="connection">connected</a> <a>database</a>.
               <dl class="parameters">
                 <dt>[Null=Null] DOMString      version</dt>
@@ -2219,10 +2243,15 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
             <dt>void transaction()</dt>
             <dd>
-              Perform the <a>steps for creating a transaction</a> with the list of 
-              database objects for acquiring locks 
-              required in this transaction and an optional timeout duration, and return
-              the resulting <a><code>TransactionSync</code></a> object.
+              This method returns immediately and performs the 
+              <a>steps for creating a transaction</a> with the list of <a>database</a> 
+              <a>objects</a> for acquiring locks required in this <a>transaction</a> 
+              and an optional timeout duration. If a <a>transaction</a> can be created
+              successfully, then the result of this object's request is set to a new 
+              <a><code>TransactionRequest</code></a> object. If reserving all the 
+              <a>database</a> <a>objects</a> identified in the requested <a>scope</a> 
+              takes longer than the specified timeout interval, then the error of
+              this object's request is set to the code <a><code>TIMEOUT_ERR</code></a>.
               <dl class="parameters">
                 <dt>optional DOMStringList storeNames</dt>
                 <dd>The names of <a title="object store">object stores</a> and 
@@ -2234,24 +2263,29 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <a title="transaction">transaction's</a> <a>scope</a>. The default
                 is user agent specific</dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt><a><code>TIMEOUT_ERR</code></a></dt>
-                <dd>
-                If reserving all the <a>database</a> objects identified in the new
-                <a title="transaction">transaction's</a> <a>scope</a> takes longer 
-                than the specified interval.
-                </dd>
-              </dl>
             </dd>
           </dl>
           <dl class="idl" title="interface ObjectStoreRequest : ObjectStore">
             <dt>readonly attribute DBRequest request</dt>
-            <dd> </dd>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
             <dt>void put()</dt>
             <dd>
-              Store the given value in this <a>object store</a> by following
-              the <a>steps for storing a record into an object store</a>. The
-              returned object from this method is the key for the stored record.
+              This method returns immediately and stores the given value in this 
+              <a>object store</a> by following the 
+              <a>steps for storing a record into an object store</a>. If the record
+              can be successfully stored in the <a>object store</a>, then the 
+              result of this object's request is set to the key for the stored record.
+              If the <var>noOverwrite</var> parameter was true and a record exists
+              in this <a>object store</a> for the key <var>key</var> parameter, then
+              the error for this object's request is set to code 
+              <a><code>CONSTRAINT_ERR</code></a>. If this <a>object store</a> uses 
+              <a>out-of-line</a> keys but does not use a <a>key generator</a> and the
+              <var>key</var> parameter was not passed, then the error for this object's
+              request is set to code <a><code>DATA_ERR</code></a>. If the data being 
+              stored could not be serialized by the <a>internal structured cloning algorithm</a>,
+              then the error for this object's request is set to code 
+              <a><code>SERIAL_ERR</code></a>.
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the record</dd>
@@ -2260,59 +2294,46 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dt>optional boolean noOverwrite</dt>
                 <dd>Whether to overwrite an existing record with the same key</dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>DATA_ERR</dt>
-                <dd>This <a>object store</a> uses <a>out-of-line</a> keys and
-                no <a>key generator</a> but the <var>key</var> parameter was not
-                passed</dd>
-                <dt>CONSTRAINT_ERR</dt>
-                <dd>The <var>noOverwrite</var> parameter was true and a record
-                exists in this <a>object store</a> for the key <var>key</var> parameter.
-                </dd>
-              </dl>
             </dd>
             <dt>void delete()</dt>
             <dd>
-              Remove the record from this <a>object store</a> by following
-              the <a>steps for deleting a record from an object store</a>
-              corresponding to the given key.
+              This method returns immediately and removes the record from this 
+              <a>object store</a> by following the 
+              <a>steps for deleting a record from an object store</a> corresponding to
+              the given key. If a record did not exist in this <a>object store</a> 
+              for the key <var>key</var> parameter, then the error for this object's
+              request is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be removed</dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
-                <dd>A record did not exist in this <a>object store</a> 
-                for the key <var>key</var parameter.
-                </dd>
-              </dl>
             </dd>
             <dt>void get()</dt>
             <dd>
-              Retrieve the value from this <a>object store</a> for the record 
-              corresponding to the given key by following the
-              <a>steps for retrieving a record from an object store</a>. The
-              value returned from this method is the retrieved value.
+              This method returns immediately and retrieves the value from this 
+              <a>object store</a> for the record corresponding to the given key by
+              following the <a>steps for retrieving a record from an object store</a>. 
+              If the operation is successful, then the result of this object's request
+              is set to the retrieved value. If a record did not exist in this 
+              <a>object store</a> for the key <var>key</var> parameter, then the error
+              for this object's request is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
-                <dd>A record did not exist in this <a>object store</a> 
-                for the key <var>key</var> parameter.
-                </dd>
-              </dl>
             </dd>
             <dt>void openCursor()</dt>
             <dd>
-              Create a <a>cursor</a> over the <a>records</a> of this
-              <a>object store</a>. The <a>range</a> of this <a>cursor</a> matches 
-              the <a>key range</a> specified as the <var>range</var> parameter, or
-              if that parameter is not specified or <code>null</code>, then the 
-              range includes all the <a>records</a>. The user agent calls the 
-              <var>callback</var> function for every record in the <a>cursor</a>'s 
-              <a>range</a>.  
+              This method returns immediately and creates a <a>cursor</a> over the 
+              <a>records</a> of this <a>object store</a>. The <a>range</a> of this
+              <a>cursor</a> matches the <a>key range</a> specified as the
+              <var>range</var> parameter, or if that parameter is not specified or
+              <code>null</code>, then the range includes all the <a>records</a>. 
+              If there is even a single record that matches the <a>key range</a>, then  
+              the result of this object's request is set to the 
+              <a><code>CursorRequest</code></a> object for that <a>cursor</a>. If no
+              records match the <a>key range</a>, then the error of this object's request
+              is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>optional KeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -2323,15 +2344,21 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </dl>
           <dl class="idl" title="interface IndexRequest : Index">
             <dt>readonly attribute DBRequest request</dt>
-            <dd> </dd>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
             <dt>void openObjectCursor()</dt>
             <dd>
-              Create a <a>cursor</a> over the <a>records</a> of this 
-              <a>index</a>'s <a>referenced</a> <a>object store</a> as arranged by
-              this <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
-              the <a>key range</a> specified as the <var>range</var> parameter, or
+              This method returns immediately and creates a <a>cursor</a> over the 
+              <a>records</a> of this <a>index</a>'s <a>referenced</a> <a>object store</a> 
+              as arranged by this <a>index</a>. The <a>range</a> of this <a>cursor</a> 
+              matches the <a>key range</a> specified as the <var>range</var> parameter, or
               if that parameter is not specified or <code>null</code>, then the 
               range includes all the <a>records</a>.
+              If there is even a single record that matches the <a>key range</a>, then  
+              the result of this object's request is set to the 
+              <a><code>CursorRequest</code></a> object for that <a>cursor</a>. If no
+              records match the <a>key range</a>, then the error of this object's request
+              is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>optional KeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -2341,11 +2368,16 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
             <dt>void openCursor()</dt>
             <dd>
-              Create a <a>cursor</a> over the <a>records</a> of this 
-              <a>index</a>. The <a>range</a> of this <a>cursor</a> matches 
-              the <a>key range</a> specified as the <var>range</var> parameter, or
+              This method returns immediately and creates a <a>cursor</a> over the 
+              <a>records</a> of this <a>index</a>. The <a>range</a> of this <a>cursor</a>
+              matches the <a>key range</a> specified as the <var>range</var> parameter, or
               if that parameter is not specified or <code>null</code>, then the 
               range includes all the <a>records</a>. 
+              If there is even a single record that matches the <a>key range</a>, then  
+              the result of this object's request is set to the 
+              <a><code>CursorRequest</code></a> object for that <a>cursor</a>. If no
+              records match the <a>key range</a>, then the error of this object's request
+              is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>optional KeyRange    range</dt>
                 <dd>The <a>key range</a> to use as the <a>cursor</a>'s <a>range</a></dd>
@@ -2355,111 +2387,103 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             </dd>
             <dt>void put()</dt>
             <dd>
-              Store the given value in this <a>index</a> by following
-              the <a>steps for storing a record into an index</a>. The
-              returned object from this method is the key for the stored record.
+              This method returns immediately and stores the given value in this <a>index</a>
+              by following the <a>steps for storing a record into an index</a>. If the
+              operation succeeds, then the result of this object's request is set to
+              the key for the stored record. If the <var>noOverwrite</var> parameter was 
+              <code>true</code> and a record exists in this <a>index</a> for the key 
+              <var>key</var> parameter or this <a>index</a> is <a>auto-populated</a> or if no
+              record exists with key <var>value</var> parameter in the <a>index</a>'s
+              <a>referenced</a> <a>object store</a>, then the error of this object's request
+              is set to code <a><code>CONSTRAINT_ERR</code></a>.
               <dl class="parameters">
                 <dt>any value</dt>
                 <dd>The value to be stored in the record</dd>
                 <dt>optional any key</dt>
                 <dd>The key used to identify the record</dd>
                 <dt>optional boolean noOverwrite</dt>
-                <dd>Whether to overwrite an existing record with the same key</dd>
-              </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>CONSTRAINT_ERR</dt>
-                <dd>The <var>noOverwrite</var> parameter was true and a record
-                exists in this <a>object store</a> for the key <var>key</var> 
-                parameter or this <a>index</a> is <a>auto-populated</a> or if no
-                record exists with key <var>value</var> parameter in the <a>index</a>'s
-                <a>referenced</a> <a>object store</a>.
-                </dd>
+                <dd>Whether to overwrite an existing record with the same key. This defaults
+                to <code>false</code>.</dd>
               </dl>
             </dd>
             <dt>void getObject()</dt>
             <dd>
-              Retrieve the value from this <a>index</a>'s <a>referenced</a>
-              <a>object store</a> for the record corresponding to the given key
-              by following the <a>steps for retrieving a record from an index</a>.
-              The value returned from this method is the retrieved value.
+              This method returns immediately and retrieves the value from this <a>index</a>'s
+              <a>referenced</a> <a>object store</a> for the record corresponding to the given
+              key by following the <a>steps for retrieving a record from an index</a>.
+              If the operation is successful, then the result of this object's request
+              is set to the retrieved value. If a record did not exist in this 
+              <a>index</a> for the key <var>key</var> parameter, then the error
+              for this object's request is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
-                <dd>A record did not exist in this <a>index</a> 
-                for the key <var>key</var> parameter.
-                </dd>
-              </dl>
-            </dd>
+-            </dd>
             <dt>void get()</dt>
             <dd>
-              Retrieve the value from this <a>index</a> for the record 
-              corresponding to the given key by following the 
-              <a>steps for retrieving a value from an index</a>.
-              The value returned from this method is the retrieved value.
+              This method returns immediately and retrieves the value from this <a>index</a>
+              for the record corresponding to the given <var>key</var> parameter by 
+              following the <a>steps for retrieving a value from an index</a>.
+              If the operation is successful, then the result of this object's request
+              is set to the retrieved value. If a record did not exist in this 
+              <a>index</a> for the key <var>key</var> parameter, then the error
+              for this object's request is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be retrieved</dd>
-              </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
-                <dd>A record did not exist in this <a>index</a> 
-                for the key <var>key</var> parameter.
-                </dd>
               </dl>
             </dd>
             <dt>void delete()</dt>
             <dd>
-              Remove the records from this <a>index</a> by following
-              the <a>steps for deleting a record from an index</a>
-              corresponding to the given key.
+              This method returns immediately and removes the records from this <a>index</a>
+              by following the <a>steps for deleting a record from an index</a>
+              corresponding to the given key. If a record did not exist in this 
+              <a>index</a> for the key <var>key</var> parameter, then the error
+              for this object's request is set to code <a><code>NOT_FOUND_ERR</code></a>.
               <dl class="parameters">
                 <dt>any key</dt>
                 <dd>Key identifying the record to be removed</dd>
-              </dl>
-              <dl class="exception" title="DatabaseException">
-                <dt>NOT_FOUND_ERR</dt>
-                <dd>A record did not exist in this <a>index</a> 
-                for the key <var>key</var parameter.
-                </dd>
               </dl>
             </dd>
           </dl>
           <dl class="idl" title="interface CursorRequest : Cursor">
             <dt>readonly attribute DBRequest request</dt>
-            <dd> </dd>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
             <dt>readonly attribute any key</dt>
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute any value</dt>
             <dd>The value for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute unsigned long long count</dt>
             <dd>             
-              On getting, provide the total number of objects that share the current key.
+              On getting, provide the total number of objects that share the key
+              at the <a>cursor</a>'s <a>position</a>.
             </dd>
             <dt>void update(in any value)</dt>
             <dd>
-              Set the value for the record at the <a>cursor</a>'s <a>position</a>.
-              <dl class="exception" title="DatabaseException">
-                <dt>DATA_ERR</dt>
-                <dd>If the underlying <a>object store</a> uses <a>in-line keys</a>
-                and the property at the <a title="object store key path">key path</a>
-                does not match the key in this <a>cursor</a>'s <a>position</a>.
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>The underlying <a>index</a> or <a>object store</a> does not
-                support updating the item because it is open in the 
-                <a><code>READ_ONLY</code></a> or <a><code>DETACHED_READ</code></a>
-                <a>mode</a>.</dd>
-              </dl>
+              This method returns immediately and sets the value for the record at the
+              <a>cursor</a>'s <a>position</a>. If the underlying <a>object store</a> uses
+              <a>in-line keys</a> and the property at the 
+              <a title="object store key path">key path</a> does not match the key in this
+              <a>cursor</a>'s <a>position</a>, then the error for this object's 
+              request is set to code <a><code>DATA_ERR</code></a>. If the underlying 
+              <a>index</a> or <a>object store</a> does not support updating the item 
+              because it is open in the <a><code>READ_ONLY</code></a> or 
+              <a><code>DETACHED_READ</code></a> <a>mode</a>, then the error for this
+              object's request is set to code <a><code>NOT_ALLOWED_ERR</code></a>.
+              If the data being stored could not be serialized by the 
+              <a>internal structured cloning algorithm</a>,  then the error for this 
+              object's request is set to code <a><code>SERIAL_ERR</code></a>.
             </dd>
             <dt>void    continue()</dt>
             <dd>
-              Advance the <a>cursor</a> to the next position along its <a>direction</a>
-              to the item whose key matches the optional parameter. If no such
-              parameter is provided, advance to the immediate next position. If
-              the <a>cursor</a> has reached the end of its <a>range</a>, then this
-              method returns false, otherwise it returns true.
+              This method returns immediately and advances the <a>cursor</a> to the next
+              position along its <a>direction</a> to the item whose key matches the
+              optional parameter. If no such parameter is provided, advance to the
+              immediate next postion. If the <a>cursor</a> has reached the end of its
+              <a>range</a>, then  the error for this object's request is set to code
+              <a><code>NOT_ALLOWED_ERR</code></a>.
               <dl class="parameters">
                 <dt>optional any key</dt>
                 <dd>The next key to position this <a>cursor</a> at</dd>
@@ -2469,77 +2493,40 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>void    delete()</dt>
             <dd>          
               <p>
-                Delete the object at the <a>cursor</a>'s <a>position</a>.
+                This method returns immediately and deletes the object at the 
+                <a>cursor</a>'s <a>position</a>.  If the underlying 
+                <a>index</a> or <a>object store</a> does not support updating the item 
+                because it is open in the <a><code>READ_ONLY</code></a> or 
+                <a><code>DETACHED_READ</code></a> <a>mode</a>, then the error for this
+                object's request is set to code <a><code>NOT_ALLOWED_ERR</code></a>.
               </p>
-              <dl class="exception" title="DatabaseException">
-                <dt>NOT_ALLOWED_ERR</dt>
-                <dd>The underlying <a>index</a> or <a>object store</a> does not
-                support updating the item because it is open in the 
-                <a><code>READ_ONLY</code></a> or <a><code>DETACHED_READ</code></a>
-                <a>mode</a>.</dd>
-              </dl>
             </dd>
           </dl>
           <dl class="idl" title="interface TransactionRequest : Transaction">
             <dt>readonly attribute DBRequest request</dt>
-            <dd> </dd>
+            <dd>The request associated with this object, which will be used to
+            relay the results of processing back to the caller</dd>
             <dt>void abort()</dt>
             <dd>
-              This method is used to signal the need to cancel the effects of
-              operations performed in this <a>transaction</a>. To perform
-              this method, the user agent ignores all the changes performed to the
-              <a>objects</a> of this <a>database</a> since the creation of this 
-              <a>transaction</a>.
-              <dl class="exception" title="DatabaseException">
-                <dt>NON_TRANSIENT_ERR</dt>
-                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
-              </dl>
+              This method returns immediately and undoes all the changes performed to 
+              the <a>objects</a> of this <a>database</a> since the creation of this 
+              <a>transaction</a>. If this <a>transaction</a> has already been committed
+              or aborted,  then the error for this object's request is set to code
+              <a><code>NON_TRANSIENT_ERR</code></a>.
             </dd>
             <dt>void commit()</dt>
             <dd>
-              This method is used to signal the normal and satisfactory completion
-              of a <a>transaction</a>. At this point, the user agent should durably
-              store all the changes performed to the <a>objects</a> of this 
-              <a>database</a> since the creation of this <a>transaction</a>.
-              <dl class="exception" title="DatabaseException">
-                <dt>RECOVERABLE_ERR</dt>
-                <dd>If this <a>transaction</a>'s <a>scope</a> is <a>dynamic</a>, and
-                the user agent cannot commit all the changes due to another 
-                <a>transaction</a>.
-                <dt>NON_TRANSIENT_ERR</dt>
-                <dd>If this <a>transaction</a> has already been committed or aborted.</dd>
-              </dl>
+              This method returns immediately and durably stores all the changes made
+              to the <a>objects</a> of this <a>database</a> since the creation of this
+              <a>transaction</a>. If this <a>transaction</a> has already been committed
+              or aborted,  then the error for this object's request is set to code
+              <a><code>NON_TRANSIENT_ERR</code></a>. If this <a>transaction</a>'s 
+              <a>scope</a> is <a>dynamic</a>, and the user agent cannot commit all the
+              changes due to conflicts with another <a>transaction</a>, then the error
+              for this object's request is set to code
+              <a><code>RECOVERABLE_ERR</code></a>.
             </dd>
           </dl>
-          <p>
-            <span>Queue a task</span> to fire an event with the name <code>success</code>,
-            with no namespace, which does not bubble, is not cancelable, and which uses the
-            <a><code>DatabaseEvent</code></a> interface
-            and <var>result</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
-          </p>
-            
-          <p>
-            The <dfn id="database-failure-steps">database failure steps</dfn> performed with an 
-            error code are as follows:
-          </p>
-        
-          <ol>
-            <li>
-              Create a <a><code>DatabaseError</code></a> object 
-              <var>error</var> where code is the error code passed to these steps and status is 0.
-            </li>
-            <li>
-              <span>Queue a task</span> to fire an event with the name <code>error</code>,
-              with no namespace, which does not bubble, is not cancelable, and which uses the
-              <a><code>DatabaseErrorEvent</code></a> interface
-              and <var>error</var> at each <code>Window</code> or <code>WorkerUtils</code> object.
-            </li>
-          </ol>
-                          
-          <p>
-            The <span>task source</span> for these tasks is the 
-            <dfn id="database-access-task-source">database access task source</dfn>.
-          </p>    
         </section>
                   
         <section class="section" id="event-handler">
@@ -2568,7 +2555,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </table>        
         </section>
         <section id="database-exception" class="section">
-          <h3><code>DatabaseError</code> Interface</h3>
+          <h3>The <code>DatabaseError</code> Interface</h3>
           <p>
             Errors in the asynchronous database API are reported using 
             callbacks that have a <a><code>DatabaseError</code></a> 
