@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Data Cache API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.10 2009-12-16 23:11:53 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.11 2009-12-16 23:37:39 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -882,15 +882,25 @@ req.send();</codeblock>
               </li>
               
               <li>
-                Atomically, so as to avoid race conditions, perform the following sub-steps
+                Atomically, so as to avoid race conditions, perform the following sub-steps:
                 <dl class="switch">
                   <dt>If <var>cookie name</var> is empty, then perform the following steps:</dt>
                   <dd>
                     <ol>
                       <li>
                         If there is an <a>unsecure data cache group</a> for
-                        <a>origin</a> <var>origin</var>, let <var>data cache group</var>
-                        be that existing <a>data cache group</a>.
+                        <a>origin</a> <var>origin</var>, then perform the 
+                        following sub-steps:
+                        <ol>
+                        	<li>
+                        		Let <var>data cache group</var> be that existing 
+                        		<a>data cache group</a>.
+                        	</li>
+                        	<li>
+                        		Let <var>data cache</var> be the the <a>relevant data cache</a>
+                        		in <var>data cache group</var>.
+                        	</li>
+                        </ol>
                       </li>
                       <li>
                         If <var>data cache group</var> does not exist, then perform the 
@@ -935,7 +945,8 @@ req.send();</codeblock>
                       <li>
                         If <var>data cache group</var> is defined and has an 
                         <a>authorization cookie</a> whose value doesn't match 
-                        <var>cookie</var>'s value then perform the following sub-steps:
+                        <var>cookie</var>'s value, or if <var>data cache group</var>
+                        is not defined, then perform the following sub-steps:
                         <ol>
                           <li>Mark <var>data cache group</var> <a>obsolete</a>.</li>
                           <li>
@@ -1200,7 +1211,7 @@ req.send();</codeblock>
                     
                     <li>
                       Otherwise, the <a title="fetch">fetching</a> succeeded. Store in <var>cache</var> a 
-                      <a>managed</a> resource comprising the resulting absolute URI, \
+                      <a>managed</a> resource comprising the resulting absolute URI,
                       its <a title="fetch">fetched</a> representation, and the list of 
                       <a>dynamic methods</a> passed to these steps. 
                     </li>
