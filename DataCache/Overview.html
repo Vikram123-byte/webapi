@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Data Cache API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.12 2009-12-16 23:54:21 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.13 2009-12-17 02:00:08 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -228,8 +228,8 @@
         <dl>
           <dt>HTML5</dt>
           <dd>The terms and algorithms 
-            <dfn id="event-handler-attributes">event handler attributes</dfn>, 
-            <dfn id="event-handler-event-type">event handler event type</dfn>,
+            <dfn title="event handler">event handlers</dfn>, 
+            <dfn>event handler event type</dfn>,
             <dfn>browsing context</dfn>, <dfn>current browsing context</dfn>,
             <dfn>child browsing contexts</dfn>, <dfn title="fetch">fetching resources</dfn>,
             <dfn title="Function"><code>Function</code></dfn>, <dfn>origin</dfn>, 
@@ -866,17 +866,17 @@ req.send();</codeblock>
                 Pick the appropriate sub-steps:
                 <dl class="switch">
                   <dt>If the <a>cache host</a> passed to these steps is a
-                  <code>Window</code> object</dt> 
+                  <code>Document</code> object</dt> 
                   <dd>
                     Let <var>origin</var> be the <a>origin</a> of the
-                    <a>active document</a> of the <a>browsing context</a>
-                    of that <code>Window</code> object.
+                    <a>cache host</a> passed to these steps.
                   </dd>
                   
-                  <dt>If the <a>cache host</a>
-                  passed to these steps is a <code>WorkerUtils</code> object</dt>
+                  <dt>If the <a>cache host</a> passed to these steps is a 
+                  <code>WorkerGlobalScope</code> object</dt>
                   <dd>  
-                    Let <var>origin</var> be the <a>origin</a> of the scripts in the worker.
+                    Let <var>origin</var> be the <a>origin</a> of the scripts in the 
+                    worker for the <a>cache host</a> passed to these steps.
                   </dd>
                 </dl>
               </li>
@@ -1011,11 +1011,11 @@ req.send();</codeblock>
                       <var>incomplete</var>.
                     </li>
                     <li>
-                      Mark <var>transaction</var> as <a>off-line transaction</a>.
-                    </li>
-                    <li>
                       Create a new <a>cache transaction</a> called <var>transaction</var> and
                       set <var>data cache</var> to be its <a>data cache</a>.
+                    </li>
+                    <li>
+                      Mark <var>transaction</var> as <a>off-line transaction</a>.
                     </li>
                     <li>
                       For each <a>cache host</a> associated with a <a>data cache</a> in 
@@ -1059,11 +1059,11 @@ req.send();</codeblock>
                       <var>incomplete</var>.
                     </li>
                     <li>
-                      Mark <var>transaction</var> as not <a title="off-line transaction">off-line</a>.
-                    </li>
-                    <li>
                       Create a new <a>cache transaction</a> called <var>transaction</var> and
                       set <var>data cache</var> to be its <a>data cache</a>.
+                    </li>
+                    <li>
+                      Mark <var>transaction</var> as not <a title="off-line transaction">off-line</a>.
                     </li>
                     <li>
                       For each <a>cache host</a> associated with a
@@ -1113,18 +1113,18 @@ req.send();</codeblock>
               <li>
                 Pick the appropriate sub-steps:
                 <dl class="switch">
-                  <dt>If the <a>cache host</a> 
-                  passed to these steps is a <code>Window</code> object</dt> 
+                   <dt>If the <a>cache host</a> passed to these steps is a
+                  <code>Document</code> object</dt> 
                   <dd>
-                    Let <var>base URI</var> be the location 
-                    of the <a>active document</a> of the <a>browsing context</a> 
-                    of that <code>Window</code> object.
+                    Let <var>origin</var> be the <a>origin</a> of the
+                    <a>cache host</a> passed to these steps.
                   </dd>
                   
                   <dt>If the <a>cache host</a> passed to these steps is a 
-                  <code>WorkerUtils</code> object</dt>
+                  <code>WorkerGlobalScope</code> object</dt>
                   <dd>  
-                    Let <var>base URI</var> be the location of the worker.
+                    Let <var>origin</var> be the <a>origin</a> of the scripts in the 
+                    worker for the <a>cache host</a> passed to these steps.
                   </dd>
                 </dl>
               </li>
@@ -1345,18 +1345,18 @@ req.send();</codeblock>
               <li>
                 Pick the appropriate sub-steps:
                 <dl class="switch">
-                  <dt>If the <a>cache host</a> 
-                  passed to these steps is a <code>Window</code> object</dt> 
+                  <dt>If the <a>cache host</a> passed to these steps is a
+                  <code>Document</code> object</dt> 
                   <dd>
-                    Let <var>base URI</var> be the location 
-                    of the <a>active document</a> of the <a>browsing
-                    context</a> of that <code>Window</code> object.
+                    Let <var>origin</var> be the <a>origin</a> of the
+                    <a>cache host</a> passed to these steps.
                   </dd>
                   
-                  <dt>If the <a>cache host</a>
-                  passed to these steps is a <code>WorkerUtils</code> object</dt>
+                  <dt>If the <a>cache host</a> passed to these steps is a 
+                  <code>WorkerGlobalScope</code> object</dt>
                   <dd>  
-                    Let <va>base URI</var> be the location of the worker.
+                    Let <var>origin</var> be the <a>origin</a> of the scripts in the 
+                    worker for the <a>cache host</a> passed to these steps.
                   </dd>
                 </dl>
               </li>
@@ -1455,7 +1455,7 @@ req.send();</codeblock>
                     Set the <var>cache</var>'s <a>completeness flag</a> to 
                     <var>complete</var>.
                   </li>                    
-                  <li>Obtain the <a>storage mutex</a></li>.
+                  <li>Obtain the <a>storage mutex</a>.</li>
                   <li>
                     If the host sets cookies in response to such a request, 
                     the user agent should update its cookie store accordingly. 
@@ -1495,10 +1495,8 @@ req.send();</codeblock>
               </li>
               <li>
                 For each <a>cache host</a> associated with a
-                <a>data cache</a> in <var>cache group</var>, except for the
-                <a>cache host</a> passed to 
-                these steps, <a>queue a task</a> to fire an event
-                at the <a>cache host</a> with
+                <a>data cache</a> in <var>cache group</var>, <a>queue a task</a> 
+                to fire an event at the <a>cache host</a> with
                 the name <code><a href="#event-ready">ready</a></code>,
                 which does not bubble, is not cancelable, and which uses the
                 <a><code>CacheEvent</code></a> 
@@ -1632,7 +1630,8 @@ req.send();</codeblock>
               <dd>
                 (In a window) Returns a <a><code>DataCache</code></a> object 
                 that represents the <a>data cache</a> obtained from the steps to 
-                <a>open a data cache</a> using <code>window</code> as the 
+                <a>open a data cache</a> using <a>active document</a> of the 
+                <a>browsing context</a> of <a><code>window</code></a> as the 
                 <a>cache host</a> and <var>cookieName</var> as the name of an
                 <a>authorization cookie</a>.
                 <dl class="parameters">
@@ -1649,7 +1648,7 @@ req.send();</codeblock>
               <dd>
                 (In a shared worker) Returns a <a><code>DataCacheSync</code></a> object 
                 that represents the <a>data cache</a> obtained from the steps to
-                <a>open a data cache</a> using <code>worker</code> 
+                <a>open a data cache</a> using <a><code>WorkerGlobalScope</code></a>
                 as the <a>cache host</a> and <var>cookieName</var>
                 as the name of an <a>authorization cookie</a>.
                <dl class="parameters">
@@ -1902,6 +1901,38 @@ req.send();</codeblock>
                   </li>
                 </ol>
               </dd>
+              <dt>attribute Function onOfflineUpdating</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-off-line-updating">off-line-updating</a></code>
+              event</dd>
+              <dt>attribute Function onUpdating</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-updating">updating</a></code>
+              event</dd>
+              <dt>attribute Function onFetching</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-fetching">fetching</a></code>
+              event</dd>
+              <dt>attribute Function onCaptured</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-captured">captured</a></code>
+              event</dd>
+              <dt>attribute Function onReleased</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-released">released</a></code>
+              event</dd>
+              <dt>attribute Function onReady</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-ready">ready</a></code>
+              event</dd>
+              <dt>attribute Function onObsolete</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-obsolete">obsolete</a></code>
+              event</dd>
+              <dt>attribute Function onError</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-error">error</a></code>
+              event</dd>
             </dl> 
 
             <dl class="idl" title="[Callback=FunctionOnly, NoInterfaceObject] interface TransactionCallback">
@@ -1984,8 +2015,10 @@ req.send();</codeblock>
               <dd>
                 When called, this method must immediately return and asynchronously
                 perform the steps to <a>add a resource to be released</a>
-                with the first argument being <var>uri</var>, second being the current
-                <code>window</code> or <code>worker</code> object,
+                with the first argument being <var>uri</var>, second being the
+                <a>active document</a> of the <a>browsing context</a> of the
+                <code>window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>worker</code>,
                 and the third being this <a><code>CacheTransaction</code></a> 
                 object's associated <a>cache transaction</a>.
                 <dl class="parameters">
@@ -2035,8 +2068,10 @@ req.send();</codeblock>
                 method must immediately return and asynchronously perform the steps 
                 in the <a href="#cache-resource-capture" class="dfnref">resource
                 capturing process</a> with the first argument being <var>uri</var>,
-                second being the current <code>window</code> or <code>worker</code> object,
-                the third being this <a><code>CacheTransaction</code></a> object's associated 
+                second being the <a>active document</a> of the <a>browsing context</a> of the
+                <code>window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>worker</code>, the third being this 
+                <a><code>CacheTransaction</code></a> object's associated 
                 <a>cache transaction</a>,
                 the fourth being <var>dynamic methods</var>.
                 <dl class="parameters">
@@ -2066,7 +2101,9 @@ req.send();</codeblock>
               <dd> When called, this
                 method must immediately return and asynchronously perform the steps 
                 to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
-                second being the current <code>window</code> or <code>worker</code> object,
+                second being the <a>active document</a> of the <a>browsing context</a> of the
+                <code>window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>worker</code>,
                 the third being this <a><code>CacheTransaction</code></a> object's 
                 associated <a>cache transaction</a>, the fourth being 
                 <var>dynamic methods</var>, the fifth being <var>entity body</var>, 
@@ -2219,6 +2256,53 @@ req.send();</codeblock>
                 </dl>
               </dd>
             </dl>
+						<p>
+							The following are the <a>event handler</a>s (and their corresponding 
+							<a>event handler event type</a>s) that must be supported, as IDL
+							attributes, by objects implementing the <a><code>DataCache</code></a> interface:
+						</p>
+						
+						<table>
+							<thead><tr>
+								<th><a title="event handler">Event handler</a> </th>
+								<th><a title="event handler event type">Event handler event type</a></th>
+							</tr></thead>
+							<tbody>
+								<tr>
+									<td><dfn><code>onOfflineUpdating</code></dfn> </td>
+									<td><code><a href="#event-off-line-updating">off-line-updating</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onUpdating</code></dfn> </td>
+									<td><code><a href="#event-updating">updating</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onFetching</code></dfn> </td>
+									<td><code><a href="#event-fetching">fetching</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onCaptured</code></dfn> </td>
+									<td><code><a href="#event-captured">captured</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onReleased</code></dfn> </td>
+									<td><code><a href="#event-released">released</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onready</code></dfn> </td>
+									<td><code><a href="#event-ready">ready</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onObsolete</code></dfn> </td>
+									<td><code><a href="#event-obsolete">obsolete</a></code></td>
+								</tr>
+								<tr>
+									<td><dfn><code>onerror</code></dfn> </td>
+									<td><code><a href="#event-error">error</a></code></td>
+								</tr>
+							</tbody>
+						</table>        
+            
           </section>
         </section>
   
@@ -2362,8 +2446,7 @@ req.send();</codeblock>
               <dt>readonly attribute any headers</dt>
               <dd>
                 This attribute, on getting, must return the headers as a native ordered
-                dictionary data type from this 
-                <a><code>HttpRequest</code></a> object. 
+                dictionary data type from this <a><code>HttpRequest</code></a> object. 
                 In the JavaScript binding, this must be 
                 <code>Object</code>. Each header must have one property (or dictionary
                 entry), with those properties enumerating in the order that the headers
