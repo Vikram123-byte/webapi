@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Data Cache API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.15 2009-12-17 02:19:06 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.16 2009-12-17 02:29:51 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -1230,7 +1230,7 @@ req.send();</codeblock>
                 </dd>
                 <dt>
                   If <var>transaction</var> is marked as
-                  <a title="transaction-off-line">off-line</a>.
+                  <a title="off-line transaction">off-line</a>.
                 </dt>
                 <dd>
                   <ol>
@@ -1466,20 +1466,8 @@ req.send();</codeblock>
                 Pick the appropriate sub-steps:
                 <dl class="switch">
                   <dt>
-                    If <var>transaction</var> is not marked as
-                    <a href="#transaction-off-line" class="dfnref">off-line</a>,
-                  </dt>
-                  <dd>
-                    <ol>  
-                      <li>
-                        Set the <a>update status</a> of <var>cache group</var> 
-                        to <var>idle</var>.
-                      </li>
-                    </ol>
-                  </dd>
-                  <dt>
                     If <var>transaction</var> is marked as
-                    <a href="#transaction-off-line" class="dfnref">off-line</a>
+                    <a title="off-line transaction" class="dfnref">off-line</a>, then
                   </dt>
                   <dd>
                     <ol>  
@@ -1487,6 +1475,18 @@ req.send();</codeblock>
                         Make <var>cache</var> the <a>effective data cache</a> for 
                         <var>cache group</var> to the <a>cache host</a>
                         passed to these steps.
+                      </li>
+                    </ol>
+                  </dd>
+                  <dt>
+                    If <var>transaction</var> is not marked as
+                    <a title="off-line transaction" class="dfnref">off-line</a>, then
+                  </dt>
+                  <dd>
+                    <ol>  
+                      <li>
+                        Set the <a>update status</a> of <var>cache group</var> 
+                        to <var>idle</var>.
                       </li>
                     </ol>
                   </dd>
@@ -1777,8 +1777,8 @@ req.send();</codeblock>
                 perform the following steps:
                 <ol>
                   <li>
-                    Execute the steps to <a class="dfnref" href="#cache-transaction-create">
-                    create a cache transaction</a> with the first argument being the
+                    Execute the steps to <a>create a cache transaction</a> with the 
+                    first argument being the	
                     <a>data cache group</a> of this <a><code>DataCache</code></a> 
                     object and the second argument being <code>true</code>.
                   </li>
@@ -1962,9 +1962,9 @@ req.send();</codeblock>
               </p>
               <ol>
                 <li>
-                  Execute the steps to <a class="dfnref" href="#cache-transaction-create">
-                  create a cache transaction</a> with the first argument being the
-                  <a>data cache group</a> of this <a><code>DataCache</code></a> 
+                  Execute the steps to <a>create a cache transaction</a> with the
+                  first argument being the <a>data cache group</a> of this 
+                  <a><code>DataCache</code></a> 
                   object and the second argument being false.
                 </li>
                 <li>
@@ -2069,8 +2069,7 @@ req.send();</codeblock>
               <dd>
                 When called, this
                 method must immediately return and asynchronously perform the steps 
-                in the <a href="#cache-resource-capture" class="dfnref">resource
-                capturing process</a> with the first argument being <var>uri</var>,
+                to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
                 second being the <a>active document</a> of the <a>browsing context</a> of the
                 <code>window</code> or <code>WorkerGlobalScope</code> object of the
                 <code>worker</code>, the third being this 
