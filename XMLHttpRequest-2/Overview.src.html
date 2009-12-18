@@ -30,6 +30,7 @@
   <div class="head">
    <p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
 
+   
    <h1 class="head" id="xmlhttprequest-level-2">XMLHttpRequest Level 2</h1>
 
    <h2 class="no-num no-toc" id="w3c-doctype">[LONGSTATUS] [DATE: 3 August 2002]</h2>
@@ -44,10 +45,13 @@
     <dt>Latest Editor Version:</dt>
     <dd><a href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/">http://dev.w3.org/2006/webapi/XMLHttpRequest-2/</a></dd>
 
-    <dt>Previous Version:</dt>
+    <dt>Previous Versions:</dt>
+    
+    
     <dd><a href="http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/">http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/</a></dd>
     <dd><a href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080930/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080930/</a></dd>
     <dd><a href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/</a></dd>
+    
 
     <dt>Editor:</dt>
     <dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a>
@@ -72,12 +76,13 @@
 
   <h2 class="no-num no-toc" id="specabstract">Abstract</h2>
 
+  
   <p>The XMLHttpRequest Level 2 specification enhances the
   <code title="">XMLHttpRequest</code> object with new features, such as
   cross-origin requests, progress events, and the handling of byte streams
   for both sending and receiving.</p>
-
-
+  
+  
 
   <h2 class="no-num no-toc" id="sotd">Status of this Document</h2>
 
@@ -87,17 +92,11 @@
   found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a>
   at http://www.w3.org/TR/.</em></p>
 
-  <p>This is the [DATE: 3 August 2002] Working Draft of
+  <p>This is the [DATE: 3 August 2002] <!--Last Call Working Draft-->[LONGSTATUS] of
   XMLHttpRequest Level 2. Please send comments to
   <a href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
   (<a href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
   with <samp>[XHR2]</samp> at the start of the subject line.</p>
-
-  <p class="XXX">In case of conflict with the editor's draft of
-  <a href="http://dev.w3.org/2006/webapi/XMLHttpRequest/">XMLHttpRequest</a>
-  that draft is likely to be more accurate. Please raise such differences on the
-  <a href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
-  mailing list taking into account that this draft defines a superset.</p>
 
   <p>This document is produced by the
   <a href="http://www.w3.org/2008/webapps/">Web Applications</a> (WebApps) Working Group.
@@ -132,7 +131,73 @@
 
   <h2 id="introduction">Introduction</h2>
 
-  <p class="XXX">To be written.</p>
+  <p><em>This section is non-normative.</em></p>
+
+  <p>The <code>XMLHttpRequest</code> object implements an interface exposed
+  by a scripting engine that allows scripts to perform HTTP client
+  functionality, such as submitting form data or loading data from a
+  server. It is the ECMAScript HTTP API.</p>
+
+  <p>The name of the object is <code>XMLHttpRequest</code> for compatibility
+  with the Web, though each component of this name is potentially
+  misleading. First, the object supports any text based format, including
+  XML. Second, it can be used to make requests over both HTTP and HTTPS
+  (some implementations support protocols in addition to HTTP and HTTPS, but
+  that functionality is not covered by this specification). Finally, it
+  supports "requests" in a broad sense of the term as it pertains to HTTP;
+  namely all activity involved with HTTP requests or responses for the
+  defined HTTP methods.</p>
+
+  <div class="example">
+   <p>Some simple code to do something with data from an XML document fetched
+   over the network:</p>
+
+   <pre><code>function test(data) {
+ // taking care of data
+}
+
+function handler() {
+ if(this.readyState == 4 &amp;&amp; this.status == 200) {
+  // so far so good
+  if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').firstChild.data)
+     // success!
+   test(this.responseXML.getElementById('test').firstChild.data);
+  else
+   test(null);
+ } else if (this.readyState == 4 &amp;&amp; this.status != 200) {
+  // fetched the wrong page or network error...
+  test(null);
+ }
+}
+
+var client = new XMLHttpRequest();
+client.onreadystatechange = handler;
+client.open("GET", "test.xml");
+client.send();</code></pre>
+
+   <p>If you just want to log a message to the server:</p>
+
+   <pre><code>function log(message) {
+ var client = new XMLHttpRequest();
+ client.open("POST", "/log");
+ client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+ client.send(message);
+}</code></pre>
+
+   <p>Or if you want to check the status of a document on the server:</p>
+
+   <pre><code>function fetchStatus(address) {
+ var client = new XMLHttpRequest();
+ client.onreadystatechange = function() {
+  // in case of network errors this might not give reliable results
+  if(this.readyState == 4)
+   returnStatus(this.status);
+ }
+ client.open("HEAD", address);
+ client.send();
+}</code></pre>
+  </div>
+
 
 
 
@@ -155,13 +220,17 @@
     <p>A user agent <em class="ct">must</em> behave as described in this
     specification in order to be considered conformant.</p>
 
-    <p>User agents <em class="ct">may</em> optimize any algorithm given in
-    this specification, so long as the end result is indistinguishable from
-    the result that would be obtained by the specification's algorithms.</p>
+    
+
+    <p>User agents <em class="ct">may</em> implement algorithms given in
+    this specification in any way desired, so long as the end result is
+    indistinguishable from the result that would be obtained by the
+    specification's algorithms.</p>
 
     <p class="note">This specification uses both the terms "conforming user
     agent(s)" and "user agent(s)" to refer to this product class.</p>
    </dd>
+   
   </dl>
 
   <h3 id="dependencies">Dependencies</h3>
@@ -169,19 +238,21 @@
   <p>This specification relies on several underlying specifications.</p>
 
   <dl>
+   
    <dt>Cross-Origin Resource Sharing</dt>
 
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
    <em class="ct">must</em> support the algorithms of the
    Cross-Origin Resource Sharing specification.
    [<cite><span>CORS</span></cite>]</p></dd>
+   
 
-   <dt>Document Object Model</dt>
+   <dt>DOM</dt>
 
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
    <em class="ct">must</em> support at least the subset of the functionality
    defined in DOM Events and DOM Core that this specification relies upon,
-   such as various exceptions <code>EventTarget</code>.
+   such as various exceptions and <code>EventTarget</code>.
    [<cite><span>DOM2Events</span></cite>]
    [<cite><span>DOM3Core</span></cite>]</p></dd>
 
@@ -190,9 +261,9 @@
    <dd>
     <p>A <span>conforming user agent</span> <em class="ct">must</em> support
     at least the subset of the functionality defined in HTML&nbsp;5 that
-    this specification relies upon, such as the <code>Window</code> object
-    and serializing a <code>Document</code> object.
-    [<cite><span>HTML5</span></cite>]</p>
+    this specification relies upon, such as the basics of the
+    <code>Window</code> object and serializing a <code>Document</code>
+    object. [<cite><span>HTML5</span></cite>]</p>
 
     <p class="note">The
     <a href="http://www.w3.org/TR/2006/WD-Window-20060407/">Window Object
@@ -216,12 +287,14 @@
    specification, as described in the Web IDL specification.
    [<cite><span>WebIDL</span></cite>]
 
+   
    <dt>XML</dt>
 
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
    <em class="ct">must</em> be a conforming XML processor that reports
    violations of namespace well-formedness.
    [<cite><span>XML</span></cite>]</p></dd>
+   
   </dl>
 
 
@@ -249,15 +322,17 @@
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
   
+  
   <p>The <dfn id="blob"><code>Blob</code></dfn> and
   <dfn id="file"><code>File</code></dfn> interfaces are defined by the
   File API specification. [<cite><span>FileAPI</span></cite>]</p>
+  
 
   <p>The terms and algorithms
   <dfn id="url-fragment">&lt;fragment></dfn>,
   <dfn id="url-scheme">&lt;scheme></dfn>,
   <dfn id="document-base-url">document base URL</dfn>,
-  <dfn id="document's-character-encoding">document's character encoding</dfn>,
+  <dfn id="document-character-encoding">document's character encoding</dfn>,
   <dfn id="event-handler-attributes-0">event handler attributes</dfn>,
   <dfn id="event-handler-event-type">event handler event type</dfn>,
   <dfn id="fully-active">fully active</dfn>,
@@ -287,10 +362,12 @@
   <p><dfn><code>userinfo</code></dfn> is used as described in section 3.2.1
   of RFC 3986. [<cite><span>RFC3986</span></cite>]</p>
 
+  
   <p>The terms <dfn id="cross-origin-request">cross-origin request</dfn> and
   <dfn id="cross-origin-request-status">cross-origin request status </dfn>
   are defined by the Cross-Origin Resource Sharing specification.
   [<cite><span>CORS</span></cite>]
+  
 
   <p>To <dfn id="dispatch-readystatechange-event">dispatch a
   <code>readystatechange</code> event</dfn> means that an event with the
@@ -298,11 +375,12 @@
   cancelable, and which uses the <code>Event</code> interface, is to be
   dispatched at the <code>XMLHttpRequest</code> object.</p>
 
+  
   <p class="XXX">To
   <dfn id="dispatch-progress-event" title="dispatch a progress event">dispatch
   a progress event called <var>e</var></dfn> means&hellip;
   [<cite><span>PE</span></cite>]</p>
-
+  
 
   <h3 id="extensibility">Extensibility</h3>
 
@@ -347,10 +425,10 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   readonly attribute unsigned short <span>readyState</span>;
 
   // <a href="#request">request</a>
-  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>);
-  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>);
-  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>, DOMString? <var>user</var>);
-  void <span>open</span>(DOMString <var>method</var>, DOMString <var>url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>);
+  void <span>open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
   void <span>setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);
            attribute unsigned long <span>timeout</span>;
            attribute boolean <span>withCredentials</span>;
@@ -385,7 +463,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
   <p>This specification defines their values when the global object is
   represented by the <code>Window</code> object. When the
-  <code>XMLHttpRequest</code> object used in other contexts their values
+  <code>XMLHttpRequest</code> object is used in other contexts their values
   will have to be defined as appropriate for that context. That is
   considered to be out of scope for this specification.</p>
 
@@ -403,10 +481,6 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   <span><code>XMLHttpRequest</code> <code>Document</code></span> is used to
   determine the <span><code>XMLHttpRequest</code> origin</span> and
   <span><code>XMLHttpRequest</code> base URL</span> at a later stage.</p>
-
-  <!-- XXX what happens if the document is not fully active?
-           e.g. should the constructor throw?
-  -->
 
 
   <h3>Task Sources</h3>
@@ -434,12 +508,13 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
   <p>When the
   <dfn id="dom-xmlhttprequest" title="dom-XMLHttpRequest"><code title="">XMLHttpRequest()</code></dfn>
-  constructor is invoked a new <code>XMLHttpRequest</code> object
-  <em class="ct">must</em> be returned.</p>
+  constructor is invoked, the user agent <em class="ct">must</em> return a
+  new <code>XMLHttpRequest</code> object.</p>
 
 
   <h3 id="event-handler-attributes">Event Handler Attributes</h3>
 
+  
   <p>The following are the
   <span>event handler attributes</span> (and their corresponding
   <span title="event handler event type">event handler event types</span>)
@@ -475,6 +550,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
      <td><dfn id="onloadend"><code>onloadend</code></dfn>
      <td><code>loadend</code>
   </table>
+  
 
   <p>The following is the
   <span title="event handler attributes">event handler attribute</span> (and
@@ -520,7 +596,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <dt><dfn id="loading-state" title="LOADING state"><code>LOADING</code></dfn>
    (numeric value 3)</dt>
-   <dd><p>The response entity body is being received.</p></dd>
+   <dd><p>The <span>response entity body</span> is being received.</p></dd>
 
    <dt><dfn id="done-state" title="DONE state"><code>DONE</code></dfn>
    (numeric value 4)</dt>
@@ -570,6 +646,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <dt>The <dfn>request entity body</dfn></dt>
    <dd>The <span>entity body</span> used in the request.</dd>
    
+   
    <dt>The <dfn>request timeout</dfn></dt>
    <dd>The amount of milliseconds a request can take before being
    terminated. By default this is 0 and has no observable effect.</dd>
@@ -586,16 +663,19 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <dt>The <dfn id="upload-events-flag">upload events flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events for
    cross-origin requests. The flag is either true or false.</dd>
+   
   </dl>
 
+  
   <p>The <code>XMLHttpRequest</code> object also has an associated
   <code>XMLHttpRequestUpload</code> object.</p>
+  
 
 
   <h4>The <code title="">open()</code> method</h4>
 
   <p>When the <dfn id="open" title="open"><code>open(<var>method</var>,
-  <var>url</var>, <var>async</var>, <var>user</var>,
+  <var title="">url</var>, <var>async</var>, <var>user</var>,
   <var>password</var>)</code></dfn> method is invoked, the user agent
   <em class="ct">must</em> run these steps (unless otherwise indicated):</p>
 
@@ -681,11 +761,14 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <li><p>If <var title="">url</var> just contains the <code>"user"</code>
    format let <var>temp user</var> be the user part.</p></li>
 
+   
+   
    <li class="note"><p>The previous level of this specification raised a
    <code>SECURITY_ERR</code> at this place in case of a non
    <span>same origin</span> <var>stored url</var>. This specification
    supports non <span>same origin</span> requests and therefore this
    exception is no longer raised.</p></li>
+   
 
    <li><p>Let <var>async</var> be the value of the <var>async</var> argument
    or <code>true</code> if it was omitted.</p></li>
@@ -765,6 +848,8 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
   </ol>
+  
+  
 
 
   <h4>The <code title="">setRequestHeader()</code> method</h4>
@@ -783,9 +868,11 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   value if the HTTP header given as argument is already part of the
   <span>author request headers</span> list.</p>
 
+  
   <p class="note">For non <span>same origin</span> requests using the HTTP
   <code>GET</code> method a preflight request is made when headers other
   than <code>Accept</code> and <code>Accept-Language</code> are set.</p>
+  
 
   <p>When the
   <dfn id="setrequestheader" title="setrequestheader"><code>setRequestHeader(<var>header</var>,
@@ -823,8 +910,8 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
     <ul>
      <li><code>Accept-Charset</code></li>
      <li><code>Accept-Encoding</code></li>
-     <li><code>Access-Control-Request-Headers</code></li> <!-- new in xhr2 -->
-     <li><code>Access-Control-Request-Method</code></li> <!-- new in xhr2 -->
+     <li><code>Access-Control-Request-Headers</code></li>
+     <li><code>Access-Control-Request-Method</code></li>
      <li><code>Connection</code></li>
      <li><code>Content-Length</code></li>
      <li><code>Cookie</code></li>
@@ -834,7 +921,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
      <li><code>Expect</code></li>
      <li><code>Host</code></li>
      <li><code>Keep-Alive</code></li>
-     <li><code title="">Origin</code></li> <!-- new in xhr2 -->
+     <li><code title="">Origin</code></li>
      <li><code>Referer</code></li>
      <li><code>TE</code></li>
      <li><code>Trailer</code></li>
@@ -946,6 +1033,7 @@ X-Test: one, two
   <p>The <dfn id="upload"><code>upload</code></dfn> attribute, on getting,
   <em class="ct">must</em> return the associated
   <code>XMLHttpRequestUpload</code> object.</p>
+  
 
 
   <h4>The <code title="">send()</code> method</h4>
@@ -966,8 +1054,8 @@ X-Test: one, two
   finishing the step it is on.</p>
 
   <p class="note">The <code title="">send()</code> algorithm can only be
-  aborted when <var>async</var> is <code>true</code> (i.e., the request is
-  done asynchronously) and only after the method call has returned.</p>
+  aborted when the <span>asynchronous flag</span> is true and only after the
+  method call has returned.</p>
 
   <ol>
    <li><p>If the state is not <span title="OPENED state">OPENED</span> raise
@@ -990,6 +1078,7 @@ X-Test: one, two
     null, and then follow these rules:</p>
 
     <dl class="switch">
+     
      <dt>If <var>data</var> is a <code>Blob</code></dt>
 
      <dd>
@@ -1000,6 +1089,7 @@ X-Test: one, two
       <p>Let the <span>request entity body</span> be the raw data
       represented by <var>data</var>.</p>
      </dd>
+     
      
      <dt>If <var>data</var> is a <code>Document</code>
 
@@ -1039,6 +1129,7 @@ X-Test: one, two
       and encoded as UTF-8.</p>
      </dd>
 
+     
      <dt>If <var>data</var> is a <code>FormData</code></dt>
      
      <dd>
@@ -1050,6 +1141,7 @@ X-Test: one, two
       
       <!-- XXX sufficient? prolly not -->
      </dd>
+     
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using
@@ -1072,17 +1164,21 @@ X-Test: one, two
    <li><p>If the <span>asynchronous flag</span> is false release the
    <span>storage mutex</span>.</p></li>
 
+   
    <li><p>If the <span>asynchronous flag</span> is true and one or more
    event listeners are registered on the <code>XMLHttpRequestUpload</code>
    object set the <span>upload events flag</span> to true. Otherwise, set
    the <span>upload events flag</span> to false.</p></li>
+   
 
    <li><p>Set the <span>error flag</span> to false.</p></li>
 
+   
    <li><p>Set the <span>upload complete flag</span> to true if there is no
    <span>request entity body</span> or if the
    <span>request entity body</span> is empty. Otherwise, set the
    <span>upload complete flag</span> to false.</p></li>
+   
 
    <li>
     <p>If the <span>asynchronous flag</span> is true run these substeps:</p>
@@ -1097,11 +1193,13 @@ X-Test: one, two
       historical reasons.</p>
      </li>
 
+     
      <li><p><span>Dispatch a progress event</span> called <code>loadstart</code>.</p></li>
 
      <li><p>If the <span>upload complete flag</span> is false
      <span>dispatch a progress event</span> called <code>loadstart</code>
      on the <code>XMLHttpRequestUpload</code> object.</p></li>
+     
 
      <li><p>Return the <code>send()</code> method call, but continue running
      the steps in this algorithm.</p></li>
@@ -1109,12 +1207,14 @@ X-Test: one, two
    </li>
 
    <li>
+    
     <dl class="switch">
      <dt>If the <span><code>XMLHttpRequest</code> origin</span> and the
      <span>request URL</span> are <span>same origin</span></dt>
 
      <dd>
       <p>These are the <dfn>same-origin request steps</dfn>.</p>
+    
 
       <p>Make a request to <span>request URL</span>, using HTTP method
       <span>request method</span>, user <span>request username</span> (if
@@ -1156,6 +1256,7 @@ X-Test: one, two
         <span>task source</span>.</p>
        </dd>
       </dl>
+    
      </dd>
 
      <dt>Otherwise</dt>
@@ -1228,6 +1329,7 @@ X-Test: one, two
       </dl>
      </dd>
     </dl>
+    
    </li>
   </ol>
 
@@ -1246,7 +1348,7 @@ X-Test: one, two
   to be part of the protection space that includes the accessed URIs and
   send <code>Authorization</code> headers and handle
   <code>401 Unauthorized</code> requests appropriately. If authentication
-  fails, and <span>request username</var> and <span>request password</span>
+  fails, and <span>request username</span> and <span>request password</span>
   are both null, user agents <em class="ct">should</em> prompt the end user
   for credentials. If authentication fails, and
   <span>request username</span> and <span>request password</span> are
@@ -1255,7 +1357,7 @@ X-Test: one, two
 
   <p class="note">End users are not prompted if credentials are provided
   through the <code>open()</code> API so that authors can implement their
-  own user interface. They are also not prompted for cross-site
+  own user interface. They are also not prompted for non same-origin
   requests.</p>
 
   <p>If the user agent supports HTTP State Management it
@@ -1270,18 +1372,17 @@ X-Test: one, two
   no-cache</code> bypasses the cache). It <em class="ct">must not</em> send
   <code>Cache-Control</code> or <code>Pragma</code> request headers
   automatically unless the end user explicitly requests such behavior
-  (<abbr>e.g.</abbr>, by (force-)reloading the page).</p>
+  (e.g. by (force-)reloading the page).</p>
 
-  <p>For <code>304 Not
-  Modified</code> responses that are a result of a user agent generated
-  conditional request the user agent <em class="ct">must</em> act as if the
-  server gave a <code>200 OK</code> response with the appropriate content.
-  The user agent <em class="ct">must</em> allow
-  <code>setRequestHeader()</code> to override automatic cache
-  validation by setting request headers (e.g., <code>If-None-Match</code>,
-  <code>If-Modified-Since</code>), in which case <code>304 Not
-  Modified</code> responses <em class="ct">must</em> be passed through.
-  [<cite><span>RFC2616</span></cite>]</p>
+  <p>For <code>304 Not Modified</code> responses that are a result of a
+  user agent generated conditional request the user agent
+  <em class="ct">must</em> act as if the server gave a <code>200 OK</code>
+  response with the appropriate content. The user agent
+  <em class="ct">must</em> allow <code>setRequestHeader()</code> to
+  override automatic cache validation by setting request headers (e.g.
+  <code>If-None-Match</code> or <code>If-Modified-Since</code>), in which
+  case <code>304 Not Modified</code> responses <em class="ct">must</em> be
+  passed through. [<cite><span>RFC2616</span></cite>]</p>
 
   <p>If the user agent implements server-driven content-negotiation
   it <em class="ct">should</em> set <code>Accept-Encoding</code> and
@@ -1335,6 +1436,8 @@ X-Test: one, two
   <dl class="switch">
    <dt>If the response is an HTTP redirect</dt>
    <dd>
+    
+    
     <p>If the redirect violates security or infinite loop precautions or
     the scheme is not supported this is a <span>network error</span>.</p>
 
@@ -1352,6 +1455,7 @@ X-Test: one, two
      <li><p>Otherwise, follow the <span>cross-origin request steps</span>
      and terminate the steps for this algorithm.</p></li>
     </ol>
+    
 
     <p class="note">HTTP places requirements on the user agent regarding the
     preservation of the <span>request method</span> and
@@ -1372,11 +1476,13 @@ X-Test: one, two
     <p class="note">This does not include HTTP responses that indicate
     some type of error, such as HTTP status code 410.</p>
    </dd>
+
    
    <dt>If <span>request timeout</span> is not 0 and since the request
    started the amount of milliseconds specified by
    <span>request timeout</span> has passed</dt>
    <dd><p>This is a <span>timeout error</span>.</p></dd>
+   
 
    <dt>Once all HTTP headers have been received and the
    <span>asynchronous flag</span> is true</dt>
@@ -1397,6 +1503,7 @@ X-Test: one, two
    <dd><p><span>Switch to the DONE state</span>.</p></dd>
   </dl>
 
+  
   <hr>
 
   <p>The <dfn>cross-origin request event rules</dfn> are as follows:</p>
@@ -1445,6 +1552,7 @@ X-Test: one, two
    <span title="LOADING state">LOADING</span></dt>
    <dd><p><span>Switch to the DONE state</span>.</p></dd>   
   </dl>
+  
 
   <hr>
 
@@ -1457,10 +1565,12 @@ X-Test: one, two
   <code>ABORT_ERR</code> and event
   <code title="abort-event">abort</code>.</p>
 
+  
   <p>When something is said to be an <dfn>timeout error</dfn> run the
   <span>request error</span> steps for exception
   <code>TIMEOUT_ERR</code> and event
   <code title="timeout-event">timeout</code>.</p>
+  
 
   <p>When something is said to be a <dfn>request error</dfn> for
   exception <var>exception</var> and event <var>event</var> run these
@@ -1486,6 +1596,7 @@ X-Test: one, two
     <span>asynchronous flag</span> is true.</p>
    </li>
 
+   
    <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <var>event</var>.</p></li>
 
    <li><p><span>Queue a task</span> to <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
@@ -1506,9 +1617,12 @@ X-Test: one, two
      on the <code>XMLHttpRequestUpload</code> object.</p></li>
     </ol>
    </li>
+   
 
    <li><p>Terminate the overall algorithm.</p></li>
   </ol>
+
+  
 
   <hr>
 
@@ -1544,36 +1658,16 @@ X-Test: one, two
   <ol>
    <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
 
-   <li>
-    <p>If the <span>asynchronous flag</span> is false run these
-    substeps:</p>
+   <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
+
    
-    <ol>
-     <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
+   <li><p><span>Dispatch a progress event</span> called <code>load</code>.</p></li>
 
-     <li><p><span>Dispatch a progress event</span> called <code>load</code>.</p></li>
-
-     <li><p><span>Dispatch a progress event</span> called <code>loadend</code>.</p></li>
-    </ol>
-   </li>
-
-   <li>
-    <p>If the <span>asynchronous flag</span> is true run these
-    substeps:</p>
+   <li><p><span>Dispatch a progress event</span> called <code>loadend</code>.</p></li>
    
-    <ol>
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a <code>readystatechange</code> event</span>.</p></li>
-
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code>load</code>.</p></li>
-
-     <li><p><span>Queue a task</span> to
-     <span>dispatch a progress event</span> called <code>loadend</code>.</p></li>
-    </ol>
-   </li>
   </ol>
 
+  
   <hr>
 
   <p>When it is said to <dfn>make progress notifications</dfn>, while the
@@ -1615,6 +1709,7 @@ X-Test: one, two
   </ul>
 
   <!-- XXX successfully uploaded? -->
+  
 
 
   <h4>The <code title="">abort()</code> method</h4>
@@ -1650,6 +1745,7 @@ X-Test: one, two
 
      <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
 
+     
      <li><p><span>Dispatch a progress event</span> called <code title="abort-event">abort</code>.</p></li>
 
      <li><p><span>Dispatch a progress event</span> called <code>loadend</code>.</p></li>
@@ -1668,7 +1764,10 @@ X-Test: one, two
        on the <code>XMLHttpRequestUpload</code> object.</p></li>
       </ol>
      </li>
+     
     </ol>
+   
+    
    </li>
 
    <li>
@@ -1748,10 +1847,12 @@ X-Test: one, two
    <li><p>Return null.</p></li>
   </ol>
 
+  
   <p class="note">The Cross-Origin Resource Sharing specification filters
   the headers that are exposed by <code>getResponseHeader()</code> for non
   <span>same-origin</span> requests.
   [<cite><span>CORS</span></cite>]</p>
+  
 
   <div class="example">
    <pre><code>// The following script:
@@ -1812,11 +1913,12 @@ Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
 
+  
   <p class="note">The Cross-Origin Resource Sharing specification filters
   the headers that are exposed by <code>getAllResponseHeaders()</code> for
   non <span>same-origin</span> requests.
   [<cite><span>CORS</span></cite>]</p>
-
+  
 
   <h4>Response Entity Body</h4>
 
@@ -1839,11 +1941,17 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   can get a value if <code title="">overrideMimeType()</code> is invoked.
   <dfn id="final-charset">Final charset</dfn> is the override charset unless
   that is null in which case it is the response charset.</p>
+  
+  
+  
+  <hr>
 
   <p>The <dfn id="response-entity-body">response entity body</dfn> is the
   fragment of the <span>entity body</span> received so far (LOADING state) or
   the complete entity body (DONE state). If there is no entity body the
   response entity body is null.</p>
+  
+  <hr>
 
   <p>The <dfn id="text-response-entity-body">text response entity body</dfn>
   is a <code>DOMString</code> representing the <span>response entity
@@ -1901,12 +2009,14 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <li><p>Return the result of decoding the response entity body using
    <var>charset</var>. Replace bytes or sequences of bytes that are not
-   valid accordng to the <var>charset</var> with a single U+FFFD
-   character.</p></li>
+   valid accordng to the <var>charset</var> with a single
+   U+FFFD REPLACEMENT CHARACTER character.</p></li>
   </ol>
 
-  <p class="note">Authors are encouraged to encode their resources using
-  UTF-8.</p>
+  <p class="note">Authors are strongly encouraged to encode their resources
+  using UTF-8.</p>
+  
+  <hr>
 
   <p>The <dfn id="document-response-entity-body">document response entity
   body</dfn> is either a <code>Document</code> representing the
@@ -1914,8 +2024,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   response entity body is the return value of the following algorithm:</p>
 
   <ol>
-   <li><p>If the response entity body is null terminate these steps and
-   return null.</p></li>
+   <li><p>If the <span>response entity body</span> is null terminate these
+   steps and return null.</p></li>
 
    <li><p>If <span>final MIME type</span> is not null,
    <code>text/html</code>, <code>text/xml</code>,
@@ -1923,6 +2033,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code title="">+xml</code> terminate these steps and return
    null.</li>
 
+   
    <li>
     <p>If <span>final MIME type</span> is <code>text/html</code> let
     <var>document</var> be an object implementing the <code>Document</code>
@@ -1931,6 +2042,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     parser with scripting disabled and then terminate this algorithm.
     [<cite><span>HTML5</span></cite>]</p>
    </li>
+   
 
    <li>
     <p>Otherwise, let <var>document</var> be an object implementing the
@@ -1945,14 +2057,17 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     applied.</p>
    </li>
 
+   
    <li><p>Ensure that the <code>cookie</code> attribute on
    <var>document</var> returns the empty string if the <span>same origin
    flag</span> is false.</p></li>
+   
 
    <li><p>Return <var>document</var>.</p></li>
   </ol>
 
 
+  
   <h4>The <code title="">overrideMimeType()</code> method</h4>
 
   <p>When the
@@ -1992,13 +2107,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <span>response entity body</span> or return null if the
    response entity body is null.</p></li>
   </ol>
+  
 
 
   <h4>The <code title="">responseText</code> attribute</h4>
 
-  <p>The <dfn id="responsetext"><code>responseText</code></dfn> attribute,
-  on getting, <em class="ct">must</em> return the result of running the
-  following steps:</p>
+  <p>The <dfn id="responsetext"><code>responseText</code></dfn> attribute
+  <em class="ct">must</em> return the result of running these steps:</p>
 
   <ol>
    <li><p>If the state is not <span title="LOADING state">LOADING</span> or
@@ -2011,9 +2126,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <h4>The <code title="">responseXML</code> attribute</h4>
 
-  <p>The <dfn id="responsexml"><code>responseXML</code></dfn> attribute, on
-  getting, <em class="ct">must</em> return the result of running the
-  following steps:</p>
+  <p>The <dfn id="responsexml"><code>responseXML</code></dfn> attribute
+  <em class="ct">must</em> return the result of running these steps:</p>
 
   <ol>
    <li><p>If the state is not <span title="DONE state">DONE</span> return
@@ -2022,6 +2136,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li><p>Return the <span>document response entity body</span>.</p></li>
   </ol>
 
+  
   <p class="note">The <code>responseXML</code> attribute has XML in its name
   for historical reasons. It also returns documents created using an HTML
   parser.</p>
@@ -2086,7 +2201,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     </tr>
    </tbody>
   </table>
- 
+
   
   
   <h2 id="the-formdata-interface">The <code title="">FormData</code> Interface</h2>
@@ -2118,7 +2233,7 @@ interface <dfn>FormData</dfn> {
   entry with its name set to <var>name</var> and its value set to
   <var>value</var> and add it to the end of the collection the
   <code>FormData</code> object represents.</p>
-
+  
 
 
   <h2 id="exceptions">Exceptions</h2>
@@ -2151,16 +2266,20 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
   <p>The <dfn id="abort-err"><code>ABORT_ERR</code></dfn> exception is
   raised when the user aborts a request in synchronous requests.</p>
   
+  
   <p>The <dfn id="timeout-err"><code>TIMEOUT_ERR</code></dfn> exception is
   raised when the author specified timeout has passed before the request
   could complete in synchronous requests.</p>
+  
 
   <p class="note">These exceptions will be folded into an update of
   DOM Level 3 Core in due course, as they are appropriate for other API
   specifications as well.</p>
 
+  
 
 
+  
   <h2 class="no-num" id="differences">Differences from XMLHttpRequest</h2>
 
   <p>XMLHttpRequest Level 2 adds the following new features:</p>
@@ -2181,7 +2300,7 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
 
    <li><p class="XXX">byte streams</p></li>
   </ul>
-
+  
 
 
   <h2 class="no-num" id="references">References</h2>
@@ -2200,10 +2319,12 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <!-- XXX These specs do not match reality. Also, the latter obsoletes the
    former -->
 
+   
    <dt>[<dfn id="ref-cors">CORS</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/waf/access-control/">Cross-Origin
    Resource Sharing</a></cite> (work in progress), A. van Kesteren, editor.
    W3C, 2009.</dd>
+   
 
    <dt>[<dfn id="ref-dom2events">DOM2Events</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-2-Events/">Document
@@ -2221,10 +2342,12 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    Language Specification</a></cite>, Third Edition. ECMA, December
    1999.</dd>
    
+   
    <dt>[<dfn id="ref-fileapi">FileAPI</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/webapi/FileAPI/">File
    API</a></cite> (work in progress), A. Ranganathan, editor. W3C,
    2009.</dd>
+   
 
    <dt>[<dfn id="ref-html5">HTML5</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/html/wg/html5/">HTML&nbsp;5</a></cite>
@@ -2244,10 +2367,12 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <cite><a href="http://www.kb.cert.org/vuls/id/150227">HTTP proxy default
    configurations allow arbitrary TCP connections</a></cite>, US-CERT.</dd>
 
+   
    <dt>[<dfn id="ref-pe">PE</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/progress-events/">Progress Events
    1.0</a></cite> (work in progress), C. McCathieNeville, editor. W3C,
    2008.</dd>
+   
 
    <dt>[<dfn id="ref-rfc2046">RFC2046</dfn>]</dt>
    <dd><cite><a href="http://ietf.org/rfc/rfc2046">Multipurpose Internet Mail
@@ -2281,7 +2406,7 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
 
    <dt>[<dfn id="ref-webidl">WebIDL</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/webapi/WebIDL/">Web
-   IDL</a></cite> (work in progress), C. McCormack, editor. W3C, 2008.</dd>
+   IDL</a></cite> (work in progress), C. McCormack, editor. W3C, 2009.</dd>
 
    <dt>[<dfn id="ref-xml">XML</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/xml/">Extensible Markup Language
@@ -2298,25 +2423,77 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
 
   <p>The editor would like to thank
 
+  Addison Phillips,
+  Ahmed Kamel,
+  Alex Hopmann,
+  Alex Vincent,
   Alexey Proskuryakov,
+  Asbj&oslash;rn Ulsberg,
+  Boris Zbarsky,
+  Bj&ouml;rn H&ouml;hrmann,
   Cameron McCormack,
+  Christophe Jolif,
+  Charles McCathieNevile,
+  Dan Winship,
   David Andersson,
+  David H&aring;s&auml;ther,
   David Levin,
+  Dean Jackson,
+  Denis Sureau,
+  Doug Schepers,
+  Douglas Livingstone,
   Elliotte Harold,
-  Lachlan Hunt,
+  Eric Lawrence,
+  Erik Dahlstr&ouml;m,
+  Geoffrey Sneddon,
+  Gideon Cohn,
+  Gorm Haug Eriksen,
+  H&aring;kon Wium Lie,
+  Hallvord R. M. Steen,
+  Huub Schaeks,
+  Ian Davis,
   Ian Hickson,
+  Ivan Herman,
+  Jeff Walden,
+  Jens Lindstr&ouml;m,
+  Jim Deegan,
+  Jim Ley,
+  Joe Farro,
   Jonas Sicking,
+  Julian Reschke,
+  Karl Dubost,
+  Lachlan Hunt,
   Maciej Stachowiak,
+  Magnus Kristiansen,
+  Marc Hadley,
+  Marcos Caceres,
+  Mark Baker,
+  Mark Birbeck,
+  Mark Nottingham,
   Martin Hassman,
   Mohamed Zergaoui,
-  Olli Pettay,
-  Rune Halvorsen, and
-  Stewart Brodie
+  Olly Pettay,
+  Pawel Glowacki,
+  Peter Michaux,
+  Robin Berjon,
+  Rune Halvorsen,
+  Ruud Steltenpool,
+  Simon Pieters,
+  Stewart Brodie,
+  Sunava Dutta,
+  Thomas Roessler,
+  Tom Magliery, and
+  Zhenbin Xu
 
   for their contributions to this specification.</p>
 
-  <p>Thanks also to all who have contributed to the
-  <code title="">XMLHttpRequest</code> specification.</p>
+  <p>Special thanks to the Microsoft employees who first implemented the
+  <code title="">XMLHttpRequest</code> interface, which was first widely
+  deployed by the Windows Internet Explorer browser.</p>
+
+  <p>Special thanks also to the WHATWG for drafting an initial version of
+  this specification in their Web Applications 1.0 document (now renamed to
+  HTML&nbsp;5). [<cite><span>HTML5</span></cite>]</p>
 
   <p>Thanks also to all those who have helped to improve this specification
   by sending suggestions and corrections. (Please, keep bugging us with your

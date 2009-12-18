@@ -14,8 +14,8 @@
    .XXX { padding:.5em; border:solid #f00 }
    p.XXX::before { content:"Issue: " }
    dl.switch { padding-left:2em }
-   dl.switch dt { text-indent:-1.5em }
-   dl.switch dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
+   dl.switch > dt { text-indent:-1.5em }
+   dl.switch > dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
    em.ct { text-transform:lowercase; font-variant:small-caps; font-style:normal }
    dfn { font-weight:bold; font-style:normal }
    code { color:orangered }
@@ -35,13 +35,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 16 December 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 18 December 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091216/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091216/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091218/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091218/</a>
 
     <dt>Latest Version:
 
@@ -118,26 +118,19 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 16 December 2009 <!--Last Call Working Draft-->Editor's
-   Draft of the XMLHttpRequest specification. Please send comments to <a
-   href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> (<a
+  <p>This is the 18 December 2009 <!--Last Call Working Draft-->Editor's
+   Draft of XMLHttpRequest. Please send comments to <a
+   href="mailto:public-webapps@w3.org?subject=[XHR]%20">public-webapps@w3.org</a>
+   (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
-   with <samp>[XHR]</samp> at the start of the subject line before 16
-   December 2009.
+   with <samp>[XHR]</samp> at the start of the subject line.
 
   <p>This document is produced by the <a
    href="http://www.w3.org/2008/webapps/">Web Applications</a> (WebApps)
-   Working Group, part of the <a
+   Working Group. The WebApps Working Group is part of the <a
    href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients Activity</a>
    in the W3C <a href="http://www.w3.org/Interaction/">Interaction
-   Domain</a>. Changes made to this document can be found in the <a
-   href="http://dev.w3.org/cvsweb/2006/webapi/XMLHttpRequest/Overview.html">W3C
-   public CVS server</a>.
-
-  <p>Publication as a Working Draft does not imply endorsement by the W3C
-   Membership. This is a draft document and may be updated, replaced or
-   obsoleted by other documents at any time. It is inappropriate to cite this
-   document as other than work in progress.
+   Domain</a>.
 
   <p>This document was produced by a group operating under the <a
    href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February
@@ -152,13 +145,19 @@
    href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
    6 of the W3C Patent Policy</a>.
 
+  <p>Publication as a Working Draft does not imply endorsement by the W3C
+   Membership. This is a draft document and may be updated, replaced or
+   obsoleted by other documents at any time. It is inappropriate to cite this
+   document as other than work in progress.
+
   <h2 class="no-num no-toc" id=toc>Table of Contents</h2>
   <!--begin-toc-->
 
   <ul class=toc>
    <li><a href="#introduction"><span class=secno>1. </span>Introduction</a>
 
-   <li><a href="#conformance"><span class=secno>2. </span>Conformance</a>
+   <li><a href="#conformance"><span class=secno>2. </span>Conformance
+    Criteria</a>
     <ul class=toc>
      <li><a href="#dependencies"><span class=secno>2.1.
       </span>Dependencies</a>
@@ -170,76 +169,73 @@
       </span>Extensibility</a>
     </ul>
 
-   <li><a href="#security"><span class=secno>3. </span>Security
-    Considerations</a>
-
-   <li><a href="#the-xmlhttprequest-interface"><span class=secno>4.
+   <li><a href="#the-xmlhttprequest-interface"><span class=secno>3.
     </span>The <code title="">XMLHttpRequest</code> Interface</a>
     <ul class=toc>
-     <li><a href="#origin-and-base-url"><span class=secno>4.1. </span>Origin
+     <li><a href="#origin-and-base-url"><span class=secno>3.1. </span>Origin
       and Base URL</a>
 
-     <li><a href="#task-sources"><span class=secno>4.2. </span>Task
+     <li><a href="#task-sources"><span class=secno>3.2. </span>Task
       Sources</a>
 
-     <li><a href="#constructors"><span class=secno>4.3.
+     <li><a href="#constructors"><span class=secno>3.3.
       </span>Constructors</a>
 
-     <li><a href="#event-handler-attributes"><span class=secno>4.4.
+     <li><a href="#event-handler-attributes"><span class=secno>3.4.
       </span>Event Handler Attributes</a>
 
-     <li><a href="#states"><span class=secno>4.5. </span>States</a>
+     <li><a href="#states"><span class=secno>3.5. </span>States</a>
 
-     <li><a href="#request"><span class=secno>4.6. </span>Request</a>
+     <li><a href="#request"><span class=secno>3.6. </span>Request</a>
       <ul class=toc>
-       <li><a href="#the-open-method"><span class=secno>4.6.1. </span>The
+       <li><a href="#the-open-method"><span class=secno>3.6.1. </span>The
         <code title="">open()</code> method</a>
 
-       <li><a href="#the-setrequestheader-method"><span class=secno>4.6.2.
+       <li><a href="#the-setrequestheader-method"><span class=secno>3.6.2.
         </span>The <code title="">setRequestHeader()</code> method</a>
 
-       <li><a href="#the-send-method"><span class=secno>4.6.3. </span>The
+       <li><a href="#the-send-method"><span class=secno>3.6.3. </span>The
         <code title="">send()</code> method</a>
 
        <li><a href="#infrastructure-for-the-send-method"><span
-        class=secno>4.6.4. </span>Infrastructure for the <code
+        class=secno>3.6.4. </span>Infrastructure for the <code
         title="">send()</code> method</a>
 
-       <li><a href="#the-abort-method"><span class=secno>4.6.5. </span>The
+       <li><a href="#the-abort-method"><span class=secno>3.6.5. </span>The
         <code title="">abort()</code> method</a>
       </ul>
 
-     <li><a href="#response"><span class=secno>4.7. </span>Response</a>
+     <li><a href="#response"><span class=secno>3.7. </span>Response</a>
       <ul class=toc>
-       <li><a href="#the-status-attribute"><span class=secno>4.7.1.
+       <li><a href="#the-status-attribute"><span class=secno>3.7.1.
         </span>The <code title="">status</code> attribute</a>
 
-       <li><a href="#the-statustext-attribute"><span class=secno>4.7.2.
+       <li><a href="#the-statustext-attribute"><span class=secno>3.7.2.
         </span>The <code title="">statusText</code> attribute</a>
 
-       <li><a href="#the-getresponseheader-method"><span class=secno>4.7.3.
+       <li><a href="#the-getresponseheader-method"><span class=secno>3.7.3.
         </span>The <code title="">getResponseHeader()</code> method</a>
 
        <li><a href="#the-getallresponseheaders-method"><span
-        class=secno>4.7.4. </span>The <code
+        class=secno>3.7.4. </span>The <code
         title="">getAllResponseHeaders()</code> method</a>
 
-       <li><a href="#response-entity-body0"><span class=secno>4.7.5.
+       <li><a href="#response-entity-body0"><span class=secno>3.7.5.
         </span>Response Entity Body</a>
 
-       <li><a href="#the-responsetext-attribute"><span class=secno>4.7.6.
+       <li><a href="#the-responsetext-attribute"><span class=secno>3.7.6.
         </span>The <code title="">responseText</code> attribute</a>
 
-       <li><a href="#the-responsexml-attribute"><span class=secno>4.7.7.
+       <li><a href="#the-responsexml-attribute"><span class=secno>3.7.7.
         </span>The <code title="">responseXML</code> attribute</a>
       </ul>
     </ul>
 
-   <li><a href="#exceptions"><span class=secno>5. </span>Exceptions</a>
+   <li><a href="#exceptions"><span class=secno>4. </span>Exceptions</a>
 
    <li class=no-num><a href="#notcovered">Not in this Specification</a>
 
-   <li class=no-num><a href="#bibref">References</a>
+   <li class=no-num><a href="#references">References</a>
 
    <li class=no-num><a href="#acknowledgments">Acknowledgments</a>
   </ul>
@@ -315,7 +311,7 @@ client.send();</code></pre>
 }</code></pre>
   </div>
 
-  <h2 id=conformance><span class=secno>2. </span>Conformance</h2>
+  <h2 id=conformance><span class=secno>2. </span>Conformance Criteria</h2>
 
   <p>Everything in this specification is normative except for diagrams,
    examples, notes and sections marked non-normative.
@@ -335,9 +331,9 @@ client.send();</code></pre>
      specification in order to be considered conformant.</p>
 
     <p>If the user agent is not a <a
-     href="#conforming-xml-user-agent">conforming XML user agent</a> the <a
-     href="#xml-response-entity-body">XML response entity body</a> <em
-     class=ct>must</em> (always) be null.</p>
+     href="#conforming-xml-user-agent">conforming XML user agent</a> the
+     <span>XML response entity body</span> <em class=ct>must</em> (always) be
+     null.</p>
 
     <p>User agents <em class=ct>may</em> implement algorithms given in this
      specification in any way desired, so long as the end result is
@@ -392,35 +388,19 @@ client.send();</code></pre>
    <dt>HTTP
 
    <dd>
-    <p>A <a href="#conforming-user-agent">conforming user agent</a> <em
-     class=ct>must</em> support some version of the HTTP protocol. It <em
-     class=ct>should</em> support any HTTP method that matches the <a
-     href="#method-token">Method token</a> production and <em
-     class=ct>must</em> at least support the following methods:</p>
-
-    <ul>
-     <li><code>GET</code>
-
-     <li><code>POST</code>
-
-     <li><code>HEAD</code>
-
-     <li><code>PUT</code>
-
-     <li><code>DELETE</code>
-
-     <li><code>OPTIONS</code>
-    </ul>
-
-    <p>Other requirements regarding HTTP are made throughout the
-     specification. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]</p>
+    <p>A <a href="#conforming-user-agent" title="conforming user
+     agent">conforming user agent</a> <em class=ct>must</em> support some
+     version of the HTTP protocol. Requirements regarding HTTP are made
+     throughout the specification. [<cite><a
+     href="#rfc-rfc2616">RFC2616</a></cite>]
 
    <dt>Web IDL
 
-   <dd>A <a href="#conforming-user-agent">conforming user agent</a> <em
-    class=ct>must</em> also be a conforming implementation of the IDL
-    fragment in this specification, as described in the Web IDL
-    specification. [<cite><a href="#ref-webidl">WebIDL</a></cite>]
+   <dd>
+    <p>A <a href="#conforming-user-agent">conforming user agent</a> <em
+     class=ct>must</em> also be a conforming implementation of the IDL
+     fragments in this specification, as described in the Web IDL
+     specification. [<cite><a href="#ref-webidl">WebIDL</a></cite>]
   </dl>
 
   <h3 id=terminology><span class=secno>2.2. </span>Terminology</h3>
@@ -460,15 +440,14 @@ client.send();</code></pre>
    source</dfn>, <dfn id=url>URL</dfn>, <dfn id=url-character-encoding>URL
    character encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and
    <dfn id=valid-mime-type>valid MIME type</dfn> are defined by the
-   HTML&nbsp;5 specification. [<cite><a href="#ref-html5">HTML5</a></cite>]</p>
-  <!-- XXX Things might be splitted out of HTML5 -->
+   HTML&nbsp;5 specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
    RFC 2616. <dfn id=method-token>Method token</dfn> is used as described in
    section 5.1.1 of RFC 2616. <dfn
    id=field-name><code>field-name</code></dfn> and <dfn
    id=field-value><code>field-value</code></dfn> are used as described in
-   section 4.2 of RFC 2616. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]
+   section 4.2 of RFC 2616. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p><dfn id=userinfo><code>userinfo</code></dfn> is used as described in
    section 3.2.1 of RFC 3986. [<cite><a
@@ -488,11 +467,7 @@ client.send();</code></pre>
    should discuss extensions on a relevant public forum, preferably <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>.
 
-  <h2 id=security><span class=secno>3. </span>Security Considerations</h2>
-
-  <p>Security related requirements are made throughout this specification.
-
-  <h2 id=the-xmlhttprequest-interface><span class=secno>4. </span>The <code
+  <h2 id=the-xmlhttprequest-interface><span class=secno>3. </span>The <code
    title="">XMLHttpRequest</code> Interface</h2>
 
   <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object can
@@ -538,7 +513,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 };</pre>
   <!-- XXX domintro boxes; HTML5-style -->
 
-  <h3 id=origin-and-base-url><span class=secno>4.1. </span>Origin and Base
+  <h3 id=origin-and-base-url><span class=secno>3.1. </span>Origin and Base
    URL</h3>
 
   <p>Each <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object
@@ -571,7 +546,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    <a href="#xmlhttprequest-base-url"><code>XMLHttpRequest</code> base
    URL</a> at a later stage.
 
-  <h3 id=task-sources><span class=secno>4.2. </span>Task Sources</h3>
+  <h3 id=task-sources><span class=secno>3.2. </span>Task Sources</h3>
 
   <p>The following <a href="#task-source" title="task source">task
    sources</a> are used by this specification:
@@ -598,14 +573,14 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    href="#xmlhttprequest-event-task-source"><code>XMLHttpRequest</code> event
    task source</a>.
 
-  <h3 id=constructors><span class=secno>4.3. </span>Constructors</h3>
+  <h3 id=constructors><span class=secno>3.3. </span>Constructors</h3>
 
   <p>When the <dfn id=dom-xmlhttprequest title=dom-XMLHttpRequest><code
    title="">XMLHttpRequest()</code></dfn> constructor is invoked, the user
    agent <em class=ct>must</em> return a new <code><a
    href="#xmlhttprequest">XMLHttpRequest</a></code> object.
 
-  <h3 id=event-handler-attributes><span class=secno>4.4. </span>Event Handler
+  <h3 id=event-handler-attributes><span class=secno>3.4. </span>Event Handler
    Attributes</h3>
 
   <p>The following is the <a href="#event-handler-attributes-0" title="event
@@ -629,7 +604,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      <td><code>readystatechange</code>
   </table>
 
-  <h3 id=states><span class=secno>4.5. </span>States</h3>
+  <h3 id=states><span class=secno>3.5. </span>States</h3>
 
   <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object can
    be in several states. The <dfn id=readystate><code>readyState</code></dfn>
@@ -685,7 +660,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    network error or abortion. It can be either true or false and has an
    initial value of false.
 
-  <h3 id=request><span class=secno>4.6. </span>Request</h3>
+  <h3 id=request><span class=secno>3.6. </span>Request</h3>
 
   <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object
    holds the following request metadata variables:
@@ -722,7 +697,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    <dd>The <a href="#entity-body">entity body</a> used in the request.
   </dl>
 
-  <h4 id=the-open-method><span class=secno>4.6.1. </span>The <code
+  <h4 id=the-open-method><span class=secno>3.6.1. </span>The <code
    title="">open()</code> method</h4>
 
   <p>When the <dfn id=open title=open><code>open(<var>method</var>, <var
@@ -941,7 +916,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   <p class=note>A future version or extension of this specification will
    define a way of doing cross-origin requests.
 
-  <h4 id=the-setrequestheader-method><span class=secno>4.6.2. </span>The
+  <h4 id=the-setrequestheader-method><span class=secno>3.6.2. </span>The
    <code title="">setRequestHeader()</code> method</h4>
   <!-- XXX domintro authors
   The <code>setRequestHeader()</code> method can be used to set new request
@@ -1055,7 +1030,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      href="#author-request-headers">author request headers</a> list either
      use multiple headers, combine the values or use a combination of those
      (section 4.2, RFC 2616). [<cite><a
-     href="#ref-rfc2616">RFC2616</a></cite>]
+     href="#rfc-rfc2616">RFC2616</a></cite>]
    </li>
    <!-- XXX it seems UAs always combine the values -->
   </ol>
@@ -1078,7 +1053,7 @@ X-Test: one, two
 ...</code></pre>
   </div>
 
-  <h4 id=the-send-method><span class=secno>4.6.3. </span>The <code
+  <h4 id=the-send-method><span class=secno>3.6.3. </span>The <code
    title="">send()</code> method</h4>
   <!-- XXX domintro
   <p>The <code>send()</code> method initiates the request and its optional
@@ -1117,11 +1092,11 @@ X-Test: one, two
      include a <a href="#request-entity-body">request entity body</a> and go
      to the next step.</p>
 
-    <p>Otherwise, let <var>encoding</var> be UTF-8, <var>mime</var> be
-     <code>text/plain</code>, and then follow these rules:</p>
+    <p>Otherwise, let <var>encoding</var> be null, <var>mime type</var> be
+     null, and then follow these rules:</p>
 
     <dl class=switch>
-     <dt><var>data</var> is a <code>Document</code>
+     <dt>If <var>data</var> is a <code>Document</code>
 
      <dd>
       <p>Let <var>encoding</var> be the <a
@@ -1130,7 +1105,8 @@ X-Test: one, two
        encoding">character encoding</a> of <var>data</var>. If
        <var>encoding</var> is UTF-16 change it to UTF-8.</p>
 
-      <p>Let <var>mime</var> be <code>application/xml</code>.</p>
+      <p>Let <var>mime type</var> be "<code>application/xml;charset=</code>"
+       followed by <var>encoding</var>.</p>
 
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        the result of getting the <code title=dom-innerHTML><a
@@ -1146,27 +1122,32 @@ X-Test: one, two
       <p class=note>Subsequent changes to the <code>Document</code> have no
        effect on what is submitted.</p>
 
-     <dt><var>data</var> is a <code>DOMString</code>
+     <dt>If <var>data</var> is a <code>DOMString</code>
 
      <dd>
+      <p>Let <var>encoding</var> be UTF-8.</p>
+
+      <p>Let <var>mime type</var> be "<code>text/plain;charset=UTF-8</code>".</p>
+
       <p>Let the <a href="#request-entity-body">request entity body</a> be
        <var>data</var> <a href="#dfn-obtain-unicode" title="convert a
        DOMString to a sequence of Unicode characters">converted to
-       Unicode</a> and encoded as UTF-8.
+       Unicode</a> and encoded as UTF-8.</p>
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> and its value is
-     a <a href="#valid-mime-type">valid MIME type</a> and it has a
+     href="#setrequestheader">setRequestHeader()</a></code> whose value is a
+     <a href="#valid-mime-type">valid MIME type</a> and has a
      <code>charset</code> parameter whose value is not an <a
      href="#ascii-case-insensitive">ASCII case-insensitive</a> match for
-     <var>encoding</var>, set all the <code>charset</code> parameters to
-     <var>encoding</var>.</p>
+     <var>encoding</var>, and <var>encoding</var> is not null, set all the
+     <code>charset</code> parameters of the <code>Content-Type</code> header
+     to <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using <code><a
-     href="#setrequestheader">setRequestHeader()</a></code> set a
-     <code>Content-Type</code> request header with a value of
-     <code><var>mime</var>;charset=<var>encoding</var></code>.</p>
+     href="#setrequestheader">setRequestHeader()</a></code> and <var>mime
+     type</var> is not null set a <code>Content-Type</code> request header
+     with as value <var>mime type</var>.</p>
     <!-- reminder: if we ever change this to always include charset it has
     to be included as the first parameter for compatibility reasons -->
     
@@ -1218,10 +1199,10 @@ X-Test: one, two
        href="#same-origin-request-event-rules">same-origin request event
        rules</a>.</p>
       <!--
-       This cannot involve any task queue whatsoever because that would
-       mean other tasks on the task queue might get processed as well which
-       is counter to the whole idea of doing things synchronous.
-      -->
+         This cannot involve any task queue whatsoever because that would
+         mean other tasks on the task queue might get processed as well
+         which is counter to the whole idea of doing things synchronous.
+        -->
       
       <p class=note>The <code><a href="#send">send()</a></code> method call
        will now be returned by virtue of this algorithm ending.</p>
@@ -1229,9 +1210,13 @@ X-Test: one, two
      <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
 
      <dd>
+      <p><span>Make progress notifications</span>.</p>
+
+      <p><span>Make upload progress notifications</span>.</p>
+
       <p>While processing the request, as data becomes available and when the
-       end user interferes with the request, <a href="#queue-a-task"
-       title="queue a task">queue tasks</a> to follow the <a
+       user interferes with the request, <a href="#queue-a-task" title="queue
+       a task">queue tasks</a> to follow the <a
        href="#same-origin-request-event-rules">same-origin request event
        rules</a> using the <a
        href="#xmlhttprequest-networking-task-source"><code>XMLHttpRequest</code>
@@ -1242,8 +1227,8 @@ X-Test: one, two
   <hr>
 
   <p>If the user agent allows the end user to configure a proxy it <em
-   class=ct>should</em> modify the request appropriately; i.e. connect to the
-   proxy host instead of the origin server, modify the
+   class=ct>should</em> modify the request appropriately; i.e., connect to
+   the proxy host instead of the origin server, modify the
    <code>Request-Line</code> and send <code>Proxy-Authorization</code>
    headers as specified.
 
@@ -1274,7 +1259,7 @@ X-Test: one, two
    href="#ref-cookies">COOKIES</a></cite>]
 
   <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
-   respect <code>Cache-Control</code> request headers set by <code><a
+   respect <code>Cache-Control</code> request headers set by the <code><a
    href="#setrequestheader">setRequestHeader()</a></code> (e.g.,
    <code>Cache-Control: no-cache</code> bypasses the cache). It <em
    class=ct>must not</em> send <code>Cache-Control</code> or
@@ -1286,10 +1271,10 @@ X-Test: one, two
    act as if the server gave a <code>200 OK</code> response with the
    appropriate content. The user agent <em class=ct>must</em> allow <code><a
    href="#setrequestheader">setRequestHeader()</a></code> to override
-   automatic cache validation by setting request headers (e.g.,
-   <code>If-None-Match</code>, <code>If-Modified-Since</code>), in which case
-   <code>304 Not Modified</code> responses <em class=ct>must</em> be passed
-   through. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]
+   automatic cache validation by setting request headers (e.g.
+   <code>If-None-Match</code> or <code>If-Modified-Since</code>), in which
+   case <code>304 Not Modified</code> responses <em class=ct>must</em> be
+   passed through. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p>If the user agent implements server-driven content-negotiation it <em
    class=ct>should</em> set <code>Accept-Encoding</code> and
@@ -1317,7 +1302,7 @@ X-Test: one, two
   </ul>
 
   <p>Responses <em class=ct>must</em> have the content-encodings
-   automatically decoded. [<cite><a href="#ref-rfc2616">RFC2616</a></cite>]
+   automatically decoded. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
 
   <p>Besides the <a href="#author-request-headers">author request headers</a>
    user agents <em class=ct>should not</em> include additional request
@@ -1326,7 +1311,7 @@ X-Test: one, two
    href="#setrequestheader">setRequestHeader()</a></code>. This ensures that
    authors have a reasonably predictable API.
 
-  <h4 id=infrastructure-for-the-send-method><span class=secno>4.6.4.
+  <h4 id=infrastructure-for-the-send-method><span class=secno>3.6.4.
    </span>Infrastructure for the <code title="">send()</code> method</h4>
 
   <p>The <dfn id=cookie-steps>cookie steps</dfn> are as follows:
@@ -1363,13 +1348,14 @@ X-Test: one, two
      href="#same-origin-request-event-rules">same-origin request event
      rules</a>.</p>
 
+    <p>Otherwise, this is a <a href="#network-error">network error</a>.</p>
+
     <p class=note>HTTP places requirements on the user agent regarding the
      preservation of the <a href="#request-method">request method</a> and <a
      href="#request-entity-body">request entity body</a> during redirects,
      and also requires end users to be notified of certain kinds of automatic
      redirections.</p>
     <!-- XXX HTTP needs fixing here -->
-    <p>Otherwise, this is a <a href="#network-error">network error</a>.</p>
 
    <dt>If the end user cancels the download
 
@@ -1450,18 +1436,20 @@ X-Test: one, two
      steps.
 
    <li>
-    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
-     href="#queue-a-task">queue a task</a> to <a
+    <p><a href="#queue-a-task">Queue a task</a> to <a
      href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a>.
+     <code>readystatechange</code> event</a>.</p>
+
+    <p class=note>At this point it is clear that the <a
+     href="#asynchronous-flag">asynchronous flag</a> is true.</p>
 
    <li>
-    <p>Terminate the overall set of steps.
+    <p>Terminate the overall algorithm.
   </ol>
 
-  <p class=note>It is likely that a future version of this specification will
-   dispatch an <code>error</code>/<code><a href="#abort">abort</a></code>
-   event here as well. (Depending on the type of error.)
+  <p class=note>A future version of this specification will dispatch an
+   <code>error</code>/<code><a href="#abort">abort</a></code> event here as
+   well. (Depending on the type of error.)
 
   <hr>
 
@@ -1505,18 +1493,11 @@ X-Test: one, two
     <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
 
    <li>
-    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false <a
-     href="#dispatch-readystatechange-event">dispatch a
-     <code>readystatechange</code> event</a>.
-
-   <li>
-    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is true <a
-     href="#queue-a-task">queue a task</a> to <a
-     href="#dispatch-readystatechange-event">dispatch a
+    <p><a href="#dispatch-readystatechange-event">Dispatch a
      <code>readystatechange</code> event</a>.
   </ol>
 
-  <h4 id=the-abort-method><span class=secno>4.6.5. </span>The <code
+  <h4 id=the-abort-method><span class=secno>3.6.5. </span>The <code
    title="">abort()</code> method</h4>
 
   <p>When the <dfn id=abort><code>abort()</code></dfn> method is invoked, the
@@ -1575,9 +1556,9 @@ X-Test: one, two
     <p class=note>No <code>readystatechange</code> event is dispatched.</p>
   </ol>
 
-  <h3 id=response><span class=secno>4.7. </span>Response</h3>
+  <h3 id=response><span class=secno>3.7. </span>Response</h3>
 
-  <h4 id=the-status-attribute><span class=secno>4.7.1. </span>The <code
+  <h4 id=the-status-attribute><span class=secno>3.7.1. </span>The <code
    title="">status</code> attribute</h4>
 
   <p>The <dfn id=status><code>status</code></dfn> attribute <em
@@ -1597,7 +1578,7 @@ X-Test: one, two
     <p>Return the HTTP status code.
   </ol>
 
-  <h4 id=the-statustext-attribute><span class=secno>4.7.2. </span>The <code
+  <h4 id=the-statustext-attribute><span class=secno>3.7.2. </span>The <code
    title="">statusText</code> attribute</h4>
 
   <p>The <dfn id=statustext><code>statusText</code></dfn> attribute <em
@@ -1617,7 +1598,7 @@ X-Test: one, two
     <p>Return the HTTP status text.
   </ol>
 
-  <h4 id=the-getresponseheader-method><span class=secno>4.7.3. </span>The
+  <h4 id=the-getresponseheader-method><span class=secno>3.7.3. </span>The
    <code title="">getResponseHeader()</code> method</h4>
 
   <p>When the <dfn id=getresponseheader
@@ -1670,7 +1651,7 @@ client.onreadystatechange = function() {
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
 
-  <h4 id=the-getallresponseheaders-method><span class=secno>4.7.4. </span>The
+  <h4 id=the-getallresponseheaders-method><span class=secno>3.7.4. </span>The
    <code title="">getAllResponseHeaders()</code> method</h4>
 
   <p>When the <dfn
@@ -1716,58 +1697,72 @@ Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
 
-  <h4 id=response-entity-body0><span class=secno>4.7.5. </span>Response
+  <h4 id=response-entity-body0><span class=secno>3.7.5. </span>Response
    Entity Body</h4>
+  <!-- XXX carefully study this -->
+
+  <p>The <dfn id=response-mime-type>response MIME type</dfn> is the MIME type
+   the <code>Content-Type</code> header contains without any parameters or
+   null if the header could not be parsed properly or was omitted. The <dfn
+   id=override-mime-type>override MIME type</dfn> is always null. <dfn
+   id=final-mime-type>Final MIME type</dfn> is the override MIME type unless
+   that is null in which case it is the response MIME type.
+
+  <p>The <dfn id=response-charset>response charset</dfn> is the value of the
+   <code>charset</code> parameter of the <code>Content-Type</code> header or
+   null if there was no <code>charset</code> parameter or if the header could
+   not be parsed properly or was omitted. The <dfn
+   id=override-charset>override charset</dfn> is always null. <dfn
+   id=final-charset>Final charset</dfn> is the override charset unless that
+   is null in which case it is the response charset.
+
+  <p class=note><a href="#override-mime-type">Override MIME type</a> and <a
+   href="#override-charset">override charset</a> are introduced here solely
+   to make editing several levels of XMLHttpRequest simultaneously somewhat
+   easier. Apologies for any confusion they might cause.
+
+  <hr>
 
   <p>The <dfn id=response-entity-body>response entity body</dfn> is the
-   fragment of the <a href="#entity-body">entity body</a> received so far (<a
-   href="#loading-state" title="LOADING state">LOADING</a> state) or the
-   complete <a href="#entity-body">entity body</a> (<a href="#done-state"
-   title="DONE state">DONE</a> state). If there is no <a
-   href="#entity-body">entity body</a> the <a
-   href="#response-entity-body">response entity body</a> is null.
+   fragment of the <a href="#entity-body">entity body</a> received so far
+   (LOADING state) or the complete entity body (DONE state). If there is no
+   entity body the response entity body is null.
 
   <hr>
 
   <p>The <dfn id=text-response-entity-body>text response entity body</dfn> is
    a <code>DOMString</code> representing the <a
-   href="#response-entity-body">response entity body</a>. The <a
-   href="#text-response-entity-body">text response entity body</a> is the
-   return value of the following algorithm:
+   href="#response-entity-body">response entity body</a>. The text response
+   entity body is the return value of the following algorithm:
 
   <ol>
    <li>
-    <p>If the <a href="#response-entity-body">response entity body</a> is
-     null return the empty string and terminate these steps.</p>
+    <p>If the response entity body is null return the empty string and
+     terminate these steps.</p>
 
    <li>
-    <p>Let <var>charset</var> be null.
+    <p>Let <var>charset</var> be the <a href="#final-charset">final
+     charset</a>.
 
    <li>
-    <p>If there is no <code>Content-Type</code> header or there is a
-     <code>Content-Type</code> header which contains a MIME type that is
+    <p>Let <var>mime</var> be the <a href="#final-mime-type">final MIME
+     type</a>.
+
+   <li>
+    <p>If <var>charset</var> is null and <var>mime</var> is null,
      <code>text/xml</code>, <code>application/xml</code> or ends in <code
-     title="">+xml</code> (ignoring any parameters) use the rules set forth
-     in the XML specifications to determine the character encoding. Let
-     <var>charset</var> be the determined character encoding. [<cite><a
-     href="#ref-xml">XML</a></cite>]
+     title="">+xml</code> use the rules set forth in the XML specifications
+     to determine the character encoding. Let <var>charset</var> be the
+     determined character encoding.
 
    <li>
-    <p>If the <code>Content-Type</code> header contains a
-     <code>text/html</code> MIME type follow the rules set forth in the
-     HTML&nbsp;5 specification to determine the character encoding. Let
+    <p>If <var>charset</var> is null and <var>mime</var> is
+     <code>text/html</code> follow the rules set forth in the HTML
+     specification to determine the character encoding. Let
      <var>charset</var> be the determined character encoding. [<cite><a
      href="#ref-html5">HTML5</a></cite>]
 
    <li>
-    <p>If the MIME type specified by the <code>Content-Type</code> header
-     contains a <code>charset</code> parameter and <var>charset</var> is null
-     let <var>charset</var> be the value of that parameter.</p>
-
-    <p class=note>The algorithms described by the XML and HTML specifications
-     already take <code>Content-Type</code> into account.</p>
-
-   <li> <!-- This stuff is copied from HTML5. Thanks Hixie! -->
     <p>If <var>charset</var> is null then, for each of the rows in the
      following table, starting with the first one and going down, if the
      first bytes of <var>bytes</var> match the bytes given in the first
@@ -1805,7 +1800,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li>
     <p>Return the result of decoding the response entity body using
      <var>charset</var>. Replace bytes or sequences of bytes that are not
-     valid according to the <var>charset</var> with a single U+FFFD
+     valid accordng to the <var>charset</var> with a single U+FFFD
      REPLACEMENT CHARACTER character.
   </ol>
 
@@ -1814,11 +1809,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <hr>
 
-  <p>The <dfn id=xml-response-entity-body>XML response entity body</dfn> is
-   either a <code>Document</code> representing the <a
-   href="#response-entity-body">response entity body</a> or null. The <a
-   href="#xml-response-entity-body">XML response entity body</a> is the
-   return value of the following algorithm:
+  <p>The <dfn id=document-response-entity-body>document response entity
+   body</dfn> is either a <code>Document</code> representing the <a
+   href="#response-entity-body">response entity body</a> or null. The
+   document response entity body is the return value of the following
+   algorithm:
 
   <ol>
    <li>
@@ -1826,30 +1821,27 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      null terminate these steps and return null.
 
    <li>
-    <p>If a <code>Content-Type</code> is present and it does not contain a
-     MIME type (ignoring any parameters) that is <code>text/xml</code>,
-     <code>application/xml</code> or ends in <code title="">+xml</code>
-     terminate these steps and return null. (Do not terminate these steps if
-     there is no <code>Content-Type</code> header at all.)
+    <p>If <a href="#final-mime-type">final MIME type</a> is not null,
+     <code>text/xml</code>, <code>application/xml</code>, and does not end in
+     <code title="">+xml</code> terminate these steps and return null.
 
    <li>
-    <p>Parse the <a href="#response-entity-body">response entity body</a>
-     into a document tree following the rules from the XML specifications.
-     Let the result be <var>parsed document</var>. If this fails (unsupported
-     character encoding, namespace well-formedness error, et cetera)
-     terminate these steps return null. [<cite><a
-     href="#ref-xml">XML</a></cite>]</p>
+    <p>Let <var>document</var> be an object implementing the
+     <code>Document</code> interface that represents the result of parsing
+     the response entity body into a document tree following the rules from
+     the XML specifications. If this fails (unsupported character encoding,
+     namespace well-formedness error et cetera) terminate these steps return
+     null. [<cite><a href="#ref-xml">XML</a></cite>]</p>
 
     <p class=note>Scripts in the resulting document tree will not be
      executed, resources referenced will not be loaded and no associated XSLT
      will be applied.</p>
 
    <li>
-    <p>Return an object implementing the <code>Document</code> interface
-     representing the <var>parsed document</var>.
+    <p>Return <var>document</var>.
   </ol>
 
-  <h4 id=the-responsetext-attribute><span class=secno>4.7.6. </span>The <code
+  <h4 id=the-responsetext-attribute><span class=secno>3.7.6. </span>The <code
    title="">responseText</code> attribute</h4>
 
   <p>The <dfn id=responsetext><code>responseText</code></dfn> attribute <em
@@ -1866,7 +1858,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      body</a>.
   </ol>
 
-  <h4 id=the-responsexml-attribute><span class=secno>4.7.7. </span>The <code
+  <h4 id=the-responsexml-attribute><span class=secno>3.7.7. </span>The <code
    title="">responseXML</code> attribute</h4>
 
   <p>The <dfn id=responsexml><code>responseXML</code></dfn> attribute <em
@@ -1878,12 +1870,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      return null and terminate these steps.
 
    <li>
-    <p>Return the <a href="#xml-response-entity-body">XML response entity
-     body</a>.
+    <p>Return the <a href="#document-response-entity-body">document response
+     entity body</a>.
   </ol>
 
-  <h2 id=exceptions><span class=secno>5. </span>Exceptions</h2>
-  <!-- XXX HTML5 assumes Web DOM Core will define these -->
+  <h2 id=exceptions><span class=secno>4. </span>Exceptions</h2>
 
   <p>Several algorithms in this specification may result in an exception
    being thrown. These exceptions are all part of the group
@@ -1950,7 +1941,7 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
     <code>removeRequestHeader()</code>.
   </ul>
 
-  <h2 class=no-num id=bibref>References</h2>
+  <h2 class=no-num id=references>References</h2>
 
   <p>Unless marked "Non-normative" these references are normative.
 
@@ -2011,12 +2002,18 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
     href="http://www.kb.cert.org/vuls/id/150227">HTTP proxy default
     configurations allow arbitrary TCP connections</a></cite>, US-CERT.
 
+   <dt>[<dfn id=ref-rfc2046>RFC2046</dfn>]
+
+   <dd><cite><a href="http://ietf.org/rfc/rfc2046">Multipurpose Internet Mail
+    Extensions (MIME) Part Two: Media Types</a></cite>, N. Freed, N.
+    Borenstein, editors. IETF, November 1996.
+
    <dt>[<dfn id=ref-rfc2119>RFC2119</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2119">Key words for use in RFCs
     to Indicate Requirement Levels</a></cite>, S. Bradner. IETF, March 1997.
 
-   <dt>[<dfn id=ref-rfc2616>RFC2616</dfn>]
+   <dt>[<dfn id=rfc-rfc2616>RFC2616</dfn>]
 
    <dd><cite><a href="http://ietf.org/rfc/rfc2616">Hypertext Transfer
     Protocol -- HTTP/1.1</a></cite>, R. Fielding, J. Gettys, J. Mogul, H.
@@ -2034,6 +2031,12 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc3986">Uniform Resource
     Identifier (URI): Generic Syntax</a></cite>, T. Berners-Lee, R. Fielding,
     L. Masinter, editors. IETF, January 2005.
+
+   <dt>[<dfn id=ref-rfc3987>RFC3987</dfn>]
+
+   <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized Resource
+    Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard, editors. IETF,
+    January 2005. L. Masinter, editors. IETF, January 2005.
 
    <dt>[<dfn id=ref-webidl>WebIDL</dfn>]
 
@@ -2056,17 +2059,18 @@ const unsigned short <a href="#abort-err">ABORT_ERR</a> = 20;</pre>
   <p>The editor would like to thank Addison Phillips, Ahmed Kamel, Alex
    Hopmann, Alex Vincent, Alexey Proskuryakov, Asbj&oslash;rn Ulsberg, Boris
    Zbarsky, Bj&ouml;rn H&ouml;hrmann, Cameron McCormack, Christophe Jolif,
-   Charles McCathieNevile, Dan Winship, David H&aring;s&auml;ther, Dean
-   Jackson, Denis Sureau, Doug Schepers, Douglas Livingstone, Elliotte
-   Harold, Eric Lawrence, Erik Dahlstr&ouml;m, Geoffrey Sneddon, Gideon Cohn,
-   Gorm Haug Eriksen, H&aring;kon Wium Lie, Hallvord R. M. Steen, Huub
-   Schaeks, Ian Davis, Ian Hickson, Ivan Herman, Jeff Walden, Jens
-   Lindstr&ouml;m, Jim Deegan, Jim Ley, Joe Farro, Jonas Sicking, Julian
-   Reschke, Karl Dubost, Lachlan Hunt, Maciej Stachowiak, Magnus Kristiansen,
-   Marc Hadley, Marcos Caceres, Mark Baker, Mark Birbeck, Mark Nottingham,
-   Mohamed Zergaoui, Pawel Glowacki, Peter Michaux, Robin Berjon, Ruud
-   Steltenpool, Simon Pieters, Stewart Brodie, Sunava Dutta, Thomas Roessler,
-   Tom Magliery, and Zhenbin Xu for their contributions to this
+   Charles McCathieNevile, Dan Winship, David Andersson, David
+   H&aring;s&auml;ther, David Levin, Dean Jackson, Denis Sureau, Doug
+   Schepers, Douglas Livingstone, Elliotte Harold, Eric Lawrence, Erik
+   Dahlstr&ouml;m, Geoffrey Sneddon, Gideon Cohn, Gorm Haug Eriksen,
+   H&aring;kon Wium Lie, Hallvord R. M. Steen, Huub Schaeks, Ian Davis, Ian
+   Hickson, Ivan Herman, Jeff Walden, Jens Lindstr&ouml;m, Jim Deegan, Jim
+   Ley, Joe Farro, Jonas Sicking, Julian Reschke, Karl Dubost, Lachlan Hunt,
+   Maciej Stachowiak, Magnus Kristiansen, Marc Hadley, Marcos Caceres, Mark
+   Baker, Mark Birbeck, Mark Nottingham, Martin Hassman, Mohamed Zergaoui,
+   Olly Pettay, Pawel Glowacki, Peter Michaux, Robin Berjon, Rune Halvorsen,
+   Ruud Steltenpool, Simon Pieters, Stewart Brodie, Sunava Dutta, Thomas
+   Roessler, Tom Magliery, and Zhenbin Xu for their contributions to this
    specification.
 
   <p>Special thanks to the Microsoft employees who first implemented the
