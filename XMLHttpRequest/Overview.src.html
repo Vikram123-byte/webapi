@@ -1045,8 +1045,7 @@ X-Test: one, two
         <p>While processing the request, as data becomes available and when
         the user interferes with the request,
         <span title="queue a task">queue tasks</span> to follow the
-        <span>same-origin request event rules</span> using the
-        <span><code>XMLHttpRequest</code> task source</span>.</p>
+        <span>same-origin request event rules</span>.</p>
        </dd>
       </dl>
     
@@ -1225,13 +1224,18 @@ X-Test: one, two
   steps:</p>
 
   <ol>
-   <!-- XXX should cancel network activity here as well for abort/timeout cases (and maybe others); clean up task queue? -->
+   <li><p>The user agent <em class="ct">should</em> cancel any network
+   activity for which the object is responsible.</p></li>
+
+   <li><p>If there are any <span title="task">tasks</span> from the object's
+   <span><code>XMLHttpRequest</code> task source</span> in one of the
+   <span>task queues</span>, then remove those tasks.</p></li>
 
    <li><p>Set the <span>response entity body</span> to null.</p></li>
 
-   <li><p>Set the the <span>error flag</span> to true.</p></li>
-
    <li><p>Empty the list of <span>author request headers</span>.</p></li>
+
+   <li><p>Set the the <span>error flag</span> to true.</p></li>
 
    <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
 

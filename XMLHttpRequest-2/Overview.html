@@ -1475,9 +1475,7 @@ X-Test: one, two
          the user interferes with the request, <a href="#queue-a-task"
          title="queue a task">queue tasks</a> to follow the <a
          href="#same-origin-request-event-rules">same-origin request event
-         rules</a> using the <a
-         href="#xmlhttprequest-task-source"><code>XMLHttpRequest</code> task
-         source</a>.</p>
+         rules</a>.</p>
       </dl>
 
      <dt>Otherwise
@@ -1555,9 +1553,7 @@ X-Test: one, two
          the end user interferes with the request, <a href="#queue-a-task"
          title="queue a task">queue tasks</a> to follow the <a
          href="#cross-origin-request-event-rules">cross-origin request event
-         rules</a> using the <a
-         href="#xmlhttprequest-task-source"><code>XMLHttpRequest</code> task
-         source</a>.</p>
+         rules</a>.</p>
       </dl>
     </dl>
   </ol>
@@ -1857,18 +1853,28 @@ X-Test: one, two
    for exception <var>exception</var> and event <var>event</var> run these
    steps:
 
-  <ol><!-- XXX should cancel network activity here as well for abort/timeout cases (and maybe others); clean up task queue? -->
+  <ol>
+   <li>
+    <p>The user agent <em class=ct>should</em> cancel any network activity
+     for which the object is responsible.
+
+   <li>
+    <p>If there are any <a href="#task" title=task>tasks</a> from the
+     object's <a
+     href="#xmlhttprequest-task-source"><code>XMLHttpRequest</code> task
+     source</a> in one of the <a href="#task-queues">task queues</a>, then
+     remove those tasks.
 
    <li>
     <p>Set the <a href="#response-entity-body">response entity body</a> to
      null.
 
    <li>
-    <p>Set the the <a href="#error-flag">error flag</a> to true.
-
-   <li>
     <p>Empty the list of <a href="#author-request-headers">author request
      headers</a>.
+
+   <li>
+    <p>Set the the <a href="#error-flag">error flag</a> to true.
 
    <li>
     <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
