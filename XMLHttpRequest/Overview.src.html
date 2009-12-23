@@ -153,8 +153,8 @@
   defined HTTP methods.</p>
 
   <div class="example">
-   <p>Some simple code to do something with data from an XML document fetched
-   over the network:</p>
+   <p>Some simple code to do something with data from an XML document
+   fetched over the network:</p>
 
    <pre><code>function test(data) {
  // taking care of data
@@ -176,7 +176,7 @@ function handler() {
 
 var client = new XMLHttpRequest();
 client.onreadystatechange = handler;
-client.open("GET", "test.xml");
+client.open("GET", "unicorn.xml");
 client.send();</code></pre>
 
    <p>If you just want to log a message to the server:</p>
@@ -264,11 +264,11 @@ client.send();</code></pre>
    [<cite><span>DOM2Events</span></cite>]
    [<cite><span>DOM3Core</span></cite>]</p></dd>
 
-   <dt>HTML&nbsp;5</dt>
+   <dt>HTML5</dt>
 
    <dd>
     <p>A <span>conforming user agent</span> <em class="ct">must</em> support
-    at least the subset of the functionality defined in HTML&nbsp;5 that
+    at least the subset of the functionality defined in HTML5 that
     this specification relies upon, such as the basics of the
     <code>Window</code> object and serializing a <code>Document</code>
     object. [<cite><span>HTML5</span></cite>]</p>
@@ -276,10 +276,9 @@ client.send();</code></pre>
     <p class="note">The
     <a href="http://www.w3.org/TR/2006/WD-Window-20060407/">Window Object
     1.0</a> draft is not referenced normatively as it appears to be no
-    longer maintained and HTML&nbsp;5 defines the <code>Window</code> object
-    in more detail. This specification already depends on HTML&nbsp;5 for
-    other reasons so there is not much additional overhead because of
-    this.</p>
+    longer maintained and HTML5 defines the <code>Window</code> object in
+    more detail. This specification already depends on HTML5 for other
+    reasons so there is not much additional overhead because of this.</p>
 
    <dt>HTTP</dt>
 
@@ -323,8 +322,6 @@ client.send();</code></pre>
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
   
-  
-
   <p>The terms and algorithms
   <dfn id="url-fragment">&lt;fragment></dfn>,
   <dfn id="url-scheme">&lt;scheme></dfn>,
@@ -346,7 +343,7 @@ client.send();</code></pre>
   <dfn id="url-character-encoding">URL character encoding</dfn>,
   <dfn id="queue-a-task">queue a task</dfn>, and
   <dfn id="valid-mime-type">valid MIME type</dfn>
-  are defined by the HTML&nbsp;5 specification.
+  are defined by the HTML5 specification.
   [<cite><span>HTML5</span></cite>]</p>
 
   <p>The term <dfn id="entity-body">entity body</dfn> is used as described
@@ -358,8 +355,6 @@ client.send();</code></pre>
   <p><dfn><code>userinfo</code></dfn> is used as described in section 3.2.1
   of RFC 3986. [<cite><span>RFC3986</span></cite>]</p>
 
-  
-
   <p>To <dfn id="dispatch-readystatechange-event">dispatch a
   <code>readystatechange</code> event</dfn> means that an event with the
   name <code>readystatechange</code>, which does not bubble and is not
@@ -370,10 +365,15 @@ client.send();</code></pre>
 
   <h3 id="extensibility">Extensibility</h3>
 
-  <p>Extensions of the API defined by this specification are <em>strongly
-  discouraged</em>. User agents, Working Groups and other interested parties
-  should discuss extensions on a relevant public forum, preferably
-  <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>.</p>
+  <p>User agents, Working Groups, and other interested parties are
+  <em>strongly encouraged</em> to discuss extensions on a relevant public
+  forum, preferably
+  <a href="mailto:public-webapps@w3.org">public-webapps@w3.org</a>. If this
+  is for some reason not possible prefix the extension in some way and start
+  the prefix with an uppercase letter. E.g. if company Foo wants to add a
+  private method <code>bar()</code> it could be named <code>FooBar()</code>
+  to prevent clashes with a potential future standardized
+  <code>bar()</code>.</p>
 
 
   <h2>The <code title="">XMLHttpRequest</code> Interface</h2>
@@ -1236,6 +1236,8 @@ X-Test: one, two
   steps:</p>
 
   <ol>
+   <!-- XXX should cancel network activity here as well for abort/timeout cases (and maybe others); clean up task queue? -->
+
    <li><p>Set the <span>response entity body</span> to null.</p></li>
 
    <li><p>Set the the <span>error flag</span> to true.</p></li>
@@ -1317,6 +1319,8 @@ X-Test: one, two
 
    <li><p>The user agent <em class="ct">should</em> cancel any network
    activity for which the object is responsible.</p></li>
+   
+   <!-- XXX remove any pending tasks from the queue -->
 
    <li><p>Set the <span>response entity body</span> to null.</p></li>
 
@@ -1341,10 +1345,10 @@ X-Test: one, two
 
      
     </ol>
-   
+
     
-    <p class="note">It is likely that a future version of this specification
-    will dispatch an <code title="">abort</code> event here.</p>
+    <p class="note">A future version of this specification will dispatch an
+    <code title="abort-event">abort</code> event here.</p>
     
    </li>
 
@@ -1428,18 +1432,22 @@ X-Test: one, two
   
 
   <div class="example">
-   <pre><code>// The following script:
-var client = new XMLHttpRequest();
-client.open("GET", "test.txt", true);
+   
+   <p>For the following script:</p>
+
+   <pre><code>var client = new XMLHttpRequest();
+client.open("GET", "unicorns-are-teh-awesome.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 2) {
-  print(client.getResponseHeader("Content-Type"));
- }
-}
+  if(this.readyState == 2) {
+    print(client.getResponseHeader("Content-Type"));
+  }
+}</code></pre>
 
-// ...should output something similar to the following text:
-Content-Type: text/plain; charset=utf-8</code></pre>
+   <p>The <code>print()</code> function will get to process something
+   like:</p>
+
+   <pre><code>text/plain; charset=UTF-8</code></pre>
   </div>
 
 
@@ -1466,19 +1474,24 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    U+003A COLON U+0020 SPACE pair.</p></li>
   </ol>
 
+  
+
   <div class="example">
-   <pre><code>// The following script:
-var client = new XMLHttpRequest();
-client.open("GET", "test.txt", true);
+   <p>For the following script:</p>
+   
+   <pre><code>var client = new XMLHttpRequest();
+client.open("GET", "narwhals-too.txt", true);
 client.send();
 client.onreadystatechange = function() {
  if(this.readyState == 2) {
   print(this.getAllResponseHeaders());
  }
-}
+}</code></pre>
 
-// ...should output something similar to the following text:
-Date: Sun, 24 Oct 2004 04:58:38 GMT
+   <p>The <code>print()</code> function will get to process something
+   like:</p>
+
+   <pre><code>Date: Sun, 24 Oct 2004 04:58:38 GMT
 Server: Apache/1.3.31 (Unix)
 Keep-Alive: timeout=15, max=99
 Connection: Keep-Alive
@@ -1486,11 +1499,9 @@ Transfer-Encoding: chunked
 Content-Type: text/plain; charset=utf-8</code></pre>
   </div>
 
-  
+
 
   <h4>Response Entity Body</h4>
-
-  <!-- XXX carefully study this -->
 
   <p>The <dfn id="response-mime-type">response MIME type</dfn> is the MIME
   type the <code>Content-Type</code> header contains without any
@@ -1507,21 +1518,21 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <dfn id="override-charset">override charset</dfn> is always null.
   <dfn id="final-charset">Final charset</dfn> is the override charset unless
   that is null in which case it is the response charset.</p>
-  
+
   
   <p class="note"><span>Override MIME type</span> and
   <span>override charset</span> are introduced here solely to make editing
   several levels of XMLHttpRequest simultaneously somewhat easier. Apologies
   for any confusion they might cause.</p>
   
-  
+
   <hr>
 
   <p>The <dfn id="response-entity-body">response entity body</dfn> is the
   fragment of the <span>entity body</span> received so far (LOADING state) or
   the complete entity body (DONE state). If there is no entity body the
   response entity body is null.</p>
-  
+
   <hr>
 
   <p>The <dfn id="text-response-entity-body">text response entity body</dfn>
@@ -1759,10 +1770,10 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    
 
    <dt>[<dfn id="ref-html5">HTML5</dfn>]</dt>
-   <dd><cite><a href="http://www.w3.org/html/wg/html5/">HTML&nbsp;5</a></cite>
-   (work in progress), I. Hickson, D. Hyatt, editors. W3C, 2008.</dd>
-   <dd><cite><a href="http://www.whatwg.org/specs/web-apps/current-work/">HTML&nbsp;5</a></cite>
-   (work in progress), I. Hickson, editor. WHATWG, 2008.</dd>
+   <dd><cite><a href="http://www.w3.org/html/wg/html5/">HTML5</a></cite>
+   (work in progress), I. Hickson, D. Hyatt, editors. W3C, 2010.</dd>
+   <dd><cite><a href="http://www.whatwg.org/specs/html5/current-work/">HTML5</a></cite>
+   (work in progress), I. Hickson, editor. WHATWG, 2010.</dd>
 
    <dt>[<dfn id="ref-httpverbsec">HTTPVERBSEC</dfn>]</dt>
    <dd>(Non-normative)
@@ -1810,7 +1821,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
 
    <dt>[<dfn id="ref-webidl">WebIDL</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/webapi/WebIDL/">Web
-   IDL</a></cite> (work in progress), C. McCormack, editor. W3C, 2009.</dd>
+   IDL</a></cite> (work in progress), C. McCormack, editor. W3C, 2010.</dd> <!-- XXX add Sam -->
 
    <dt>[<dfn id="ref-xml">XML</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/xml/">Extensible Markup Language
@@ -1818,7 +1829,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    Sperberg-McQueen, E. Maler, F. Yergeau, editors. W3C, November 2008.</dd>
    <dd><cite><a href="http://www.w3.org/TR/xml-names/">Namespaces in XML
    (Second Edition)</a></cite>, T. Bray, D. Hollander, A. Layman, R. Tobin,
-   editors. W3C, August 2006.</dd>
+   editors. W3C, August 2006.</dd> <!--XXX this was updated-->
   </dl>
 
 
@@ -1897,7 +1908,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
 
   <p>Special thanks also to the WHATWG for drafting an initial version of
   this specification in their Web Applications 1.0 document (now renamed to
-  HTML&nbsp;5). [<cite><span>HTML5</span></cite>]</p>
+  HTML5). [<cite><span>HTML5</span></cite>]</p>
 
   <p>Thanks also to all those who have helped to improve this specification
   by sending suggestions and corrections. (Please, keep bugging us with your
