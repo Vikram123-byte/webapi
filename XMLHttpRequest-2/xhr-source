@@ -363,6 +363,7 @@ client.send();</code></pre>
   <dfn id="storage-mutex">storage mutex</dfn>,
   <dfn id="task">task</dfn>,
   <dfn id="task-source">task source</dfn>,
+  <dfn id="task-queues">task queues</dfn>,
   <dfn id="url">URL</dfn>,
   <dfn id="url-character-encoding">URL character encoding</dfn>,
   <dfn id="queue-a-task">queue a task</dfn>, and
@@ -836,6 +837,10 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    activity for which the object is responsible.</p></li>
    <!-- we can hardly require it... -->
 
+   <li><p>If there are any <span title="task">tasks</span> from the object's
+   <span><code>XMLHttpRequest</code> task source</span> in one of the
+   <span>task queues</span>, then remove those tasks.</p></li>
+
    <li>
     <p>Set variables associated with the object as follows:</p>
 
@@ -1157,7 +1162,7 @@ X-Test: one, two
       <p>Let the <span>request entity body</span> be the result of running
       the <span><code>multipart/form-data</code> encoding algorithm</span>
       with <var>data</var> as <var>form data set</var>.</p>
-      
+
       <!-- XXX sufficient? prolly not -->
      </dd>
      <!--END xhr2-->
@@ -1747,14 +1752,16 @@ X-Test: one, two
 
    <li><p>The user agent <em class="ct">should</em> cancel any network
    activity for which the object is responsible.</p></li>
-   
-   <!-- XXX remove any pending tasks from the queue -->
+
+   <li><p>If there are any <span title="task">tasks</span> from the object's
+   <span><code>XMLHttpRequest</code> task source</span> in one of the
+   <span>task queues</span>, then remove those tasks.</p></li>
 
    <li><p>Set the <span>response entity body</span> to null.</p></li>
 
-   <li><p>Set the <span>error flag</span> to true.</p></li>
-
    <li><p>Empty the list of <span>author request headers</span>.</p></li>
+
+   <li><p>Set the <span>error flag</span> to true.</p></li>
 
    <li>
     <p>If the state is <span title="UNSENT state">UNSENT</span>,

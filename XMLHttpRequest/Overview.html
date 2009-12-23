@@ -437,9 +437,10 @@ client.send();</code></pre>
    name</dfn>, <dfn id=resolve-a-url>resolve a URL</dfn>, <dfn
    id=same-origin>same origin</dfn>, <dfn id=storage-mutex>storage
    mutex</dfn>, <dfn id=task>task</dfn>, <dfn id=task-source>task
-   source</dfn>, <dfn id=url>URL</dfn>, <dfn id=url-character-encoding>URL
-   character encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and
-   <dfn id=valid-mime-type>valid MIME type</dfn> are defined by the HTML5
+   source</dfn>, <dfn id=task-queues>task queues</dfn>, <dfn
+   id=url>URL</dfn>, <dfn id=url-character-encoding>URL character
+   encoding</dfn>, <dfn id=queue-a-task>queue a task</dfn>, and <dfn
+   id=valid-mime-type>valid MIME type</dfn> are defined by the HTML5
    specification. [<cite><a href="#ref-html5">HTML5</a></cite>]
 
   <p>The term <dfn id=entity-body>entity body</dfn> is used as described in
@@ -851,6 +852,13 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      for which the object is responsible.
    </li>
    <!-- we can hardly require it... -->
+
+   <li>
+    <p>If there are any <a href="#task" title=task>tasks</a> from the
+     object's <a
+     href="#xmlhttprequest-task-source"><code>XMLHttpRequest</code> task
+     source</a> in one of the <a href="#task-queues">task queues</a>, then
+     remove those tasks.
 
    <li>
     <p>Set variables associated with the object as follows:</p>
@@ -1492,19 +1500,24 @@ X-Test: one, two
    <li>
     <p>The user agent <em class=ct>should</em> cancel any network activity
      for which the object is responsible.
-   </li>
-   <!-- XXX remove any pending tasks from the queue -->
+
+   <li>
+    <p>If there are any <a href="#task" title=task>tasks</a> from the
+     object's <a
+     href="#xmlhttprequest-task-source"><code>XMLHttpRequest</code> task
+     source</a> in one of the <a href="#task-queues">task queues</a>, then
+     remove those tasks.
 
    <li>
     <p>Set the <a href="#response-entity-body">response entity body</a> to
      null.
 
    <li>
-    <p>Set the <a href="#error-flag">error flag</a> to true.
-
-   <li>
     <p>Empty the list of <a href="#author-request-headers">author request
      headers</a>.
+
+   <li>
+    <p>Set the <a href="#error-flag">error flag</a> to true.
 
    <li>
     <p>If the state is <a href="#unsent-state" title="UNSENT
