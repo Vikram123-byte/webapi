@@ -35,13 +35,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 23 December 2009</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 24 December 2009</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091223/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091223/</a>
+     href="http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091224/">http://www.w3.org/TR/2009/ED-XMLHttpRequest-20091224/</a>
 
     <dt>Latest Version:
 
@@ -118,7 +118,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 23 December 2009 <!--Last Call Working Draft-->Editor's
+  <p>This is the 24 December 2009 <!--Last Call Working Draft-->Editor's
    Draft of XMLHttpRequest. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR]%20">public-webapps@w3.org</a>
    (<a
@@ -756,8 +756,8 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      <var title="">url</var> be UTF-8.
 
    <li>
-    <p><a href="#resolve-a-url" title="Resolve a URL">Resolve <var
-     title="">url</var></a> relative to the <a
+    <p><a href="#resolve-a-url" title="Resolve a URL">Resolve</a> <var
+     title="">url</var> relative to the <a
      href="#xmlhttprequest-base-url"><code>XMLHttpRequest</code> base
      URL</a>. If the algorithm returns an error raise a
      <code>SYNTAX_ERR</code> exception and terminate these steps.
@@ -1208,8 +1208,9 @@ X-Test: one, two
 
       <p>While processing the request, as data becomes available and when the
        user interferes with the request, <a href="#queue-a-task" title="queue
-       a task">queue tasks</a> to follow the <a
-       href="#same-origin-request-event-rules">same-origin request event
+       a task">queue tasks</a> to update the <a
+       href="#response-entity-body">response entity body</a> and follow the
+       <a href="#same-origin-request-event-rules">same-origin request event
        rules</a>.</p>
     </dl>
   </ol>
@@ -1281,7 +1282,7 @@ X-Test: one, two
    <li>
     <p>If not set through <code><a
      href="#setrequestheader">setRequestHeader()</a></code>
-     <code>Accept-Language</code> <em class=ct>should</em> set as
+     <code>Accept-Language</code> <em class=ct>should</em> be set as
      appropriate.
 
    <li>
@@ -1466,8 +1467,6 @@ X-Test: one, two
      <code>readystatechange</code> event</a>.
   </ol>
 
-  <hr>
-
   <p>When it is said to <dfn id=switch-loading>switch to the LOADING
    state</dfn> run these steps:
 
@@ -1481,12 +1480,14 @@ X-Test: one, two
      <code>readystatechange</code> event</a>.
   </ol>
 
-  <hr>
-
   <p>When it is said to <dfn id=switch-done>switch to the DONE state</dfn>
    run these steps:
 
   <ol>
+   <li>
+    <p>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     update the <a href="#response-entity-body">response entity body</a>.
+
    <li>
     <p>Switch the state to <a href="#done-state" title="DONE state">DONE</a>.
 
@@ -1732,9 +1733,15 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <hr>
 
   <p>The <dfn id=response-entity-body>response entity body</dfn> is the
-   fragment of the <a href="#entity-body">entity body</a> received so far
-   (LOADING state) or the complete entity body (DONE state). If there is no
-   entity body the response entity body is null.
+   fragment of the <a href="#entity-body">entity body</a> of the response
+   received so far (<a href="#loading-state" title="LOADING
+   state">LOADING</a>) or the complete entity body of the response (<a
+   href="#done-state" title="DONE state">DONE</a>). If the response does not
+   have an entity body the response entity body is null.
+
+  <p class=note>The <a href="#response-entity-body">response entity body</a>
+   is updated as part of the <code><a href="#send">send()</a></code>
+   algorithm.
 
   <hr>
 

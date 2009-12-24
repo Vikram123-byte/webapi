@@ -632,7 +632,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <li><p>Let <span>URL character encoding</span> of <var title="">url</var>
    be UTF-8.</p></li>
 
-   <li><p><span title="Resolve a URL">Resolve <var title="">url</var></span>
+   <li><p><span title="Resolve a URL">Resolve</span> <var title="">url</var>
    relative to the <span><code>XMLHttpRequest</code> base URL</span>.
    If the algorithm returns an error raise a <code>SYNTAX_ERR</code>
    exception and terminate these steps.</p></li>
@@ -872,7 +872,7 @@ client.send();
 X-Test: one, two
 ...</code></pre>
   </div>
-  
+
   
 
 
@@ -1044,7 +1044,8 @@ X-Test: one, two
 
         <p>While processing the request, as data becomes available and when
         the user interferes with the request,
-        <span title="queue a task">queue tasks</span> to follow the
+        <span title="queue a task">queue tasks</span> to update the
+        <span>response entity body</span> and follow the
         <span>same-origin request event rules</span>.</p>
        </dd>
       </dl>
@@ -1111,9 +1112,9 @@ X-Test: one, two
   <ul>
    <li><p>Both headers <em class="ct">must not</em> be modified if they are
    already set through <code>setRequestHeader()</code>.</p></li>
-  
+
    <li><p>If not set through <code>setRequestHeader()</code>
-   <code>Accept-Language</code> <em class="ct">should</em> set as
+   <code>Accept-Language</code> <em class="ct">should</em> be set as
    appropriate.</p></li>
 
    <li><p>If not set through <code>setRequestHeader()</code>
@@ -1273,8 +1274,6 @@ X-Test: one, two
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
   </ol>
 
-  <hr>
-
   <p>When it is said to
   <dfn id="switch-loading">switch to the LOADING state</dfn> run these
   steps:</p>
@@ -1285,12 +1284,13 @@ X-Test: one, two
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
   </ol>
 
-  <hr>
-
   <p>When it is said to
   <dfn id="switch-done">switch to the DONE state</dfn> run these steps:</p>
 
   <ol>
+   <li><p>If the <span>asynchronous flag</span> is false update the
+   <span>response entity body</span>.</p></li>
+
    <li><p>Switch the state to <span title="DONE state">DONE</span>.</p></li>
 
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
@@ -1357,7 +1357,6 @@ X-Test: one, two
 
 
   <h3 id="response">Response</h3>
-
 
   <h4>The <code title="">status</code> attribute</h4>
 
@@ -1524,9 +1523,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <hr>
 
   <p>The <dfn id="response-entity-body">response entity body</dfn> is the
-  fragment of the <span>entity body</span> received so far (LOADING state) or
-  the complete entity body (DONE state). If there is no entity body the
-  response entity body is null.</p>
+  fragment of the <span>entity body</span> of the response received so far
+  (<span title="LOADING state">LOADING</span>) or the complete entity body
+  of the response (<span title="DONE state">DONE</span>). If the response
+  does not have an entity body the response entity body is null.</p>
+
+  <p class="note">The <span>response entity body</span> is updated as part
+  of the <code>send()</code> algorithm.</p>
 
   <hr>
 
