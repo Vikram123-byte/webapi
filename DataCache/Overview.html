@@ -2,8 +2,8 @@
 <html lang='en-US'>
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
-    <title>Data Cache API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.16 2009-12-17 02:29:51 nmehta3 Exp $'/>
+    <title>Programmable HTTP Caching and Processing</title>
+    <meta name='revision' content='$Id: Overview.html,v 1.17 2009-12-30 06:53:28 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -42,7 +42,7 @@
           
           wgPublicList: "public-webapps",
           
-          wgPatentURI:  "http://www.w3.org/Consortium/Patent-Policy-20040205/",
+          wgPatentURI:  "http://www.w3.org/2004/01/pp-impl/42538/status",
       };
     </script>
     <script class="remove">
@@ -79,19 +79,9 @@
           codeblock.parentNode.replaceChild(div, codeblock);
         }
       }
-      function codeRefs() {
-        var codes = document.querySelectorAll('a>code');
-        for (var i = 0; i < codes.length; i++) {
-          var code = codes.item(i);
-          var a = code.parentNode;
-          a.setAttribute('class', 'idltype');
-          a.setAttribute('href', '#idl-def-' + code.textContent); 
-        }      
-      }
       window.onload = function() {
         examples();
         codeblocks();
-        codeRefs();
         (new berjon.respec()).loadAndRun();
       }
     </script>
@@ -121,13 +111,17 @@
         padding: 0.2em;
         vertical-align: top;
       }
+      .diff-add {
+        background-color: #eeeeee
+      }
     </style>
   </head>
   <body>
     <section id="abstract">
       <p>
         This document defines APIs for off-line serving of requests to HTTP resources using
-        static and dynamic responses.
+        static and dynamic responses. It extends the function of application caches defined in 
+        HTML5.
       </p>
     </section>
 
@@ -148,13 +142,14 @@
         and do not provide any guarantees about off-line serving of 
         HTTP resources. An application cache [[!HTML5]]</cite>
         can hold static representations of a set of pre-defined resources
-        that can be served locally. However, applications cannot
-        alter this set of resources programmatically. Moreover, an
-        application cache cannot satisfy requests other than 
-        <code>GET</code> and <code>HEAD</code>.
+        that can be served locally. This specification extends application
+        caches to alter this set of cached resources programmatically. 
+        As part of this extension, an application cache can also satisfy 
+        requests other than <code>GET</code> and <code>HEAD</code>.
       </p>
     
       <p>
+        Application cache 
         To address this limitation, this specification introduces data caches. 
         Instead of a static manifest resource listing the resources
         to be cached, a data cache can be modified programmatically.
@@ -211,7 +206,7 @@
             A conforming DataCache user agent must also be a
             <em>conforming implementation</em> of the IDL fragments
             of this specification, as described in the
-            âWeb IDLâ specification. [[!WEBIDL]]
+            Web IDL specification. [[!WEBIDL]]
           </p>
           
           <p class="note">
@@ -229,73 +224,82 @@
           <dt>HTML5</dt>
           <dd>The terms and algorithms 
             <dfn title="event handler">event handlers</dfn>, 
-            <dfn>event handler event type</dfn>, <dfn>active document</dfn>,
-            <dfn>browsing context</dfn>, <dfn>current browsing context</dfn>,
-            <dfn>child browsing contexts</dfn>, <dfn title="fetch">fetching resources</dfn>,
-            <dfn title="Function"><code>Function</code></dfn>, <dfn>origin</dfn>, 
-            <dfn>same origin</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
-            and <dfn>queue a task</dfn>, <dfn>storage mutex</dfn> are referenced
+            <dfn>event handler event type</dfn>, <dfn>origin</dfn>,
+            <dfn>same origin</dfn>, <dfn title="fetch">fetching resources</dfn>, 
+            <dfn>browsing context</dfn>, <dfn>active document</dfn>,
+            <dfn title="Function"><code>Function</code></dfn>, 
+            <dfn>application cache</dfn>, <dfn>application cache group</dfn>, 
+            <dfn>relevant application cache</dfn>, <dfn>master entries</dfn>, 
+            <dfn>application cache selection algorithm</dfn>, <dfn>cache host</dfn>,
+            <dfn>HTTP GET equivalent</dfn>, <dfn>explicit entries</dfn>, 
+            <dfn>manifest</dfn>, <dfn><code>ApplicationCache</code></dfn>, 
+            <dfn>origin</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
+            and <dfn>queue a task</dfn>, <dfn>storage mutex</dfn>,  
+            the <dfn><code>manifest</code></dfn> attribute, and the 
+            <dfn><code>error</code></dfn>, <dfn><code>fetching</code></dfn> 
+            <dfn><code>ready</code></dfn>, <dfn><code>updateready</code></dfn> 
+            event names are referenced
             in this specification and defined by the HTML 5 specification [[!HTML5]].
           </dd>
           <dt>HTTP</dt>
           <dd>
-            <p>
-              A <a> conforming user agent</a> must support some version of the
-              HTTP protocol [[!HTTP11]].
-            </p>
-          
-            <p>
-              In order to protect against attacks, the use of the following
-              headers is prohibited using interfaces defined in this specification.
-            </p>
-          
-            <ul>
-             <li><code>Accept</code></li>
-        
-             <li><code>Accept-Charset</code></li>
-        
-             <li><code>Accept-Encoding</code></li>
-        
-             <li><code>Accept-Language</code></li>
-        
-             <li><code>Authorization</code></li>
-        
-             <li><code>Cache-Control</code></li>
-        
-             <li><code>Connection</code></li>
-        
-             <li><code>Content-Transfer-Encoding</code></li>
-        
-             <li><code>Cookie</code></li>
-        
-             <li><code>Date</code></li>
-        
-             <li><code>Expect</code></li>
-        
-             <li><code>Host</code></li>
-        
-             <li><code>Keep-Alive</code></li>
-        
-             <li><code>Origin</code></li>
-        
-             <li><code>Range</code></li>
-        
-             <li><code>Referer</code></li>
-        
-             <li><code>Set-Cookie</code></li>
-        
-             <li><code>TE</code></li>
-        
-             <li><code>Trailer</code></li>
-        
-             <li><code>Transfer-Encoding</code></li>
-        
-             <li><code>Upgrade</code></li>
-        
-             <li><code>User-Agent</code></li>
-        
-             <li><code>Via</code></li>
-            </ul>
+						<p>
+							A <a> conforming user agent</a> must support some version of the
+							HTTP protocol [[!HTTP11]].
+						</p>
+					
+						<p>
+							In order to protect against attacks, the use of the following
+							headers is prohibited using interfaces defined in this specification.
+						</p>
+						
+						<ul>
+							<li><code>Accept</code></li>
+							
+							<li><code>Accept-Charset</code></li>
+							
+							<li><code>Accept-Encoding</code></li>
+							
+							<li><code>Accept-Language</code></li>
+							
+							<li><code>Authorization</code></li>
+							
+							<li><code>Cache-Control</code></li>
+							
+							<li><code>Connection</code></li>
+							
+							<li><code>Content-Transfer-Encoding</code></li>
+							
+							<li><code>Cookie</code></li>
+							
+							<li><code>Date</code></li>
+							
+							<li><code>Expect</code></li>
+							
+							<li><code>Host</code></li>
+							
+							<li><code>Keep-Alive</code></li>
+							
+							<li><code>Origin</code></li>
+							
+							<li><code>Range</code></li>
+							
+							<li><code>Referer</code></li>
+							
+							<li><code>Set-Cookie</code></li>
+							
+							<li><code>TE</code></li>
+							
+							<li><code>Trailer</code></li>
+							
+							<li><code>Transfer-Encoding</code></li>
+							
+							<li><code>Upgrade</code></li>
+							
+							<li><code>User-Agent</code></li>
+							
+							<li><code>Via</code></li>
+						</ul>
           </dd>
           <dt>HTTP State Management</dt>
           <dd>
@@ -313,8 +317,8 @@
           <dd>
             <p>
               A <a>conforming user agent</a> must define the exception  
-              codes defined in [[!DOM-LEVEL-3-CORE]] and referenced in 
-              this specification.
+              codes and <code>Event</code> interface defined in [[!DOM-LEVEL-3-CORE]] 
+              and referenced in this specification.
             </p>
           </dd>
         </dl>
@@ -323,38 +327,36 @@
     
     <section id="terminology" class="section">
       <h2>Terminology</h2>
-
       <p>
-        A resource is <dfn>captured</dfn> when it is added
-        to a data cache.
+        A <dfn>managed</dfn> resource is one whose URI is dynamically captured
+        in an <a class="externalDFN">application cache</a>.
       </p>
       
       <p>
-        A resource is <dfn>released</dfn> when it is removed
-        from a data cache.
+        A resource is <dfn>captured</dfn> when it is dynamically added
+        to an <a class="externalDFN">application cache</a>.
       </p>
       
       <p>
-        A <dfn>managed</dfn> resource is one whose URI is captured.
+        A resource is <dfn>released</dfn> when it is dynamically removed
+        from an <a class="externalDFN">application cache</a>.
       </p>
       
       <p>
-        A <dfn>static</dfn> representation is one that 
-        is generated directly by the user agent from its internal storage.
+        A <dfn>static</dfn> representation is one that is generated directly
+        by the user agent from an <a class="externalDFN">application cache</a>.
       </p>
       
       <p>
-        A <dfn>dynamic</dfn> representation is one that  
-        is generated  programmatically by using application-supplied logic.
+        A <dfn>dynamic</dfn> representation is one that is generated 
+        programmatically by using application-supplied logic
+        in an embedded local server.
       </p>
       
       <p>
         <dfn title="off-line">Transparent off-line data access and manipulation</dfn>  
         means to locally generate a <a>static</a> or a <a>dynamic</a> 
         response for HTTP requests to <a>captured</a> resources.
-      </p>
-      <p>
-        A <dfn>private</dfn> resource is one that requires explicit authorization.
       </p>
     </section>
             
@@ -378,8 +380,8 @@
         <ol>
           <li>
             <dfn>serve policy</dfn> - respond with the <a>static</a> representation  
-            of the requested resource (for any safe HTTP methods) from a
-            <a>data cache</a>. 
+            of the requested resource (for any safe HTTP methods) from
+            the <a class="externalDFN">application cache</a>. 
           </li>
           <li>
             <dfn>intercept policy</dfn> - 
@@ -411,20 +413,22 @@
           <h4>Examples</h4>
 
           <p>
-            An application can use a <a>data cache</a> to 
-            <a title="captured">capture</a> the representation of a resource, 
-            i.e., cache an <a>off-line</a> representation in the <a>data cache</a>.  
+            An application can use an <a class="externalDFN">application cache</a> to 
+            programmatically <a title="captured">capture</a> the representation of a 
+            resource, i.e., cache an <a>off-line</a> representation in the 
+            <a class="externalDFN">application cache</a>.  
           </p>
           
           <div class="example">    
             <p>
-              Using a <a>data cache</a>, an application <a>captures</a> a resource
-              as part of an atomic <a>cache transaction</a>. Once the resource is 
-              <a>captured</a> successfully, the application places the <a>captured</a> 
-              representation in to service.
+              An application <a>captures</a> a resource as part of an atomic 
+              <a>cache transaction</a>. Once the resource is <a>captured</a> 
+              successfully, the application places the <a>captured</a> 
+              representation in to service. This can be performed through a 
+              single API call.
             </p>
             <codeblock>var uri = ...
-var cache = window.openDataCache();
+var cache = window.applicationCache;
 // cache and immediately take advantage of the new stuff in the cache
 cache.immediate(uri);</codeblock>
             <p>
@@ -442,8 +446,8 @@ req.send();</codeblock>
           <p>
             A <a>dynamic</a> representation is produced by using an
             <a>embedded local server</a> in conjunction with the 
-            <a>data cache</a>. An <a>interceptor</a> processes an HTTP
-            request locally in an <a>embedded local server</a>
+            <a class="externalDFN">application cache</a>. An <a>interceptor</a>
+            processes an HTTP request locally in an <a>embedded local server</a>
             without changing the network APIs used by applications. Thus 
             even if a host is unreachable, applications can successfully
             make HTTP requests to a <a>managed</a> resource.
@@ -453,15 +457,16 @@ req.send();</codeblock>
             <p>
               In this example, a local requst handler can produce a <a>dynamic</a> 
               response  to an application request when the network is not accessible. 
-              The response can be prepared using the <a>data cache</a>, for 
-              example. The benefit of this technique is that applications don't need to 
-              alter their applications to accommodate <a>off-line</a> use cases. 
+              The response can be prepared using the 
+              <a class="externalDFN">application cache</a>, for example. The benefit
+              of this technique is that applications don't need to alter their
+              applications to accommodate <a>off-line</a> use cases. 
               Instead, user agents can transparently introduce an application-specific 
               <a>off-line</a> handler to deal with situations when the network is not 
               available.  
             </p>
             <codeblock>var uri = ...
-var cache = window.openDataCache();
+var cache = window.applicationCache;
 var local = function(request, response) {
   response.statusCode = 200;
   response.statusLine = 'HTTP/1.1 OK';
@@ -471,10 +476,12 @@ var local = function(request, response) {
 
 window.navigator.registerOfflineHandler(uri, local);
 
-var txn = cache.offlineTransaction(function(txn) {
+cache.request.onsuccess = function() {
+  var txn = cache.request.result;
   txn.capture(uri, '', null, ['GET']);
   txn.commit();
-});</codeblock>
+}
+cache.offlineTransaction();</codeblock>
             <p>
               Later when that application issues a <code>GET</code> request for
               the <a>managed</a> resource either through page navigation or an XMLHttpRequest 
@@ -491,8 +498,8 @@ req.send();</codeblock>
           <p>
             Applications can also locally intercept requests that modify data, 
             e.g., unsafe HTTP requests such as <code>PUT</code> in an <a>off-line</a>
-            handler. Requests to resources that are <a>managed</a> in a 
-            <a>data cache</a> can be either:
+            handler. Requests to resources that are <a>managed</a> in an 
+            <a class="externalDFN">application cache</a> can be either:
           </p>
           <ul>
             <li>intercepted and served by an <a>interceptor</a>, when the
@@ -509,12 +516,12 @@ req.send();</codeblock>
             <p>
               For example, an application worker script that wishes to allow <a>off-line</a>
               updates to <var>uri</var> <a title="captured">captures</a> that resource 
-              in a <a>data cache</a>.
+              in an <a class="externalDFN">application cache</a>.
             </p>
             
             <codeblock>var uri = ...
-var cache = self.openDataCacheSync();
-var txn = cache.transactionSync();
+var cache = self.applicationCache;
+var txn = cache.transaction();
 txn.capture(uri, ['PUT']);
 txn.commit();</codeblock>
 
@@ -524,7 +531,7 @@ txn.commit();</codeblock>
               that resource. 
             </p>
             
-            <codeblock>cache = window.openDataCache();
+            <codeblock>cache = window.applicationCache;
 var intercept = function(request, response) {
   if (...) {
     // validation fails
@@ -532,8 +539,10 @@ var intercept = function(request, response) {
     response.send();
     return;
   } 
-  cache.offlineTransaction(function(txn) {
-    txn.oncommitted = function() {
+  cache.request.onsuccess = function() {
+    var txn = cache.request.result;
+    txn.request.onsuccess = function() {
+      txn.request.onsuccess = null;
       response.bodyText = request.bodyText;
       response.headers['Content-Type'] = type;
       response.statusCode = 200;
@@ -541,15 +550,18 @@ var intercept = function(request, response) {
       response.send();
     });
     txn.capture(request.targetURL, request.bodyText, request.headers['Content-Type']);
-    txn.commit();    
-  });
+    txn.commit();
+  }
+  cache.offlineTransaction();
 };
 
 var review = function(request, response) {
-  cache.offlineTransaction(function(txn) {
+  cache.request.onsuccess = function(txn) {
+    var txn = cache.request.result
     txn.capture(request.targetURL, response.bodyText, response.headers['Content-Type']); 
     txn.commit();
-  });
+  }
+  cache.offlineTransaction();
 };
 
 window.navigator.registerOfflineHandler(uri, intercept, review);</codeblock>
@@ -586,116 +598,75 @@ req.send();</codeblock>
           <h4>Event summary</h4>
           
           <p>
-            Application scripts may modify a <a>managed resource</a> of a 
-            <a>data cache</a>. The user agent will fetch the representations
-            of newly added and modified <a>managed</a> resources and add 
-            the representations to the <a>data cache</a>.
+            The user agent updates an <a class="externalDFN">application cache</a> when application scripts 
+            modify its <a>managed</a> resources. The user agent will fetch the
+            representations of newly added and modified <a>managed</a> resources
+            and add the representations to the <a class="externalDFN">application cache</a>.
           </p>
           
           <p>
-            A number of events are fired to keep the application
-            updated as to the state of the cache, so that the
-            user can be notified appropriately. The events are as follows:
+            As this is going on, a number of events get fired to keep the script updated 
+            as to the state of the cache update, so that the user can be notified 
+            appropriately. The events are as follows:
           </p>
           
           <table>
             <thead><tr><th>Event name</th><th>Occasion</th><th>Next events</th></tr></thead>
             <tbody>
-              <tr>
-                <td><dfn id="event-off-line-updating"><code>off-line-updating</code></dfn></td>
-                <td>A script has started an <a>off-line transaction</a> to modify the <a>data cache</a>.</td>
-                <td>
-                  <a href="#event-captured" class="dfnref"><code>captured</code></a>, 
-                  <a href="#event-released" class="dfnref"><code>released</code></a>, 
-                  <a href="#event-ready" class="dfnref"><code>ready</code></a>
-                </td>
-              </tr>
-
-              <tr>
+              <!--tr>
                 <td><dfn id="event-updating"><code>updating</code></dfn></td>
                 <td>A script has started an <a>online transaction</a> to modify the <a>data cache</a>.</td>
                 <td>
-                  <a href="#event-fetching" class="dfnref"><code>fetching</code></a>, 
+                  <a href="#event-downloading" class="dfnref"><code>downloading</code></a>, 
                   <a href="#event-released" class="dfnref"><code>released</code></a>, 
-                  <a href="#event-ready" class="dfnref"><code>ready</code></a>
+                  <a href="#event-updateready" class="dfnref"><code>updateready</code></a>
                 </td>
-              </tr>
+              </tr-->
 
-              <tr>
-                <td><dfn id="event-fetching"><code>fetching</code></dfn></td>
-                <td>The user agent has started fetching the representation of
-                a <a>managed</a> resource.</td>
+              <tr class="diff-add">
+                <td><dfn id="event-updating"><code>updating</code></dfn></td>
+                <td>A script has started an <a>off-line transaction</a> to modify the 
+                <a class="externalDFN">application cache</a>.</td>
                 <td>
                   <a href="#event-captured" class="dfnref"><code>captured</code></a>, 
-                  <a href="#event-obsolete" class="dfnref"><code>obsolete</code></a>, 
-                  <a href="#event-error" class="dfnref"><code>error</code></a>
+                  <a href="#event-released" class="dfnref"><code>released</code></a>
                 </td>
               </tr>
 
-              <tr>
+              <tr class="diff-add">
                 <td><dfn id="event-captured"><code>captured</code></dfn></td>
-                <td>The user agent has finished fetching the representation of
+                <td>The user agent has finished <a title="fetch">fetching</a> the representation of
                 a <a>managed</a> resource and stored it.</td>
                 <td>
                   <a href="#event-captured" class="dfnref"><code>captured</code></a>, 
-                  <a href="#event-fetching" class="dfnref"><code>fetching</code></a>, 
-                  <a href="#event-ready" class="dfnref"><code>ready</code></a>, 
+                  <a href="#event-downloading" class="dfnref"><code>downloading</code></a>, 
+                  <a href="#event-updateready" class="dfnref"><code>updateready</code></a>
                 </td>
               </tr>
 
-              <tr>
+              <tr class="diff-add">
                 <td><dfn id="event-released"><code>released</code></dfn></td>
                 <td>The user agent has released a <a>managed</a> resource 
                 and can no longer serve <a>off-line</a> requests to it.</td>
                 <td>
                   <a href="#event-captured" class="dfnref"><code>captured</code></a>, 
-                  <a href="#event-fetching" class="dfnref"><code>fetching</code></a>, 
-                  <a href="#event-ready" class="dfnref"><code>ready</code></a>, 
+                  <a href="#event-downloading" class="dfnref"><code>downloading</code></a>, 
+                  <a href="#event-updateready" class="dfnref"><code>updateready</code></a>
                 </td>
               </tr>
-
-              <tr>
-                <td><dfn id="event-ready"><code>ready</code></dfn></td>
-                <td>All the <a>managed</a> resources have been cached for serving 
-                <a>off-line</a> requests to them, and the script can use 
-                <a title="widl-DataCache-swapCache"><code>swapCache()</code></a> to switch
-                to the new cache.</td>
-                <td>(Last event in sequence.)</td>
-              </tr>
-
-              <tr>
-                <td><dfn id="event-obsolete"><code>obsolete</code></dfn></td>
-                <td>The server returned a 401 error in response to a 
-                request for fetching a <a>managed</a> resource's representation.</td>
-                <td>(Last event in sequence.)</td>
-              </tr>
-
-              <tr>
-                <td><dfn id="event-error"><code>error</code></dfn></td>
-                <td>A fatal error occurred while fetching a <a>managed</a> resource's 
-                representation.</td>
-                <td>(Last event in sequence.)</td>
-              </tr>
-
             </tbody>
           </table>            
         </section>
       </section>
         
         <section id="http-cache" class="section">
-          <h3>Data Caches</h3>
+          <h3>Dynamic Application Caching</h3>
 
           <p>
-            A <a>data cache</a> is a programmable HTTP cache that can be 
-            manipulated by a Web application to serve <a>off-line</a>
-            representations of resources. <!--These representations can be either
-            static, i.e., generated from a store, or dynamic, i.e., generated
-            programmatically.-->
-          </p>
-          
-          <p>
-            A <dfn>data cache</dfn> is a set of <a>managed</a> resources
-            consisting of the entity (i.e., headers and body) for each
+            In addition to the behavior of an 
+            <a class="externalDFN">application cache</a> as defined in [[!HTML5]],
+            this specification requires that it hold a set of <a>managed</a>
+            resources consisting of the entity (i.e., headers and body) for each
             such resource that falls into one of the following categories:
           </p>
 
@@ -717,263 +688,123 @@ req.send();</codeblock>
           </dl>
           
           <p>
-            Each <a>data cache</a> has a <dfn>completeness flag</dfn>, 
-            which is either <var>incomplete</var> or <var>complete</var>.
-          </p>
-      
-          <p>
-            A <a>data cache</a> may have zero or one required 
-            <dfn>authorization cookie</dfn>.
-          </p>          
-          
-          <p>
-            A <dfn>data cache group</dfn> is a group
-            of <a>data cache</a>s identified by the <a>origin</a> in which it is created 
-            and its <a>authorization cookie</a> [[!COOKIES]].
+          	If a document does not use the <a class="externalDFN"><code>manifest</code></a> 
+          	attribute, but uses <a>managed</a> resources, then the document is treated
+          	as a <a class="externalDFN">master entry</a>. This master entry does not 
+          	have an <a class="externalDFN">manifest</a> but it has an
+          	<a class="externalDFN">application cache</a> that is only accessible to
+          	this <a class="externalDFN">master entry</a>.
           </p>
           
           <p>
-            Each <a>data cache</a> whose <a>completeness flag</a> 
+          	The <a class="externalDFN">application cache selection algorithm</a>
+          	is modified by this specification so that the following step is
+          	performed prior to the last step.
+          </p>
+          
+          <dl class="switch">
+          	<dt>
+          	If <var>document</var> was loaded using HTTP GET 
+          	<a class="externalDFN">or equivalent</a>, and there is no 
+          	<var>manifest URL</var>, and there is a <a>master entry</a> that
+          	matches <var>document</var>'s URL
+          	</dt>
+          	<dd>
+          	Associate <var>document</var> with this <a>master entry</a>'s
+          	<a class="externalDFN">application cache</a>
+          	</dd>
+          </dl>
+          
+          <p>
+            Each <a class="externalDFN">application cache</a> has a 
+            <dfn>dynamic completeness flag</dfn>, which is either 
+            <var>incomplete</var> or <var>complete</var>.
+            Each <a class="externalDFN">application cache</a> whose 
+            <a>dynamic completeness flag</a> 
             is <var>complete</var> has a <dfn>version</dfn>.
-            No two <a>data cache</a>s in a <a>data cache group</a> 
-            may have the same <a>version</a>. A <a>data cache</a>
-            is <dfn>newer</dfn> than another if it's <a>version</a>
-            is bigger than the other (in other words <a>data cache</a>s in a
-            <a>data cache group</a> have a chronological order).
-          </p>
-          
-          <!--p>
-            Only the newest <a class="dfnref" href="#data-cache">data cache</a>
-            in a <a href="#data-cache-group" class="dfnref">data cache group</a>
-            can have its <a href="#data-cache-complete">completeness flag</a>
-            set to <var>incomplete</var>, all the others are 
-            always <var>complete</var>.
-          </p-->
-          
-          <p>
-            Each <a>data cache group</a> has an <dfn>update status</dfn>, which
-            is one of the following: <var>idle</var> or <var>updating</var>.
+            No two <a class="externalDFN">application cache</a>s in an 
+            <a class="externalDFN">application cache group</a> 
+            may have the same <a>version</a>. A <a class="externalDFN">newer</a>
+            <a class="externalDFN">application cache</a> has a larger <a>version</a>.
           </p>
           
           <p>
-            A <dfn>relevant data cache</dfn> is a <a>data cache</a> that is 
-            the <a title="newer">newest</a> in its 
-            <a title="data cache group">group</a> to be <var>complete</var>.
-          </p>
-          
-          <p>
-            An <dfn >unsecure <a>data cache group</a></dfn> is not secured with an 
-            <a>authorization cookie</a> and cannot serve <a>private</a> resources.
-            A <dfn>secure <a>data cache group</a></dfn> controls access to 
-            <a>private</a> resources using an <a>authorization cookie</a>. 
-          </p>
-          
-          <p>
-            A <dfn>cache host</dfn> is a <code>Document</code>
-            or a <code>SharedWorkerGlobalScope</code> object [[!WEBWORKERS]]. 
-          </p>
-          
-          <p>
-            If a <a>data cache group</a> is <dfn>available</dfn> to a 
-            <a>cache host</a>, then it can be associated with the <a>cache host</a>.
-            A <a>secure data cache group</a> is <a>available</a> to a 
-            <a>cache host</a> if its <a>authorization cookie</a> 
-            will be sent to an origin server for fetching that 
-            <a>cache host</a> [[!COOKIES]]. An <a>unsecure data cache group</a>
-            is <a>available</a> to a <a>cache host</a> if its <a>origin</a> is
-            the same as its <a>cache host</a>'s.
-          </p>
-          
-          <p>
-            A <a>data cache group</a> can be marked as <dfn>obsolete</dfn>, 
-            meaning that it cannot be made <a>available</a> to a 
-            <a>cache host</a>.
-          </p>
-          
-          <p>
-            When a <code>SharedWorkerGlobalScope</code> is created or when a 
-            <code>Document</code> is loaded, the <a>relevant data cache</a> of 
-            every <a>available</a> <a>data cache group</a> is associated with it as 
-            the <dfn>effective data cache</dfn> in that <a>data cache group</a>.
+            Each <a class="externalDFN">application cache group</a> has a 
+            <dfn>dynamic update status</dfn>, which is one of the following:
+            <var>idle</var> or <var>updating</var>.
           </p>
                   
-          <p>
-            Multiple <a>effective data cache</a>s may contain the representation
-            of a given resource. If the user agent is to <dfn>select a data cache</dfn>
-            from a list of <a>relevant data cache</a>s that contain the representation
-            of a required resource, then the user agent must use the 
-            <a>data cache</a> that the user most likely wants
-            to see the representation from, taking into account the following:
-          </p>
-          
-          <ul>
-            <li>which <a>data cache</a> belongs to a <a>secure data cache group</a></li>
-            <li>which <a>data cache</a> contains the latest representation of the 
-            required resource</li>
-            <li>what <a>data cache</a> the user prefers</li>
-          </ul>
-            <p>
-              Application scripts identify the resources managed by a
-              <a>data cache</a> during a <dfn>cache transaction</dfn>, 
-              when applications may either <a title="captured">capture</a> or 
-              <a title="released">release</a> its resources. 
-            </p>
+					<p>
+						Application scripts identify the resources managed by an 
+						<a class="externalDFN">application cache</a> during a <dfn>cache transaction</dfn>, 
+						when applications may either <a title="captured">capture</a> or 
+						<a title="released">release</a> its resources. 
+					</p>
 
-            <p>
-              Each <a>cache transaction</a> has a <a>data cache group</a>
-              and a <a>data cache</a>.
-            </p>
-            
-            <p>
-              A <a>cache transaction</a>  can be marked as 
-              <dfn>off-line transaction</dfn>.
-            </p>
-            
-            <p>
-              Each <a>cache transaction</a> has a <dfn>commit status</dfn>, 
-              which can be either of <var>pending</var>, <var>committed</var>, or
-              <var>aborted</var>.
-            </p>
-            
-            <p>
-              When a <a>cache transaction</a> is started, the user agent must run the 
-              steps to <a>create a cache transaction</a>. When a resource is added to 
-              a transaction's list of <a>captured</a> resources, the user agent must run  
-              the steps to <a>add a resource to be captured</a>. When a resource is added to 
-              a transaction's list of released resources, the user agent must run the 
-              steps to <a>add a resource to be released</a>. When the transaction is finished, 
-              the user agent must run either the steps to <a>commit a cache transaction</a>
-              or the steps to <a>abort a cache transaction</a>.
-            </p>
+					<p>
+						Each <a>cache transaction</a> has an 
+						<a class="externalDFN">application cache group</a>
+						and an <a class="externalDFN">application cache</a>.
+					</p>
+					
+					<p>
+						A <a>cache transaction</a>  can be marked as 
+						<dfn>off-line transaction</dfn>.
+					</p>
+					
+					<p>
+						Each <a>cache transaction</a> has a <dfn>commit status</dfn>, 
+						which can be either of <var>pending</var>, <var>committed</var>, or
+						<var>aborted</var>.
+					</p>
+					
+					<p>
+						When a <a>cache transaction</a> is started, the user agent must run the 
+						steps to <a>create a cache transaction</a>. When a resource is added to 
+						a transaction's list of <a>captured</a> resources, the user agent must run  
+						the steps to <a>add a resource to be captured</a>. When a resource is added to 
+						a transaction's list of released resources, the user agent must run the 
+						steps to <a>add a resource to be released</a>. When the transaction is finished, 
+						the user agent must run either the steps to <a>commit a cache transaction</a>
+						or the steps to <a>abort a cache transaction</a>.
+					</p>
 
-          <section class="section" id="opening-cache">
-            <h4>Opening a cache</h4>
+          <section class="section" id="creating-cache">
+            <h4>Creating a cache</h4>
             
             <p>
-              When the user agent is required to <dfn>open a data cache</dfn>, 
-              given a <a>cache host</a>, and optionally the name of an
-              <a>authorization cookie</a>, the user agent must perform the 
+              When the user agent is required to <dfn>create an application cache</dfn>, 
+              given a <a>cache host</a>, the user agent must perform the 
               following steps:
             </p>
             
-            <ol>
-              <li>
-                Let <var>cookie name</var> be the name of an
-                <a>authorization cookie</a> passed to these steps.
-              </li>
-            
-              <li>
-                Pick the appropriate sub-steps:
-                <dl class="switch">
-                  <dt>If the <a>cache host</a> passed to these steps is a
-                  <code>Document</code> object</dt> 
-                  <dd>
-                    Let <var>origin</var> be the <a>origin</a> of the
-                    <a>cache host</a> passed to these steps.
-                  </dd>
-                  
-                  <dt>If the <a>cache host</a> passed to these steps is a 
-                  <code>WorkerGlobalScope</code> object</dt>
-                  <dd>  
-                    Let <var>origin</var> be the <a>origin</a> of the scripts in the 
-                    worker for the <a>cache host</a> passed to these steps.
-                  </dd>
-                </dl>
-              </li>
-              
+            <ol>              
               <li>
                 Atomically, so as to avoid race conditions, perform the following sub-steps:
-                <dl class="switch">
-                  <dt>If <var>cookie name</var> is empty, then perform the following steps:</dt>
-                  <dd>
-                    <ol>
-                      <li>
-                        If there is an <a>unsecure data cache group</a> for
-                        <a>origin</a> <var>origin</var>, then perform the 
-                        following sub-steps:
-                        <ol>
-                          <li>
-                            Let <var>data cache group</var> be that existing 
-                            <a>data cache group</a>.
-                          </li>
-                          <li>
-                            Let <var>data cache</var> be the the <a>relevant data cache</a>
-                            in <var>data cache group</var>.
-                          </li>
-                        </ol>
-                      </li>
-                      <li>
-                        If <var>data cache group</var> does not exist, then perform the 
-                        following sub-steps:
-                        <ol>
-                          <li>Create a new <a>data cache</a>, called
-                            <var>data cache</var>, in a new
-                            <a>unsecure data cache group</a> for <a>origin</a> <var>origin</var> 
-                            called <var>data cache group</var>.
-                          </li>
-                          <li>
-                            Set the <a>completeness flag</a> of <var>data cache</var> to 
-                            <var>incomplete</var>.
-                          </li>
-                          
-                          <li>
-                            Set the <a>update status</a> of <var>data cache group</var>
-                            to <var>idle</var>.
-                          </li>
-                        </ol>
-                      </li>
-                    </ol>
-                  </dd>
-                  <dt>If <var>cookie name</var> is not empty, then perform the following steps:</dt>
-                  <dd>
-                    <ol>
-                      <li>
-                        Let <var>data cache group</var> be an existing 
-                        <a>secure data cache group</a> for <a>origin</a> <var>origin</var>, the
-                        name of whose <a>authorization cookie</a> case-insensitively matches
-                        <var>cookie name</var>.
-                      </li>
-    
-                      <li>Obtain the <a>storage mutex</a>.</li>
-    
-                      <li>
-                        Let <var>cookie</var> be the cookie in the 
-                        <a>current browsing context</a>, whose name case-insensitively
-                        matches <var>cookie name</var>. 
-                      </li>
-                      
-                      <li>
-                        If <var>data cache group</var> is defined and has an 
-                        <a>authorization cookie</a> whose value doesn't match 
-                        <var>cookie</var>'s value, or if <var>data cache group</var>
-                        is not defined, then perform the following sub-steps:
-                        <ol>
-                          <li>Mark <var>data cache group</var> <a>obsolete</a>.</li>
-                          <li>
-                            Create a new <a>data cache</a>, called <var>data cache</var>, 
-                            in a new <a>secure data cache group</a> for <a>origin</a> 
-                            <var>origin</var> called <var>data cache group</var> with its 
-                            <a>authorization cookie</a> set to <var>cookie</var>.
-                          </li>
-                          <li>
-                            Set the <a>completeness flag</a> of <var>data cache</var> to 
-                            <var>incomplete</var>.
-                          </li>
-                          
-                          <li>
-                            Set the <a>update status</a> of <var>data cache group</var>
-                            to <var>idle</var>.
-                          </li>
-                        </ol>
-                      </li>
-    
-                      <li>Release the <a>storage mutex</a>.</li>
-                    </ol>
-                  </dd>              
-                </dl>
+								<ol>
+									<li>Create a new <a class="externalDFN">application cache group</a>, 
+										called <var>cache group</var> with the <a>cache host</a> being the 
+										<a class="externalDFN">master entry</a>.
+									</li>
+
+									<li>
+										Set the <a>dynamic update status</a> of <var>cache group</var>
+										to <var>idle</var>.
+									</li>
+									
+									<li>
+										Let <var>cache</var> be the <a class="externalDFN">newest</a>
+										<a class="externalDFN">application cache</a> in <var>cache group</var>.
+									</li>
+									
+									<li>
+										Set the <a>dynamic completeness flag</a> of <var>cache</var> to 
+										<var>incomplete</var>.
+									</li>									
+								</ol>
               </li>
               <li>
-                Return <var>data cache</var>.            
+                Return <var>cache</var>.
               </li>
             </ol>
           </section>
@@ -983,14 +814,15 @@ req.send();</codeblock>
             
             <p>
               When the user agent is required to <dfn>create a cache transaction</dfn> 
-              given a <a>data cache group</a> and an off-line flag, the user agent
-              must run the following steps:
+              given an <a class="externalDFN">application cache group</a>, a 
+              <a class="externalDFN">cache host</a>, and an 
+              off-line flag, the user agent must run the following steps:
             </p>
             
             <ol>
               <li>
-                Let <var>cache group</var> be the <a>data cache group</a> 
-                passed to these steps.
+                Let <var>cache group</var> be the 
+                <a class="externalDFN">application cache group</a> passed to these steps.
               </li>
               <li>
                 If <var>cache group</var> is marked <a>obsolete</a>, then 
@@ -1003,27 +835,27 @@ req.send();</codeblock>
                 <dd>
                   <ol>
                     <li>
-                      Create a new <a>data cache</a>, 
-                      called <var>data cache</var>, in <var>cache group</var>.
+                      Create a new <a class="externalDFN">application cache</a>, 
+                      called <var>cache</var>, in <var>cache group</var>.
                     </li>
                     <li>
-                      Set the <a>completeness flag</a> of <var>data cache</var> to 
+                      Set the <a>dynamic completeness flag</a> of <var>cache</var> to 
                       <var>incomplete</var>.
                     </li>
                     <li>
                       Create a new <a>cache transaction</a> called <var>transaction</var> and
-                      set <var>data cache</var> to be its <a>data cache</a>.
+                      set <var>cache</var> to be its 
+                      <a class="externalDFN">application cache</a>.
                     </li>
                     <li>
                       Mark <var>transaction</var> as <a>off-line transaction</a>.
                     </li>
                     <li>
-                      For each <a>cache host</a> associated with a <a>data cache</a> in 
-                      <var>cache group</var>, <a>queue a task</a> to fire an event at the 
-                      <a>cache host</a> with the name 
-                      <a href="#event-off-line-updating"><code>off-line-updating</code></a>, 
+                      <a class="externalDFN">Queue a task</a> to fire an event at the 
+                      <a class="externalDFN">cache host</a> passed to these steps with  
+                      the name <a href="#event-updating"><code>updating</code></a>, 
                       which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> interface.
+                      <a class="externalDFN"><code>Event</code></a> interface.
                     </li>
                     <li>
                       Return <var>transaction</var>.
@@ -1038,41 +870,42 @@ req.send();</codeblock>
                       Atomically, so as to avoid race conditions, perform the following sub-steps
                       <ol>
                         <li>
-                          If the <a>update status</a> of <var>cache group</var> is <var>updating</var>,
-                          then raise an exception and abort
-                          these steps, as a <a>cache transaction</a> is already open on this
-                          <a>data cache group</a>.
+                          If the <a>dynamic update status</a> of 
+                          <var>cache group</var> is <var>updating</var>,
+                          then raise an exception and abort these steps, as a 
+                          <a>cache transaction</a> is already open on this
+                          <a class="externalDFN">application cache group</a>.
                         </li>
                         <li>
-                          Set the <a>update status</a> of <var>cache group</var> to <var>updating</var>.
+                          Set the <a>dynamic update status</a> of <var>cache group</var> 
+                          to <var>updating</var>.
                         </li>
                       </ol>
                     </li>
                     <li>
-                      Create a new <a>data cache</a>, 
-                      called <var>data cache</var>, in <var>cache group</var>
+                      Create a new <a class="externalDFN">application cache</a>, 
+                      called <var>cache</var>, in <var>cache group</var>
                       which holds all the same resources as the 
-                      <a>relevant data cache</a> of <var>cache group</var>.
+                      <a class="externalDFN">relevant application cache</a> of 
+                      <var>cache group</var>.
                     </li>
                     <li>
-                      Set the <a>completeness flag</a> of <var>data cache</var> to 
+                      Set the <a>dynamic completeness flag</a> of <var>cache</var> to 
                       <var>incomplete</var>.
                     </li>
                     <li>
                       Create a new <a>cache transaction</a> called <var>transaction</var> and
-                      set <var>data cache</var> to be its <a>data cache</a>.
+                      set <var>cache</var> to be its <a class="externalDFN">application cache</a>.
                     </li>
                     <li>
                       Mark <var>transaction</var> as not <a title="off-line transaction">off-line</a>.
                     </li>
                     <li>
-                      For each <a>cache host</a> associated with a
-                      <a>data cache</a> in <var >cache group</var>, <a>queue a task</a> 
-                      to fire an event at the <a>cache host</a> with
-                      the name <code><a href="#event-updating">updating</a></code>, 
+                      <a class="externalDFN">Queue a task</a> to fire an event at the 
+                      <a class="externalDFN">cache host</a> passed to these steps with  
+                      the name <a href="#event-updating"><code>updating</code></a>, 
                       which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> 
-                      interface.
+                      <a class="externalDFN"><code>Event</code></a> interface.
                     </li>
                   </ol>
                 </dd>
@@ -1091,12 +924,14 @@ req.send();</codeblock>
             <h4>Capturing resources</h4>
             
             <p>
-              When the user agent is required to <dfn>add a resource to be <a>captured</a></dfn>, 
-              given the URI of the resource to <a title="captured">capture</a>, a <a>cache host</a>, 
-              a <a>cache transaction</a>, optionally a list of <a>dynamic methods</a>, 
-              optionally content to serve as the <a>static</a> representation of 
-              the resource, and optionally content type for the representation, 
-              the user agent must perform the following steps:
+              When the user agent is required to <dfn>add a resource to be 
+              <a>captured</a></dfn>, given the URI of the resource to 
+              <a title="captured">capture</a>, a 
+              <a class="externalDFN">cache host</a>, a <a>cache transaction</a>, 
+              optionally a list of <a>dynamic methods</a>, optionally content to
+              serve as the <a>static</a> representation of that resource, and
+              optionally content type for that representation, the user agent
+              must perform the following steps:
             </p>
             
             <ol>
@@ -1113,18 +948,19 @@ req.send();</codeblock>
               <li>
                 Pick the appropriate sub-steps:
                 <dl class="switch">
-                   <dt>If the <a>cache host</a> passed to these steps is a
-                  <code>Document</code> object</dt> 
+                   <dt>If the <a class="externalDFN">cache host</a> passed to
+                   these steps is a <code>Document</code> object</dt> 
                   <dd>
                     Let <var>origin</var> be the <a>origin</a> of the
-                    <a>cache host</a> passed to these steps.
+                    <a class="externalDFN">cache host</a> passed to these steps.
                   </dd>
                   
-                  <dt>If the <a>cache host</a> passed to these steps is a 
-                  <code>WorkerGlobalScope</code> object</dt>
+                  <dt>If the <a class="externalDFN">cache host</a> passed to
+                  these steps is a <code>WorkerGlobalScope</code> object</dt>
                   <dd>  
                     Let <var>origin</var> be the <a>origin</a> of the scripts in the 
-                    worker for the <a>cache host</a> passed to these steps.
+                    worker for the <a class="externalDFN">cache host</a> passed to
+                    these steps.
                   </dd>
                 </dl>
               </li>
@@ -1134,22 +970,25 @@ req.send();</codeblock>
               </li>
               
               <li>
-                If the resulting absolute URI has a different &lt;scheme&gt; component 
-                than the base URI (compared in an ASCII case-insensitive manner), then
-                throw an exception and abort these steps.
+                If the resulting absolute URI has a different <code>&lt;scheme&gt;</code> 
+                component than the base URI (compared in an ASCII case-insensitive 
+                manner), then throw an exception and abort these steps.
               </li>
               
               <li>
-                If the resulting absolute URI does not have the same <a>origin</a>
-                as <var>base URI</var>, then throw an exception and abort these steps.
+                If the resulting absolute URI does not have the 
+                <a class="externalDFN">same origin</a> as <var>base URI</var>, 
+                then throw an exception and abort these steps.
               </li>
               
               <li>
-                Drop the &lt;fragment&gt; component of the resulting absolute URI, if it has one.
+                Drop the <code>&lt;fragment&gt;</code> component of the resulting
+                absolute URI, if it has one.
               </li>
               
               <li>
-                Let <var>cache</var> be <var>transaction</var>'s <a>data cache</a>.
+                Let <var>cache</var> be <var>transaction</var>'s 
+                <a class="externalDFN">application cache</a>.
               </li>
               
               <li>
@@ -1167,16 +1006,16 @@ req.send();</codeblock>
                 <dd>
                   <ol>
                     <li>
-                      Let <var>cache group</var> be the <a>data cache group</a>
+                      Let <var>cache group</var> be the 
+                      <a class="externalDFN">application cache group</a>
                       containing <var>cache</var>.
                     </li>
                     <li>
-                      For each <a>cache host</a> associated with a
-                      <a>data cache</a> in <var>cache group</var>, 
-                      <a>queue a task</a> to fire an event with
-                      the name <code><a href="#event-fetching">fetching</a></code>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> interface at the <a>cache host</a>.
+                      <a class="externalDFN">Queue a task</a> to fire an event 
+                      at <var>transaction</var> with the name 
+                      <a class="externalDFN"><code>fetching</code></a>, which
+                      does not bubble, is not cancelable, and which uses the
+                      <a><code>CacheEvent</code></a> interface.
                     </li>
                     <li>
                       <a title="fetch">Fetch</a> the representation of the resource identified by the
@@ -1197,7 +1036,7 @@ req.send();</codeblock>
                       or 5xx response or equivalent, or there is a DNS error, or
                       the connection times out, or the user cancels the download),
                       or if the server returned a redirect, then run the
-                      <a>capture failure</a> steps.
+                      <a>capture failure steps</a>.
                       <p class="note">
                         Redirects are fatal because they are either indicative of
                         a network problem (e.g. a captive portal); or would allow
@@ -1217,14 +1056,11 @@ req.send();</codeblock>
                     </li>
                     
                     <li>
-                      For each <a>cache host</a> associated with a
-                      <a>data cache</a> in <var>cache
-                      group</var>, <a>queue a task</a> to fire an event
-                      at the <a>cache host</a> with
-                      the name <code><a href="#event-captured">captured</a></code>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> 
-                      interface.                      
+                      <a class="externalDFN">Queue a task</a> to fire an event 
+                      at <var>transaction</var> with the name 
+                      <a href="#event-captured"><code>captured</code></a>, which
+                      does not bubble, is not cancelable, and which uses the
+                      <a><code>CacheEvent</code></a> interface.
                     </li>
                   </ol>
                 </dd>
@@ -1251,13 +1087,11 @@ req.send();</codeblock>
                       steps.                       
                     </li>
                     <li>
-                      For each <a>cache host</a> associated with a <a>data cache</a>
-                      in <var>cache group</var>, <a>queue a task</a> to fire an event
-                      at the <a>cache host</a> with
-                      the name <code><a href="#event-captured">captured</a></code>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> 
-                      interface.                      
+                      <a class="externalDFN">Queue a task</a> to fire an event 
+                      at <var>transaction</var> with the name 
+                      <a class="externalDFN"><code>fetching</code></a>, which
+                      does not bubble, is not cancelable, and which uses the
+                      <a><code>CacheEvent</code></a> interface.
                     </li>
                   </ol>
                 </dd>
@@ -1271,39 +1105,25 @@ req.send();</codeblock>
             <ol>
               <li>Discard <var>cache</var>.</li>
               <li>
-                Set <var>cache group</var>'s <a>update status</a>
+                Set <var>cache group</var>'s <a>dynamic update status</a>
                 to <var>idle</var>.
               </li>
               <li>Pick the appropriate sub-steps:              
                 <dl class="switch">
-                  <dt>If the failure was not caused by a 401 response, then</dt>
-                  <dd><ol>
-                    <li>
-                      For each <a>cache host</a> associated with a <a>data cache</a> 
-                      in <var>cache group</var>, <a>queue a task</a> to fire an event
-                      at the <a>cache host</a> with
-                      the name <code><a href="#event-error">error</a></code>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> 
-                      interface.                      
-                    </li>
-                  </ol></dd>
-                  <dt>If the failure was caused by a 401 response, then</dt>
-                  <dd><ol>
-                    <li>
-                      Mark <var>cache group</var> as <a>obsolete</a>.
-                    </li>
-                    <li>
-                      For each <a>cache host</a> associated with a
-                      <a>data cache</a> in <var>cache
-                      group</var>, <a>queue a task</a> to fire an event
-                      at the <a>cache host</a> with
-                      the name <code><a href="#event-obsolete">obsolete</a></code>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a><code>CacheEvent</code></a> 
-                      interface.
-                    </li>
-                  </ol></dd>
+                  <dt>If the error was not a 404 or 410 response 
+                  <a class="externalDFN">or equivalent</a>, then</dt>
+                  <dd>
+                      Skip this resource and <a>release</a> it from 
+                      <var>application cache</var>.
+                  </dd>
+                  <dt>Otherwise</dt>
+                  <dd>
+										<a class="externalDFN">Queue a task</a> to fire an event 
+										at <var>transaction</var> with the name 
+										<a class="externalDFN"><code>error</code></a>, which
+										does not bubble, is not cancelable, and which uses the
+										<a><code>Event</code></a> interface.
+                  </dd>
                 </dl>
               </li>
               <li>
@@ -1325,9 +1145,10 @@ req.send();</codeblock>
             
             <p>
               When the user agent is required to 
-              <dfn>add a resource to be <a>released</a></dfn>, given the URI of the resource to
-              <a title="released">release</a>, a <a>cache host</a>, and
-              a <a>cache transaction</a>, 
+              <dfn>add a resource to be <a>released</a></dfn>, given the URI of
+              the resource to <a title="released">release</a>, 
+              a <a class="externalDFN">cache host</a>, and a 
+              <a>cache transaction</a>, 
               the user agent must perform the following steps:
             </p>
             
@@ -1345,18 +1166,19 @@ req.send();</codeblock>
               <li>
                 Pick the appropriate sub-steps:
                 <dl class="switch">
-                  <dt>If the <a>cache host</a> passed to these steps is a
-                  <code>Document</code> object</dt> 
+                  <dt>If the <a class="externalDFN">cache host</a> passed to
+                  these steps is a <code>Document</code> object</dt> 
                   <dd>
                     Let <var>origin</var> be the <a>origin</a> of the
-                    <a>cache host</a> passed to these steps.
+                    <a class="externalDFN">cache host</a> passed to these steps.
                   </dd>
                   
-                  <dt>If the <a>cache host</a> passed to these steps is a 
-                  <code>WorkerGlobalScope</code> object</dt>
+                  <dt>If the <a class="externalDFN">cache host</a> passed to
+                  these steps is a <code>WorkerGlobalScope</code> object</dt>
                   <dd>  
-                    Let <var>origin</var> be the <a>origin</a> of the scripts in the 
-                    worker for the <a>cache host</a> passed to these steps.
+                    Let <var>origin</var> be the <a>origin</a> of the scripts
+                    in the worker for the <a class="externalDFN">cache host</a>
+                    passed to these steps.
                   </dd>
                 </dl>
               </li>
@@ -1366,9 +1188,9 @@ req.send();</codeblock>
               </li>
               
               <li>
-                If the resulting absolute URI has a different &lt;scheme&gt; component 
-                than the base URI (compared in an ASCII case-insensitive manner), then
-                throw an exception and abort these steps.
+                If the resulting absolute URI has a different <code>&lt;scheme&gt;</code>
+                component than the base URI (compared in an ASCII case-insensitive 
+                manner), then throw an exception and abort these steps.
               </li>
               
               <li>
@@ -1377,12 +1199,13 @@ req.send();</codeblock>
               </li>
               
               <li>
-                Drop the &lt;fragment&gt; component of the resulting absolute URI, if it has one.
+                Drop the <code>&lt;fragment&gt;</code> component of the resulting
+                absolute URI, if it has one.
               </li>
               
               <li>
                 Let <var>cache</var> be <var>transaction</var>'s 
-                <a>data cache</a>.
+                <a class="externalDFN">application cache</a>.
               </li>
               
               <li>
@@ -1397,11 +1220,10 @@ req.send();</codeblock>
               </li>
               
               <li>
-                For each <a>cache host</a> associated with a <a>data cache</a>
-                in <var>cache group</var>, <a>queue a task</a> to fire an event
-                at the <a>cache host</a> with
-                the name <code><a href="#event-released">released</a></code>,
-                which does not bubble, is not cancelable, and which uses the
+								<a class="externalDFN">Queue a task</a> to fire an event 
+								at <var>transaction</var> with the name 
+								<a href="#event-released"><code>released</code></a>, which
+								does not bubble, is not cancelable, and which uses the
                 <a><code>CacheEvent</code></a> interface.                      
               </li>
             </ol>
@@ -1413,8 +1235,8 @@ req.send();</codeblock>
             <p>
               When the user agent is required to  
               <dfn>commit a cache transaction</dfn>, given a <a>cache transaction</a>, 
-              and a <a>cache host</a>, it means that the user agent must run the
-              following steps:
+              and a <a class="externalDFN">cache host</a>, it means that the user
+              agent must run the following steps:
             </p>
             
             <ol>
@@ -1430,12 +1252,13 @@ req.send();</codeblock>
               
               <li>
                 Let <var>cache</var> be <var>transaction</var>'s 
-                <a>data cache</a>.
+                <a class="externalDFN">application cache</a>.
               </li>
               
               <li>
-                Let <var>cache group</var> be the <a>data cache group</a>
-                containing <var>cache</var>.
+                Let <var>cache group</var> be the 
+                <a class="externalDFN">application cache group</a> containing 
+                <var>cache</var>.
               </li>
 
               <li>
@@ -1444,14 +1267,15 @@ req.send();</codeblock>
                 <ol>
                   <li>
                     Let <var>cache group version</var> be the <a>version</a> of the 
-                    <a>relevant data cache</a> of <var>cache group</var>.
+                    <a class="externalDFN">relevant application cache</a> of 
+                    <var>cache group</var>.
                   </li>
                   <li>
                     Set <var>cache</var>'s <a>version</a>
                     to be higher than <var>cache group version</var>.
                   </li>
                   <li>
-                    Set the <var>cache</var>'s <a>completeness flag</a> to 
+                    Set the <var>cache</var>'s <a>dynamic completeness flag</a> to 
                     <var>complete</var>.
                   </li>                    
                   <li>Obtain the <a>storage mutex</a>.</li>
@@ -1472,8 +1296,10 @@ req.send();</codeblock>
                   <dd>
                     <ol>  
                       <li>
-                        Make <var>cache</var> the <a>effective data cache</a> for 
-                        <var>cache group</var> to the <a>cache host</a>
+                        Make <var>cache</var> the 
+                        <a class="externalDFN">effective application cache</a> for 
+                        <var>cache group</var> to the 
+                        <a class="externalDFN">cache host</a>
                         passed to these steps.
                       </li>
                     </ol>
@@ -1485,7 +1311,7 @@ req.send();</codeblock>
                   <dd>
                     <ol>  
                       <li>
-                        Set the <a>update status</a> of <var>cache group</var> 
+                        Set the <a>dynamic update status</a> of <var>cache group</var> 
                         to <var>idle</var>.
                       </li>
                     </ol>
@@ -1493,17 +1319,17 @@ req.send();</codeblock>
                 </dl>
               </li>
               <li>
-                For each <a>cache host</a> associated with a
-                <a>data cache</a> in <var>cache group</var>, <a>queue a task</a> 
-                to fire an event at the <a>cache host</a> with
-                the name <code><a href="#event-ready">ready</a></code>,
+                For each <a class="externalDFN">cache host</a> associated with an
+                <a class="externalDFN">application cache</a> in <var>cache group</var>, 
+                <a>queue a task</a> 
+                to fire an event at the <a class="externalDFN">cache host</a> with
+                the name <a class="externalDFN"><code>updateready</code></a>,
                 which does not bubble, is not cancelable, and which uses the
-                <a><code>CacheEvent</code></a> 
-                interface.                      
+                <a><code>Event</code></a> interface.                      
               </li>
               
               <li>
-              	Set <var>transaction</var>'s <a>commit status</a> as <var>committed</var>.
+                Set <var>transaction</var>'s <a>commit status</a> as <var>committed</var>.
               </li>              
             </ol>
           </section>           
@@ -1512,10 +1338,9 @@ req.send();</codeblock>
             <h4>Aborting a transaction</h4>
             
             <p>
-              When the user agent is required to  
-              <dfn>abort a cache transaction</dfn>, 
+              When the user agent is required to <dfn>abort a cache transaction</dfn>, 
               given a <a>cache transaction</a>, 
-              and a <a>cache host</a>,
+              and a <a class="externalDFN">cache host</a>,
               it means that the user agent must run the following steps:
             </p>
             
@@ -1531,7 +1356,7 @@ req.send();</codeblock>
               </li>
               
               <li>
-                Discard <var>transaction</var>'s <a>data cache</a>.
+                Discard <var>transaction</var>'s <a class="externalDFN">application cache</a>.
               </li>
               
               <li>
@@ -1539,173 +1364,301 @@ req.send();</codeblock>
                 <var>aborted</var>.
               </li>
               <li>
-                For each <a>cache host</a> associated with a <a>data cache</a>
+                For each <a class="externalDFN">cache host</a> associated with an
+                <a class="externalDFN">application cache</a>
                 in <var>cache group</var>, <a>queue a task</a> to fire an event
-                at the <a>cache host</a> with
-                the name <code><a href="#event-error">error</a></code>,
+                at the <a class="externalDFN">cache host</a> with
+                the name <a class="externalDFN"><code>error</code></a>,
                 which does not bubble, is not cancelable, and which uses the
-                <a><code>CacheEvent</code></a> 
-                interface.                      
+                <a><code>Event</code></a> interface.                      
               </li>
             </ol>
           </section>
           
-          <section class="section" id="activating-updates">
-            <h4>Activating updates</h4>
-          
-            <p>
-              Once a <a>cache host</a> picks an <a>effective data cache</a>
-              in a <a>data cache group</a>,
-              an application script can use its representations. However, once update
-              transactions are completed on that <a>data cache group</a>, the
-              <a>effective data cache</a> is no longer the <a>relevant data cache</a>.
-            </p>
-            
-            <p>
-              When a user agent is required to <dfn>activate updates</dfn> for a given 
-              <a>data cache group</a> and a <a>cache host</a>, the user agent
-              must run the steps below:
-            </p>
-            
-            <ol>
-              <li>
-                Let <var>cache</var> be the <a>relevant data cache</a>
-                for the <a>data cache group</a> passed to these steps.
-              </li>
-              
-              <li>
-                If <var>cache</var> is the same as the <a>effective data cache</a>
-                for the <a>data cache group</a> in the <a>cache host</a> passed
-                to these steps, then terminate these steps.
-              </li>
-              
-              <li>
-                Set <var>cache</var> to be the 
-                <a>effective data cache</a> for the <a>data cache group</a>
-                to the <a>cache host</a> passed to these steps.
-              </li>
-            </ol>
-          </section>
-        
-          <section class="section" id="expiring-application-caches">
-            <h4>Expiring <a>data cache</a>s</h4>
-            
-            <p>
-              As a general rule, user agents should not expire <a>data cache</a>s, 
-              except on request from the user, or after having been left
-              unused for an extended period of time.
-            </p>
-            <p>
-              Implementors are encouraged to expose <a>data cache</a>s in a
-              manner related to HTTP cookies, allowing <a>data cache</a>s to be expired
-              together with cookies and other origin-specific data. <a title="data caches">Data
-              caches</a> and cookies have similar implications with respect to privacy
-              (e.g. if the site can identify the user when providing the cache, it
-              can store data in the cache that can be used for cookie
-              resurrection).
-            </p>
-          </section>
-    
           <section class="section" id="datacache-api">
-            <h4>The <code>DataCache</code> Interfaces</h4>
+            <h4>The <code>ApplicationCache</code> Interfaces</h4>
             <div class="example">  
               <p>
-                Here's how a shared worker opens an <a>unsecure data cache group</a>. 
-                Representations cached in <a>unsecure data cache group</a>s are 
-                available regardless of authorization.
+                Here's how a shared worker opens an 
+                <a class="externalDFN">application cache group</a>. 
               </p>
-              <codeblock>var cache = self.openDataCacheSync();</codeblock>
+              <codeblock>var cache = self.applicationCache;</codeblock>
               <p>
-                If an application were to use a cookie named 'SSID' to secure access to
-                <a>private</a> resources, then it would need to use a 
-                <a>secure data cache group</a> for accessing those resources <a>off-line</a>. 
-                <!--A secure cache based on the 'SSID' cookie would record 
-                that cookie's value when the cache is first opened. This cookie is also
-                used when capturing representations. When an application accesses representations
-                from the secure cache, the current value of the 'SSID' cookie is compared
-                with the one recorded in the secure cache. Only if there is a match,
-                would the cached representation be served.-->
+                Here's how a window opens an 
+                <a class="externalDFN">application cache group</a>.
               </p>
-              <codeblock>var cache = window.openDataCache('SSID');</codeblock>
+              <codeblock>var cache = window.applicationCache;</codeblock>
             </div>
             <dl class="idl" title="[Supplemental] interface CacheUtil">
-              <dt>DataCache openDataCache()</dt>
+              <dt>attribute ApplicationCache2 applicationCache</dt>
               <dd>
-                (In a window) Returns a <a><code>DataCache</code></a> object 
-                that represents the <a>data cache</a> obtained from the steps to 
-                <a>open a data cache</a> using <a>active document</a> of the 
-                <a>browsing context</a> of <a><code>window</code></a> as the 
-                <a>cache host</a> and <var>cookieName</var> as the name of an
-                <a>authorization cookie</a>.
-                <dl class="parameters">
-                  <dt>optional DOMString cookieName</dt>
-                  <dd></dd>
-                </dl>
+                (In a window) Returns an <a><code>ApplicationCache2</code></a>  
+                object that represents, if it exists, the 
+                <a class="externalDFN">application cache</a> 
+                associated with the <a class="externalDFN">active document</a> 
+                of the <a class="externalDFN">browsing context</a> of 
+                <a class="externalDFN"><code>window</code></a>, otherwise that 
+                obtained from the steps to <a>create an application cache</a> 
+                using the <a class="externalDFN">active document</a> 
+                of the <a class="externalDFN">browsing context</a> of 
+                <a class="externalDFN"><code>window</code></a> as the 
+                <a class="externalDFN">cache host</a>.
               </dd>
             </dl>
   
             <p class="idl" title="Window implements CacheUtil"></p>
   
             <dl class="idl" title="[Supplemental] interface CacheUtilSync">
-               <dt>DataCache openDataCacheSync()</dt>
+               <dt>attribute ApplicationCache2Sync applicationCache</dt>
               <dd>
-                (In a shared worker) Returns a <a><code>DataCacheSync</code></a> object 
-                that represents the <a>data cache</a> obtained from the steps to
-                <a>open a data cache</a> using <a><code>WorkerGlobalScope</code></a>
-                as the <a>cache host</a> and <var>cookieName</var>
-                as the name of an <a>authorization cookie</a>.
-               <dl class="parameters">
-                  <dt>optional DOMString cookieName</dt>
-                  <dd></dd>
-                </dl>
+                (In a shared worker) Returns an <a><code>ApplicationCache2Sync</code></a>  
+                object that represents, if it exists, the 
+                <a class="externalDFN">application cache</a> 
+                associated with the <a><code>WorkerGlobalScope</code></a>, otherwise 
+                that obtained from the steps to <a>create an application cache</a> 
+                using the <a><code>WorkerGlobalScope</code></a> as the 
+                <a class="externalDFN">cache host</a>.
               </dd>
             </dl>
+            <div style="display:none">
+            <dl class="idl" title="interface ApplicationCache">
+              <dt>const unsigned short UNCACHED = 0</dt>
+             	<dd></dd>
+              <dt>const unsigned short IDLE = 1</dt>
+             	<dd></dd>
+              <dt>const unsigned short CHECKING = 2</dt>
+             	<dd></dd>
+              <dt>const unsigned short DOWNLOADING = 3</dt>
+             	<dd></dd>
+              <dt>const unsigned short UPDATEREADY = 4</dt>
+             	<dd></dd>
+              <dt>const unsigned short OBSOLETE = 5</dt>
+             	<dd></dd>
+              <dt>readonly attribute unsigned short status</dt>
+             	<dd></dd>
+              <dt>void update()</dt>
+             	<dd></dd>
+  						<dt>void swapCache()</dt>
+             	<dd></dd>
+              <dt>attribute Function onchecking</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-checking">checking</a></code> event</dd>
+              <dt>attribute Function onnoupdate</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-noupdate">noupdate</a></code> event</dd>
+              <dt>attribute Function ondownloading</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-downloading">downloading</a></code> event</dd>
+              <dt>attribute Function onprogress</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-progress">progress</a></code> event</dd>
+              <dt>attribute Function oncached</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-cached">cached</a></code> event</dd>
+              <dt>attribute Function onupdateready</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-updateready">updateready</a></code> event</dd>
+              <dt>attribute Function obsolete</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-obsolete">obsolete</a></code> event</dd>
+              <dt>attribute Function error</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-error">error</a></code> event</dd>
+            </dl>
+            </div>
           </section>
         
           <section id="async-datacache-interface" class="section">
-            <h4>Asynchronous Data Cache API</h4>
-  
-            <dl class="idl"title="interface DataCache">
-              <dt>const unsigned short IDLE = 0</dt>
+            <h4>Asynchronous Interface</h4>
+            
+            <dl class="idl" title="interface AppCacheRequest"> 
+							<dt>void abort()</dt>
+							<dd>Discontinue the in-flight request and return the 
+							<a href="#widl-AppCacheRequest-readyState"><code>readyState</code></a> to
+							<a href="#widl-AppCacheRequest-INITIAL"><code>INITIAL</code></a>. No 
+							<a href="#widl-AppCacheRequest-result"><code>result</code></a> or 
+							<a href="#widl-AppCacheRequest-error"><code>error</code></a> is
+							set.</dd>
+							<dt>const     unsigned short INITIAL = 0</dt>
+							<dd>This state indicates that a request has not been started.</dd>
+							<dt>const     unsigned short LOADING = 1</dt>
+							<dd>This state indicates that a request has been started but its results is not
+							yet available.</dd>
+							<dt>const     unsigned short DONE = 2</dt>
+							<dd>This state indicates that a result to a previous request is available in
+							the <code>result</code> attribute.</dd>
+							<dt>readonly attribute unsigned short readyState</dt>
+							<dd>The state of this object</dd>
+							<dt>readonly attribute any error</dt>
+							<dd>The error that occurred during the requested operation</dd>
+							<dt>readonly attribute any result</dt>
+							<dd>The result of a successful requested operation</dd>
+		
+							<dt>attribute Function onsuccess</dt>
+							<dd>The event handler for <a title="event-success">success event</a></dd>
+							<dt>attribute Function onerror</dt>
+							<dd>The event handler for <a title="event-error">error event</a></dd>
+						</dl>
+						
+						<dl class="idl" title="interface CacheItemCursorRequest">
+              <dt>readonly attribute AppCacheRequest request</dt>
+              <dd></dd>
+              <dt>readonly attribute CacheItem item</dt>
+              <dd></dd>
+              <dt>void continue()</dt>
+              <dd></dd>
+						</dl>
+
+            <dl class="idl" title="interface CacheTransactionRequest">
+              <dt>readonly attribute AppCacheRequest request</dt>
+              <dd></dd>
+              <dt>attribute Function onupdating</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-updating">updating</a></code>
+              event</dd>
+              <dt>attribute Function oncaptured</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-captured">captured</a></code>
+              event</dd>
+              <dt>attribute Function onreleased</dt>
+              <dd>The <a>event handler</a> for the 
+              <code><a href="#event-released">released</a></code>
+              event</dd>
+              <dt>void getItem(in DOMString uri)</dt>
               <dd>
-                This <a><code>DataCache</code></a> object's
-                <a>cache host</a> is associated with a <a>data cache</a> whose
-                <a>data cache group</a>'s <a>update status</a>
-                is <var>idle</var> and that <a>data cache</a> is the 
-                <a title="newer">newest</a> cache in its <a>data cache group</a>, 
-                and the <a>data cache group</a> is not marked <a>obsolete</a>.
+                When called, this method must immediately return and
+                asynchronously perform the following steps:
+                <ol>
+                  <li>
+                    If the resource identified by <var>uri</var> does not exist in this 
+                    <a><code>CacheTransaction</code></a> object's associated
+                    <a class="externalDFN">application cache</a>, then the method must raise the 
+                    <code>NOT_FOUND_ERR</code> exception and terminate these steps.
+                  </li>
+                  <li>
+                    Let <var>item</var> be the entity in this 
+                    <a><code>CacheTransaction</code></a> object's associated
+                    <a class="externalDFN">application cache</a>.
+                  </li>
+                  <li>
+                    Create <var>object</var>, a new <a><code>CacheItem</code></a> 
+                    object with the associated <var>item</var>.
+                  </li>
+                  <li>
+                    <a class="externalDFN">Queue a task</a> to invoke <var>item callback</var> with the
+                    aforementioned <a><code>CacheItem</code></a> <var>object</var>
+                    as its only argument.
+                  </li>
+                </ol>
+                <dl class="parameters">
+                  <dt>DOMString uri</dt>
+                  <dd>identifying the resource</dd>
+                </dl>
               </dd>
-              <dt>const unsigned short READY = 1</dt>
+              
+              <dt>void release(in DOMString uri)</dt>
               <dd>
-                This <a><code>DataCache</code></a> object's
-                <a>cache host</a> is associated with a <a>data cache</a> whose
-                <a>data cache group</a>'s <a>update status</a> is <var>idle</var>, 
-                and whose <a>data cache group</a> is not marked as
-                <a>obsolete</a>, but that <a>data cache</a> is not the 
-                <a title="newer">newest</a> cache in its <a>data cache group</a>.
+                When called, this method must immediately return and asynchronously
+                perform the steps to <a>add a resource to be released</a>
+                with the first argument being <var>uri</var>, second being the
+                <a class="externalDFN">active document</a> of the 
+                <a class="externalDFN">browsing context</a> of the
+                <code>Window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>Worker</code>,
+                and the third being this <a><code>CacheTransaction</code></a> 
+                object's associated <a>cache transaction</a>.
+                <dl class="parameters">
+                  <dt>DOMString uri</dt>
+                  <dd>identifying the resource to release</dd>
+                </dl>
               </dd>
-              <dt>const unsigned short OBSOLETE = 2</dt>
+              <dt>void commit()</dt>
               <dd>
-                This <a><code>DataCache</code></a> object's <a>cache host</a> 
-                is associated with a <a>data cache</a> whose <a>data cache group</a>
-                is marked as <a>obsolete</a>.
+                When called, this method must immediately return and asynchronously 
+                perform the following steps:
+                <ol>
+                  <li>
+                    Execute the steps to <a>commit a cache transaction</a> with the 
+                    first argument being this <a><code>CacheTransaction</code></a>
+                    object's associated <a>cache transaction</a>,              
+                    and the second being the current <code>window</code> or 
+                    <code>worker</code> object.
+                  </li>
+                  <li>
+                    If <a href="#widl-CacheTransaction-oncommitted"><code>oncommitted</code></a>
+                    attribute on this <a><code>CacheTransaction</code></a> object is not null, 
+                    <a>queue a task</a> to invoke the function identified by 
+                    <a href="#widl-CacheTransaction-oncommitted"><code>oncommitted</code></a> .                    
+                  </li>
+                </ol>
               </dd>
+            </dl>
+            
+            <dl class="idl" title="interface OnlineTransactionRequest : CacheTransactionRequest">
+              <dt>void capture()</dt>
+              <dd>
+                When called, this
+                method must immediately return and asynchronously perform the steps 
+                to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
+                second being the <a class="externalDFN">active document</a> of the 
+                <a class="externalDFN">browsing context</a> of the
+                <code>Window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>Worker</code>, the third being this 
+                <a><code>CacheTransaction</code></a> object's associated 
+                <a>cache transaction</a>,
+                the fourth being <var>dynamic methods</var>.
+                <dl class="parameters">
+                  <dt>DOMString uri</dt>
+                  <dd>identifying the resource to <a>capture</a></dd>
+                  <dt>optional DOMString dynamicMethods</dt>
+                  <dd>
+                    The <a>dynamic methods</a> that are applicable to the identified 
+                    resource. This parameter is a comma separated list of protocol 
+                    methods that can be intercepted for local processing. An empty 
+                    string is allowed for this parameter.
+                  </dd>
+                </dl>
+              </dd>
+						</dl>
+						
+            <dl class="idl" title="interface OfflineTransactionRequest : CacheTransactionRequest">
+              <dt>void capture()</dt>
+              <dd> When called, this
+                method must immediately return and asynchronously perform the steps 
+                to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
+                second being the <a class="externalDFN">active document</a> 
+                of the <a class="externalDFN">browsing context</a> of the
+                <code>Window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>Worker</code>,
+                the third being this <a><code>CacheTransaction</code></a> object's 
+                associated <a>cache transaction</a>, the fourth being 
+                <var>dynamic methods</var>, the fifth being <var>entity body</var>, 
+                and the sixth being <var>content type</var>.
+                <dl class="parameters">
+                  <dt>DOMString uri</dt>
+                  <dd>identifying the resource to <a>capture</a></dd>
+                  <dt>DOMString body</dt>
+                  <dd>entity body for the resource</dd>
+                  <dt>optional DOMString contentType</dt>
+                  <dd>The MIME type of the entity body</dd>
+                  <dt>optional DOMString dynamicMethods</dt>
+                  <dd>
+                    The <a>dynamic methods</a> that are applicable to the identified 
+                    resource. This parameter is a comma separated list of protocol 
+                    methods that can be intercepted for local processing. An empty 
+                    string is allowed for this parameter.
+                  </dd>
+                </dl>
+              </dd>
+            </dl>
+            
+            <dl class="idl" title="interface ApplicationCache2Request : ApplicationCache">
+              <dt>readonly attribute AppCacheRequest request</dt>
+              <dd></dd>
               <dt>readonly attribute long version</dt>
               <dd>
                 This attribute, on getting, must return the 
-                <a>version</a> of the <a>data cache</a> of this
-                <a><code>DataCache</code></a> object.
-              </dd>
-              <dt>readonly attribute DOMString requiredCookie</dt>
-              <dd>
-                This attribute, on getting, must return the name of the
-                <a>authorization cookie</a> of the <a>data cache group</a> of this 
-                <a><code>DataCache</code></a> object.
-              </dd>
-              <dt>readonly attribute unsigned short status</dt>
-              <dd>
-                This attribute, on getting, must return the current state of the 
-                <a>data cache</a> of this <a><code>DataCache</code></a> object. 
+                <a>version</a> of the <a>data cache</a> of this object.
               </dd>
               <dt>void immediate()</dt>
               <dd>
@@ -1714,7 +1667,7 @@ req.send();</codeblock>
                 <a>add a resource to be captured</a> in that <a>cache transaction</a>, 
                 and when the identified resource is <a title="capture">captured</a>,
                 performs the steps to <a>activate updates</a> for this 
-                <a>data cache group</a>.
+                <a class="externalDFN">application cache group</a>.
                 <dl class="parameters">
                   <dt>DOMString uri</dt>
                   <dd>identifying the resource to <a>capture</a></dd>
@@ -1727,16 +1680,44 @@ req.send();</codeblock>
                   </dd>
                 </dl>              
               </dd>
+              <dt>void immediate()</dt>
+              <dd> When called, this method must immediately return and asynchronously 
+              	the user agent creates a new <a>cache transaction</a>, and perform the steps 
+                to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
+                second being the <a class="externalDFN">active document</a> 
+                of the <a class="externalDFN">browsing context</a> of the
+                <code>Window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>Worker</code>,
+                the third being this <a><code>CacheTransaction</code></a> object's 
+                associated <a>cache transaction</a>, the fourth being 
+                <var>dynamic methods</var>, the fifth being <var>entity body</var>, 
+                and the sixth being <var>content type</var>.
+                <dl class="parameters">
+                  <dt>DOMString uri</dt>
+                  <dd>identifying the resource to <a>capture</a></dd>
+                  <dt>DOMString body</dt>
+                  <dd>entity body for the resource</dd>
+                  <dt>optional DOMString contentType</dt>
+                  <dd>The MIME type of the entity body</dd>
+                  <dt>optional DOMString dynamicMethods</dt>
+                  <dd>
+                    The <a>dynamic methods</a> that are applicable to the identified 
+                    resource. This parameter is a comma separated list of protocol 
+                    methods that can be intercepted for local processing. An empty 
+                    string is allowed for this parameter.
+                  </dd>
+                </dl>
+              </dd>
               <dt>void transaction()</dt>
               <dd>
                 When called, this method must immediately return and asynchronously
                 perform the following steps:
                 <ol>
                   <li>
-                    Execute the steps to <a class="dfnref" href="#cache-transaction-create">
-                    create a cache transaction</a> with the first argument being the
-                    <a>data cache group</a> of this <a><code>DataCache</code></a> 
-                    object and the second argument being <code>false</code>.
+                    Execute the steps to <a>create a cache transaction</a> with the 
+                    first argument being the <a class="externalDFN">application cache group</a> of this 
+                    object and the second 
+                    argument being <code>false</code>.
                   </li>
                   <li>
                     Let <var>result</var> be a new <a><code>CacheTransaction</code></a>
@@ -1744,7 +1725,7 @@ req.send();</codeblock>
                   </li>
                   <li>
                     If <var>transaction callback</var> is not null, 
-                    <a>queue a task</a> to invoke the <var>transaction callback</var>
+                    <a class="externalDFN">queue a task</a> to invoke the <var>transaction callback</var>
                     with the aforementioned <a><code>CacheTransaction</code></a>
                     object as its only argument, and wait for that task to be run. 
                   </li>
@@ -1756,30 +1737,27 @@ req.send();</codeblock>
                     End these steps. The next step is only used when something goes wrong. 
                   </li>
                   <li>
-                    <a>queue a task</a> to invoke the <var>error callback</var>, 
+                    <a class="externalDFN">Queue a task</a> to invoke the 
+                    <var>error callback</var>, 
                     if it is not null. 
                   </li>
                 </ol>
                 <dl class="parameters">
-                  <dt>TransactionCallback callback</dt>
-                  <dd>The function to invoke when the <a>cache transaction</a> is
-                  created</dd>
-                  <dt>optional VoidCallback errorCallback</dt>
-                  <dd>The function to invoke if the <a>cache transaction</a> cannot
-                  be created</dd>
+                  <dt>optional boolean restart</dt>
+                  <dd>This defaults to false. This flag specifies whether to continue a
+                  previously abandoned <a>cache transaction</a>.</dt>
                 </dl>
               </dd>
               <dt>void offlineTransaction()</dt>
               <dd>
-                This method takes one or two arguments - a <var>transaction 
-                callback</var> and optionally an <var>error callback</var>.
+                This method takes one arguments - a <var>restart</var> flag.
                 When called, this method must immediately return and asynchronously
                 perform the following steps:
                 <ol>
                   <li>
                     Execute the steps to <a>create a cache transaction</a> with the 
-                    first argument being the	
-                    <a>data cache group</a> of this <a><code>DataCache</code></a> 
+                    first argument being the  
+                    <a class="externalDFN">application cache group</a> of this  
                     object and the second argument being <code>true</code>.
                   </li>
                   <li>
@@ -1788,7 +1766,8 @@ req.send();</codeblock>
                   </li>
                   <li>
                     If <var>transaction callback</var> is not null, 
-                    <a>queue a task</a> to invoke the <var>transaction callback</var>
+                    <a class="externalDFN">queue a task</a> to invoke the 
+                    <var>transaction callback</var>
                     with the aforementioned <a><code>CacheTransaction</code></a>
                     object as its only argument, and wait for that task to be run. 
                   </li>
@@ -1800,34 +1779,19 @@ req.send();</codeblock>
                     End these steps. The next step is only used when something goes wrong. 
                   </li>
                   <li>
-                    <a>queue a task</a> to invoke the <var>error callback</var>, 
+                    <a class="externalDFN">Queue a task</a> to invoke the 
+                    <var>error callback</var>, 
                     if it is not null. 
                   </li>
                 </ol>
-                <dl class="parameters">
-                  <dt>TransactionCallback callback</dt>
-                  <dd></dd>
-                  <dt>optional VoidCallback errorCallback</dt>
-                  <dd></dd>
-                </dl>
               </dd>
-              <dt>void swapCache()</dt>
-              <dd>
-                Perform the steps to <a>activate updates</a> with the
-                <a>data cache group</a> of this <a><code>DataCache</code></a> object.
-              </dd>
-              <dt>void eachModificationSince()</dt>
+              <dt>void openModifiedItemCursor()</dt>
               <dd>
                  <dl class="parameters">
                   <dt>long version</dt>
                   <dd></dd>
-                  <dt>ItemCallback callback</dt>
-                  <dd></dd>
-                  <dt>optional VoidCallback successCallback</dt>
-                  <dd></dd>
                 </dl>
-                This method takes one to three parameters - <var>low watermark version</var> and
-                <var>item callback</var>, and an optional <var> success callback</var>. When
+                This method takes one parameter - <var>low watermark version</var>. When
                 called, this method must immediately return and asynchronously perform the
                 following steps:
                 <ol>
@@ -1836,17 +1800,18 @@ req.send();</codeblock>
                     let <var>removals</var> be a list of URIs.
                   </li>
                   <li>
-                    Let <var>cache</var> be the <a>data cache</a> represented by this 
-                    <a><code>DataCache</code></a> object.
+                    Let <var>cache</var> be the <a class="externalDFN">application cache</a> represented by this 
+                    object.
                   </li>
                   <li>
-                    For each <a>data cache</a> belonging to <var>cache</var>'s 
-                    <a>data cache group</a>, starting from <var>cache</var>'s 
-                    <a>version</a> down to <var>low watermark version</var>, 
-                    perform the following sub-steps:
+                    For each <a class="externalDFN">application cache</a> belonging to 
+                    <var>cache</var>'s <a class="externalDFN">application cache group</a>, 
+                    starting from <var>cache</var>'s <a>version</a> down to 
+                    <var>low watermark version</var>, perform the following sub-steps:
                     <ol>
                       <li>
-                        Let <var>old cache</var> be the <a>data cache</a>.
+                        Let <var>old cache</var> be the 
+                        <a class="externalDFN">application cache</a>.
                       </li>
                       <li>
                         Let <var>old version</var> be <var>old cache</var>'s <a>version</a>.
@@ -1888,92 +1853,212 @@ req.send();</codeblock>
                     <ol>
                       <li>
                         For each item <var>item</var> in <var>additions</var>,
-                        <a>queue a task</a> to invoke the <var>item callback</var> 
-                        with <var>item</var>.
+                        <a class="externalDFN">queue a task</a> to invoke the 
+                        <var>item callback</var> with <var>item</var>.
                       </li>
                       <li>
                         For each item <var>item</var> in <var>removals</var>,
-                        <a>queue a task</a> to invoke the <var>item callback</var> 
-                        with <var>item</var>.
+                        <a class="externalDFN">queue a task</a> to invoke the 
+                        <var>item callback</var> with <var>item</var>.
                       </li>
                     </ol>
                   </li>
                   <li>
                     If <var>success callback</var> is not null, then 
-                    <a>queue a task</a> to invoke the <var>success callback</var>
+                    <a class="externalDFN">queue a task</a> to invoke the 
+                    <var>success callback</var>
                   </li>
                 </ol>
               </dd>
-              <dt>attribute Function onOfflineUpdating</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-off-line-updating">off-line-updating</a></code>
-              event</dd>
-              <dt>attribute Function onUpdating</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-updating">updating</a></code>
-              event</dd>
-              <dt>attribute Function onFetching</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-fetching">fetching</a></code>
-              event</dd>
-              <dt>attribute Function onCaptured</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-captured">captured</a></code>
-              event</dd>
-              <dt>attribute Function onReleased</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-released">released</a></code>
-              event</dd>
-              <dt>attribute Function onReady</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-ready">ready</a></code>
-              event</dd>
-              <dt>attribute Function onObsolete</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-obsolete">obsolete</a></code>
-              event</dd>
-              <dt>attribute Function onError</dt>
-              <dd>The <a>event handler</a> for the 
-              <code><a href="#event-error">error</a></code>
-              event</dd>
             </dl> 
-
-            <dl class="idl" title="[Callback=FunctionOnly, NoInterfaceObject] interface TransactionCallback">
-              <dt> void callback(CacheTransaction txn)</dt>
-              <dd>
-              </dd>
-            </dl>
-
-            <dl class="idl" title="[Callback=FunctionOnly, NoInterfaceObject] interface VoidCallback">
-              <dt> void callback()</dt>
-              <dd>
-              </dd>
-            </dl>
           </section>
           
           <section id="sync-datacache-interface" class="section">
             <h4>Synchronous Data Cache API</h4>
   
-            <dl class="idl" title="interface DataCacheSync : DataCache">
-              <dt>OnlineTransaction transactionSync()</dt>
+						<dl class="idl" title="interface CacheItemCursor">
+              <dt>readonly attribute CacheItem item</dt>
+              <dd></dd>
+              <dt>bool continue()</dt>
+              <dd></dd>
+						</dl>
+
+            <dl class="idl" title="interface ApplicationCache2 : interface ApplicationCache">
+              <dt>readonly attribute long version</dt>
+              <dd>
+                This attribute, on getting, must return the 
+                <a>version</a> of the <a class="externalDFN">application cache</a> 
+                of this object.
+              </dd>
+              <dt>void immediate()</dt>
+              <dd>
+                When this method is called, the user agent creates a new 
+                <a>cache transaction</a>, and performs the steps to 
+                <a>add a resource to be captured</a> in that <a>cache transaction</a>, 
+                and when the identified resource is <a title="capture">captured</a>,
+                performs the steps to <a>activate updates</a> for this 
+                <a class="externalDFN">application cache group</a>.
+                <dl class="parameters">
+                  <dt>DOMString uri</dt>
+                  <dd>identifying the resource to <a>capture</a></dd>
+                  <dt>optional DOMString dynamicMethods</dt>
+                  <dd>
+                    The <a>dynamic methods</a> that are applicable to the identified 
+                    resource. This parameter is a comma separated list of protocol 
+                    methods that can be intercepted for local processing. An empty 
+                    string is allowed for this parameter.
+                  </dd>
+                </dl>              
+              </dd>
+              <dt>OnlineTransaction transaction()</dt>
               <dd>
                 <p>
                 This method must perform the following steps:
-              </p>
-              <ol>
-                <li>
-                  Execute the steps to <a>create a cache transaction</a> with the
-                  first argument being the <a>data cache group</a> of this 
-                  <a><code>DataCache</code></a> 
-                  object and the second argument being false.
-                </li>
-                <li>
-                  Let <var>result</var> be a new <a><code>CacheTransaction</code></a>
-                  object for the <var>transaction</var> returned from the previous step.
-                </li>
-                <li>Return <var>result</var>.</li>
-              </ol>
-            </dd>
+                </p>
+                <ol>
+                  <li>
+                    Execute the steps to <a>create a cache transaction</a> with the
+                    first argument being the 
+                    <a class="externalDFN">application cache group</a> of this 
+                    object and the second argument being false.
+                  </li>
+                  <li>
+                    Let <var>result</var> be a new <a><code>CacheTransaction</code></a>
+                    object for the <var>transaction</var> returned from the previous step.
+                  </li>
+                  <li>Return <var>result</var>.</li>
+                </ol>
+                <dl class="parameters">
+                  <dt>optional boolean restart</dt>
+                  <dd>This defaults to false. This flag specifies whether to continue a
+                  previously abandoned <a>cache transaction</a>.</dt>
+                </dl>
+              </dd>
+              <dt>OfflineTransaction offlineTransaction()</dt>
+              <dd>
+                This method takes one or two arguments - a <var>transaction 
+                callback</var> and optionally an <var>error callback</var>.
+                When called, this method must immediately return and asynchronously
+                perform the following steps:
+                <ol>
+                  <li>
+                    Execute the steps to <a>create a cache transaction</a> with the 
+                    first argument being the  
+                    <a class="externalDFN">application cache group</a> of this <a><code>DataCache</code></a> 
+                    object and the second argument being <code>true</code>.
+                  </li>
+                  <li>
+                    Let <var>result</var> be a new <a><code>CacheTransaction</code></a>
+                    object for the <var>transaction</var> returned from the previous step.
+                  </li>
+                  <li>
+                    If <var>transaction callback</var> is not null, 
+                    <a class="externalDFN">queue a task</a> to invoke the 
+                    <var>transaction callback</var>
+                    with the aforementioned <a><code>CacheTransaction</code></a>
+                    object as its only argument, and wait for that task to be run. 
+                  </li>
+                  <li>
+                    If <var>transaction callback</var> raised an exception, jump to 
+                    the last step. 
+                  </li>
+                  <li>
+                    End these steps. The next step is only used when something goes wrong. 
+                  </li>
+                  <li>
+                    <a class="externalDFN">Queue a task</a> to invoke the <var>error callback</var>, 
+                    if it is not null. 
+                  </li>
+                </ol>
+              </dd>
+              <dt>void forEachModificationSince()</dt>
+              <dd>
+                 <dl class="parameters">
+                  <dt>long version</dt>
+                  <dd></dd>
+                  <dt>ItemCallback callback</dt>
+                  <dd></dd>
+                </dl>
+                This method takes one to three parameters - <var>low watermark version</var> and
+                <var>item callback</var>, and an optional <var> success callback</var>. When
+                called, this method must immediately return and asynchronously perform the
+                following steps:
+                <ol>
+                  <li>
+                    Let <var>additions</var> be a list of entities with their URIs and 
+                    let <var>removals</var> be a list of URIs.
+                  </li>
+                  <li>
+                    Let <var>cache</var> be the <a>data cache</a> represented by this 
+                    <a><code>DataCache</code></a> object.
+                  </li>
+                  <li>
+                    For each <a>data cache</a> belonging to <var>cache</var>'s 
+                    <a class="externalDFN">application cache group</a>, 
+                    starting from <var>cache</var>'s 
+                    <a>version</a> down to <var>low watermark version</var>, 
+                    perform the following sub-steps:
+                    <ol>
+                      <li>
+                        Let <var>old cache</var> be the 
+                        <a class="externalDFN">application cache</a>.
+                      </li>
+                      <li>
+                        Let <var>old version</var> be <var>old cache</var>'s <a>version</a>.
+                      </li>
+                      <li>
+                        For the entity <var>entity</var> of each <a>managed</a> resource of 
+                        <var>old cache</var> that was added in the <var>old version</var>, perform
+                        the following steps:
+                        <ol>
+                          <li>
+                            Let <var>id</var> be the URI of the <a>managed</a> resource.
+                          </li>
+                          <li>
+                            If neither <var>additions</var> nor <var>removals</var>
+                            already includes <var>id</var>, then add <var>id</var>
+                            with <var>entity</var> to <var>additions</var>.
+                          </li>
+                        </ol>
+                      </li>
+                      <li>
+                        For each <a>managed</a> resource of <var>old cache</var> that was
+                        removed in the <var>old version</var>, perform the following steps:
+                        <ol>
+                          <li>
+                            Let <var>id</var> be the URI of the <a>managed</a> resource.
+                          </li>
+                          <li>
+                            If neither <var>additions</var> nor <var>removals</var>
+                            already includes <var>id</var>, then add <var>id</var>
+                            to <var>removals</var>.
+                          </li>
+                        </ol>
+                      </li>   
+                    </ol>
+                  </li>
+                  <li>
+                    If <var>item callback</var> is not null, then for each item 
+                    <var>item</var> in <var>additions</var>, perform the following steps:
+                    <ol>
+                      <li>
+                        For each item <var>item</var> in <var>additions</var>,
+                        <a class="externalDFN">queue a task</a> to invoke the 
+                        <var>item callback</var> with <var>item</var>.
+                      </li>
+                      <li>
+                        For each item <var>item</var> in <var>removals</var>,
+                        <a class="externalDFN">queue a task</a> to invoke the 
+                        <var>item callback</var> with <var>item</var>.
+                      </li>
+                    </ol>
+                  </li>
+                  <li>
+                    If <var>success callback</var> is not null, then 
+                    <a class="externalDFN">queue a task</a> to invoke the <var>success callback</var>
+                  </li>
+                </ol>
+              </dd>
             </dl>
           </section>
           
@@ -1981,7 +2066,7 @@ req.send();</codeblock>
             <h4>Transaction API</h4>
   
             <dl class="idl" title="interface CacheTransaction">
-              <dt>void getItem(in DOMString uri, ItemCallback callback)</dt>
+              <dt>CacheItem getItem(in DOMString uri)</dt>
               <dd>
                 When called, this method must immediately return and
                 asynchronously perform the following steps:
@@ -1989,7 +2074,7 @@ req.send();</codeblock>
                   <li>
                     If the resource identified by <var>uri</var> does not exist in this 
                     <a><code>CacheTransaction</code></a> object's associated
-                    <a>data cache</a>, then the method must raise the 
+                    <a class="externalDFN">application cache</a>, then the method must raise the 
                     <code>NOT_FOUND_ERR</code> exception and terminate these steps.
                   </li>
                   <li>
@@ -2002,7 +2087,7 @@ req.send();</codeblock>
                     object with the associated <var>item</var>.
                   </li>
                   <li>
-                    <a>queue a task</a> to invoke <var>item callback</var> with the
+                    <a class="externalDFN">Queue a task</a> to invoke <var>item callback</var> with the
                     aforementioned <a><code>CacheItem</code></a> <var>object</var>
                     as its only argument.
                   </li>
@@ -2019,9 +2104,10 @@ req.send();</codeblock>
                 When called, this method must immediately return and asynchronously
                 perform the steps to <a>add a resource to be released</a>
                 with the first argument being <var>uri</var>, second being the
-                <a>active document</a> of the <a>browsing context</a> of the
-                <code>window</code> or <code>WorkerGlobalScope</code> object of the
-                <code>worker</code>,
+                <a class="externalDFN">active document</a> of the 
+                <a class="externalDFN">browsing context</a> of the
+                <code>Window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>Worker</code>,
                 and the third being this <a><code>CacheTransaction</code></a> 
                 object's associated <a>cache transaction</a>.
                 <dl class="parameters">
@@ -2038,29 +2124,16 @@ req.send();</codeblock>
                     Execute the steps to <a>commit a cache transaction</a> with the 
                     first argument being this <a><code>CacheTransaction</code></a>
                     object's associated <a>cache transaction</a>,              
-                    and the second being the current <code>window</code> or 
-                    <code>worker</code> object.
+                    and the second being the current <code>Window</code> or 
+                    <code>Worker</code> object.
                   </li>
                   <li>
-                    If <a href="#oncommitted" class="dfnref"><code>oncommitted</code></a>
-                    attribute on this <a><code>CacheTransaction</code></a> object is not null, <a>queue a
-                    task</a> to invoke the function identified by 
-                    <a href="#oncommitted" class="dfnref"><code>oncommitted</code></a> .                    
+                    If <a href="#widl-CacheTransaction-oncommitted"><code>oncommitted</code></a>
+                    attribute on this <a><code>CacheTransaction</code></a> object is not null, 
+                    <a class="externalDFN">queue a task</a> to invoke the function identified by 
+                    <a href="#widl-CacheTransaction-oncommitted"><code>oncommitted</code></a> .                    
                   </li>
                 </ol>
-              </dd>
-              <dt>attribute Function oncommitted</dt>
-              <dd>
-                <p>
-                  This attribute, on getting, must return the function to be invoked
-                  when this <a><code>CacheTransaction</code></a> object has 
-                  been committed.
-                </p>
-                <p>
-                  This attribute, on setting, must store the function to be invoked
-                  when this <a><code>CacheTransaction</code></a> object has
-                  been committed.
-                </p>
               </dd>
             </dl>
             
@@ -2069,10 +2142,11 @@ req.send();</codeblock>
               <dd>
                 When called, this
                 method must immediately return and asynchronously perform the steps 
-                to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
-                second being the <a>active document</a> of the <a>browsing context</a> of the
-                <code>window</code> or <code>WorkerGlobalScope</code> object of the
-                <code>worker</code>, the third being this 
+                to <a>add a resource to be captured</a> with the first argument being
+                <var>uri</var>, second being the <a class="externalDFN">active document</a> 
+                of the <a class="externalDFN">browsing context</a> of the
+                <code>Window</code> or <code>WorkerGlobalScope</code> object of the
+                <code>Worker</code>, the third being this 
                 <a><code>CacheTransaction</code></a> object's associated 
                 <a>cache transaction</a>,
                 the fourth being <var>dynamic methods</var>.
@@ -2102,8 +2176,10 @@ req.send();</codeblock>
               <dt>void capture()</dt>
               <dd> When called, this
                 method must immediately return and asynchronously perform the steps 
-                to <a>add a resource to be captured</a> with the first argument being <var>uri</var>,
-                second being the <a>active document</a> of the <a>browsing context</a> of the
+                to <a>add a resource to be captured</a> with the first argument being 
+                <var>uri</var>, second being the 
+                <a class="externalDFN">active document</a> of the
+                <a class="externalDFN">browsing context</a> of the
                 <code>window</code> or <code>WorkerGlobalScope</code> object of the
                 <code>worker</code>,
                 the third being this <a><code>CacheTransaction</code></a> object's 
@@ -2125,12 +2201,6 @@ req.send();</codeblock>
                     string is allowed for this parameter.
                   </dd>
                 </dl>
-              </dd>
-            </dl>
-
-            <dl class="idl" title="[Callback=FunctionOnly, NoInterfaceObject] interface TransactionCallback">
-              <dt> void callback(CacheItem item)</dt>
-              <dd>
               </dd>
             </dl>
 
@@ -2173,7 +2243,7 @@ req.send();</codeblock>
               <dt>readonly attribute <a><code>Blob</code></a> body</dt>
               <dd>
                 This attribute, on getting, must return the entity body, if any, as a 
-                <a title="Blob"><code>Blob</code></a> object, of the <a>managed</a> 
+                <a class="externalDFN"><code>Blob</code></a> object, of the <a>managed</a> 
                 resource associated with this <a><code>CacheItem</code></a> object.                 
               </dd>
               <dt>readonly attribute DOMStringList dynamicMethods</dt>
@@ -2200,45 +2270,27 @@ req.send();</codeblock>
           <section id="events-and-error" class="section">
             <h4>The <code>CacheEvent</code> Interface</h4>
             <p>
-              The <a>task source</a> for this task is the <dfn>networking task source</dfn>.
+              The <a class="externalDFN">task source</a> for this task is the
+              <dfn>networking task source</dfn>.
             </p>
             
-            <p>
-              If the event being fired is 
-              <a href="#event-fetching"><code>fetching</code></a>,
-              <a href="#event-captured"><code>captured</code></a>, or
-              <a href="#event-released"><code>released</code></a>, then the event must
-              have its <a href="#widl-CacheEvent-uri"><code>uri</code></a> attribute set to the URI of the 
-              affected <a>managed</a> resource.
-            </p>
-            
-            <p>
-              Otherwise, if the event being fired is 
-              <a href="#event-off-line-updating"><code>off-line-updating</code></a>,
-              <a href="#event-updating"><code>updating</code></a>, 
-              <a href="#event-error"><code>error</code></a>, 
-              <a href="#event-obsolete"><code>obsolete</code></a>, or
-              <a href="#event-ready"><code>ready</code></a>, then the event must
-              have its <a href="#widl-CacheEvent-uri"><code>uri</code></a> attribute set to null.
-            </p>
             <dl class="idl" title="interface CacheEvent : Event">
-              <dt>readonly attribute DataCache cache</dt>
+              <dt>readonly attribute ApplicationCache cache</dt>
               <dd>This attribute, on getting, must return a 
-              <a><code>DataCache</code></a> object representing 
-              the <a>data cache</a> on which this event
-              is fired.
+              <a class="externalDFN"><code>ApplicationCache</code></a> object 
+              representing the <a class="externalDFN">application cache</a> on
+              which this event is fired.
               </dd>
               <dt>readonly attribute DOMString uri</dt>
               <dd>This attribute, on getting, must return the URI of the 
-              <a>managed resource</a> for which
-              this event is fired.
+              <a>managed</a> resource for which this event is fired.
               </dd>
               <dt>void initCacheEvent()</dt>
               <dd>These methods must initialize the event in a manner analogous to the
               similarly named methods in the DOM Events interfaces. 
               [[!DOM-LEVEL-3-EVENTS]]
                 <dl class="parameters">
-                  <dt>DataCache cache</dt>
+                  <dt>ApplicationCache cache</dt>
                   <dd></dd>
                   <dt>DOMString uri</dt>
                   <dd></dd>
@@ -2251,59 +2303,43 @@ req.send();</codeblock>
                 <dl class="parameters">
                   <dt>DOMString namespaceURI</dt>
                   <dd></dd>
-                  <dt>DataCache cache</dt>
+                  <dt>ApplicationCache cache</dt>
                   <dd></dd>
                   <dt>DOMString uri</dt>
                   <dd></dd>
                 </dl>
               </dd>
             </dl>
-						<p>
-							The following are the <a>event handler</a>s (and their corresponding 
-							<a>event handler event type</a>s) that must be supported, as IDL
-							attributes, by objects implementing the <a><code>DataCache</code></a> interface:
-						</p>
-						
-						<table>
-							<thead><tr>
-								<th><a title="event handler">Event handler</a> </th>
-								<th><a title="event handler event type">Event handler event type</a></th>
-							</tr></thead>
-							<tbody>
-								<tr>
-									<td><dfn><code>onOfflineUpdating</code></dfn> </td>
-									<td><code><a href="#event-off-line-updating">off-line-updating</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onUpdating</code></dfn> </td>
-									<td><code><a href="#event-updating">updating</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onFetching</code></dfn> </td>
-									<td><code><a href="#event-fetching">fetching</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onCaptured</code></dfn> </td>
-									<td><code><a href="#event-captured">captured</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onReleased</code></dfn> </td>
-									<td><code><a href="#event-released">released</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onready</code></dfn> </td>
-									<td><code><a href="#event-ready">ready</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onObsolete</code></dfn> </td>
-									<td><code><a href="#event-obsolete">obsolete</a></code></td>
-								</tr>
-								<tr>
-									<td><dfn><code>onerror</code></dfn> </td>
-									<td><code><a href="#event-error">error</a></code></td>
-								</tr>
-							</tbody>
-						</table>        
+            <p>
+              The following are the <a>event handler</a>s (and their corresponding 
+              <a>event handler event type</a>s) that must be supported, as IDL
+              attributes, by objects implementing the <a><code>DataCache</code></a> interface:
+            </p>
+            
+            <table>
+              <thead><tr>
+                <th><a class="externalDFN">Event handler</a> </th>
+                <th><a class="externalDFN">Event handler event type</a></th>
+                <th>Interface</th>
+              </tr></thead>
+              <tbody>
+                <tr>
+                  <td><dfn><code>onupdating</code></dfn> </td>
+                  <td><code><a href="#event-updating">updating</a></code></td>
+                  <td><a class="externalDFN"><code>Event</code></a></td>
+                </tr>
+                <tr>
+                  <td><dfn><code>oncaptured</code></dfn> </td>
+                  <td><code><a href="#event-captured">captured</a></code></td>
+                  <td><a><code>CacheEvent</code></a></td>
+                </tr>
+                <tr>
+                  <td><dfn><code>onreleased</code></dfn> </td>
+                  <td><code><a href="#event-released">released</a></code></td>
+                  <td><a><code>CacheEvent</code></a></td>
+                </tr>
+              </tbody>
+            </table>        
             
           </section>
         </section>
@@ -2380,7 +2416,7 @@ req.send();</codeblock>
                   <a>reviewer</a> function set to <var>review handler</var> 
                   and add <var>server</var> to the <a>cache host</a>, which is
                   the <a>active document</a> of the <a>browsing context</a> of the
-                	<code>window</code> containing this <code>Navigator</code> object.
+                  <code>window</code> containing this <code>Navigator</code> object.
                 </p>                  
               </dd>
             </dl>
@@ -2395,7 +2431,7 @@ req.send();</codeblock>
                   with an <a><code>HttpRequest</code></a>
                   object <var>request</var> based on the application's resource request and an 
                   <a><code>MutableHttpResponse</code></a>
-                  object <var>response</var>. When the <a href="#response-send">
+                  object <var>response</var>. When the <a href="#widl-MutableHttpResponse-send">
                   <code>send()</code></a> method is invoked on <var>response</var>, the
                   user agent must respond to <var>request</var> with the headers, body, and
                   status specified in <var>response</var>.
