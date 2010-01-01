@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Programmable HTTP Caching and Serving</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.20 2010-01-01 20:05:23 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.21 2010-01-01 20:07:20 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -549,12 +549,12 @@ var intercept = function(request, response) {
 };
 
 var review = function(request, response) {
-  cache.request.onsuccess = function(txn) {
-    var txn = cache.request.result
-    txn.capture(request.targetURL, response.bodyText, response.headers['Content-Type']); 
-    txn.commit();
+  var req = cache.offlineTransaction();
+  req.onsuccess = function(txn) {
+    var txn = req.result;
+    var captureReq = txn.capture(request.targetURL, response.bodyText, response.headers['Content-Type']); 
+    captureReq.onsuccess = function() { txn.commit(); }
   }
-  cache.offlineTransaction();
 };
 
 window.navigator.registerOfflineHandler(uri, intercept, review);</codeblock>
