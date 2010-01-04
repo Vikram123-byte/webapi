@@ -3,19 +3,19 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Programmable HTTP Caching and Serving</title>
-    <meta name='revision' content='$Id: pre-Overview.html,v 1.1 2010-01-01 20:14:08 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: pre-Overview.html,v 1.2 2010-01-04 20:55:13 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
       var respecConfig = {
-          specStatus:           "ED",
+          specStatus:           "WD",
           
           shortName:            "DataCache",
 
-          // publishDate:  "2009-09-29",
+          publishDate:  "2010-01-14",
 
           previousPublishDate:  "2009-10-29",
-          previousMaturity:  "WD",
+          previousMaturity:     "WD",
 
           edDraftURI:           "http://dev.w3.org/2006/webapi/DataCache/",
 
@@ -225,10 +225,9 @@
             <dfn>HTTP GET equivalent</dfn>, <dfn>task</dfn>, <dfn>task source</dfn>, 
             and <dfn>queue a task</dfn>, <dfn>storage mutex</dfn>, the 
             <dfn><code>manifest</code></dfn> attribute, and the 
-            <dfn><code>error</code></dfn> and <dfn><code>updateready</code></dfn> 
-            event names, and the <dfn><code>Function</code></dfn> and
-            <dfn><code>ApplicationCache</code></dfn> interfaces are referenced in 
-            this specification and defined by the HTML 5 specification [[!HTML5]].
+            <dfn><code>Function</code></dfn> and <dfn><code>ApplicationCache</code></dfn> 
+            interfaces are referenced in this specification and defined by the HTML 5 
+            specification [[!HTML5]].
           </dd>
           <dt>HTTP</dt>
           <dd>
@@ -769,13 +768,6 @@ req.send();</codeblock>
                       Mark <var>transaction</var> as <a>off-line transaction</a>.
                     </li>
                     <li>
-                      <a class="externalDFN">Queue a task</a> to fire an event at the 
-                      <a class="externalDFN">cache host</a> passed to these steps with  
-                      the name <a href="#event-updating"><code>updating</code></a>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a class="externalDFN"><code>Event</code></a> interface.
-                    </li>
-                    <li>
                       Return <var>transaction</var>.
                     </li>
                   </ol>
@@ -790,7 +782,7 @@ req.send();</codeblock>
                         <li>
                           If the <a>dynamic update status</a> of 
                           <var>cache group</var> is <var>updating</var>,
-                          then raise an exception and abort these steps, as a 
+                          then set an error and abort these steps, as a 
                           <a>cache transaction</a> is already open on this
                           <a class="externalDFN">application cache group</a>.
                         </li>
@@ -817,13 +809,6 @@ req.send();</codeblock>
                     </li>
                     <li>
                       Mark <var>transaction</var> as not <a title="off-line transaction">off-line</a>.
-                    </li>
-                    <li>
-                      <a class="externalDFN">Queue a task</a> to fire an event at the 
-                      <a class="externalDFN">cache host</a> passed to these steps with  
-                      the name <a href="#event-updating"><code>updating</code></a>, 
-                      which does not bubble, is not cancelable, and which uses the
-                      <a class="externalDFN"><code>Event</code></a> interface.
                     </li>
                   </ol>
                 </dd>
@@ -889,13 +874,13 @@ req.send();</codeblock>
               <li>
                 If the resulting absolute URI has a different <code>&lt;scheme&gt;</code> 
                 component than the base URI (compared in an ASCII case-insensitive 
-                manner), then throw an exception and abort these steps.
+                manner), then set an error and abort these steps.
               </li>
               
               <li>
                 If the resulting absolute URI does not have the 
                 <a class="externalDFN">same origin</a> as <var>base URI</var>, 
-                then throw an exception and abort these steps.
+                then set an error and abort these steps.
               </li>
               
               <li>
@@ -1014,9 +999,9 @@ req.send();</codeblock>
                 </dd>
               </dl></li>            
               <li>
-                <a class="externalDFN">Queue a task</a> to fire an event 
-                at <var>transaction</var> with the name 
-                <a href="#event-captured"><code>captured</code></a>, which
+                <a class="externalDFN">Queue a task</a> to fire an event at 
+                <var>transaction</var> for the URI passed to these steps with the 
+                name <a href="#event-captured"><code>captured</code></a>, which
                 does not bubble, is not cancelable, and which uses the
                 <a><code>CacheEvent</code></a> interface.
               </li>
@@ -1080,7 +1065,7 @@ req.send();</codeblock>
               
               <li>
                 If <var>transaction</var>'s <a>commit status</a> is not
-                <var>pending</var>, then raise an exception and abort these steps.
+                <var>pending</var>, then set an error and abort these steps.
               </li>
               
               <li>
@@ -1110,12 +1095,12 @@ req.send();</codeblock>
               <li>
                 If the resulting absolute URI has a different <code>&lt;scheme&gt;</code>
                 component than the base URI (compared in an ASCII case-insensitive 
-                manner), then throw an exception and abort these steps.
+                manner), then set an error and abort these steps.
               </li>
               
               <li>
                 If the resulting absolute URI does not have the same <a>origin</a>
-                as <var>base URI</var>, then throw an exception and abort these steps.
+                as <var>base URI</var>, then set an error and abort these steps.
               </li>
               
               <li>
@@ -1130,8 +1115,8 @@ req.send();</codeblock>
               
               <li>
                 If the resulting absolute URI does not identify a <a>managed</a> 
-                resource that is already in <var>cache</var>, then raise
-                an exception and abort these steps.
+                resource that is already in <var>cache</var>, then set an error
+                and abort these steps.
               </li>
               
               <li>
@@ -1140,11 +1125,11 @@ req.send();</codeblock>
               </li>
               
               <li>
-                <a class="externalDFN">Queue a task</a> to fire an event 
-                at <var>transaction</var> with the name 
-                <a href="#event-released"><code>released</code></a>, which
+                <a class="externalDFN">Queue a task</a> to fire an event at 
+                <var>transaction</var> for the URI passed to these steps with the 
+                name <a href="#event-released"><code>released</code></a>, which
                 does not bubble, is not cancelable, and which uses the
-                <a><code>CacheEvent</code></a> interface.                      
+                <a><code>CacheEvent</code></a> interface.            
               </li>
             </ol>
           </section>
@@ -1166,7 +1151,7 @@ req.send();</codeblock>
 
               <li>
                 If <var>transaction</var>'s <a>commit status</a> is not
-                <var>pending</var>, then raise an exception and abort these steps.
+                <var>pending</var>, then set an error and abort these steps.
               </li>
               
               <li>
@@ -1238,11 +1223,8 @@ req.send();</codeblock>
                 </dl>
               </li>
               <li>
-                For each <a class="externalDFN">cache host</a> associated with an
-                <a class="externalDFN">application cache</a> in <var>cache group</var>, 
-                <a>queue a task</a> 
-                to fire an event at the <a class="externalDFN">cache host</a> with
-                the name <a class="externalDFN"><code>updateready</code></a>,
+                <a class="externalDFN">Queue a task</a> to fire an event at <var>transaction</var> 
+                with the name <a href="#event-ready"><code>ready</code></a>,
                 which does not bubble, is not cancelable, and which uses the
                 <a><code>Event</code></a> interface.                      
               </li>
@@ -1270,7 +1252,7 @@ req.send();</codeblock>
 
               <li>
                 If <var>transaction</var>'s <a>commit status</a> is not
-                <var>pending</var>, then raise an exception and abort these steps.
+                <var>pending</var>, then set an error and abort these steps.
               </li>
               
               <li>
@@ -1280,15 +1262,6 @@ req.send();</codeblock>
               <li>
                 Set <var>transaction</var>'s <a>commit status</a> as 
                 <var>aborted</var>.
-              </li>
-              <li>
-                For each <a class="externalDFN">cache host</a> associated with an
-                <a class="externalDFN">application cache</a>
-                in <var>cache group</var>, <a>queue a task</a> to fire an event
-                at the <a class="externalDFN">cache host</a> with
-                the name <a class="externalDFN"><code>error</code></a>,
-                which does not bubble, is not cancelable, and which uses the
-                <a><code>Event</code></a> interface.                      
               </li>
             </ol>
           </section>
@@ -1335,7 +1308,7 @@ req.send();</codeblock>
           </section>
         
           <section id="request-events" class="section">
-            <h4>Asynchronous reuests</h4>
+            <h4>Asynchronous requests</h4>
             <p>
               Events are fired during asynchronous access as <a>managed</a> 
               resources are accessed and manipulated. As requests are made for 
@@ -1387,13 +1360,15 @@ req.send();</codeblock>
               <dd>The result of a successful completion of the request</dd>
     
               <dt>attribute Function onsuccess</dt>
-              <dd>The event handler for <a title="event-success">success event</a></dd>
+              <dd>The <a class="externalDFN">event handler</a> for the 
+              <a href="#event-success"><code>success</code></a> event</dd>
               <dt>attribute Function onerror</dt>
-              <dd>The event handler for <a title="event-error">error event</a></dd>
+              <dd>The <a class="externalDFN">event handler</a> for the 
+              <a href="#event-error"><code>error</code></a> event</dd>
             </dl>
           </section>
             
-          <section class="section" id="">
+          <section class="section">
             <h4>Extending the <code>ApplicationCache</code> interface</h4>
             <p>
               Additional metadata is available about an
@@ -1555,7 +1530,7 @@ req.send();</codeblock>
                   </dd>
                 </dl>              
               </dd>
-              <dt>AppCacheRequest immediate()</dt>
+              <dt>AppCacheRequest offline()</dt>
               <dd> 
                 When this method is called, the user agent returns immediately 
                 with a new <a><code>AppCacheRequest</code></a> object called 
@@ -2033,6 +2008,42 @@ req.send();</codeblock>
                   <dt>DOMString uri</dt>
                   <dd>identifying the resource to release</dd>
                 </dl>
+              </dd>
+              <dt>AppCacheRequest abort()</dt>
+              <dd>
+                When called, this method must immediately return with a new 
+                <a><code>AppCacheRequest</code></a> object called <var>result</var> and
+                asynchronously perform the following steps:
+                <ol>
+                  <li>
+                    Execute the steps to <a>abort a cache transaction</a> with the 
+                    this <a>cache transaction</a>.
+                  </li>
+                  <li>
+                    If the steps raised an error,
+                    then skip the remaining steps and perform the following sub-steps:
+                    <ol>
+                      <li>
+                        Set <a href="#widl-AppCacheRequest-error"><code>error</code></a>
+                        to be the error set in the above steps.
+                      </li>
+                      <li>
+                        <a class="externalDFN">Queue a task</a> to fire an event 
+                        at <var>result</var> with the name 
+                        <a class="#event-error"><code>error</code></a>, which
+                        does not bubble, is not cancelable, and which uses the
+                        <a class="externalDFN"><code>Event</code></a> interface.
+                      </li>
+                    </ol>
+                  </li>
+                  <li>
+                    <a class="externalDFN">Queue a task</a> to fire an event 
+                    at this object with the name 
+                    <a class="#event-success"><code>success</code></a>, which
+                    does not bubble, is not cancelable, and which uses the
+                    <a class="externalDFN"><code>Event</code></a> interface.
+                  </li>
+                </ol>
               </dd>
               <dt>AppCacheRequest commit()</dt>
               <dd>
@@ -2585,27 +2596,15 @@ req.send();</codeblock>
             </p>
             
             <dl class="idl" title="interface CacheEvent : Event">
-              <dt>readonly attribute ApplicationCache2 cache</dt>
-              <dd>This attribute, on getting, must return a 
-              <a class="externalDFN"><code>ApplicationCache</code></a> object 
-              representing the <a class="externalDFN">application cache</a> on
-              which this event is fired.
-              </dd>
               <dt>readonly attribute DOMString uri</dt>
               <dd>This attribute, on getting, must return the URI of the 
               <a>managed</a> resource for which this event is fired.              
-              <p>
-                It is set to <code>null</code> if this object is used for the
-                <a href="#event-ready"><code>ready</code></a> event.
-              </p>
               </dd>
               <dt>void initCacheEvent()</dt>
               <dd>These methods must initialize the event in a manner analogous to the
               similarly named methods in the DOM Events interfaces. 
               [[!DOM-LEVEL-3-EVENTS]]
                 <dl class="parameters">
-                  <dt>ApplicationCache cache</dt>
-                  <dd></dd>
                   <dt>optional DOMString uri</dt>
                   <dd></dd>
                 </dl>
@@ -2616,8 +2615,6 @@ req.send();</codeblock>
               [[!DOM-LEVEL-3-EVENTS]]
                 <dl class="parameters">
                   <dt>DOMString namespaceURI</dt>
-                  <dd></dd>
-                  <dt>ApplicationCache cache</dt>
                   <dd></dd>
                   <dt>optional DOMString uri</dt>
                   <dd></dd>
@@ -2790,10 +2787,56 @@ req.send();</codeblock>
               </dd>
               <dt>readonly attribute DOMString bodyText</dt>
               <dd>
-                This attribute, on getting, must return the entity body of this 
-                <a><code>HttpRequest</code></a>
-                object, if the body has a <code>Content-Type</code> of either
-                <code>text/*</code> or <code>application/xml</code>.
+                This attribute is a DOMString representing the request entity body, 
+                which on getting, must return the result of the following steps:
+                <ol>
+                  <li>
+                    If the request entity body is null, return the empty string and 
+                    terminate these steps.
+                  </li>
+                  <li>
+                    Let <var>charset</var> be the value of the
+                    <code>charset</code> parameter of the <code>Content-Type</code>
+                    header or <code>null</code> if there was no <code>charset</code> 
+                    parameter or if the header could not be parsed properly or was
+                    omitted.
+                  </li>
+                  <li>
+                    Let <var>mime</var> be the MIME type the <code>Content-Type</code> 
+                    header contains without any parameters or <code>null</code> if 
+                    the header could not be parsed properly or was omitted.
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code> and <var>mime</var> 
+                    is <code>text/xml</code>, 
+                    <code>application/xml</code>, or ends in <code>+xml</code> 
+                    use the rules set forth in the XML specifications to determine
+                    the character encoding. Let <var>charset</var> be the 
+                    determined character encoding. 
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code> and <var>mime</var> is 
+                    <code>application/json</code> follow the rules set forth in the 
+                    [[!RFC4627]] specification to determine the character encoding. 
+                    Let <var>charset</var> be the determined character encoding. 
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code> and <var>mime</var> is 
+                    <code>text/html</code> follow the rules set forth in the [[!HTML5]] 
+                    specification to determine the character encoding. Let 
+                    <var>charset</var> be the determined character encoding. 
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code>, then let 
+                    <var>charset</var> be <code>UTF-8</code>. 
+                  </li>
+                  <li>
+                    Return the result of decoding the response entity body using
+                    <var>charset</var>. Replace bytes or sequences of bytes that are
+                    not valid accordng to the <var>charset</var> with a single 
+                    U+FFFD REPLACEMENT CHARACTER character.
+                  </li>
+                </ol>
               </dd>
               <dt>readonly attribute any headers</dt>
               <dd>
@@ -2853,10 +2896,56 @@ req.send();</codeblock>
               </dd>
               <dt>readonly attribute DOMString bodyText</dt>
               <dd>
-                This attribute, on getting, must return the entity body of this 
-                <a><code>HttpResponse</code></a> 
-                object, if the body has a <code>Content-Type</code> of either
-                <code>text/*</code> or <code>application/xml</code>.
+                This attribute is a DOMString representing the response entity body, 
+                which on getting, must return the result of the following steps:
+                <ol>
+                  <li>
+                    If the response entity body is null, return the empty string and 
+                    terminate these steps.
+                  </li>
+                  <li>
+                    Let <var>charset</var> be the value of the
+                    <code>charset</code> parameter of the <code>Content-Type</code>
+                    header or <code>null</code> if there was no <code>charset</code> 
+                    parameter or if the header could not be parsed properly or was
+                    omitted.
+                  </li>
+                  <li>
+                    Let <var>mime</var> be the MIME type the <code>Content-Type</code> 
+                    header contains without any parameters or <code>null</code> if 
+                    the header could not be parsed properly or was omitted.
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code> and <var>mime</var> 
+                    is <code>text/xml</code>, 
+                    <code>application/xml</code>, or ends in <code>+xml</code> 
+                    use the rules set forth in the XML specifications to determine
+                    the character encoding. Let <var>charset</var> be the 
+                    determined character encoding. 
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code> and <var>mime</var> is 
+                    <code>application/json</code> follow the rules set forth in the 
+                    [[!RFC4627]] specification to determine the character encoding. 
+                    Let <var>charset</var> be the determined character encoding. 
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code> and <var>mime</var> is 
+                    <code>text/html</code> follow the rules set forth in the [[!HTML5]] 
+                    specification to determine the character encoding. Let 
+                    <var>charset</var> be the determined character encoding. 
+                  </li>
+                  <li>
+                    If <var>charset</var> is <code>null</code>, then let 
+                    <var>charset</var> be <code>UTF-8</code>. 
+                  </li>
+                  <li>
+                    Return the result of decoding the response entity body using
+                    <var>charset</var>. Replace bytes or sequences of bytes that are
+                    not valid accordng to the <var>charset</var> with a single 
+                    U+FFFD REPLACEMENT CHARACTER character.
+                  </li>
+                </ol>
               </dd>
               <dt>readonly attribute any headers</dt>
               <dd>
