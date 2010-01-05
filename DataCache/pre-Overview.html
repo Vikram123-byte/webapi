@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Programmable HTTP Caching and Serving</title>
-    <meta name='revision' content='$Id: pre-Overview.html,v 1.2 2010-01-04 20:55:13 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: pre-Overview.html,v 1.3 2010-01-05 00:55:18 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -127,50 +127,37 @@
 
     <section id="introduction" class="section informative">
       <h2>Introduction</h2>
-
       <p>
-        Web applications often encounter seemingly random disconnections
-        or network slowdowns, which deteriorates application responsiveness
-        and availability, and, therefore, user experience. Working around
-        network issues entails specially written applications, synchronization 
-        programs, and data protocols for specific platforms.
+        The existing cache manifest [[!HTML5]] statically identifies cached 
+        resources to be stored in an application cache.  The API introduced
+        in this document extends the application cache by allowing
+        applications to programmatically add other resources to the cache
+        which can then be served by the user agent when that resource is
+        requested. This API also extends the application cache to enable
+        applications to programmatically generate responses to requests for
+        resources that have been added to the application cache. As a result,
+        the application cache can now be used to satisfy unsafe HTTP methods
+        such as <code>PUT</code> and <code>POST</code>.
       </p>
-      
       <p>
-        The standard HTTP caches built in to existing user agents 
-        are under no obligation to locally store a cacheable resource 
-        and do not provide any guarantees about off-line serving of 
-        HTTP resources. The cache manifest [[!HTML5]] statically identifies
-        cached resources of an application cache and applications can
-        programmatically add other resources to the cache, using APIs in 
-        this specification, which can then be statically served by the user
-        agent when that resource is requested. An application cache 
-        can also enable applications to programmatically generate a
-        response to requests for the resources programmatically added
-        to the application cache. As a result, an application cache can also 
-        satisfy unsafe HTTP methods such as <code>PUT</code> and <code>POST</code>.
+        Using this application cache extension, applications can obtain locally
+        cached data or data produced locally by JavaScript servers and perform
+        requests on resources that can be served whether or not the user agent
+        is connected to a remote server. Applications can then save and replay
+        locally satisfied requests to the server when it is reconnected, thus
+        enabling responsive and robust Web applications in the presence of low
+        connectivity conditions.
       </p>
-    
       <p>
-        Using these extensions of application caches, applications can obtain 
-        locally cached or served data and complete requests to  
-        resources whether or not the requests can be serviced immediately 
-        by a remote server. Applications can replay locally satisfied requests
-        to the server thus enabling responsive and robust Web 
-        applications in the presence of low connectivity conditions.
-      </p>
-      
-      <p>
-        This specification does not introduce a new programming model
-        for Web applications as application caches are
-        transparently pressed into action by the user agent, depending
-        on system conditions. This means that existing applications
-        can be used unchanged in environments that are not affected
-        by network unreliability. Applications can be altered to use APIs
-        specified in this document, only if they require improved
-        responsiveness. Such applications can seamlessly switch
-        between on-line and off-line operation without needing explicit
-        user action.
+        This specification does not require a new programming model for Web
+        applications as application caches can be configured to be transparently
+        pressed into action by the user agent, depending on system conditions.
+        Such applications can seamlessly switch between on-line and off-line
+        operation without needing explicit user action. This also means that 
+        existing applications can be used unchanged in many cases
+        once the application cache is configured. Applications only need to be
+        altered to use APIs specified in this document if they require more
+        complex synchronization. 
       </p>
     </section>
 
@@ -305,7 +292,8 @@
           <dd>
             <p>
               A <a>conforming user agent</a> must define the exception codes
-              <dfn><code>INVALID_STATE_ERR</code></dfn>, and  
+              <dfn><code>INVALID_STATE_ERR</code></dfn> and
+              <dfn><code>NOT_FOUND_ERR</code></dfn>, and  
               <dfn><code>Event</code></dfn> and <dfn><code>DOMException</code></dfn>
               interface defined in [[!DOM-LEVEL-3-CORE]] 
               and referenced in this specification.
@@ -458,20 +446,13 @@ req.send();</codeblock>
             <codeblock>var uri = ...
 var cache = window.applicationCache;
 var local = function(request, response) {
-  response.statusCode = 200;
-  response.statusLine = 'HTTP/1.1 OK';
-  response.bodyText = ...
-  response.send();
+  response.setStatus(200, 'OK');
+  response.setResponseText('Hello World');
 };
 
 window.navigator.registerOfflineHandler(uri, local);
 
-var req = cache.offlineTransaction();
-req.onsuccess = function() {
-  var txn = req.result;
-  var captureReq = txn.capture(uri, '', null, ['GET']);
-  captureReq.onsuccess = function() { txn.commit(); }
-}</codeblock>
+var req = cache.offline(uri, '', null, ['GET']);</codeblock>
             <p>
               Later when that application issues a <code>GET</code> request for
               the <a>managed</a> resource either through page navigation or an XMLHttpRequest 
@@ -511,12 +492,8 @@ req.send();</codeblock>
             
             <codeblock>var uri = ...
 var cache = self.applicationCache;
-var txnReq = cache.transaction();
-txnReq.onsuccess = function() {
-  var txn = txnReq.result;
-  var captureReq = txn.capture(uri, ['PUT']);
-  captureReq.onsuccess = function() { txn.commit(); }
-}</codeblock>
+cache.immediate(uri, ['PUT']);
+</codeblock>
 
             <p>
               Another application in the same origin could then register an <a>off-line</a>
@@ -524,36 +501,25 @@ txnReq.onsuccess = function() {
               that resource. 
             </p>
             
-            <codeblock>cache = window.applicationCache;
+            <codeblock>var cache = window.applicationCache;
 var intercept = function(request, response) {
   if (...) {
     // validation fails
-    response.setStatus(400, 'HTTP/1.1 Bad Request');
-    response.send();
+    response.setStatus(400, 'Bad Request');
+    response.setResponseText('Request not understood');
     return;
   } 
-  var req = cache.offlineTransaction();
+  var type = request.headers['Content-Type'] || 'text/plain';
+  var req = cache.offline(request.targetURL, request.bodyText, type);
   req.onsuccess = function() {
-    var txn = req.result;
-    var captureReq = txn.capture(request.targetURL, request.bodyText, request.headers['Content-Type']);
-    captureReq.onsuccess = function() {
-      response.bodyText = request.bodyText;
-      response.headers['Content-Type'] = type;
-      response.statusCode = 200;
-      response.statusLine = 'HTTP/1.1 OK';
-      response.send();
-      txn.commit();
-    }
+    response.setResponseText(request.bodyText);
+    response.setResponseHeader('Content-Type', type);
+    response.setStatus(200, 'OK');
   }
 };
 
 var review = function(request, response) {
-  var req = cache.offlineTransaction();
-  req.onsuccess = function(txn) {
-    var txn = req.result;
-    var captureReq = txn.capture(request.targetURL, response.bodyText, response.headers['Content-Type']); 
-    captureReq.onsuccess = function() { txn.commit(); }
-  }
+  var req = cache.offline(request.targetURL, response.bodyText, response.headers['Content-Type']);
 };
 
 window.navigator.registerOfflineHandler(uri, intercept, review);</codeblock>
@@ -2711,22 +2677,45 @@ req.send();</codeblock>
               <dd>
                 <dl class="parameters">
                   <dt>DOMString namespace</dt>
-                  <dd>identifying the <a>interception namespace</a> for this <a>embedded local server</a></dd>
+                  <dd>identifying the <a>interception namespace</a> for this 
+                  <a>embedded local server</a></dd>
                   <dt>InterceptHandler intercept</dt>
                   <dd>the <a>interceptor</a> function of this <a>embedded local server</a></dd>
-                  <dt>ReviewHandler review</dt>
+                  <dt>optional ReviewHandler review</dt>
                   <dd>the <a>reviewer</a> function of this <a>embedded local server</a></dd>
                 </dl>
                 <p>
-                  This method allows applications to register possible handlers for particular URI namespaces.
-                  Upon being invoked, this method should create a new 
-                  <a>embedded local server</a> called <var>server</var> with its <a>interceptor</a> 
+                  This method allows applications to register possible handlers 
+                  for particular URI namespaces. Upon being invoked, this method 
+                  should create a new <a>embedded local server</a> called 
+                  <var>server</var> with its <a>interceptor</a> 
                   function set to <var>intercept handler</var> and its 
                   <a>reviewer</a> function set to <var>review handler</var> 
                   and add <var>server</var> to the <a>cache host</a>, which is
                   the <a>active document</a> of the <a>browsing context</a> of the
                   <code>window</code> containing this <code>Navigator</code> object.
+                  If a handler already exists for the given <var>namespace</var>,
+                  the existing <a>embedded local server</a> is replaced with the
+                  one created in this call.
                 </p>                  
+              </dd>
+              <dt>void removeOfflineHandler()</dt>
+              <dd>
+                This method removes the registered <a>embedded local server</a>
+                for the given namespace from the <a>cache host</a>, which is
+                the <a>active document</a> of the <a>browsing context</a> of the
+                <code>window</code> containing this <code>Navigator</code> object.
+                <dl class="parameters">
+                  <dt>DOMString namespace</dt>
+                  <dd>identifying the <a>interception namespace</a> for this 
+                  <a>embedded local server</a></dd>
+                </dl>
+                <div class="exception" title="DOMException">
+                  The method must raise an 
+                  <a class="externalDFN"><code>NOT_FOUND_ERR</code></a> if
+                  the version passed to these steps is not less than the
+                  <a>version</a> of this <a>application cache</a>.                
+                </div>
               </dd>
             </dl>
 
@@ -2740,10 +2729,17 @@ req.send();</codeblock>
                   with an <a><code>HttpRequest</code></a>
                   object <var>request</var> based on the application's resource request and an 
                   <a><code>MutableHttpResponse</code></a>
-                  object <var>response</var>. When the <a href="#widl-MutableHttpResponse-send">
+                  object <var>response</var>. If the <a href="#widl-MutableHttpResponse-delay">
+                  <code>delay()</code></a> method is invoked on <var>response</var>,
+                  then when the <a href="#widl-MutableHttpResponse-send">
                   <code>send()</code></a> method is invoked on <var>response</var>, the
-                  user agent must respond to <var>request</var> with the headers, body, and
+                  user agent MUST respond to <var>request</var> with the headers, body, and
                   status specified in <var>response</var>.
+                  If the <a href="#widl-MutableHttpResponse-delay">
+                  <code>delay()</code></a> method is not invoked on <var>response</var>
+                  in this callback, then the user agent MUST respond to <var>request</var>
+                  with the headers, body, and status, specified in <var>response</var>
+                  when this function exits.
                 </p>
                 <dl class="parameters">
                   <dt>HttpRequest request</dt>
@@ -2874,6 +2870,14 @@ req.send();</codeblock>
                 <a><code>MutableHttpResponse</code></a>
                 object. If a value is already associated with this header, then
                 this method must append <var>value</var> to it.
+              </dd>
+              <dt>void delay()</dt>
+              <dd>
+                Mark this response to be explicitly dispatched. This means that the
+                <a><code>InterceptHandler</code></a> would need to explicitly call
+                <a href="#widl-MutableHttpResponse-send"><code>send()</code></a>
+                in order to mark the response as ready for being returned to the
+                application.
               </dd>
               <dt>void send()</dt>
               <dd>
@@ -3052,6 +3056,11 @@ req.send();</codeblock>
                   </ol></dd>
                   <dt>If the user agent is online</dt>
                   <dd><ol>
+                      <li>
+                        If the <a>reviewer</a> function of <var>server</var>
+                        is not set, then abort these steps and perform the steps
+                        for the case when the user agent is off-line.
+                      </li>
                       <li>
                         <a class="externalDFN">Fetch</a> a representation of 
                         <var>resource</var> normally and call it <var>response</var>. 

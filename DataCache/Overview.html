@@ -5,7 +5,7 @@
   
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Programmable HTTP Caching and Serving</title>
-    <meta name="revision" content="$Id: Overview.html,v 1.23 2010-01-04 20:55:12 nmehta3 Exp $">
+    <meta name="revision" content="$Id: Overview.html,v 1.24 2010-01-05 00:55:18 nmehta3 Exp $">
     
     
     
@@ -51,50 +51,37 @@
 
     <div id="introduction" class="section informative">
       <h2><span class="secno">1. </span>Introduction</h2><p><em>This section is non-normative.</em></p>
-
       <p>
-        Web applications often encounter seemingly random disconnections
-        or network slowdowns, which deteriorates application responsiveness
-        and availability, and, therefore, user experience. Working around
-        network issues entails specially written applications, synchronization 
-        programs, and data protocols for specific platforms.
+        The existing cache manifest [<a href="#bib-HTML5" rel="biblioentry" class="bibref">HTML5</a>] statically identifies cached 
+        resources to be stored in an application cache.&nbsp; The API introduced
+        in this document extends the application cache by allowing
+        applications to programmatically add other resources to the cache
+        which can then be served by the user agent when that resource is
+        requested. This API also extends the application cache to enable
+        applications to programmatically generate responses to requests for
+        resources that have been added to the application cache. As a result,
+        the application cache can now be used to satisfy unsafe HTTP methods
+        such as <code>PUT</code> and <code>POST</code>.
       </p>
-      
       <p>
-        The standard HTTP caches built in to existing user agents 
-        are under no obligation to locally store a cacheable resource 
-        and do not provide any guarantees about off-line serving of 
-        HTTP resources. The cache manifest [<a href="#bib-HTML5" rel="biblioentry" class="bibref">HTML5</a>] statically identifies
-        cached resources of an application cache and applications can
-        programmatically add other resources to the cache, using APIs in 
-        this specification, which can then be statically served by the user
-        agent when that resource is requested. An application cache 
-        can also enable applications to programmatically generate a
-        response to requests for the resources programmatically added
-        to the application cache. As a result, an application cache can also 
-        satisfy unsafe HTTP methods such as <code>PUT</code> and <code>POST</code>.
+        Using this application cache extension, applications can obtain locally
+        cached data or data produced locally by JavaScript servers and perform
+        requests on resources that can be served whether or not the user agent
+        is connected to a remote server. Applications can then save and replay
+        locally satisfied requests to the server when it is reconnected, thus
+        enabling responsive and robust Web applications in the presence of low
+        connectivity conditions.
       </p>
-    
       <p>
-        Using these extensions of application caches, applications can obtain 
-        locally cached or served data and complete requests to  
-        resources whether or not the requests can be serviced immediately 
-        by a remote server. Applications can replay locally satisfied requests
-        to the server thus enabling responsive and robust Web 
-        applications in the presence of low connectivity conditions.
-      </p>
-      
-      <p>
-        This specification does not introduce a new programming model
-        for Web applications as application caches are
-        transparently pressed into action by the user agent, depending
-        on system conditions. This means that existing applications
-        can be used unchanged in environments that are not affected
-        by network unreliability. Applications can be altered to use APIs
-        specified in this document, only if they require improved
-        responsiveness. Such applications can seamlessly switch
-        between on-line and off-line operation without needing explicit
-        user action.
+        This specification does not require a new programming model for Web
+        applications as application caches can be configured to be transparently
+        pressed into action by the user agent, depending on system conditions.
+        Such applications can seamlessly switch between on-line and off-line
+        operation without needing explicit user action. This also means that 
+        existing applications can be used unchanged in many cases
+        once the application cache is configured. Applications only need to be
+        altered to use APIs specified in this document if they require more
+        complex synchronization. 
       </p>
     </div>
 
@@ -231,7 +218,8 @@
           <dd>
             <p>
               A <a class="internalDFN" href="#dfn-conforming-user-agent">conforming user agent</a> must define the exception codes
-              <dfn id="dfn-invalid_state_err"><code>INVALID_STATE_ERR</code></dfn>, and  
+              <dfn id="dfn-invalid_state_err"><code>INVALID_STATE_ERR</code></dfn> and
+              <dfn id="dfn-not_found_err"><code>NOT_FOUND_ERR</code></dfn>, and  
               <dfn id="dfn-event"><code>Event</code></dfn> and <dfn id="dfn-domexception"><code>DOMException</code></dfn>
               interface defined in [<a href="#bib-DOM-LEVEL-3-CORE" rel="biblioentry" class="bibref">DOM-LEVEL-3-CORE</a>] 
               and referenced in this specification.
@@ -384,20 +372,13 @@ req.send();</code></pre></div></div>
             <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var uri = ...
 var cache = window.applicationCache;
 var local = function(request, response) {
-  response.statusCode = 200;
-  response.statusLine = 'HTTP/1.1 OK';
-  response.bodyText = ...
-  response.send();
+  response.setStatus(200, 'OK');
+  response.setResponseText('Hello World');
 };
 
 window.navigator.registerOfflineHandler(uri, local);
 
-var req = cache.offlineTransaction();
-req.onsuccess = function() {
-  var txn = req.result;
-  var captureReq = txn.capture(uri, '', null, ['GET']);
-  captureReq.onsuccess = function() { txn.commit(); }
-}</code></pre></div></div>
+var req = cache.offline(uri, '', null, ['GET']);</code></pre></div></div>
             <p>
               Later when that application issues a <code>GET</code> request for
               the <a class="internalDFN" href="#dfn-managed">managed</a> resource either through page navigation or an XMLHttpRequest 
@@ -437,12 +418,8 @@ req.send();</code></pre></div></div>
             
             <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var uri = ...
 var cache = self.applicationCache;
-var txnReq = cache.transaction();
-txnReq.onsuccess = function() {
-  var txn = txnReq.result;
-  var captureReq = txn.capture(uri, ['PUT']);
-  captureReq.onsuccess = function() { txn.commit(); }
-}</code></pre></div></div>
+cache.immediate(uri, ['PUT']);
+</code></pre></div></div>
 
             <p>
               Another application in the same origin could then register an <a class="internalDFN" href="#dfn-off-line">off-line</a>
@@ -450,36 +427,25 @@ txnReq.onsuccess = function() {
               that resource. 
             </p>
             
-            <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">cache = window.applicationCache;
+            <div class="block"><div class="blockTitleDiv"><span class="blockTitle">ECMAScript</span></div><div class="blockContent"><pre class="code"><code class="es-code">var cache = window.applicationCache;
 var intercept = function(request, response) {
   if (...) {
     // validation fails
-    response.setStatus(400, 'HTTP/1.1 Bad Request');
-    response.send();
+    response.setStatus(400, 'Bad Request');
+    response.setResponseText('Request not understood');
     return;
   } 
-  var req = cache.offlineTransaction();
+  var type = request.headers['Content-Type'] || 'text/plain';
+  var req = cache.offline(request.targetURL, request.bodyText, type);
   req.onsuccess = function() {
-    var txn = req.result;
-    var captureReq = txn.capture(request.targetURL, request.bodyText, request.headers['Content-Type']);
-    captureReq.onsuccess = function() {
-      response.bodyText = request.bodyText;
-      response.headers['Content-Type'] = type;
-      response.statusCode = 200;
-      response.statusLine = 'HTTP/1.1 OK';
-      response.send();
-      txn.commit();
-    }
+    response.setResponseText(request.bodyText);
+    response.setResponseHeader('Content-Type', type);
+    response.setStatus(200, 'OK');
   }
 };
 
 var review = function(request, response) {
-  var req = cache.offlineTransaction();
-  req.onsuccess = function(txn) {
-    var txn = req.result;
-    var captureReq = txn.capture(request.targetURL, response.bodyText, response.headers['Content-Type']); 
-    captureReq.onsuccess = function() { txn.commit(); }
-  }
+  var req = cache.offline(request.targetURL, response.bodyText, response.headers['Content-Type']);
 };
 
 window.navigator.registerOfflineHandler(uri, intercept, review);</code></pre></div></div>
@@ -2505,21 +2471,40 @@ interface <span class="idlInterfaceID">CacheUtil</span> {
           
             <pre class="idl"><span class="idlInterface" id="idl-def-NavigatorLocalServer">[<span class="extAttr">Supplemental, NoInterfaceObject</span>]
 interface <span class="idlInterfaceID">NavigatorLocalServer</span> {
-<span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-NavigatorLocalServer-registerOfflineHandler">registerOfflineHandler</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">namespace</span></span>, <span class="idlParam">in <span class="idlParamType"><a class="idlType" href="#idl-def-InterceptHandler"><code>InterceptHandler</code></a></span> <span class="idlParamName">intercept</span></span>, <span class="idlParam">in <span class="idlParamType"><a class="idlType" href="#idl-def-ReviewHandler"><code>ReviewHandler</code></a></span> <span class="idlParamName">review</span></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-NavigatorLocalServer-registerOfflineHandler">registerOfflineHandler</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">namespace</span></span>, <span class="idlParam">in <span class="idlParamType"><a class="idlType" href="#idl-def-InterceptHandler"><code>InterceptHandler</code></a></span> <span class="idlParamName">intercept</span></span>, <span class="idlParam">in optional <span class="idlParamType"><a class="idlType" href="#idl-def-ReviewHandler"><code>ReviewHandler</code></a></span> <span class="idlParamName">review</span></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-NavigatorLocalServer-removeOfflineHandler">removeOfflineHandler</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">namespace</span></span>) raises (<span class="idlRaises"><a>DOMException</a></span>);</span>
 };</span>
 </pre><div class="section"><dl class="methods"><dt id="widl-NavigatorLocalServer-registerOfflineHandler"><code>registerOfflineHandler</code></dt><dd>
                 
                 <p>
-                  This method allows applications to register possible handlers for particular URI namespaces.
-                  Upon being invoked, this method should create a new 
-                  <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a> called <var>server</var> with its <a class="internalDFN" href="#dfn-interceptor">interceptor</a> 
+                  This method allows applications to register possible handlers 
+                  for particular URI namespaces. Upon being invoked, this method 
+                  should create a new <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a> called 
+                  <var>server</var> with its <a class="internalDFN" href="#dfn-interceptor">interceptor</a> 
                   function set to <var>intercept handler</var> and its 
                   <a class="internalDFN" href="#dfn-reviewer">reviewer</a> function set to <var>review handler</var> 
                   and add <var>server</var> to the <a class="internalDFN" href="#dfn-cache-host">cache host</a>, which is
                   the <a class="internalDFN" href="#dfn-active-document">active document</a> of the <a class="internalDFN" href="#dfn-browsing-context">browsing context</a> of the
                   <code>window</code> containing this <code>Navigator</code> object.
+                  If a handler already exists for the given <var>namespace</var>,
+                  the existing <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a> is replaced with the
+                  one created in this call.
                 </p>                  
-              <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">namespace</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">identifying the <a class="internalDFN" href="#dfn-interception-namespace">interception namespace</a> for this <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr><tr><td class="prmName">intercept</td><td class="prmType"><code><a class="idlType" href="#idl-def-InterceptHandler"><code>InterceptHandler</code></a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">the <a class="internalDFN" href="#dfn-interceptor">interceptor</a> function of this <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr><tr><td class="prmName">review</td><td class="prmType"><code><a class="idlType" href="#idl-def-ReviewHandler"><code>ReviewHandler</code></a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">the <a class="internalDFN" href="#dfn-reviewer">reviewer</a> function of this <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr></table><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd></dl></div>
+              <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">namespace</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">identifying the <a class="internalDFN" href="#dfn-interception-namespace">interception namespace</a> for this 
+                  <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr><tr><td class="prmName">intercept</td><td class="prmType"><code><a class="idlType" href="#idl-def-InterceptHandler"><code>InterceptHandler</code></a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">the <a class="internalDFN" href="#dfn-interceptor">interceptor</a> function of this <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr><tr><td class="prmName">review</td><td class="prmType"><code><a class="idlType" href="#idl-def-ReviewHandler"><code>ReviewHandler</code></a></code></td><td class="prmNullFalse">✘</td><td class="prmOptTrue">✔</td><td class="prmDesc">the <a class="internalDFN" href="#dfn-reviewer">reviewer</a> function of this <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr></table><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-NavigatorLocalServer-removeOfflineHandler"><code>removeOfflineHandler</code></dt><dd>
+                This method removes the registered <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a>
+                for the given namespace from the <a class="internalDFN" href="#dfn-cache-host">cache host</a>, which is
+                the <a class="internalDFN" href="#dfn-active-document">active document</a> of the <a class="internalDFN" href="#dfn-browsing-context">browsing context</a> of the
+                <code>window</code> containing this <code>Navigator</code> object.
+                
+                
+              <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">namespace</td><td class="prmType"><code><a>DOMString</a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc">identifying the <a class="internalDFN" href="#dfn-interception-namespace">interception namespace</a> for this 
+                  <a class="internalDFN" href="#dfn-embedded-local-server">embedded local server</a></td></tr></table><table class="exceptions"><tr><th>Exception</th><th>Description</th></tr><tr><td class="excName"><a>DOMException</a></td><td class="excDesc">
+                  The method must raise an 
+                  <a class="externalDFN"><code>NOT_FOUND_ERR</code></a> if
+                  the version passed to these steps is not less than the
+                  <a class="internalDFN" href="#dfn-version">version</a> of this <a class="internalDFN" href="#dfn-application-cache">application cache</a>.                
+                </td></tr></table><div><em>Return type: </em><code><a>void</a></code></div></dd></dl></div>
 
             <pre class="idl"><span class="idlImplements"><a>Navigator</a> implements <a class="idlType" href="#idl-def-NavigatorLocalServer"><code>NavigatorLocalServer</code></a>;</span></pre><div class="idlImplementsDesc"><p>All instances of the <code><a>Navigator</a></code> type are defined to also implement the <a class="idlType" href="#idl-def-NavigatorLocalServer"><code>NavigatorLocalServer</code></a> interface.</p></div>
 
@@ -2533,10 +2518,17 @@ interface <span class="idlInterfaceID">InterceptHandler</span> {
                   with an <a class="idlType" href="#idl-def-HttpRequest"><code>HttpRequest</code></a>
                   object <var>request</var> based on the application's resource request and an 
                   <a class="idlType" href="#idl-def-MutableHttpResponse"><code>MutableHttpResponse</code></a>
-                  object <var>response</var>. When the <a href="#widl-MutableHttpResponse-send">
+                  object <var>response</var>. If the <a href="#widl-MutableHttpResponse-delay">
+                  <code>delay()</code></a> method is invoked on <var>response</var>,
+                  then when the <a href="#widl-MutableHttpResponse-send">
                   <code>send()</code></a> method is invoked on <var>response</var>, the
-                  user agent must respond to <var>request</var> with the headers, body, and
+                  user agent <em title="must" class="rfc2119">must</em> respond to <var>request</var> with the headers, body, and
                   status specified in <var>response</var>.
+                  If the <a href="#widl-MutableHttpResponse-delay">
+                  <code>delay()</code></a> method is not invoked on <var>response</var>
+                  in this callback, then the user agent <em title="must" class="rfc2119">must</em> respond to <var>request</var>
+                  with the headers, body, and status, specified in <var>response</var>
+                  when this function exits.
                 </p>
                 
               <table class="parameters"><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th></tr><tr><td class="prmName">request</td><td class="prmType"><code><a class="idlType" href="#idl-def-HttpRequest"><code>HttpRequest</code></a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc"></td></tr><tr><td class="prmName">response</td><td class="prmType"><code><a class="idlType" href="#idl-def-MutableHttpResponse"><code>MutableHttpResponse</code></a></code></td><td class="prmNullFalse">✘</td><td class="prmOptFalse">✘</td><td class="prmDesc"></td></tr></table><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd></dl></div>
@@ -2634,9 +2626,16 @@ interface <span class="idlInterfaceID">ReviewHandler</span> {
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-MutableHttpResponse-setStatus">setStatus</a></span> (<span class="idlParam">in <span class="idlParamType"><a>unsigned short</a></span> <span class="idlParamName">code</span></span>, <span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">message</span></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-MutableHttpResponse-setResponseText">setResponseText</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">text</span></span>);</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-MutableHttpResponse-setResponseHeader">setResponseHeader</a></span> (<span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">name</span></span>, <span class="idlParam">in <span class="idlParamType"><a>DOMString</a></span> <span class="idlParamName">value</span></span>);</span>
+<span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-MutableHttpResponse-delay">delay</a></span> ();</span>
 <span class="idlMethod">    <span class="idlMethType"><a>void</a></span> <span class="idlMethName"><a href="#widl-MutableHttpResponse-send">send</a></span> ();</span>
 };</span>
-</pre><div class="section"><dl class="methods"><dt id="widl-MutableHttpResponse-send"><code>send</code></dt><dd>
+</pre><div class="section"><dl class="methods"><dt id="widl-MutableHttpResponse-delay"><code>delay</code></dt><dd>
+                Mark this response to be explicitly dispatched. This means that the
+                <a class="idlType" href="#idl-def-InterceptHandler"><code>InterceptHandler</code></a> would need to explicitly call
+                <a href="#widl-MutableHttpResponse-send"><code>send()</code></a>
+                in order to mark the response as ready for being returned to the
+                application.
+              <div><em>No parameters.</em></div><div><em>No exceptions.</em></div><div><em>Return type: </em><code><a>void</a></code></div></dd><dt id="widl-MutableHttpResponse-send"><code>send</code></dt><dd>
                 Upon calling, this method must dispatch this 
                 <a class="idlType" href="#idl-def-MutableHttpResponse"><code>MutableHttpResponse</code></a>
                 object. No further changes must be allowed to it. 
@@ -2826,6 +2825,11 @@ interface <span class="idlInterfaceID">ReviewHandler</span> {
                   </ol></dd>
                   <dt>If the user agent is online</dt>
                   <dd><ol>
+                      <li>
+                        If the <a class="internalDFN" href="#dfn-reviewer">reviewer</a> function of <var>server</var>
+                        is not set, then abort these steps and perform the steps
+                        for the case when the user agent is off-line.
+                      </li>
                       <li>
                         <a class="externalDFN">Fetch</a> a representation of 
                         <var>resource</var> normally and call it <var>response</var>. 
