@@ -1,0 +1,220 @@
+<specification 
+              xmlns='http://berjon.com/ns/re-spec/' 
+              xmlns:rs='http://berjon.com/ns/re-spec/' 
+              version='1.0' 
+              xml:lang='en'>
+
+  <metadata>
+    <title>Web Notifications</title>
+    <styling type='W3C' status='ED'/>
+    <date year='2010' month='01' day='8'/>
+    <editors>
+      <person>
+        <name>John Gregg</name>
+        <email>johnnyg@google.com</email>
+        <company>Google</company>
+        <company-url>http://www.google.com/</company-url>
+      </person>
+    </editors>
+  </metadata>
+
+  <section xml:id='abstract' type='w3c-abstract'>
+    <title>Abstract</title>
+    <p>
+      This document defines APIs for alerting the user outside of a web page
+      by displaying notifications. Notifications are displayed asynchronously
+      and do not require user confirmation; events are specified for managing 
+      user interactions with notifications. 
+    </p>
+    <!--
+    <ednote>
+      <p>
+        Last update: $Id: Overview.xml,v 1.1 2010-01-09 01:34:09 jgregg Exp $.
+      </p>
+    </ednote>
+    -->
+  </section>
+
+  <section xml:id='sotd' type='w3c-sotd'>
+    <title>Status of this Document</title>
+    <p>
+      This document is an Editor's Draft and is not suitable for purposes other
+      than reviewing the specification being developed.
+    </p>
+  </section>
+
+  <section xml:id='contents' type='toc'>
+    <title>Table of Contents</title>
+
+    <?respec-toc?>
+  </section>
+
+  <section xml:id='introduction' normativity='not normative'>
+    <title>Introduction</title>
+
+     <p>
+        Many web pages benefit from alerting the user of important events passively, 
+        even when the user is not interacting with that web page.  Some such sitations include:
+        <ul>
+          <li>a calendar application which needs to indicate an upcoming event,</li>
+          <li>a mail application indicating a new message,</li>
+          <li>a photo application indicating that a large upload has completed.</li>
+        </ul>
+      </p>
+      
+      <p>
+        This specification provides an API to generate <em>notifications</em> to
+        alert users outside of the web page.  It does not specify exactly how a user
+        agent should display these alerts; the best presentation depends on the device
+        where the user agent is run.  When this specificiation refers to displaying
+        notifications on the "desktop", it generally refers to some static display
+        area outside the web page, but may take several forms, including:
+        <ul>
+          <li>a corner of the user's display,</li>
+          <li>an area within the chrome of the user agent,</li>
+          <li>the "home" screen of a mobile device,</li>
+          <li><em>et al.</em></li>
+        </ul>
+        This specification does not define exactly how the user agent should display
+        the notification, and the API is designed to be flexible with respect to
+        presentation options.
+      </p>
+  </section>
+
+  <section xml:id='idl-if-Notification'>
+    <title>The Notification interface</title>
+    <p>
+      The Notification interface represents a single alert to be shown to the user.
+    </p>
+    <schema>
+      <title>the Notification interface</title>
+      <idl>
+        <interface name='Notification' extends='EventTarget'>
+	  <method name='show'>
+	    <p>
+	      Requests the user agent to show the notification to the user. Depending on 
+	      desktop space, user idleness, or other factors as determined by the user
+	      agent, this may happen immediately or be postponed, but must eventually
+	      be done.
+	    </p>
+	  </method>
+	  <method name='cancel'>
+	    <p>
+	      Requests the user agent to not show this notification. If the notification
+	      has already been displayed, the user agent must remove it from the display;
+	      if it has not yet be displayed, the user agent must prevent its being
+	      displayed.
+	    </p>
+	  </method>
+	  <attribute type='Function' name='ondisplay'>
+	    <p>
+	      An event listener function corresponding to the event type "display".  This
+	      event listener must be invoked after the <code>show()</code> method is called, at the
+	      point when the notification actually becomes visible to the user.
+	    </p>
+	  </attribute>
+	  <attribute type='Function' name='onerror'>
+	    <p>
+	      An event listener function corresponding to the event type "error".  This
+	      event listener must be invoked after the <code>show()</code> method is called, if the
+	      notification cannot be displayed to the user because of an error.
+	    </p>
+	  </attribute>
+	  <attribute type='Function' name='onclose'>
+	    <p>
+	      An event listener function corresponding to the event type "error".  This
+	      event listener must be invoked after the "display" event, at the point
+	      when the alert is dismissed by the user.
+	    </p>
+	  </attribute>
+	</interface>
+      </idl>
+    </schema>
+  </section>
+
+  <section xml:id='dialog-if'>
+    <title>The NotificationCenter interface</title>
+    <p>
+      The NotificationCenter interface exposes the ability for web pages to create
+      Notification objects.
+    </p>
+    <schema>
+      <title>the NotificationCenter interface</title>
+      <idl>
+	<interface name='NotificationCenter'>
+	  <method name='createNotification'>
+	    <p>
+	      Returns a new notification object with the provided content.  If the security origin
+	      of the script which executes this method does not have permission level PERMISSION_ALLOWED,
+	      this method will throw a security exception.
+	    </p>
+	    <param name='iconUrl' type='DOMString'>
+	      URL of the icon to be shown with this notification.
+	    </param>
+	    <param name='title' type='DOMString'>
+	      Primary text, or title, of the notification.
+	    </param>
+	    <param name='body' type='DOMString'>
+	      Secondary text, or body, of the notification.
+	    </param>
+	    <exception name='Exception'/>
+	    <returns type='Notification' />
+	  </method>
+	  <method name='createHTMLNotification'>
+	    <p>
+	      Implementation of this method is optional for the <code>NotificationCenter</code>
+	      interface; user agents which do not support HTML content in the presentation of 
+	      notifications should leave this method undefined and implement only 
+	      <code>createNotification</code>.
+	    </p>
+	    <returns type='Notification' />
+	    <param name='url' type='DOMString'>
+	      The URL of a resource which contains HTML content to be shown as the 
+	      content of the alert.
+	    </param>
+	  </method>
+	  <attribute type='unsigned long' name='PERMISSION_ALLOWED' value='0' ro='true'/>
+	  <attribute type='unsigned long' name='PERMISSION_NOT_ALLOWED' value='0' ro='true'/>
+	  <attribute type='unsigned long' name='PERMISSION_DENIED' value='0' ro='true'/>
+
+	  <method name='checkPermission'>
+	    <p>
+	      Returns an integer, either <code>PERMISSION_ALLOWED</code>, 
+	      <code>PERMISSION_NOT_ALLOWED</code>, or <code>PERMISSION_DENIED</code>, 
+	      which indicates the permission level granted to the origin of the 
+	      script currently executing as follows:
+	      
+	      <ul>
+		<li>
+		  <code>PERMISSION_ALLOWED</code> indicates that the user has granted
+		  permission to scripts with this origin to show notifications.
+		</li>
+		<li>
+		  <code>PERMISSION_DENIED</code> indicates that the user has explicitly 
+		  blocked scripts with this origin from showing notifications.
+		</li>
+		<li>
+		  <code>PERMISSION_NOT_ALLOWED</code> indicates that the user has not 
+		  taken an action regarding notifications for scripts from this origin.
+		</li>
+	      </ul>
+	    </p>
+	    <returns type='unsigned long'/>
+	  </method>
+	  <method name='requestPermission'>
+	    <p>
+	      Requests that the user agent ask the user for permission to show notifications 
+	      from scripts.  This method should only be called while handling a user gesture; 
+	      in other circumstances it will have no effect. This method is asynchronous.  
+	      The parameter callback will be invoked when the user has responded to the 
+	      permission request.  If the current permission level is <code>PERMISSION_DENIED</code>, 
+	      the user agent may take no action in response to <code>requestPermission</code>.
+	    </p>
+	  </method>
+	</interface>
+	
+      </idl>
+    </schema>
+  </section>
+</specification>
+
