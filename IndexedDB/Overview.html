@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.35 2010-01-27 06:02:31 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.36 2010-01-27 06:07:15 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -1393,45 +1393,45 @@ prepareDatabase(function(evt) {
               <a title="object store key path">key path</a> <em>id</em>. This
               <a>object store</a> is also designed to use a <a>key generator</a>.
             </p>
-            <codeblock>var db = indexedDB.<a>open</a>('AddressBook', 'Address Book');
+            <codeblock>var db = indexedDB.open('AddressBook', 'Address Book');
 if (db.version !== '1') {
-   var olddb = indexedDB.<a>open</a>('AddressBook', 'Address Book');
-   olddb.<a>createObjectStore</a>('Contact', 'id', true);
-   olddb.<a>setVersion</a>('1');
+   var olddb = indexedDB.open('AddressBook', 'Address Book');
+   olddb.createObjectStore('Contact', 'id', true);
+   olddb.setVersion('1');
 }</codeblock>
             <p>
               Using this <a>database</a>, we can store records in the <em>Contact</em>
               <a>object store</a>. 
             </p>
-            <codeblock>var store = db.<a>openObjectStore</a>('Contact');
+            <codeblock>var store = db.openObjectStore('Contact');
 
 var lincoln = {name: 'Lincoln', number: '7012'};
-var contact = store.<a>put</a>(lincoln);
+var contact = store.put(lincoln);
 // contact.id === 1</codeblock>
             <p>
               A stored value can be retrieved using the same key used by the
               first put operation.
             </p>
-            <codeblock>var contact = store.<>get</a>(1);
+            <codeblock>var contact = store.get(1);
 // contact.name === 'Lincoln'</codeblock>
             <p>
               A second put operation will overwrite the record stored by the first 
               put operation.
             </p>
             <codeblock>var abraham = {id: 1, name: 'Abraham', number: '2107'};
-store.<a>put</a>(abraham);</codeblock>
+store.put(abraham);</codeblock>
             <p>
               Now when the object store is read with the same key, the result 
               is different compared to the object read earlier.
             </p>
-            <codeblock>var contact = store.<a>get</a>(1);
+            <codeblock>var contact = store.get(1);
 // contact.id === 1 &amp;&amp; contact.name === 'Abraham';</codeblock>
             <p>
               Additionally, all the <a>records</a> of an <a>object store</a> 
               matching a certain <a>key range</a> can be retrieved in key order.
             </p>
-            <codeblock>var range = new <a>IDBKeyRange</a>.<a>bound</a>(2, 4);
-var cursor = store.<a>openCursor</a>(range);
+            <codeblock>var range = new IDBKeyRange.bound(2, 4);
+var cursor = store.openCursor(range);
 // each value is a contact and each key is the id for that  
 // contact whose id is between 2 and 4, both inclusive
 cursor.continue();</codeblock>
