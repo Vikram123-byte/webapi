@@ -328,8 +328,8 @@ client.send();</code></pre>
   [<cite><span>WebIDL</span></cite>]</p>
   
   <p>The terms and algorithms
-  <dfn id="url-fragment">&lt;fragment></dfn>,
-  <dfn id="url-scheme">&lt;scheme></dfn>,
+  <dfn id="url-fragment"><code>&lt;fragment></code></dfn>,
+  <dfn id="url-scheme"><code>&lt;scheme></code></dfn>,
   <dfn id="document-base-url">document base URL</dfn>,
   <dfn id="document-character-encoding">document's character encoding</dfn>,
   <dfn id="event-handler-attributes-0">event handler attributes</dfn>,
@@ -594,8 +594,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <dt><dfn id="headers-received-state" title="HEADERS_RECEIVED state"><code>HEADERS_RECEIVED</code></dfn>
    (numeric value 2)</dt>
-   <dd><p>All HTTP headers have been received. Several response members of
-   the object are now available.</p></dd>
+   <dd><p>All redirects (if any) have been followed and all HTTP headers of
+   the final response have been received. Several response members of the
+   object are now available.</p></dd>
 
    <dt><dfn id="loading-state" title="LOADING state"><code>LOADING</code></dfn>
    (numeric value 3)</dt>
@@ -1467,27 +1468,33 @@ X-Test: one, two
    <dt>If the response is an HTTP redirect</dt>
    <dd>
     <!--START xhr1-->
-    <p>If the redirect does not violate security (it is
-    <span>same origin</span> for instance), infinite loop precautions, and
-    the scheme is supported, transparently follow the redirect while
-    observing the <span>same-origin request event rules</span>.</p>
+    <p>If the <span>origin</span> of the <span>URL</span> conveyed by the
+    <code title="http-location">Location</code> header is
+    <span>same origin</span> with the
+    <span><code>XMLHttpRequest</code> origin</span> and the redirect does
+    not violate infinite loop precautions, transparently follow the redirect
+    while observing the <span>same-origin request event rules</span>.</p>
     
     <p>Otherwise, this is a <span>network error</span>.</p>
     <!--END xhr1-->
     <!--START xhr2-->
-    <p>If the redirect violates security or infinite loop precautions or
-    the scheme is not supported this is a <span>network error</span>.</p>
+    <p>If the redirect violates infinite loop precautions this is a
+    <span>network error</span>.</p>
 
     <p>Otherwise, run these steps:</p>
 
     <ol>
      <li><p>Set the <span>request URL</span> to the <span>URL</span>
      conveyed by the <code>Location</code> header.</p></li>
+     
+     <li><p>If the <code>&lt;scheme></code> of <span>request URL</span> is
+     not supported this is a <span>network error</span>. Terminate the steps
+     for this algorithm if that is the case.</p></li>
 
-     <li><p>If the <span><code>XMLHttpRequest</code> origin</span> and
-     <span>request URL</span> are <span>same origin</span> follow the
-     redirect while observing the
-     <span>same-origin request event rules</span>.</p></li>
+     <li><p>If the <span><code>XMLHttpRequest</code> origin</span> and the
+     <span>origin</span> of <span>request URL</span> are
+     <span>same origin</span> transparently follow the redirect while
+     observing the <span>same-origin request event rules</span>.</p></li>
 
      <li><p>Otherwise, follow the <span>cross-origin request steps</span>
      and terminate the steps for this algorithm.</p></li>
@@ -1522,7 +1529,8 @@ X-Test: one, two
    <!--END xhr2-->
 
    <dt>Once all HTTP headers have been received and the
-   <span>asynchronous flag</span> is true</dt>
+   <span>asynchronous flag</span> is true (and this is not an HTTP
+   redirect)</dt>
    <dd><p><span>Switch to the HEADERS_RECEIVED state</span>.</p></dd>
 
    <dt>Once the first byte (or more) of the

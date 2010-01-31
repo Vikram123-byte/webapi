@@ -427,12 +427,14 @@ client.send();</code></pre>
    characters</dfn> is defined by the Web IDL specification. [<cite><a
    href="#ref-webidl">WebIDL</a></cite>]
 
-  <p>The terms and algorithms <dfn id=url-fragment>&lt;fragment></dfn>, <dfn
-   id=url-scheme>&lt;scheme></dfn>, <dfn id=document-base-url>document base
-   URL</dfn>, <dfn id=document-character-encoding>document's character
-   encoding</dfn>, <dfn id=event-handler-attributes-0>event handler
-   attributes</dfn>, <dfn id=event-handler-event-type>event handler event
-   type</dfn>, <dfn id=fully-active>fully active</dfn>, <dfn
+  <p>The terms and algorithms <dfn
+   id=url-fragment><code>&lt;fragment></code></dfn>, <dfn
+   id=url-scheme><code>&lt;scheme></code></dfn>, <dfn
+   id=document-base-url>document base URL</dfn>, <dfn
+   id=document-character-encoding>document's character encoding</dfn>, <dfn
+   id=event-handler-attributes-0>event handler attributes</dfn>, <dfn
+   id=event-handler-event-type>event handler event type</dfn>, <dfn
+   id=fully-active>fully active</dfn>, <dfn
    id=function><code>Function</code></dfn>, <dfn id=dom-innerhtml
    title=dom-innerHTML><code>innerHTML</code></dfn>, <dfn
    id="multipart/form-data-encoding-algorithm"><code>multipart/form-data</code>
@@ -717,7 +719,8 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
     state"><code>HEADERS_RECEIVED</code></dfn> (numeric value 2)
 
    <dd>
-    <p>All HTTP headers have been received. Several response members of the
+    <p>All redirects (if any) have been followed and all HTTP headers of the
+     final response have been received. Several response members of the
      object are now available.
 
    <dt><dfn id=loading-state title="LOADING state"><code>LOADING</code></dfn>
@@ -1689,9 +1692,8 @@ X-Test: one, two
    <dt>If the response is an HTTP redirect
 
    <dd>
-    <p>If the redirect violates security or infinite loop precautions or the
-     scheme is not supported this is a <a href="#network-error">network
-     error</a>.</p>
+    <p>If the redirect violates infinite loop precautions this is a <a
+     href="#network-error">network error</a>.</p>
 
     <p>Otherwise, run these steps:</p>
 
@@ -1701,11 +1703,18 @@ X-Test: one, two
        href="#url">URL</a> conveyed by the <code>Location</code> header.
 
      <li>
+      <p>If the <code><a href="#url-scheme">&lt;scheme></a></code> of <a
+       href="#request-url">request URL</a> is not supported this is a <a
+       href="#network-error">network error</a>. Terminate the steps for this
+       algorithm if that is the case.
+
+     <li>
       <p>If the <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
-       origin</a> and <a href="#request-url">request URL</a> are <a
-       href="#same-origin">same origin</a> follow the redirect while
-       observing the <a href="#same-origin-request-event-rules">same-origin
-       request event rules</a>.
+       origin</a> and the <a href="#origin">origin</a> of <a
+       href="#request-url">request URL</a> are <a href="#same-origin">same
+       origin</a> transparently follow the redirect while observing the <a
+       href="#same-origin-request-event-rules">same-origin request event
+       rules</a>.
 
      <li>
       <p>Otherwise, follow the <a
@@ -1743,7 +1752,8 @@ X-Test: one, two
     <p>This is a <a href="#timeout-error">timeout error</a>.
 
    <dt>Once all HTTP headers have been received and the <a
-    href="#asynchronous-flag">asynchronous flag</a> is true
+    href="#asynchronous-flag">asynchronous flag</a> is true (and this is not
+    an HTTP redirect)
 
    <dd>
     <p><a href="#switch-headers-received">Switch to the HEADERS_RECEIVED
