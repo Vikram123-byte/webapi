@@ -300,24 +300,6 @@ client.send();</code></pre>
 
   <h3 id="terminology">Terminology</h3>
 
-  <p>Comparing two strings in a
-  <dfn id="case-sensitive">case-sensitive</dfn> manner means comparing them
-  exactly, codepoint for codepoint.</p>
-
-  <p>Comparing two strings in an
-  <dfn id="ascii-case-insensitive">ASCII case-insensitive</dfn> manner means
-  comparing them exactly, codepoint for codepoint, except that the
-  characters in the range U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to
-  LATIN CAPITAL LETTER Z) and the corresponding characters in the range
-  U+0061 .. U+007A (i.e. LATIN SMALL LETTER A to LATIN SMALL LETTER Z) are
-  considered to also match.</p>
-
-  <p><dfn id="converted-to-ascii-upercase" title="converted to ASCII uppercase">Converting a string to ASCII uppercase</dfn>
-  means replacing all characters in the range U+0061 .. U+007A (i.e.
-  LATIN SMALL LETTER A to LATIN SMALL LETTER Z) with the corresponding
-  characters in the range U+0041 .. U+005A (i.e. LATIN CAPITAL LETTER A to
-  LATIN CAPITAL LETTER Z).</p>
-
   <p><dfn id="dfn-obtain-unicode">convert a DOMString to a sequence of Unicode characters</dfn>
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
@@ -352,6 +334,16 @@ client.send();</code></pre>
   described in section 5.1.1 of RFC 2616. <dfn><code>field-name</code></dfn>
   and <dfn><code>field-value</code></dfn> are used as described in section
   4.2 of RFC 2616. [<cite><span>RFC2616</span></cite>]</p>
+
+  <p>To <dfn>deflate a DOMString into an byte sequence</dfn> means to
+  remove from each code point in the DOMString the higher-order byte and
+  let the resulting byte (all the lower-order bytes) be the byte
+  sequence.</p>
+
+  <p>To <dfn>inflate an byte sequence into a DOMString</dfn> means to
+  create a code point for each byte of which the higher-order byte is
+  0x00 and the lower-order byte is the byte. The resulting code point
+  sequence is the DOMString.</p>
 
   <p><dfn><code>userinfo</code></dfn> is used as described in section 3.2.1
   of RFC 3986. [<cite><span>RFC3986</span></cite>]</p>
@@ -599,17 +591,23 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
     </ol>
    </li>
 
-   <li><p>If <var>method</var> does not match the
+   <li><p>If any code point in <var>method</var> is higher than
+   U+00FF LATIN SMALL LETTER Y WITH DIAERESIS or after
+   <span title="deflate a DOMString into an byte sequence">deflating</span>
+   <var>method</var> it does not match the
    <span>Method token</span> production raise a <code>SYNTAX_ERR</code>
-   exception and terminate these steps.</p></li>
+   exception and terminate these steps. Otherwise let <var>method</var> be
+   the result of
+   <span title="deflate a DOMString into an byte sequence">deflating</span>
+   <var>method</var>.</p></li> <!-- This sounds lame, but it works. -->
 
    <li>
-    <p>If <var>method</var> is an
-    <span>ASCII case-insensitive</span> match for
+    <p>If <var>method</var> is a case-insensitive match for
     <code>CONNECT</code>, <code>DELETE</code>, <code>GET</code>,
     <code>HEAD</code>, <code>OPTIONS</code>, <code>POST</code>,
     <code>PUT</code>, <code>TRACE</code>, or <code>TRACK</code>
-    <span title="converted to ASCII uppercase">convert <var>method</var> to ASCII uppercase</span>.</p>
+    subtract 0x20 from each byte in the range 0x61 (ASCII a) to
+    0x7A (ASCII z).</p>
 
     <p class="note">If it does not match any of the above, it is passed
     through <em>literally</em>, including in the final request.</p>
@@ -618,7 +616,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    M-POST, MKCOL, MOVE, PROPFIND, PROPPATCH, and UNLOCK. -->
 
    <li>
-    <p>If <var>method</var> is a <span>case-sensitive</span> match for
+    <p>If <var>method</var> is a case-sensitive match for
     <code>CONNECT</code>, <code>TRACE</code>, or <code>TRACK</code> the
     user agent <em class="ct">should</em> raise a <code>SECURITY_ERR</code>
     exception and terminate these steps.</p>
@@ -789,14 +787,26 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>If <var>header</var> does not match the <code>field-name</code>
-   production raise a <code>SYNTAX_ERR</code> exception and terminate these
-   steps.</p></li>
+   <li><p>If any code point in <var>header</var> is higher than
+   U+00FF LATIN SMALL LETTER Y WITH DIAERESIS or after
+   <span title="deflate a DOMString into an byte sequence">deflating</span>
+   <var>header</var> it does not match the
+   <span>field-name</span> production raise a <code>SYNTAX_ERR</code>
+   exception and terminate these steps. Otherwise let <var>header</var> be
+   the result of
+   <span title="deflate a DOMString into an byte sequence">deflating</span>
+   <var>header</var>.</p></li> <!-- This sounds lame, but it works. -->
 
    <li>
-    <p>If the <var>value</var> argument does not match the
-    <code>field-value</code> production raise a <code>SYNTAX_ERR</code> and
-    terminate these steps.</p>
+    <p>If any code point in <var>value</var> is higher than
+    U+00FF LATIN SMALL LETTER Y WITH DIAERESIS or after
+    <span title="deflate a DOMString into an byte sequence">deflating</span>
+    <var>value</var> it does not match the
+    <span>field-value</span> production raise a <code>SYNTAX_ERR</code>
+    exception and terminate these steps. Otherwise let <var>value</var> be
+    the result of
+    <span title="deflate a DOMString into an byte sequence">deflating</span>
+    <var>value</var>.</p> <!-- This sounds lame, but it works. -->
 
     <p class="note">The empty string is legal and represents the empty
     header value.</p>
@@ -804,9 +814,8 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <li>
     <p>For security reasons, these steps <em class="ct">should</em> be
-    terminated if <var>header</var> is an
-    <span>ASCII case-insensitive</span> match for one of the following
-    headers:</p>
+    terminated if <var>header</var> is a case-insensitive match for one of
+    the following headers:</p>
 
     <ul>
      <li><code>Accept-Charset</code></li>
@@ -829,10 +838,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
      <li><code>Via</code></li>
     </ul>
 
-    <p>&hellip; or if the start of <var>header</var> is an
-    <span>ASCII case-insensitive</span> match for <code>Proxy-</code> or
-    <code>Sec-</code> (including when <var>header</var> is just
-    <code>Proxy-</code> or <code>Sec-</code>).</p>
+    <p>&hellip; or if the start of <var>header</var> is a case-insensitive
+    match for <code>Proxy-</code> or <code>Sec-</code> (including when
+    <var>header</var> is just <code>Proxy-</code> or <code>Sec-</code>).</p>
 
     <p class="note">The above headers are not allowed to be set as they are
     better controlled by the user agent as it knows best what value they
@@ -964,10 +972,10 @@ X-Test: one, two
     <p>If a <code>Content-Type</code> header is set using
     <code>setRequestHeader()</code> whose value is a
     <span>valid MIME type</span> and has a <code>charset</code>
-    parameter whose value is not an <span>ASCII case-insensitive</span>
-    match for <var>encoding</var>, and <var>encoding</var> is not null, set
-    all the <code>charset</code> parameters of the
-    <code>Content-Type</code> header to <var>encoding</var>.</p>
+    parameter whose value is not a case-insensitive match for
+    <var>encoding</var>, and <var>encoding</var> is not null, set all the
+    <code>charset</code> parameters of the <code>Content-Type</code> header
+    to <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using
     <code>setRequestHeader()</code> and <var>mime type</var> is not null set
@@ -1406,19 +1414,29 @@ X-Test: one, two
    <li><p>If the <span>error flag</span> is true return null
    and terminate these steps.</p></li>
 
-   <li><p>If <var>header</var> is an <span>ASCII case-insensitive</span>
-   match for <code>Set-Cookie</code> or <code>Set-Cookie2</code> return
-   null and terminate these steps.</p></li>
+   <li><p>If any code point in <var>header</var> is higher than
+   U+00FF LATIN SMALL LETTER Y WITH DIAERESIS return null and terminate
+   these steps.</p></li>
+   
+   <li><p>Let <var>header</var> be the result of
+   <span title="deflate a DOMString into an byte sequence">deflating</span>
+   <var>header</var>.</p></li> <!-- This sounds lame, but it works. -->
 
-   <li><p>If <var>header</var> is an <span>ASCII case-insensitive</span>
-   match for multiple HTTP response headers, return the values of these
-   headers as a single concatenated string separated from each other by a
-   U+002C COMMA U+0020 SPACE character pair and terminate these
-   steps.</p></li>
+   <li><p>If <var>header</var> is a case-insensitive match for
+   <code>Set-Cookie</code> or <code>Set-Cookie2</code> return null and
+   terminate these steps.</p></li>
 
-   <li><p>If <var>header</var> is an <span>ASCII case-insensitive</span>
-   match for a single HTTP response header, return the value of that header
-   and terminate these steps.</p></li>
+   <li><p>If <var>header</var> is a case-insensitive match for multiple HTTP
+   response headers, return the
+   <span title="inflate an byte sequence into a DOMString">inflated</span>
+   values of these headers as a single concatenated string separated from
+   each other by a U+002C COMMA U+0020 SPACE character pair and terminate
+   these steps.</p></li>
+
+   <li><p>If <var>header</var> is a case-insensitive match for a single HTTP
+   response header, return the
+   <span title="inflate an byte sequence into a DOMString">inflated</span>
+   value of that header and terminate these steps.</p></li>
 
    <li><p>Return null.</p></li>
   </ol>
@@ -1460,10 +1478,12 @@ client.onreadystatechange = function() {
    <li><p>If the <span>error flag</span> is true return the empty string and
    terminate these steps.</p></li>
 
-   <li><p>Return all the HTTP headers, excluding headers that are an
-   <span>ASCII case-insensitive</span> match for <code>Set-Cookie</code> or
-   <code>Set-Cookie2</code>, as a single string, with each header line
-   separated by a U+000D CR U+000A LF pair excluding the status line, and
+   <li><p>Return all the HTTP headers, excluding headers that are a
+   case-insensitive match for <code>Set-Cookie</code> or
+   <code>Set-Cookie2</code>,
+   <span title="inflate an byte sequence into a DOMString">inflated</span>,
+   as a single string, with each header line
+   separated by a U+000D CR U+000A LF pair, excluding the status line, and
    with each header name and header value separated by a
    U+003A COLON U+0020 SPACE pair.</p></li>
   </ol>
@@ -1826,8 +1846,8 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
    (XML) 1.0 (Fifth Edition)</a></cite>, T. Bray, J. Paoli, C.
    Sperberg-McQueen, E. Maler, F. Yergeau, editors. W3C, November 2008.</dd>
    <dd><cite><a href="http://www.w3.org/TR/xml-names/">Namespaces in XML
-   (Second Edition)</a></cite>, T. Bray, D. Hollander, A. Layman, R. Tobin,
-   editors. W3C, August 2006.</dd> <!--XXX this was updated-->
+   (Third Edition)</a></cite>, T. Bray, D. Hollander, A. Layman, R. Tobin,
+   H. S. Thompson, editors. W3C, December 2009.</dd>
   </dl>
 
 
@@ -1885,7 +1905,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
   Mark Nottingham,
   Martin Hassman,
   Mohamed Zergaoui,
-  Olly Pettay,
+  Olli Pettay,
   Pawel Glowacki,
   Peter Michaux,
   Robin Berjon,
