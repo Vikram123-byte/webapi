@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.38 2010-02-01 07:38:49 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.39 2010-02-01 08:03:45 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -1952,12 +1952,12 @@ cursor.continue();
             <thead><tr><th>Event name</th><th>Dispatched when...</th></tr></thead>
             <tbody>
               <tr>
-                <td><dfn id="event-success"><code>success</code></dfn></td>
+                <td><dfn title="event-success"><code>success</code></dfn></td>
                 <td>The database request has been completed and its results are 
                 available.</td>
               </tr>
               <tr>
-                <td><dfn id="event-error"><code>error</code></dfn></td>
+                <td><dfn title="event-error"><code>error</code></dfn></td>
                 <td>There was an error performing the database request.</td>
               </tr>
             </tbody>
@@ -1982,17 +1982,17 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </div>
           <dl class="idl" title="interface IDBRequest"> 
             <dt>void abort()</dt>
-            <dd>Make a best effort attempt to discontinue the in-flight request. The 
-            <a title="event-success">success event</a> is fired if the implementation
-            cannot abort this request, otherwise the <a title="event-error">error
-            event</a> is fired. If the request completes successfully, the
+            <dd>This method has no effect if the 
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a> and 
-            <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> or 
-            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set.
+            is not <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>.
+            Otherwise, the implementation makes a best effort attempt to discontinue
+            the in-flight request. The <a title="event-success">success event</a>
+            is fired if the implementation cannot abort this request and completes
+            the request successfully, otherwise the <a title="event-error">error event</a>
+            is fired. The
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>.
             If the request aborts successfully, the
-            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            reverts to <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> and 
             <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set
             to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>.</dd>
             <dt>const     unsigned short INITIAL = 0</dt>
@@ -2006,14 +2006,18 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             <dt>readonly attribute unsigned short readyState</dt>
             <dd>The state of this object</dd>
             <dt>readonly attribute IDBDatabaseError error</dt>
-            <dd>The error that occurred during the requested operation</dd>
+            <dd>The error that occurred during the requested operation. In the 
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> and 
+            <a class="idlType" href="#widl-IDBRequest-LOADING"><code>LOADING</code></a>,
+            getting this attribute returns <code>null</code>.</dd>
             <dt>readonly attribute any result</dt>
             <dd>The result of a successful requested operation</dd>
   
             <dt>attribute Function onsuccess</dt>
-            <dd>The event handler for <a title="event-success">success event</a></dd>
+            <dd>The event handler for the <a title="event-success">success event</a></dd>
             <dt>attribute Function onerror</dt>
-            <dd>The event handler for <a title="event-error">error event</a></dd>
+            <dd>The event handler for the <a title="event-error">error event</a></dd>
           </dl>
           <div class="idl" title="IDBRequest implements EventTarget"></div>
           <p>
@@ -2025,7 +2029,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
             changes to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a>, 
             place the result of the request in 
             <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a>,
-            and <a>aueue a task</a> to fire an event with the name <code>success</code>, 
+            and <a>queue a task</a> to fire an event with the name <code>success</code>, 
             with no namespace, which does not bubble, is not cancelable, and which uses  
             the <a class="externalDFN"><code>Event</code></a> interface at each 
             <a class="externalDFN"><code>Window</code></a> object.
@@ -2634,7 +2638,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           <h3>The <code>IDBDatabaseError</code> Interface</h3>
           <p>
             Errors in the asynchronous database API are reported using 
-            callbacks that have a <a><code>IDBDatabaseError</code></a> 
+            events that have a <a><code>IDBDatabaseError</code></a> 
             object as one of their arguments.
           </p>
           <dl class="idl" title="interface IDBDatabaseError">
