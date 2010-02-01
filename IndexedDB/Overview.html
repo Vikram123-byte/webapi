@@ -3,7 +3,7 @@
   <head>
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>
     <title>Indexed Database API</title>
-    <meta name='revision' content='$Id: Overview.html,v 1.36 2010-01-27 06:07:15 nmehta3 Exp $'/>
+    <meta name='revision' content='$Id: Overview.html,v 1.37 2010-02-01 07:34:52 nmehta3 Exp $'/>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/respec.js' class='remove'></script>
     <script src='http://dev.w3.org/2009/dap/ReSpec.js/js/simple-node.js' class='remove'></script>
     <script class='remove'>
@@ -341,7 +341,7 @@ prepareDatabase(function(evt) {
             In order to efficiently retrieve records stored in an indexed
             database, a user agent needs to organize each record by its key. 
             <a>Conforming user agents</a> MUST support the use of values
-            of IDL data types <code>DOMString</code> and <code>long</code> 
+            of IDL data types [[!WEBIDL]] <code>DOMString</code> and <code>long</code> 
             as well as the value <code>null</code> as keys.
           </p>
           
@@ -530,7 +530,8 @@ prepareDatabase(function(evt) {
             Each <a>database</a> has a <a title="valid-name">valid</a> 
             <dfn title="database name">name</dfn> and a human readable description
             A <dfn title="valid-name">valid name</dfn> is any string including
-            the empty string. Names must be compared in a case-sensitive manner.
+            the empty string. An exact match of names means that their 
+            UTF-8 encodings are identical.
           </p>
           
           <div class="note">
@@ -671,7 +672,7 @@ prepareDatabase(function(evt) {
             </dd>
             <dt>IDBKeyRange bound()</dt>
             <dd>
-              Create a new right-bound <a>key range</a>.
+              Create a new left- and right-bound <a>key range</a>.
               <dl class="parameters">
                 <dt>any left</dt>
                 <dd>The left-bound value</dd>
@@ -832,15 +833,13 @@ prepareDatabase(function(evt) {
               let <var>key</var> be the property of <var>object</var> at  
               <var>store</var>'s <a title="object store key path">key path</a>.
             </li>
-            <li>
-              If <var>key</var> is defined and not null, then skip the next step.
-            </li>
-            <li>
+           <li>
               Produce a <a>structured clone</a> of <var>value</var> and call it
               <var>object</var>.
             </li>
             <li>
-              Perform the following steps.              
+              If <var>key</var> is not defined or null, then perform the 
+              following steps.              
               <ol>
                 <li>
                   Using <var>store</var>'s <a>key generator</a>, produce the next
@@ -1003,7 +1002,7 @@ prepareDatabase(function(evt) {
         </section>
         
         <section class="section">
-          <h4>Obejct Store Deletion steps</h4>
+          <h4>Object Store Deletion steps</h4>
           <p>
             The <dfn>steps for deleting a record from an object store</dfn> 
             are as follows. These steps MUST be run with two parameters: the key
@@ -1222,7 +1221,8 @@ prepareDatabase(function(evt) {
                 use <a>out-of-line keys</a>.</dd>
                 <dt>optional boolean autoIncrement</dt>
                 <dd>Whether the <a>object store</a> created should have a 
-                <a>key generator</a>.</dd>
+                <a>key generator</a>. The default
+                value of this parameter is false.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt><a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a></dt>
@@ -1245,7 +1245,8 @@ prepareDatabase(function(evt) {
                 <dd>The <a title="object store name">name</a> of an existing 
                 <a>object store</a></dd>
                 <dt>optional unsigned short mode</dt>
-                <dd>The <a>mode</a> used to access the <a>object store</a></dd>
+                <dd>The <a>mode</a> used to access the <a>object store</a>. The default 
+                for this is <a><code>IDBObjectStore</code></a>.<a class="idlType" href="#widl-IDBObjectStore-READ_WRITE"><code>READ_WRITE</code></a></dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt><a class="idlType" href="#widl-IDBDatabaseException-NOT_FOUND_ERR"><code>NOT_FOUND_ERR</code></a></dt>
@@ -1272,7 +1273,8 @@ prepareDatabase(function(evt) {
                 <dd>The <a title="index key path">key path used by the new
                 <a>index</a></dd>
                 <dt>optional boolean unique</dt>
-                <dd>The <a>unique</a> flag for the new <a>index</a></dd>
+                <dd>The <a>unique</a> flag for the new <a>index</a>. The default
+                value of this parameter is false.</dd>
               </dl>
               <dl class="exception" title="IDBDatabaseException">
                 <dt><a class="idlType" href="#widl-IDBDatabaseException-CONSTRAINT_ERR"><code>CONSTRAINT_ERR</code></a></dt>
@@ -1359,8 +1361,8 @@ prepareDatabase(function(evt) {
             <dt>IDBTransactionSync transaction()</dt>
             <dd>
               Perform the <a>steps for creating a transaction</a> with the list of 
-              database objects for acquiring locks 
-              required in this transaction and an optional timeout duration, and return
+              database objects in the scope of this transaction and a timeout 
+              duration in milliseconds, and return
               the resulting <a><code>IDBTransactionSync</code></a> object.
               <dl class="parameters">
                 <dt>optional DOMStringList storeNames</dt>
@@ -1368,8 +1370,8 @@ prepareDatabase(function(evt) {
                 <a title="index">indexes</a> in the <a>scope</a> of the new
                 <a>transaction</a></dd>
                 <dt>optional unsigned int timeout</dt>
-                <dd>The interval which this operation is allowed to take to
-                reserve all the <a>database</a> objects identified in the new
+                <dd>The interval in milliseconds which this operation is allowed to 
+                take to reserve all the <a>database</a> objects identified in the new
                 <a title="transaction">transaction's</a> <a>scope</a>. The default
                 is user agent specific</dd>
               </dl>
@@ -1465,7 +1467,7 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>void delete()</dt>
+            <dt>void remove()</dt>
             <dd>
               Remove the record from this <a>object store</a> by following
               the <a>steps for deleting a record from an object store</a>
@@ -1673,7 +1675,7 @@ cursor.continue();</codeblock>
                 </dd>
               </dl>
             </dd>
-            <dt>void delete()</dt>
+            <dt>void remove()</dt>
             <dd>
               Remove the records from this <a>index</a> by following
               the <a>steps for deleting a record from an index</a>
@@ -1755,7 +1757,7 @@ objects.openCursor(range);
 cursor.continue();
 </codeblock>
           </div>
-          <dl title="interface IDBCursorSync: IDBCursor" class="idl">
+          <dl title="interface IDBCursorSync : IDBCursor" class="idl">
             <dt>readonly attribute any key</dt>
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>attribute any value</dt>
@@ -1774,6 +1776,9 @@ cursor.continue();
                 <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
                 <a class="idlType" href="#widl-IDBObjectStore-SNAPSHOT_READ"><code>SNAPSHOT_READ</code></a>
                 <a>mode</a>.</dd>
+                <dt>NOT_ALLOWED_ERR</dt>
+                <dd>An index record cannot be changed because the underlying 
+                <a>index</a> is <a>auto-populated</a>.</dd>
               </dl>
             </dd>
             <dt>readonly attribute unsigned long long count</dt>
@@ -1794,10 +1799,12 @@ cursor.continue();
               </dl>
             </dd>
             
-            <dt>void    delete()</dt>
+            <dt>void    remove()</dt>
             <dd>          
               <p>
-                Delete the object at the <a>cursor</a>'s <a>position</a>.
+                Delete the object at the <a>cursor</a>'s <a>position</a>. The cursor's
+                position is not changed. Any attempts to retrieve the cursor's
+                current value will return <code>null</code>.
               </p>
               <dl class="exception" title="IDBDatabaseException">
                 <dt>NOT_ALLOWED_ERR</dt>
@@ -1975,11 +1982,19 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           </div>
           <dl class="idl" title="interface IDBRequest"> 
             <dt>void abort()</dt>
-            <dd>Discontinue the in-flight request and return the 
+            <dd>Make a best effort attempt to discontinue the in-flight request. The 
+            <a title="event-success">success event</a> is fired if the implementation
+            cannot abort this request, otherwise the <a title="event-error">error
+            event</a> is fired. If the request completes successfully, the
             <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
-            to <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a>. No 
-            <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> or
-            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set.</dd>
+            moves to <a class="idlType" href="#widl-IDBRequest-DONE"><code>DONE</code></a> and 
+            <a class="idlType" href="#widl-IDBRequest-result"><code>result</code></a> or 
+            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set.
+            If the request aborts successfully, the
+            <a class="idlType" href="#widl-IDBRequest-readyState"><code>readyState</code></a>
+            reverts to <a class="idlType" href="#widl-IDBRequest-INITIAL"><code>INITIAL</code></a> and 
+            <a class="idlType" href="#widl-IDBRequest-error"><code>error</code></a> is set
+            to <a class="idlType" href="#widl-IDBDatabaseException-UNKNOWN_ERR"><code>UNKNOWN_ERR</code></a>.</dd>
             <dt>const     unsigned short INITIAL = 0</dt>
             <dd>This state indicates that a request has not been started.</dd>
             <dt>const     unsigned short LOADING = 1</dt>
@@ -2265,7 +2280,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>The <a>version</a> to store in the <a>database</a></dd>
               </dl>
             </dd>
-            <dt>void transaction()</dt>
+            <dt>void openTransaction()</dt>
             <dd>
               This method returns immediately and performs the 
               <a>steps for creating a transaction</a> with the list of <a>database</a> 
@@ -2326,7 +2341,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Whether to overwrite an existing record with the same key</dd>
               </dl>
             </dd>
-            <dt>void delete()</dt>
+            <dt>void remove()</dt>
             <dd>
               This method returns immediately and removes the record from this 
               <a>object store</a> by following the 
@@ -2481,7 +2496,7 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
                 <dd>Key identifying the record to be retrieved</dd>
               </dl>
             </dd>
-            <dt>void delete()</dt>
+            <dt>void remove()</dt>
             <dd>
               This method returns immediately and removes the records from this <a>index</a>
               by following the <a>steps for deleting a record from an index</a>
@@ -2498,7 +2513,9 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
           <dl class="idl" title="interface IDBCursorRequest : IDBCursor">
             <dt>readonly attribute IDBRequest request</dt>
             <dd>The request associated with this object, which will be used to
-            relay the results of processing back to the caller</dd>
+            relay the results of processing back to the caller. When the 
+            cursor is moved, the result attribute is set to <code>false</code>
+            if there are no more records in the cursor.</dd>
             <dt>readonly attribute any key</dt>
             <dd>The key for the record at the <a>cursor</a>'s <a>position</a>.</dd>
             <dt>readonly attribute any value</dt>
@@ -2542,11 +2559,13 @@ indexedDB.<a>open</a>('AddressBook', 'Address Book');</codeblock>
               </dl>
             </dd>
             
-            <dt>void    delete()</dt>
+            <dt>void    remove()</dt>
             <dd>          
               <p>
                 This method returns immediately and deletes the object at the 
-                <a>cursor</a>'s <a>position</a>.  If the underlying 
+                <a>cursor</a>'s <a>position</a>. The cursor's
+                position is not changed. Any attempts to retrieve the cursor's
+                current value will return <code>null</code>. If the underlying 
                 <a>index</a> or <a>object store</a> does not support updating the item 
                 because it is open in the 
                 <a class="idlType" href="#widl-IDBObjectStore-READ_ONLY"><code>READ_ONLY</code></a> or 
