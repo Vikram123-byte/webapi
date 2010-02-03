@@ -7,7 +7,7 @@
           to you should that happen.
           ******* WARNING *********************************************************
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Web Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Overview.html,v 1.2 2010-01-25 20:14:55 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>25 January 2010</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+<title>Web Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Overview.html,v 1.3 2010-02-03 19:13:18 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>03 February 2010</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -41,7 +41,7 @@
   <div class="section"><h2 id="contents">Table of Contents</h2>
     
 
-    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><ul class="toc"><li><a href="#">1.1. Security</a></li><li><a href="#">1.2. HTML and Text notifications</a></li></ul></li><li><a href="#idl-if-Notification">2. The Notification interface</a></li><li><a href="#idl-if-NotificationCenter">3. The NotificationCenter interface</a></li><li><a href="#window">4. Accessing notifications</a></li><li><ul class="toc"><li><a href="#">4.1. Accessing from pages</a></li><li><a href="#">4.2. Accessing from workers</a></li></ul></li><li><a href="#interactions">5. Interacting with notifications</a></li><li><ul class="toc"><li><a href="#">5.1. Using events</a></li><li><a href="#">5.2. Using window.opener</a></li></ul></li></ul>
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><ul class="toc"><li><a href="#">1.1. Security</a></li><li><a href="#">1.2. HTML and Text notifications</a></li></ul></li><li><a href="#idl-if-Notification">2. The Notification interface</a></li><li><a href="#idl-if-NotificationCenter">3. The NotificationCenter interface</a></li><li><a href="#window">4. Accessing notifications</a></li><li><ul class="toc"><li><a href="#">4.1. Accessing from pages</a></li><li><a href="#">4.2. Accessing from workers</a></li></ul></li><li><a href="#displaying">5. Queueing and displaying notifications</a></li><li><ul class="toc"><li><a href="#">5.1. Displaying notifications</a></li><li><a href="#">5.2. Queueing notifications</a></li></ul></li><li><a href="#interactions">6. Interacting with notifications</a></li><li><ul class="toc"><li><a href="#">6.1. Using events</a></li><li><a href="#">6.2. Using window.opener</a></li></ul></li></ul>
   </div>
 
   <div class="section"><h2 id="introduction">1. Introduction</h2><p><strong>This section is not normative.</strong></p>
@@ -160,22 +160,22 @@
     </p>
     <div class="boxed"><p><span class="idlTitle">the NotificationCenter interface</span></p><pre class="schema" title="the NotificationCenter interface">interface <a href="#idl-if-NotificationCenter">NotificationCenter</a> {
   // permission values
-  const unsigned long      <a href="#idl-defs-permission values-PERMISSION_ALLOWED">PERMISSION_ALLOWED</a>          = 0;
-  const unsigned long      <a href="#idl-defs-permission values-PERMISSION_NOT_ALLOWED">PERMISSION_NOT_ALLOWED</a>      = 1;
-  const unsigned long      <a href="#idl-defs-permission values-PERMISSION_DENIED">PERMISSION_DENIED</a>           = 2;
+  const unsigned long      <a href="#idl-defs-permission values-PERMISSION_ALLOWED">PERMISSION_ALLOWED</a>      = 0;
+  const unsigned long      <a href="#idl-defs-permission values-PERMISSION_UNKNOWN">PERMISSION_UNKNOWN</a>      = 1;
+  const unsigned long      <a href="#idl-defs-permission values-PERMISSION_DENIED">PERMISSION_DENIED</a>       = 2;
 
   <a href="#idl-if-Notification">Notification</a>  <a href="#dfn-createnotification">createNotification</a>(in DOMString iconUrl, in DOMString title, in DOMString body)
                                         raises(Exception);
   <a href="#idl-if-Notification">Notification</a>  <a href="#dfn-createhtmlnotification">createHTMLNotification</a>(in DOMString url);
   unsigned long <a href="#dfn-checkpermission">checkPermission</a>();
-  void          <a href="#dfn-requestpermission">requestPermission</a>()
+  void          <a href="#dfn-requestpermission">requestPermission</a>(in Function callback)
                                         raises(Exception);
 };</pre></div><div class="section" id="idl-if-NotificationCenter"><div class="section"><h4 class="idl-header" id="idl-defs-permission values">Definition Group <em>permission values</em></h4><dl class="idl-defs"><dt id="idl-defs-permission values-PERMISSION_ALLOWED"><code>PERMISSION_ALLOWED</code></dt><dd>
 	      <p>
 		indicates that the user has granted permission to scripts with this origin
 		to show notifications.
 	      </p>
-	    </dd><dt id="idl-defs-permission values-PERMISSION_NOT_ALLOWED"><code>PERMISSION_NOT_ALLOWED</code></dt><dd>
+	    </dd><dt id="idl-defs-permission values-PERMISSION_UNKNOWN"><code>PERMISSION_UNKNOWN</code></dt><dd>
 	      <p>
 		indicates that the user has not 
 		taken an action regarding notifications for scripts from this origin, but
@@ -188,7 +188,7 @@
 	      </p>
 	    </dd></dl></div><div class="section"><h4 class="idl-header" id="idl-attrs-NotificationCenter">Methods</h4><dl class="idl-meth"><dt id="dfn-checkpermission"><code>checkPermission</code></dt><dd><p>
 	      Returns an integer, either <code>PERMISSION_ALLOWED</code>, 
-	      <code>PERMISSION_NOT_ALLOWED</code>, or <code>PERMISSION_DENIED</code>, 
+	      <code>PERMISSION_UNKNOWN</code>, or <code>PERMISSION_DENIED</code>, 
 	      which indicates the permission level granted to the origin of the 
 	      script.	    
 	    </p><dl><dt>No Parameters</dt><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
@@ -237,7 +237,11 @@
 	      If the current permission level is <code>PERMISSION_DENIED</code>, 
 	      the user agent may take no action in response to <code>requestPermission</code>,
 	      and must throw an exception.
-	    </p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-Exception">Exception</a></td><td>
+	    </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>callback</code>
+          of type
+          Function</dt><dd>
+	      A callback function to be called when the user responds to the permission request.
+	    </dd></dl></dd><dt>No Return Value</dt><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-Exception">Exception</a></td><td>
 	      <p>
 		If the user agent does not initiate a request for permission with the user,
 		e.g., because if a permission decision has already been recently made, the 
@@ -272,18 +276,64 @@
     </div>
   </div>
 
-  <div class="section"><h2 id="interactions">5. Interacting with notifications</h2>
+  <div class="section"><h2 id="displaying">5. Queueing and displaying notifications</h2>
     
-    <div class="section"><h3 id="">5.1. Using events</h3>
+    <div class="section"><h3 id="">5.1. Displaying notifications</h3>
+      
+      <p>
+	When a notification is displayed, the user agent should perform the following steps:
+	<ul>
+	  <li>
+	    Load the resource given by <code>url</code> (for <code>createHTMLNotification</code>) or
+	    by <code>iconUrl</code> (for <code>createNotification</code>).
+	  </li>
+	  <li>
+	    If a resource load failure occured:
+	    <ul>
+	      <li>Dispatch the <code>error</code> event on the notification object.</li>
+	    </ul>
+	  </li>
+	  <li>
+	    Otherwise:
+	    <ul>
+	      <li>Dispatch the <code>display</code> event on the notification object.</li>
+	      <li>Show the notification on the device.</li>
+	    </ul>
+	  </li>
+	</ul>
+      </p>
+    </div>
+    <div class="section"><h3 id="">5.2. Queueing notifications</h3>
+      
+      <p>
+	If the device does not allow all notifications to be displayed immediately, the user agent
+	should maintain a FIFO queue of pending notifications.
+      </p>
+      <p>
+	When <code>createNotification</code> or <code>createHTMLNotification</code> are called
+	by script running in an origin which has <code>PERMISSION_ALLOWED</code> level notification
+	permissions, the user agent should the notification to the queue.
+      </p>
+      <p>
+	When the available display space changes on the device such that a new notification may be
+	displayed, for example due to a previous notification being dismissed, the user agent should
+	display.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="interactions">6. Interacting with notifications</h2>
+    
+    <div class="section"><h3 id="">6.1. Using events</h3>
       
       <p>
 	Notification objects dispatch events during their lifecycle, which authors can use
 	to generate desired behaviors.
       </p>
       <p>
-	The <code>display</code> event occurs when the
-	notification is shown to the user -- if there is a pending queue of notifications,
-	this may be at some time after the <code>show()</code> method is called.
+	The <code>display</code> event occurs when the notification is shown to the user -- 
+	this may be at some time after the <code>show()</code> method is called in the case
+	of limited display space and a queue.
       </p>
 
       <p>
@@ -309,7 +359,7 @@ notification.onclose = function() { cancelReminders(event); }
 notification.show();</pre></div>
 	
     </div>
-    <div class="section"><h3 id="">5.2. Using window.opener</h3>
+    <div class="section"><h3 id="">6.2. Using window.opener</h3>
            
       <p>
 	An HTML notification is a separate HTML window, and script running within
