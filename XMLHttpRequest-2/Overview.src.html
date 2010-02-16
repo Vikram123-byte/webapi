@@ -1333,31 +1333,45 @@ X-Test: one, two
   to the proxy host instead of the origin server, modify the
   <code>Request-Line</code> and send <code>Proxy-Authorization</code>
   headers as specified.</p>
+  
+  <hr>
 
   <p>If the user agent supports HTTP Authentication and
-  <code>Authorization</code> is not in the list of
-  <span>author request headers</span>, it <em class="ct">should</em>
+  <code title="http-authorization">Authorization</code> is not in the list
+  of <span>author request headers</span>, it <em class="ct">should</em>
   consider requests originating from the <code>XMLHttpRequest</code> object
   to be part of the protection space that includes the accessed URIs and
-  send <code>Authorization</code> headers and handle
-  <code>401 Unauthorized</code> requests appropriately. If authentication
-  fails, and <span>request username</span> and <span>request password</span>
-  are both null, user agents <em class="ct">should</em> prompt the end user
-  for credentials. If authentication fails, and
-  <span>request username</span> and <span>request password</span> are
-  provided, user agents <em class="ct">must not</em> prompt the end user for
-  credentials. [<cite><span>RFC2617</span></cite>]</p>
+  send <code title="http-authorization">Authorization</code> headers and
+  handle <code>401 Unauthorized</code> requests appropriately.</p>
+
+  <p>If authentication fails,
+  <code title="http-authorization">Authorization</code> is not in the list
+  of <span>author request headers</span>, <span>request username</span> is
+  null, and <span>request password</span> is null, user agents
+  <em class="ct">should</em> prompt the end user for their username and
+  password.</p>
+  
+  <p>If authentication fails,
+  <code title="http-authorization">Authorization</code> is not in the list
+  of <span>author request headers</span>, <span>request username</span> is
+  non-null, and <span>request password</span> is non-null, user agents
+  <em class="ct">must not</em> prompt the end user for their username and
+  password. [<cite><span>RFC2617</span></cite>]</p>
 
   <p class="note">End users are not prompted if credentials are provided
   through the <code>open()</code> API so that authors can implement their
   own user interface. They are also not prompted for non same-origin
   requests.</p>
+  
+  <hr>
 
   <p>If the user agent supports HTTP State Management it
   <em class="ct">should</em> persist, discard and send cookies (as received
   in the <code>Set-Cookie</code> and <code>Set-Cookie2</code> response
   headers, and sent in the <code>Cookie</code> header) as applicable.
   [<cite><span>COOKIES</span></cite>]</p>
+  
+  <hr>
 
   <p>If the user agent implements a HTTP cache it <em class="ct">should</em>
   respect <code>Cache-Control</code> request headers set by the
@@ -1376,6 +1390,8 @@ X-Test: one, two
   <code>If-None-Match</code> or <code>If-Modified-Since</code>), in which
   case <code>304 Not Modified</code> responses <em class="ct">must</em> be
   passed through. [<cite><span>RFC2616</span></cite>]</p>
+  
+  <hr>
 
   <p>If the user agent implements server-driven content-negotiation
   it <em class="ct">should</em> set <code>Accept-Encoding</code> and
@@ -1398,6 +1414,8 @@ X-Test: one, two
 
   <p>Responses <em class="ct">must</em> have the content-encodings
   automatically decoded. [<cite><span>RFC2616</span></cite>]</p>
+
+  <hr>
 
   <p>Besides the <span>author request headers</span> user agents
   <em class="ct">should not</em> include additional request headers other
