@@ -10,7 +10,7 @@
 <div class="head">
 <h1>Web Timing</h1>
 
-  <h2 class="no-num no-toc">Working Draft Jan 28, 2010</h2>
+  <h2 class="no-num no-toc">Working Draft Feb 16, 2010</h2>
   <dl>
     <dt>This version:</dt>
     <dd><a href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
@@ -272,32 +272,16 @@ interface HTMLElement {
 <p> The <dfn id="element-timing">timing</dfn> attribute represents the timing
 information related to an <a
   href="http://dev.w3.org/html5/spec/Overview.html#elements">element</a>. Each
-<a href="http://dev.w3.org/html5/spec/Overview.html#embedded-content">embedded
-    content element</a> must have a unique timing attribute.
-    <!--<a
-  href="http://dev.w3.org/html5/spec/Overview.html#phrasing-content">phrasing
-  content elements</a>,
-<a href="http://dev.w3.org/html5/spec/Overview.html#embedded-content">embedded
-  content elements</a>.
-  -->
-Implementing the <a href="#element-timing">timing</a> attribute in other
-kinds of <a href="http://dev.w3.org/html5/spec/Overview.html#elements">elements</a> is
-recommended.
-<!--
-An exception is the <a href="">script</a> element, which should
-implement the <a href="#timing">timing</a> attribute.
--->
+  of the following elements must have a unique timing attribute: <a
+  href="">iframe</a>, <a href="">img</a>, <a href="">script</a>, <a
+  href="">object</a>, <a href="">link</a> and <a href="">embed</a>. In case
+  certain timing information is not available, the interface should return 0 for
+  the corresponding attribute.
 
-</p><h3>The <code><a href="#timingmap">TimingMap</a></code> interface</h3>
-<pre class="idl">interface <dfn id="timingmap">TimingMap</dfn> {
-  getter unsigned longlong (in DOMString key);
-  setter void (in DOMString key, in unsigned longlong value);
-  creator void (in DOMString key, in unsigned longlong value);
-  deleter void (in DOMString key);
-};
-</pre>
-<p>The <a href="#timingmap">TimingMap</a> interface operates on a key-value
-base. It provides a interfaces for storing and retrieving timing values.
+<div class="example"><div class="exampleHeader">Example</div><p>
+  For inline iframe, only the <a href="">load</a>, <a href="">parseStart</a>
+  and <a href="">parseEnd</a> attributes return non-zero value.
+</p></div>
 
 </p><h3>The <code><dfn id="navigationtiming">NavigationTiming</dfn></code> interface</h3>
 <pre class="idl">interface NavigationTiming {
@@ -314,12 +298,7 @@ base. It provides a interfaces for storing and retrieving timing values.
   readonly attribute unsigned longlong <a href="#navigationstart"
   title="navigationstart">navigationStart</a>;
   readonly attribute unsigned longlong <a href="#lastunload" title="lastunload">lastUnload</a>;
-  readonly attribute <a href="#domtiming">DOMTiming</a> <a href="#document">document</a>;
-
-  readonly attribute unsigned longlong <a href="#lastpaintevent">lastPaintEvent</a>;
-  readonly attribute unsigned long <a href="#painteventcount">paintEventsCount</a>;
-
-  attribute <a href="#timingmap">TimingMap</a> <a href="#ticks">ticks</a>;
+  readonly attribute <a href="#domtiming">DOMTiming</a> <a href="#root_times">root_times</a>;
 };
 </pre>
 
@@ -362,7 +341,7 @@ navigation, for example
   <li>In Internet Explorer, the navigationTime can be the number of
       milliseconds between midnight of January 1, 1970 (UTC) and the browser's
       BeforeNavigate2 event</li>
-  <li>In FireFox, the navigationTime can be the number of milliseconds
+  <li>In Firefox, the navigationTime can be the number of milliseconds
       between midnight of January 1, 1970 (UTC) and the time 
       when the browser's nsIWebProgressListener.STATE_START state changes.</li>
 </ul>
@@ -373,46 +352,10 @@ navigation, for example
 January 1, 1970 (UTC) and the time the user agent finishes 
 <a href="http://www.whatwg.org/specs/web-apps/current-work/#unloading-documents">unloading</a> the last document.
 
-</p><h4>The <code><dfn id="document">document</dfn></code> attribute
+</p><h4>The <code><dfn id="root_times">root_times</dfn></code> attribute
 </h4><p>This attribute must return the <a href="#element-timing">timing</a> object
 of the document's root element, if there is one.
 
-</p><h4>The <code><dfn id="lastpaintevent">lastPaintEvent</dfn></code> attribute
-</h4><p>This attribute must return the the number of milliseconds between
-midnight of January 1, 1970 (UTC) and the time the last paint event within the current
-browsing context.
-
-</p><h4>The <code><dfn id="painteventcount">paintEventCount</dfn></code> attribute
-</h4><p>This attribute must return the the number of paint events within the current
-browsing context.
-
-</p><h4>The <code><dfn id="ticks">ticks</dfn></code> attribute
-</h4>
-<p>The ticks attribute provides applications with a mean to application for
-storing and retrieving timing measurements under the current browsing context.
-Its value must be set to null when the user agent starts a new navigation.
-
-
-<!--
-<h4>The <dfn id="timing-tick">Tick()</dfn> method </h4>
-<p>The Tick() method must create a <a href="#tick">Tick</a> object with the
-given string as its <a href="#tick-key">key</a> attribute and the current time
-since <a href="#timing-navigationtimes-navigationstart">navigationStart</a>
-as its <a href="#tick-time">time</a> attribute. If a <a
-href="#tick">Tick</a> object with the given <a href="#tick-key">key</a> value
-exists, the Tick() method must overwrite the existing object.
-
-</p><h4>The <dfn id="timing-getticks">GetTicks()</dfn> method</h4>
-<p>The GetTicks() method must return all the <a href="#tick">Tick</a> objects
-created by the <a href="#timing-tick">Tick()</a> method within the life span of
-the current <a href="#pagetiming">window.pageTiming</a> object.
-
-</p><h4>The <dfn id="timing-gettick">GetTick()</dfn> method</h4>
-<p>The GetTick() method must return the <a href="#tick-time">time</a> value of
-<a href="#tick">Tick</a> object whose key is the given string. If no matching
-Tick object has been created, the GetTick() method must return 0.
-
--->
 
 </p><h3>The <code><dfn href="window-timing">window.timing</dfn></code> attribute</h3>
 
