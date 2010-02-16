@@ -525,7 +525,8 @@ interface <dfn id=xmlhttprequestupload>XMLHttpRequestUpload</dfn> : <a href="#xm
   // for future use
 };
 
-[<a href="#dom-xmlhttprequest" title=dom-XMLHttpRequest>Constructor</a>]
+[<a href="#dom-xmlhttprequest" title=dom-XMLHttpRequest>Constructor</a>,
+ <a href="#dom-xmlhttprequest-anon" title=dom-XMLHttpRequest-anon>Constructor</a>(<var title="">anon</var>)]
 interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <a href="#function">Function</a> <a href="#onreadystatechange">onreadystatechange</a>;
@@ -581,8 +582,6 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    contexts their values will have to be defined as appropriate for that
    context. That is considered to be out of scope for this specification.
 
-  <hr>
-
   <p>In environments where the global object is represented by the
    <code>Window</code> object the <code><a
    href="#xmlhttprequest">XMLHttpRequest</a></code> object has an associated
@@ -607,10 +606,24 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
   <h3 id=constructors><span class=secno>3.3. </span>Constructors</h3>
 
+  <p>The <code><a href="#xmlhttprequest">XMLHttpRequest</a></code> object has
+   an associated <span>anonymous flag</span> that is set to either true or
+   false when the constructor is invoked. It affects whether credentials and
+   the <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+   origin</a> are exposed.
+
   <p>When the <dfn id=dom-xmlhttprequest title=dom-XMLHttpRequest><code
    title="">XMLHttpRequest()</code></dfn> constructor is invoked, the user
    agent <em class=ct>must</em> return a new <code><a
-   href="#xmlhttprequest">XMLHttpRequest</a></code> object.
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object with its
+   <span>anonymous flag</span> set to false.
+
+  <p>When the <dfn id=dom-xmlhttprequest-anon
+   title=dom-XMLHttpRequest-anon><code>XMLHttpRequest(<var
+   title="">anon</var>)</code></dfn> constructor is invoked, the user agent
+   <em class=ct>must</em> return a new <code><a
+   href="#xmlhttprequest">XMLHttpRequest</a></code> object with its
+   <span>anonymous flag</span> set to <var title="">anon</var>.
 
   <h3 id=event-handler-attributes><span class=secno>3.4. </span>Event Handler
    Attributes</h3>
@@ -843,7 +856,9 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
       <p>Let <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
        origin</a> be the <a href="#origin">origin</a> of the <a
        href="#xmlhttprequest-document"><code>XMLHttpRequest</code>
-       <code>Document</code></a>.
+       <code>Document</code></a> if the <span>anonymous flag</span> is false
+       and let it be a unique identifier if the <span>anonymous flag</span>
+       is true.
     </ol>
 
    <li>
@@ -938,6 +953,11 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
     <ol>
      <li>
+      <p>If the <span>anonymous flag</span> is true raise an
+       <code>INVALID_ACCESS_ERR</code> exception and terminate the overall
+       set of steps.
+
+     <li>
       <p>If the syntax of <var>user</var> does not match the syntax specified
        by the relevant authentication scheme, raise a <code>SYNTAX_ERR</code>
        exception and terminate the overall set of steps.
@@ -957,6 +977,11 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      steps:</p>
 
     <ol>
+     <li>
+      <p>If the <span>anonymous flag</span> is true raise an
+       <code>INVALID_ACCESS_ERR</code> exception and terminate the overall
+       set of steps.
+
      <li>
       <p>If the syntax of <var>password</var> does not match the syntax
        specified by the relevant authentication scheme, raise a
@@ -1237,9 +1262,12 @@ X-Test: one, two
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>If the given value is <code>true</code>, set the <a
-     href="#credentials-flag">credentials flag</a> to true. Otherwise, set
-     the <a href="#credentials-flag">credentials flag</a> to false.
+    <p>If the <span>anonymous flag</span> is true raise an
+     <code>INVALID_ACCESS_ERR</code> exception and terminate these steps.
+
+   <li>
+    <p>Set the <a href="#credentials-flag">credentials flag</a> to the given
+     value.
   </ol>
 
   <p>On getting, the <code><a
