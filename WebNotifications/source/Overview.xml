@@ -29,7 +29,7 @@
     <!--
     <ednote>
       <p>
-        Last update: $Id: Overview.xml,v 1.3 2010-03-23 01:48:41 jgregg Exp $.
+        Last update: $Id: Overview.xml,v 1.4 2010-03-23 01:57:03 jgregg Exp $.
       </p>
     </ednote>
     -->
@@ -137,25 +137,6 @@
 	  initiated by a user gesture.
 	</p>
       </section>
-
-      <section>
-	<title>HTML and Text notifications</title>
-
-	<p>
-	  Several systems exist for alerting users through notifications.  Many of these systems
-	  take as input a string of text and an icon to be displayed. Within the web context,
-	  this specification extends the utility of notifications by using HTML content within
-	  the notification itself, allowing alerts which are dynamic.
-	</p>
-
-	<p>
-	  Some user agents may not be compatible with creating passive HTML windows outside of the
-	  frame, such as mobile devices, which often support a text alerting system.  For these
-	  user agents, the specification provides a text notification system in parallel with the
-	  HTML system. 
-	</p>
-	  
-      </section>
   </section>
 
   <section xml:id='idl-if-Notification'>
@@ -223,7 +204,8 @@
     <title>The NotificationCenter interface</title>
     <p>
       The NotificationCenter interface exposes the ability for web pages to create
-      Notification objects.
+      Notification objects which represent <em>simple notifications</em>, and to manage
+      notification permissions.
     </p>
     <schema>
       <title>the NotificationCenter interface</title>
@@ -353,8 +335,11 @@
 
   <section xml:id='html'>
     <title>Web notifications</title>
-    Some user agents may use a notification platform that is capable of displaying notifications which contain web content,
-    such as HTML or SVG.  This supplemental interface exposes that ability.
+    <p>
+      In addition to displaying simple notifications, some user agents may use a notification platform that is
+      capable of displaying notifications which contain web content, such as HTML or SVG.  This supplemental 
+      interface exposes that ability.
+    </p>
     <schema>
       <title>supplemental NotificationCenter interface</title>
       <idl>
@@ -379,6 +364,15 @@
 	</interface>
       </idl>
     </schema>
+
+    <section>
+      <title>Unsupported content types</title>
+      <p>
+	User agents which use an existing notification platform and support only simple notifications may not
+	support all types of web content.  These user agents may attempt to extract simple notification content
+	from web content such as the <code>&lt;title&gt;</code> tag of HTML content as the notification.
+      </p>
+    </section>
   </section>
     
   <section xml:id='displaying'>
