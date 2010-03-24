@@ -10,7 +10,7 @@
 <div class="head">
 <h1>Web Timing</h1>
 
-  <h2 class="no-num no-toc">Working Draft March 2, 2010</h2>
+  <h2 class="no-num no-toc">Working Draft March 23, 2010</h2>
   <dl>
     <dt>This version:</dt>
     <dd><a href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
@@ -285,17 +285,27 @@ interface HTMLElement {
 <p> The <dfn id="element-timing">timing</dfn> attribute represents the timing
 information related to an <a
   href="http://dev.w3.org/html5/spec/Overview.html#elements">element</a>. Each
-  of the following elements must have a unique timing attribute: <a
-  href="">iframe</a>, <a href="">img</a>, <a href="">script</a>, <a
-  href="">object</a>, <a href="">link</a> and <a href="">embed</a>. In case
-  certain timing information is not available, the interface should return 0 for
-  the corresponding attribute.
+  of the following elements must have a unique timing attribute:
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-iframe-element">iframe</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-img-element">img</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#script">script</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-object-element">object</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-embed-element">embed</a>
+  and
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-link-element">link</a>
+  with the link type of
+  <a href="http://dev.w3.org/html5/spec/Overview.html#link-type-stylesheet">stylesheet</a>.
+
+</p><p> When an element is set or changed and if it results in a
+  <a href="http://dev.w3.org/html5/spec/Overview.html#fetch">fetch</a>,
+  its timing attribute must be updated.
 
 <!--
 <p><p class="XXX">window.timing covers iframes. So maybe HTMLElement.timing
 doesn't have to? Does outer page have access to an iframe's window.timing
 property? </p>
 -->
+</p><p>In case certain timing information is not available, the interface should return 0 for the corresponding attribute.
 
 </p><div class="example"><div class="exampleHeader">Example</div><p>
   From an inline iframe, only the <a href="">load</a>, <a href="">parseStart</a>
@@ -304,22 +314,28 @@ property? </p>
 
 </p><h3>The <code><dfn id="navigationtiming">NavigationTiming</dfn></code> interface</h3>
 <pre class="idl">interface NavigationTiming {
-  const unsigned short NAVIGATION_OTHER = 0;
-  const unsigned short NAVIGATION_LINK = 1;
-  const unsigned short NAVIGATION_REDIRECT_SERVER = 2;
-  const unsigned short NAVIGATION_REDIRECT_CLIENT = 3;
-  const unsigned short NAVIGATION_FORWARD_BACK = 4;
-  const unsigned short NAVIGATION_USER_BROWSER = 5;
-  const unsigned short NAVIGATION_NEW_WINDOW = 6;
-  const unsigned short NAVIGATION_RELOAD = 7;
+  const unsigned short <a href="#timing-navigationother">NAVIGATION_OTHER</a> = 0;
+  const unsigned short <a href="#timing-navigationlink">NAVIGATION_LINK</a> = 1;
+  const unsigned short <a href="#timing-navigationredirectserver">NAVIGATION_REDIRECT_SERVER</a> = 2;
+  const unsigned short <a href="#timing-navigationredirectclient">NAVIGATION_REDIRECT_CLIENT</a> = 3;
+  const unsigned short <a href="#timing-navigationforwardback">NAVIGATION_FORWARD_BACK</a> = 4;
+  const unsigned short <a href="#timing-navigationuserbrowser">NAVIGATION_USER_BROWSER</a> = 5;
+  const unsigned short <a href="#timing-navigationnewwindow">NAVIGATION_NEW_WINDOW</a> = 6;
+  const unsigned short <a href="#timing-navigationreload">NAVIGATION_RELOAD</a> = 7;
   readonly attribute unsigned short <a href="#navigationtype" title="navigationtype">navigationType</a>;
 
   readonly attribute unsigned longlong <a href="#navigationstart"
   title="navigationstart">navigationStart</a>;
   readonly attribute unsigned longlong <a href="#lastunload" title="lastunload">lastUnload</a>;
-  readonly attribute <a href="#domtiming">DOMTiming</a> <a href="#root_times">root_times</a>;
+  readonly attribute <a href="#domtiming">DOMTiming</a> <a href="#root_times">rootTimes</a>;
 };
 </pre>
+<!--
+  const unsigned short <a href="#timing-domtiming-root">DOMTIMING_ROOT</a> = 0;
+  const unsigned short <a href="#timing-domtiming-direct">DOMTIMING_DIRECT</a> = 1;
+  const unsigned short <a href="#timing-domtiming-all">DOMTIMING_ALL</a> = 2;
+  readonly attribute unsigned short <a href="#timing_level">timingLevel</a>;
+  -->
 
 </p><h4>The <code><dfn id="navigationtype">navigationType</dfn></code> attribute</h4>
 
@@ -329,6 +345,8 @@ of the current document. It must have one of the following <dfn
 id="navigationtypes">navigation type</dfn> values.
 </p>
 <dl>
+<dt><dfn id="timing-navigationother">NAVIGATION_OTHER</dfn>:
+Any navigation types not defined by the above values.</dt>
 <dt><dfn id="timing-navigationlink">NAVIGATION_LINK</dfn>:
 navigation started by clicking on a link on the previous page.</dt>
 <dt><dfn id="timing-navigationredirectserver">TRANSITION_REDIRECT_SERVER</dfn>:
@@ -343,8 +361,6 @@ Navigation by typing a url into the user agent's address bar. </dt>
 Current page is opened in a tab or window by the user agent.</dt>
 <dt><dfn id="timing-navigationreload">NAVIGATION_RELOAD</dfn>:
 Navigation through the reload operation.</dt>
-<dt><dfn id="timing-navigationother">NAVIGATION_OTHER</dfn>:
-Any navigation types not defined by the above values.</dt>
 </dl>
 
 <h4>The <code><dfn id="navigationstart">navigationStart</dfn></code> attribute</h4>
@@ -371,9 +387,22 @@ navigation, for example
 January 1, 1970 (UTC) and the time the user agent finishes 
 <a href="http://www.whatwg.org/specs/web-apps/current-work/#unloading-documents">unloading</a> the last document.
 
-</p><h4>The <code><dfn id="root_times">root_times</dfn></code> attribute
+</p><h4>The <code><dfn id="root_times">rootTimes</dfn></code> attribute
 </h4><p>This attribute must return the <a href="#element-timing">timing</a> object
 of the document's root element, if there is one.
+
+<!--
+</p><h4>The <code><dfn id="timing_level">timingLevel</dfn></code> attribute
+</h4><p>This attribute represents the level of element under the current
+<a href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing context</a>
+that must provide the <a href="#element-timing">timing</a> attribute. It must
+return one of the following values.
+<dl>
+<dt><dfn id="timing-domtiming-root">DOMTIMING_ROOT</dfn>:</dt>
+<dt><dfn id="timing-domtiming-direct">DOMTIMING_DIRECT</dfn>: only </dt>
+<dt><dfn id="timing-domtiming-all">DOMTIMING_ALL</dfn></dt>
+</dl>
+-->
 
 
 </p><h3>The <code><dfn href="window-timing">window.timing</dfn></code> attribute</h3>
@@ -444,7 +473,7 @@ attribute:
   <li>Record the time as <a href="#domtiming_requeststart">requestEnd</a>
   immediately after sending the request.</li>
   <li>Record the time as <a href="#domtiming_responsestart">responseStart</a>
-  immediately after the user agent receives the first trunk of the response.
+  immediately after the user agent receives the first chunk of the response.
   </li>
   <li>Record the time as <a href="#domtiming_responseend">responseEnd</a>
   immediately after receiving the entire response.</li>
@@ -522,7 +551,7 @@ create or update the <a href="#window-timing">window.timing</a> attribute:
     href="#navigationstart">NavigationStart</a> and the <a
     href="#lastunload">lastUnload</a> attributes.</li>
   <li>Following the steps described in <a href="">setting the 
-    HTMLElement.timing</a> to set the <a href="#root_times">root_times</a>
+    HTMLElement.timing</a> to set the <a href="#root_times">rootTimes</a>
   attribute.</li>
 </ul>
 
