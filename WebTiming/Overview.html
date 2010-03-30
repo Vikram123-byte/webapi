@@ -10,7 +10,7 @@
 <div class="head">
 <h1>Web Timing</h1>
 
-  <h2 class="no-num no-toc">Working Draft March 23, 2010</h2>
+  <h2 class="no-num no-toc">Working Draft March 26, 2010</h2>
   <dl>
     <dt>This version:</dt>
     <dd><a href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
@@ -28,7 +28,7 @@
 
 <h2 class="no-num no-toc">Abstract</h2>
 
-<p>This specification defines an interface for web applications to access timing information.
+<p>This specification defines an interface for web applications to access timing information related to navigation and elements.
 
 </p><h2 class="no-num no-toc">Status of this document</h2>
 
@@ -76,13 +76,14 @@ function onLoad() {
 does not give any information about the time it takes to get
 the page from the server.
 
-</p><p>To address the need for complete information on the user experience,
-this document introduces the <a href="#element-timing">element.timing</a> 
-and <a href="#winwo-timing">window.timing</a> interfaces.
-This interface allows JavaScript mechanisms to provide complete client-side
-latency measurements within applications. With the proposed interface, the
-previous example could be modified to provide information about user's perceived
+</p><p>To address the need for complete information on user experience,
+this document introduces the <a href="#window-timing">window.timing</a> and
+<a href="#element-timing">element.timing</a> interfaces.
+This interface allows JavaScript mechanisms to provide complete
+client-side latency measurements within applications. With the proposed
+interface, the previous example can be modified to measure a user's perceived
 page load time.
+
 <div class="example">
 <!--<div class="exampleHeader">Example</div>-->
 <p>The following script calculates how much time has elapsed since the most
@@ -150,39 +151,61 @@ interfaces to collect, store and report the provided information.
 </p><h3>The <code><a href="#domtiming">DOMTiming</a></code>
 interface</h3>
 <pre class="idl">interface <dfn id="domtiming">DOMTiming</dfn> {
-  readonly attribute unsigned longlong <a href="#domtiming-fetchstart" title="timing-fetchstart">fetchStart</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-domainlookupstart" title="domtiming-domainlookupstart">domainLookupStart</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-domainlookupend" title="domtiming-domainlookupend">domainLookupEnd</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-connectstart" title="domtiming-connectstart">connectStart</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-connectend" title="domtiming-connectend">connectEnd</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-requeststart" title="domtiming-requeststart">requestStart</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-requestend" title="domtiming-requestend">requestEnd</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-responsestart" title="domtiming-responsestart">responseStart</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-responseend" title="domtiming-responseend">responseEnd</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-load" title="domtiming-pageload">load</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-parsestart" title="domtiming-parsestart">parseStart</a>;
-  readonly attribute unsigned longlong <a href="#domtiming-parseend" title="domtiming-parseend">parseEnd</a>;
+  getter unsigned longlong (in DOMString event);
 };
 </pre>
 
-<h4>The <code><dfn id="domtiming-fetchstart">fetchStart</dfn></code> attribute</h4>
+The <a href="#domtiming">DOMTiming</a> interface provide a set of name-value
+pairs associated with timing information related to certain events when the user
+agent handles a DOM object.
 
-<p>This attribute must return the number of milliseconds between midnight of
+</p><h3>The <code><a href="#element-timing">HTMLElement.timing</a></code> attribute</h3>
+<pre class="idl">
+[Supplemental]
+interface HTMLElement {
+  readonly attribute <a href="#domtiming">DOMTiming</a> timing;
+};
+</pre>
+
+<p> The <dfn id="element-timing">timing</dfn> attribute represents the timing
+information related to an <a
+  href="http://dev.w3.org/html5/spec/Overview.html#elements">element</a>. It
+  should be undefined when the <a href="#extendedtiming">extendedTiming</a> attribute of the
+  root document in the current browsing context is False. If the <a
+  href="#extendedtiming">extendedTiming</a> attribute of the current
+  browsing context is set to True, each of the following elements must have
+  a unique <a href="#domtiming">timing</a> attribute:
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-iframe-element">iframe</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-img-element">img</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#script">script</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-object-element">object</a>,
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-embed-element">embed</a>
+  and
+  <a href="http://dev.w3.org/html5/spec/Overview.html#the-link-element">link</a>
+  with the link type of
+  <a href="http://dev.w3.org/html5/spec/Overview.html#link-type-stylesheet">stylesheet</a>.
+
+</p><p>The <a href="#domtiming">timing</a> attribute of these elements must
+support the following named properties:
+
+<h4><code><dfn id="domtiming-fetchstart">fetchStart</dfn></code></h4>
+
+<p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent starts to <a
 href="http://dev.w3.org/html5/spec/Overview.html#fetching-resources">fetch</a>
 the <a href="http://dev.w3.org/html5/spec/Overview.html#elements">element</a>
 resources. This time should not be overwritten if the user agent retries
 fetching the same element due to failures.
 
-</p><h4>The <code><dfn id="domtiming-domainlookupstart">domainLookupStart</dfn></code> attribute</h4>
-<p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-domainlookupstart">domainLookupStart</dfn></code></h4>
+<p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time the user agent starts the domain name lookup
 for the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, this attribute must return zero.
 
-</p><h4>The <code><dfn id="domtiming-domainlookupend">domainLookupEnd</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight
+</p><h4><code><dfn id="domtiming-domainlookupend">domainLookupEnd</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight
 of January 1, 1970 (UTC) and the time the user agent finishes the domain name
 lookup for the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
@@ -194,16 +217,16 @@ domainLookupStart and domainLookupEnd represent the times when the user agent
 starts and ends the domain data retrieval from the cache.
 </p></div>
 
-</p><h4>The <code><dfn id="domtiming-connectstart">connectStart</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-connectstart">connectStart</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent start establishing the
 connection to the server to retrieve the current element. If a
 <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1">persistent connection</a> is used or the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, this attribute must return zero.
 
-</p><h4>The <code><dfn id="domtiming-connectend">connectEnd</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-connectend">connectEnd</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent finishes establishing the
 connection to the server to retrieve the current element. If a <a
 href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1">persistent
@@ -211,32 +234,32 @@ connection</a> is used or the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, this attribute must return zero.
 
-</p><p>In case of a connection failure and the user agent retries, <a
-href="#domtiming-connectend">connectEnd</a> should return the time when a
-connection is successfully established.
+</p><p>In case of a connection failure and the user agent retries, the <a
+href="#domtiming-connectend">connectEnd</a> property should return the time
+when a connection is successfully established.
 
 </p><p>If the transport connection fails and the user agent reopens a
 connection, <a href="#domtiming-connectstart">connectStart</a> and <a
 href="#domtiming-connectend">connectEnd</a> should return the corresponding
-values of the new connection. 
+values of the new connection.
 
 </p></p><a href="#domtiming-connectend">connectEnd</a> should only include the
 time to establish the transport connection. It should not include other time
 such as SSL handshake and SOCKS authentication.
 
-</p><h4>The <code><dfn id="domtiming-requeststart">requestStart</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-requeststart">requestStart</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent starts sending the
 request to the server to retrieve the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, this attribute must return zero.
 
-</p><h4>The <code><dfn id="domtiming-requestend">requestEnd</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-requestend">requestEnd</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent finishes sending the
 request to the server to retrieve the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
-relevant application caches</a>, this attribute must return zero.
+relevant application caches</a>, this property must return zero.
 
 </p><p>If the transport connection fails after a request is sent and the user
 agent reopens a connection and resend the request,
@@ -244,76 +267,53 @@ agent reopens a connection and resend the request,
 href="#domtiming-requestend">requestEnd</a> should return the corresponding
 values of the new request.
 
-</p><h4>The <code><dfn id="domtiming-responsestart">responseStart</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-responsestart">responseStart</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent receives the first byte
 of the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
-relevant application caches</a>, this attribute must return zero.
+relevant application caches</a>, this property must return zero.
 
-</p><h4>The <code><dfn id="domtiming-responseend">responseEnd</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-responseend">responseEnd</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent finishes receiving the
 last byte of the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
-relevant application caches</a>, this attribute must return zero.
+relevant application caches</a>, this property must return zero.
 
-</p><h4>The <code><dfn id="domtiming-load">load</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-load">load</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the current element's <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#handler-onload">load
 event</a> is fired. It must return zero when the load event is not fired yet.
 
-</p><h4>The <code><dfn id="domtiming-parsestart">parseStart</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-parsestart">parseStart</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent starts to parse the
 current element.
 
-</p><h4>The <code><dfn id="domtiming-parseend">parseEnd</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of
+</p><h4><code><dfn id="domtiming-parseend">parseEnd</dfn></code>
+</h4><p>This property must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent finishes parsing the
 current element.
-
-</p><h3>The <code><a ref="#element-timing">HTMLElement.timing</dfn></code> attribute</h3>
-<pre class="idl">
-[Supplemental]
-interface HTMLElement {
-  readonly attribute <a href="#domtiming">DOMTiming</a> timing;
-};
-</pre>
-
-<p> The <dfn id="element-timing">timing</dfn> attribute represents the timing
-information related to an <a
-  href="http://dev.w3.org/html5/spec/Overview.html#elements">element</a>. Each
-  of the following elements must have a unique timing attribute:
-  <a href="http://dev.w3.org/html5/spec/Overview.html#the-iframe-element">iframe</a>,
-  <a href="http://dev.w3.org/html5/spec/Overview.html#the-img-element">img</a>,
-  <a href="http://dev.w3.org/html5/spec/Overview.html#script">script</a>,
-  <a href="http://dev.w3.org/html5/spec/Overview.html#the-object-element">object</a>,
-  <a href="http://dev.w3.org/html5/spec/Overview.html#the-embed-element">embed</a>
-  and
-  <a href="http://dev.w3.org/html5/spec/Overview.html#the-link-element">link</a>
-  with the link type of
-  <a href="http://dev.w3.org/html5/spec/Overview.html#link-type-stylesheet">stylesheet</a>.
 
 </p><p> When an element is set or changed and if it results in a
   <a href="http://dev.w3.org/html5/spec/Overview.html#fetch">fetch</a>,
   its timing attribute must be updated.
 
-<!--
-<p><p class="XXX">window.timing covers iframes. So maybe HTMLElement.timing
-doesn't have to? Does outer page have access to an iframe's window.timing
-property? </p>
--->
-</p><p>In case certain timing information is not available, the interface should return 0 for the corresponding attribute.
+</p><p>In case certain event has not occurred, the <a href="#elementtiming">
+HTMLElement.timing</a> attribute must not have the property of the
+corresponding event.
 
 </p><div class="example"><div class="exampleHeader">Example</div><p>
   From an inline iframe, only the <a href="">load</a>, <a href="">parseStart</a>
-  and <a href="">parseEnd</a> attributes return non-zero value.
+  and <a href="">parseEnd</a> properties are available.
 </p></div>
 
 </p><h3>The <code><dfn id="navigationtiming">NavigationTiming</dfn></code> interface</h3>
 <pre class="idl">interface NavigationTiming {
+  readonly attribute boolean <a href="#extendedtiming">extendedTiming</a>;
+
   const unsigned short <a href="#timing-navigationother">NAVIGATION_OTHER</a> = 0;
   const unsigned short <a href="#timing-navigationlink">NAVIGATION_LINK</a> = 1;
   const unsigned short <a href="#timing-navigationredirectserver">NAVIGATION_REDIRECT_SERVER</a> = 2;
@@ -337,6 +337,32 @@ property? </p>
   readonly attribute unsigned short <a href="#timing_level">timingLevel</a>;
   -->
 
+</p><h4>The <code><dfn id="extendedtiming">extendedTiming</dfn></code> attribute</h4>
+<p>This attribute indicates if the user agent should enable the DOMTiming
+interface on DOM elements other than the root document. It must return True
+if the current document has a <a
+href="http://dev.w3.org/html5/spec/Overview.html#meta">meta</a> element whose
+<a href="http://dev.w3.org/html5/spec/Overview.html#attr-meta-name">name</a>
+attribute is "extended-timing" and
+<a href="http://dev.w3.org/html5/spec/Overview.html#dom-meta-content">content</a>
+attribute is "true". It must return False if the current document has a <a
+href="http://dev.w3.org/html5/spec/Overview.html#meta">meta</a> element whose
+<a href="http://dev.w3.org/html5/spec/Overview.html#attr-meta-name">name</a>
+attribute is "extended-timing" and
+<a
+href="http://dev.w3.org/html5/spec/Overview.html#dom-meta-content">content</a>
+attribute is "false".
+
+<div class="example"><div class="exampleHeader">Example</div>
+<p>
+To enable DOMTiming for embedded images on the current page, the following
+statement needs to be added into the HTML header:
+<pre>
+&lt;meta name="extended-timing" content="true"&gt;
+</pre>
+
+</p></div>
+
 </p><h4>The <code><dfn id="navigationtype">navigationType</dfn></code> attribute</h4>
 
 <p>This attribute must return the type of the last <a
@@ -346,7 +372,7 @@ id="navigationtypes">navigation type</dfn> values.
 </p>
 <dl>
 <dt><dfn id="timing-navigationother">NAVIGATION_OTHER</dfn>:
-Any navigation types not defined by the above values.</dt>
+Any navigation types not defined by other values.</dt>
 <dt><dfn id="timing-navigationlink">NAVIGATION_LINK</dfn>:
 navigation started by clicking on a link on the previous page.</dt>
 <dt><dfn id="timing-navigationredirectserver">TRANSITION_REDIRECT_SERVER</dfn>:
@@ -391,20 +417,6 @@ January 1, 1970 (UTC) and the time the user agent finishes
 </h4><p>This attribute must return the <a href="#element-timing">timing</a> object
 of the document's root element, if there is one.
 
-<!--
-</p><h4>The <code><dfn id="timing_level">timingLevel</dfn></code> attribute
-</h4><p>This attribute represents the level of element under the current
-<a href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing context</a>
-that must provide the <a href="#element-timing">timing</a> attribute. It must
-return one of the following values.
-<dl>
-<dt><dfn id="timing-domtiming-root">DOMTIMING_ROOT</dfn>:</dt>
-<dt><dfn id="timing-domtiming-direct">DOMTIMING_DIRECT</dfn>: only </dt>
-<dt><dfn id="timing-domtiming-all">DOMTIMING_ALL</dfn></dt>
-</dl>
--->
-
-
 </p><h3>The <code><dfn href="window-timing">window.timing</dfn></code> attribute</h3>
 
 <pre class="idl">
@@ -439,79 +451,6 @@ if (navigation.document.load &gt; 0) {
 </p></div>
 
 </p><h2>Processing model</h2>
-
-<h3>HTMLElement.timing</h3>
-<p>When a user agents is to fetch a resource for an element that requires the
-HTMLElement.timing attribute, the following steps must be run to create the
-attribute:
-<ol>
-  <li>Create an <a href="domtiming">DOMTiming</a> for the resource to be
-  fetched and set all of its attributes to zero.</li>
-  <li>Before a user agent runs the <a
-    href="http://dev.w3.org/html5/spec/Overview.html#changesToNetworkingModel">fetching algorithm</a>, it should record the current time in the <a
-    href="#domtiming-fetchstart">fetchStart</a> attribute.</li>
-  <li>If the resource is to be fetched from the <a
-    href="http://dev.w3.org/html5/spec/Overview.html#application-cache">application
-    cache</a>, go to step <a href="#step_parsestat">12</a>.</li>
-  <li>Before a user agent starts the domain name lookup, record the time in the
-  <a href="#domtiming_domainlookupstart">domainLookupStart</a> attribute.</li>
-  <li>Record the time as <a
-    href="#domtiming_domainlookupend">domainLookupEnd</a> when the domain name
-  lookup is successfully done. A user agent may need multiple retries before
-  that. If the domain lookup fails, abort the rest of the steps.</li>
-  <li id="step_connectstart">If a persistent transport connection is used
-  to fetch the resource, go to
-  step <a href="#step_requeststart">8</a>. Otherwise,
-  record the time as <a href="#domtiming_connectstart">connectStart</a>
-  immediately before initiating the connection to the server.</li>
-  <li>Record the time as <a href="#domtiming_connectend">connectEnd</a> when the
-  connection to the server or the proxy is established. A user agent may need
-  multiple retries before this time. If a connection can not be established,
-  abort the rest of the steps.</li>
-  <li id="step_requeststart">Record the time as <a href="#domtiming_requeststart">requestStart</a>
-  immediately before sending the request.</li>
-  <li>Record the time as <a href="#domtiming_requeststart">requestEnd</a>
-  immediately after sending the request.</li>
-  <li>Record the time as <a href="#domtiming_responsestart">responseStart</a>
-  immediately after the user agent receives the first chunk of the response.
-  </li>
-  <li>Record the time as <a href="#domtiming_responseend">responseEnd</a>
-  immediately after receiving the entire response.</li>
-
-  <p>Return to step <a href="#step_connectstart">6</a> if the user
-  agent fails to send the request or receive the entire response, and needs to
-  reopen the connection.
-  <div class="example"><div class="exampleHeader">Example</div><p>
-    When <a
-      href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1">persistent
-      connection</a> is enabled, a user agent may first try to re-use an
-    open connect to send the request while the connection can be <a
-      href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1.4">asynchronously
-      closed</a>. In such case, connectStart, connectEnd, requestStart and
-    requestEnd should represent timing information collected over the re-open
-    connection.</p></div></p>
-
-  <li id="step_parsestat">Record the time as <a href="#domtiming_parsestart">parseStart</a>
-  immediately before the user agent starts parsing the response.</li>
-  <li>Record the time as <a href="#domtiming_parseend">parseEnd</a>
-  immediately after the user agent finishes parsing the entire response.</li>
-  <li>Record the time as <a href="#domtiming_load">load</a>
-  immediately after the user agent finishes loading the DOM.</li>
-</ol>
-
-<p>If the resource of an element is from the <a
-href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
-relevant application caches</a>, the following attributes should be set to 0:
-<ul>
-  <li><a href="#domtiming-domainlookupstart">HTMLElement.timing.domainLookupStart</a></li>
-  <li><a href="#domtiming-domainlookupend">HTMLElement.timing.domainLookupEnd</a></li>
-  <li><a href="#domtiming-connectstart">HTMLElement.connectStart</a></li>
-  <li><a href="#domtiming-connectend">HTMLElement.connectEnd</a></li>
-  <li><a href="#domtiming-requeststart">HTMLElement.requestStart</a></li>
-  <li><a href="#domtiming-requestend">HTMLElement.requestEnd</a></li>
-  <li><a href="#domtiming-responsestart">HTMLElement.responseStart</a></li>
-  <li><a href="#domtiming-responseend">HTMLElement.responseEnd</a></li>
-</ul>
 
 </p><h3>window.timing</h3>
 
@@ -553,11 +492,87 @@ create or update the <a href="#window-timing">window.timing</a> attribute:
   <li>Following the steps described in <a href="">setting the 
     HTMLElement.timing</a> to set the <a href="#root_times">rootTimes</a>
   attribute.</li>
+  <li>If a <a href="http://dev.w3.org/html5/spec/Overview.html#meta">meta</a>
+  element exists in the document header with the <a
+    href="http://dev.w3.org/html5/spec/Overview.html#attr-meta-name">name</a>
+  attribute as "extended-timing" and the
+      <a href="http://dev.w3.org/html5/spec/Overview.html#dom-meta-content">content</a>
+      attribute as "true", set window.timing.extendedTiming to be true.
+      In all other cases, set window.timing.extendedTiming to be false.</li>
 </ul>
+
+<h3>HTMLElement.timing</h3>
+<p>When a user agents is to fetch a resource for an element that requires the
+HTMLElement.timing attribute, the following steps must be run to create the
+attribute:
+<ol>
+  <li>If the <a href="#extendedtiming">window.timing.extendedTiming</a>
+  attribute is set to False, skip all the following steps and return.</li>
+  <li>Create an <a href="domtiming">DOMTiming</a> object for the resource to be
+  fetched.</li>
+  <li>Before a user agent runs the <a
+    href="http://dev.w3.org/html5/spec/Overview.html#changesToNetworkingModel">fetching algorithm</a>, it must record the current time in the <a
+    href="#domtiming-fetchstart">fetchStart</a> property.</li>
+  <li>If the resource is fetched from the <a
+    href="http://dev.w3.org/html5/spec/Overview.html#application-cache">relevant application cache</a>, set the following named properties of the <a href="#elementtiming">timing</a> attribute to zero and go to step <a href="#step_parsestat">12</a>.</li>
+    <ul>
+    <li><a href="#domtiming-domainlookupstart">domainLookupStart</a></li>
+    <li><a href="#domtiming-domainlookupend">domainLookupEnd</a></li>
+    <li><a href="#domtiming-connectstart">connectStart</a></li>
+    <li><a href="#domtiming-connectend">connectEnd</a></li>
+    <li><a href="#domtiming-requeststart">requestStart</a></li>
+    <li><a href="#domtiming-requestend">requestEnd</a></li>
+    <li><a href="#domtiming-responsestart">responseStart</a></li>
+    <li><a href="#domtiming-responseend">responseEnd</a></li>
+  </ul>
+
+  <li>Before a user agent starts the domain name lookup, record the time in the
+  <a href="#domtiming_domainlookupstart">domainLookupStart</a> property.</li>
+  <li>Record the time as <a
+    href="#domtiming_domainlookupend">domainLookupEnd</a> when the domain name
+  lookup is successfully done. A user agent may need multiple retries before
+  that. If the domain lookup fails, abort the rest of the steps.</li>
+  <li id="step_connectstart">If a persistent transport connection is used
+  to fetch the resource, go to
+  step <a href="#step_requeststart">8</a>. Otherwise,
+  record the time as <a href="#domtiming_connectstart">connectStart</a>
+  immediately before initiating the connection to the server.</li>
+  <li>Record the time as <a href="#domtiming_connectend">connectEnd</a> when the
+  connection to the server or the proxy is established. A user agent may need
+  multiple retries before this time. If a connection can not be established,
+  abort the rest of the steps.</li>
+  <li id="step_requeststart">Record the time as <a href="#domtiming_requeststart">requestStart</a> immediately before transmitting the request to the server or proxy.</li>
+  <li>Record the time as <a href="#domtiming_requeststart">requestEnd</a>
+  immediately after transmitting the entire request to the server or proxy.</li>
+  <li>Record the time as <a href="#domtiming_responsestart">responseStart</a>
+  immediately after the user agent receives the first chunk of the response.
+  </li>
+  <li>Record the time as <a href="#domtiming_responseend">responseEnd</a>
+  immediately after receiving the entire response.</li>
+  <p>Return to step <a href="#step_connectstart">6</a> if the user
+  agent fails to send the request or receive the entire response, and needs to
+  reopen the connection.
+  <div class="example"><div class="exampleHeader">Example</div><p>
+    When <a
+      href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1">persistent
+      connection</a> is enabled, a user agent may first try to re-use an
+    open connect to send the request while the connection can be <a
+      href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec8.html#sec8.1.4">asynchronously
+      closed</a>. In such case, connectStart, connectEnd, requestStart and
+    requestEnd should represent timing information collected over the re-open
+    connection.</p></div></p>
+
+  <li id="step_parsestat">Record the time as <a href="#domtiming_parsestart">parseStart</a>
+  immediately before the user agent starts parsing the response.</li>
+  <li>Record the time as <a href="#domtiming_parseend">parseEnd</a>
+  immediately after the user agent finishes parsing the entire response.</li>
+  <li>Record the time as <a href="#domtiming_load">load</a>
+  immediately after the user agent finishes loading the DOM.</li>
+</ol>
 
 </p><p>The granularity and accuracy of the timing-related attributes in the <a
 href="domtiming">DOMTiming</a> and <a
-href="navigatointiming">navigationTiming</a> interface is recommended to be
+href="navigationtiming">navigationTiming</a> interface is recommended to be
 no less than one millisecond.
 
 </p><h2>Privacy</h2>
@@ -581,9 +596,8 @@ related to Web Storage are not discussed in this document.
 
 </p><h2 class="no-num">Acknowledgements</h2>
 
-<p>I would like to offer my huge thanks to all the people that I have been
-in touch with regarding this draft, especially to Kyle Scholz and Annie
-Sullivan for their reviews and feedbacks.
+<p>I would like to offer my sincere thanks to all the people that I have been
+in touch with regarding this draft, including Alex Russell, Alois Reitbauer, Annie Sullivan, Christian Biesinger, Darin Fisher, Jonas Sicking, Kyle Scholz, Lenny Rachitsky, Richard Rabbat, Sergey Novikov, Steve Souders, Tony Gentilcore for their reviews and feedbacks.
 <!-- including Ian Hickson, Steve Souders, Richard Rabbat,
 Kyle Scholz, Darin Fisher, Alex Russell and many others.
 -->
