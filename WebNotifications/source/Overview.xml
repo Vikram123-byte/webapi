@@ -7,7 +7,7 @@
   <metadata>
     <title>Web Notifications</title>
     <styling type='W3C' status='ED'/>
-    <date year='2010' month='03' day='22'/>
+    <date year='2010' month='04' day='22'/>
     <editors>
       <person>
         <name>John Gregg</name>
@@ -29,7 +29,7 @@
     <!--
     <ednote>
       <p>
-        Last update: $Id: Overview.xml,v 1.4 2010-03-23 01:57:03 jgregg Exp $.
+        Last update: $Id: Overview.xml,v 1.5 2010-04-22 18:53:26 jgregg Exp $.
       </p>
     </ednote>
     -->
@@ -142,7 +142,7 @@
   <section xml:id='idl-if-Notification'>
     <title>The Notification interface</title>
     <p>
-      The Notification interface represents a single alert to be shown to the user.
+      The Notification interface represents a single alert to be shown to the user. It extends the EventTarget interface defined in [DOMEVENTS].
     </p>
     <schema>
       <title>the Notification interface</title>
@@ -153,7 +153,7 @@
 	      Requests the user agent to show the notification to the user. Depending on 
 	      desktop space, user idleness, or other factors as determined by the user
 	      agent, this may happen immediately or be postponed, but must eventually
-	      be done.
+	      be done, following the algorithm for queueing a notification below.
 	    </p>
 	  </method>
 	  <method name='cancel'>
@@ -168,6 +168,8 @@
 	    <p>
 	      An event listener function corresponding to the event type "click".  This event
 	      listener is must be invoked when the user clicks on a notification.
+	    </p>
+	    <p>
 	      <em>
 		This event is not guaranteed if the underlying notification platform does not support receiving
 		click events.
@@ -180,6 +182,13 @@
 	      event listener must be invoked after the <code>show()</code> method is called, at the
 	      point when the notification actually becomes visible to the user.
 	    </p>
+	    <p>
+	      <em>
+		If the underlying notification platform does not show the notification immediately,
+		this event may precede the notification becoming visible; however the notification
+		will never become visible before this event is dispatched.
+	      </em>
+	    </p>
 	  </attribute>
 	  <attribute type='Function' name='onerror'>
 	    <p>
@@ -190,11 +199,33 @@
 	  </attribute>
 	  <attribute type='Function' name='onclose'>
 	    <p>
-	      An event listener function corresponding to the event type "error".  This
+	      An event listener function corresponding to the event type "close".  This
 	      event listener must be invoked after the "display" event, at the point
 	      when the alert is dismissed by the user.
 	    </p>
 	  </attribute>
+
+	  <attribute type='int' name='replaceId'>
+	    <p>
+	      A value which identifies this notification for replacement by another notification
+	      serving the same purpose.  The user agent must not allow two notifications created
+	      by the same security origin and having the same <code>replaceId</code> value to be 
+	      shown simultaneously.
+	    </p>
+	  </attribute>
+
+	  <attribute type='string' name='dir'>
+	    <p>
+	      The <code>dir</code> attribute specifies the directionality of the notification, and
+	      has all the properties of the <code>dir</code> attribute as defined in [HTML5]. 
+	    </p>
+	    <p>
+	      Since the notification does not have a parent element, if the notification's directionality
+	      state is not <em>ltr</em> or <em>rtl</em>, the directionality shall be the same as
+	      the document, or <em>ltr</em> if there is no document.
+	    </p>
+	  </attribute>
+	    
 	</interface>
       </idl>
     </schema>
@@ -277,6 +308,7 @@
 	    </p>
 	    <param name='iconUrl' type='DOMString'>
 	      URL of the icon to be shown with this notification.
+	      The parameter must be resolved relative to the current document base URL or worker script URL.
 	    </param>
 	    <param name='title' type='DOMString'>
 	      Primary text, or title, of the notification.
@@ -287,7 +319,10 @@
 	    <exception name='Exception'>
 	      <p>
 		If the notifications permission level for the current origin is not <code>PERMISSION_ALLOWED</code>,
-		this method will throw a <code>SecurityException</code>.
+		this method will throw a <code>SECURITY_ERR</code>.
+	      </p>
+	      <p>
+		If the URL is invalid or cannot be resolved, a <code>SYNTAX_ERR</code> is raised.
 	      </p>
 	    </exception>
 	    <returns type='Notification'>
@@ -304,30 +339,24 @@
     <section>
       <title>Accessing from pages</title>
       <p>
-	In page context, the NotificationCenter object is accessed from DOMWindow.
+	In page context, the NotificationCenter object is accessed from the Navigator object.  [HTML5]
       </p>
       <schema>
-	<title>DOMWindow</title>
+	<title>Notifications via Navigator</title>
 	<idl>
-	  <interface name='DOMWindow'>
-	    ...
-	    <attribute type='NotificationCenter' name='notifications' />
-	  </interface>
+	  Navigator implements NotificationCenter;
 	</idl>
       </schema>
     </section>
     <section>
       <title>Accessing from workers</title>
       <p>
-	From worker context, the NotificationCenter object is accessed from the global object, WorkerGlobalScope.
+	From worker context, the NotificationCenter object is accessed from the WorkerNavigator object.  [WEBWORKERS]
       </p>
       <schema>
-	<title>WorkerGlobalScope</title>
+	<title>Notifications via WorkerNavigator</title>
 	<idl>
-	  <interface name='WorkerGlobalScope'>
-	    ...
-	    <attribute type='NotificationCenter' name='notifications' />
-	  </interface>
+	  WorkerNavigator implements NotificationCenter;
 	</idl>
       </schema>
     </section>
@@ -343,7 +372,7 @@
     <schema>
       <title>supplemental NotificationCenter interface</title>
       <idl>
-	<interface name='NotificationCenter'>
+	<interface name='NotificationCenter' supplemental='true'>
 	  <method name='createWebNotification'>
 	    <p>
 	      Implementation of this method is optional for the <code>NotificationCenter</code>
@@ -356,10 +385,18 @@
 	    </returns>
 	    <param name='url' type='DOMString'>
 	      The URL of a resource which contains content to be shown as the alert.
+	      The URL parameter must be resolved relative to the base URL of the document or worker script.
 	    </param>
-            <param name='mime' type='DOMString' optional='true'>
-	      The MIME type of the resource represented by <code>url</code>.  Default value is 'text/html'.
-	    </param>
+	    <exception name='Exception'>
+	      <p>
+		If the notifications permission level for the current origin is not <code>PERMISSION_ALLOWED</code>,
+		this method will throw a <code>SECURITY_ERR</code>.
+	      </p>
+
+	      <p>
+		If the URL is invalid or cannot be resolved, a <code>SYNTAX_ERR</code> is raised.
+	      </p>
+	    </exception>
 	  </method>
 	</interface>
       </idl>
@@ -370,58 +407,96 @@
       <p>
 	User agents which use an existing notification platform and support only simple notifications may not
 	support all types of web content.  These user agents may attempt to extract simple notification content
-	from web content such as the <code>&lt;title&gt;</code> tag of HTML content as the notification.
+	from web content such as the <el>title</el> tag of HTML content as the notification.
       </p>
     </section>
   </section>
     
-  <section xml:id='displaying'>
+  <section xml:id='algorithms'>
     <title>Queueing and displaying notifications</title>
-    <section>
-      <title>Displaying notifications</title>
-      <p>
-	When a notification is displayed, the user agent should perform the following steps:
-	<ul>
-	  <li>
-	    Load the resource given by <code>url</code> (for <code>createWebNotification</code>) or
-	    by <code>iconUrl</code> (for <code>createNotification</code>).
-	  </li>
-	  <li>
-	    If a resource load failure occured:
-	    <ul>
-	      <li>Dispatch the <code>error</code> event on the notification object.</li>
-	    </ul>
-	  </li>
-	  <li>
-	    Otherwise:
-	    <ul>
-	      <li>Dispatch the <code>display</code> event on the notification object.</li>
-	      <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
-	    </ul>
-	  </li>
-	</ul>
-      </p>
-    </section>
     <section>
       <title>Queueing notifications</title>
       <p>
 	If the device does not allow all notifications to be displayed immediately, the user agent
-	should either (1) call to a notifications platform which supports
-	queueing as soon as <code>show()</code> is called, or (2) maintain a FIFO queue of pending notifications.
+	should either call to a notifications platform which supports
+	queueing as soon as <code>show()</code> is called, or use the following algorithm.
       </p>
       <p>
-	When <code>createNotification</code> or <code>createWebNotification</code> are called
-	by script running in an origin which has <code>PERMISSION_ALLOWED</code> level notification
-	permissions, the user agent should add the notification to the queue.
+	When <code>show</code> is called on a notification object by script running in an origin 
+	which has <code>PERMISSION_ALLOWED</code> level notification
+	permissions, the user agent should run the following algorithm.
       </p>
+      <p>
+	The user agent must keep a <em>queue of pending notifications</em> and a <em>list of active notifications</em>. 
+      </p>
+      <ol>
+	<li>Get the replacement id of the notification to be shown, and let it be replaceId.</li>
+	<li>
+	  If replaceId is defined, examine all the notifications in the <em>list of active notifications</em>.
+	  If any notification in the list has the same source origin and has replacement id equal to replaceId,
+	  do the following steps and then terminate this algorithm.  Let <em>existing</em> be the notification in the list
+	  which matches.
+	  <ol>
+	    <li>Replace <em>existing</em> with the new notification using the <a href="#replacing">replacing a notification</a> algorithm.</li>
+	    <li>If the replacement returned error information, stop.</li>
+	    <li>Remove <em>existing</em> from the <em>list of active notifications</em>.</li>
+	    <li>Add the new notification to the <em>list of active notifications</em>.</li>
+	  </ol>
+	</li>
+	<li>Add the notification to the <em>queue of pending notifications</em>.</li>
+	<li>Wait until there is available space on the device.</li>
+	<li>Display the first notification in the <em>queue of pending notifications</em> using 
+	  the <a href="#displaying">displaying a notification</a> algorithm.</li>
+      </ol>
       <p>
 	When the available display space changes on the device such that a new notification may be
 	displayed, for example due to a previous notification being dismissed, the user agent should
-	display the first notification in the queue using the procedure described above.
+	<a href="#displaying">display</a> the first notification in the queue using the procedure described above.
+      </p>
+    </section>
+
+    <section xml:id='displaying'>
+      <title>Displaying notifications</title>
+      <p>
+	When a user agent is to <em>display a notification</em>, the user agent should perform the following steps:
+	<ol>
+	  <li>
+	    Fetch the resource given by <code>url</code> (for <code>createWebNotification</code>) or
+	    by <code>iconUrl</code> (for <code>createNotification</code>), using the algorithm defined in
+	    [HTML5] with the <em>synchronous</em> flag set.
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the notification
+	    object and stop executing this algorithm.
+	  </li>
+	  <li>Fire the <code>display</code> event on the notification object.</li>
+	  <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
+	</ol>
+      </p>
+    </section>
+
+    <section xml:id='replacing'>
+      <title>Replacing a notification</title>
+      <p>
+	When a user agent is to <em>replace a notification</em>, the user agent should perform the following steps.
+	Let <em>old</em> be the notification to be replaced by <em>new</em>.
+	<ol>
+	  <li>
+	    Fetch the content or icon resource in <em>new</em> using the algorithm defined in
+	    [HTML5] with the <em>synchronous</em> flag set.
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the <em>new</em> notification
+	    object and stop executing this algorithm,m returning the error information.  The <em>old</em> notification is not affected.
+	  </li>
+	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
+	  <li>Fire the <code>display</code> event on the <em>new</em> notification object.</li>
+	  <li>If the underlying notification platform supports replacement, replace <em>old</em> with <em>new</em> on the device.</li>
+	  <li>If the underlying notification platform does not support replacment, remove <em>old</em> from the device and show <em>new</em> on the device.</li>
+	</ol>
       </p>
     </section>
   </section>
-
   <section xml:id='interactions'>
     <title>Interacting with notifications</title>
     <section>
@@ -497,5 +572,24 @@
       </example>
     </section>
   </section>
+
+  <section>
+    <title>References</title>
+    <bibliography>
+      <bibentry xml:id='DOMEVENTS'>
+	<title>Document Object Model (DOM) Level 3 Events Specification</title>
+	<link>http://www.w3.org/TR/DOM-Level-3-Events</link>
+      </bibentry>
+      <bibentry xml:id='HTML5'>
+	<title>HTML5: A vocabulary and associated APIs for HTML and XHTML</title>
+	<link>http://www.w3.org/TR/html5/</link>
+      </bibentry>
+      <bibentry xml:id='WEBWORKERS'>
+	<title>Web Workers</title>
+	<link>http://whatwg.org/ww/</link>
+      </bibentry>
+    </bibliography>
+  </section>
+
 </specification>
 
