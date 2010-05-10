@@ -427,6 +427,12 @@ client.send();</code></pre>
    characters</dfn> is defined by the Web IDL specification. [<cite><a
    href="#ref-webidl">WebIDL</a></cite>]
 
+  <p>The term <dfn id=user-credentials>user credentials</dfn> for the
+   purposes of this specification means cookies, HTTP authentication, and
+   client-side SSL certificates. Specifically it does not refer to proxy
+   authentication or the <code title=http-origin>Origin</code> header. <a
+   href="#ref-cookies">[COOKIES]</a> <!-- XXX ref? -->
+
   <p>The terms and algorithms <dfn
    id=url-fragment><code>&lt;fragment></code></dfn>, <dfn
    id=url-scheme><code>&lt;scheme></code></dfn>, <dfn
@@ -523,11 +529,10 @@ interface <dfn id=xmlhttprequesteventtarget>XMLHttpRequestEventTarget</dfn> : Ev
 };
 
 interface <dfn id=xmlhttprequestupload>XMLHttpRequestUpload</dfn> : <a href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a> {
-  // for future use
+
 };
 
-[<a href="#dom-xmlhttprequest" title=dom-XMLHttpRequest>Constructor</a>,
- <a href="#dom-xmlhttprequest-anon" title=dom-XMLHttpRequest-anon>Constructor</a>(boolean <var title="">anon</var>)]
+[<a href="#dom-xmlhttprequest" title=dom-XMLHttpRequest>Constructor</a>]
 interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequesteventtarget">XMLHttpRequestEventTarget</a> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <a href="#function">Function</a> <a href="#onreadystatechange">onreadystatechange</a>;
@@ -565,6 +570,10 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   readonly attribute ByteArray <a href="#responsebody">responseBody</a>;
   readonly attribute DOMString <a href="#responsetext">responseText</a>;
   readonly attribute Document <a href="#responsexml">responseXML</a>;
+};
+
+[<a href="#dom-anonxmlhttprequest" title=dom-AnonXMLHttpRequest>Constructor</a>]
+interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhttprequest">XMLHttpRequest</a> {
 };</pre>
   <!-- XXX domintro boxes; HTML5-style -->
 
@@ -609,24 +618,24 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   <h3 id=constructors><span class=secno>3.3. </span>Constructors</h3>
 
   <p>The <a href="#xmlhttprequest"><code>XMLHttpRequest</code></a> object has
-   an associated <dfn id=anonymous-flag>anonymous flag</dfn> that is set to
-   either true or false when the constructor is invoked. It affects whether
-   credentials and the <a
+   an associated <dfn id=anonymous-flag>anonymous flag</dfn>. When set to
+   true <a href="#user-credentials">user credentials</a> and the <a
    href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a> are
-   exposed.
+   not exposed when <a href="#fetch" title=fetch>fetching</a> resources. It
+   is false by default and can only be set to true by using the <a
+   href="#dom-anonxmlhttprequest"><code
+   title=dom-AnonXMLHttpRequest>AnonXMLHttpRequest()</code></a> constructor.
 
-  <p>When the <dfn id=dom-xmlhttprequest title=dom-XMLHttpRequest><code
-   title="">XMLHttpRequest()</code></dfn> constructor is invoked, the user
-   agent <em class=ct>must</em> return a new <a
-   href="#xmlhttprequest"><code>XMLHttpRequest</code></a> object with its <a
-   href="#anonymous-flag">anonymous flag</a> set to false.
+  <p>When the <dfn id=dom-xmlhttprequest
+   title=dom-XMLHttpRequest><code>XMLHttpRequest()</code></dfn> constructor
+   is invoked, the user agent <em class=ct>must</em> return a new <a
+   href="#xmlhttprequest"><code>XMLHttpRequest</code></a> object.
 
-  <p>When the <dfn id=dom-xmlhttprequest-anon
-   title=dom-XMLHttpRequest-anon><code>XMLHttpRequest(<var
-   title="">anon</var>)</code></dfn> constructor is invoked, the user agent
-   <em class=ct>must</em> return a new <a
-   href="#xmlhttprequest"><code>XMLHttpRequest</code></a> object with its <a
-   href="#anonymous-flag">anonymous flag</a> set to <var title="">anon</var>.
+  <p>When the <dfn id=dom-anonxmlhttprequest
+   title=dom-AnonXMLHttpRequest><code>AnonXMLHttpRequest()</code></dfn>
+   constructor is invoked, the user agent <em class=ct>must</em> return a new
+   <a href="#anonxmlhttprequest"><code>AnonXMLHttpRequest</code></a> object
+   with its <a href="#anonymous-flag">anonymous flag</a> set to true.
 
   <h3 id=event-handler-attributes><span class=secno>3.4. </span>Event Handler
    Attributes</h3>
@@ -772,8 +781,8 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   <dl>
    <dt>The <dfn id=asynchronous-flag>asynchronous flag</dfn>
 
-   <dd>A flag that is either true or false that indicates whether the request
-    is done asynchronously.
+   <dd>True when <a href="#fetch" title=fetch>fetching</a> is done
+    asychronously. False when fetching is done synchronously.
 
    <dt>The <dfn id=request-method>request method</dfn>
 
@@ -807,9 +816,10 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
    <dt>The <dfn id=credentials-flag>credentials flag</dfn>
 
-   <dd>Indicates whether a cross-origin request will include cookie and HTTP
-    authentication data and whether cookies can be set. The flag is either
-    true or false. The default value is false.
+   <dd>True when <a href="#user-credentials">user credentials</a> are to be
+    included in a cross-origin request. False when they are to be excluded in
+    a cross-origin request and when cookies are to be ignored in its
+    response.
 
    <dt>The <dfn id=upload-complete-flag>upload complete flag</dfn>
 
@@ -948,7 +958,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
    <li>
     <p>Let <var>async</var> be the value of the <var>async</var> argument or
-     <code>true</code> if it was omitted.
+     true if it was omitted.
 
    <li>
     <p>If the <var>user</var> argument was not omitted follow these sub
@@ -1054,8 +1064,8 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
        <var>temp password</var>.
 
      <li>
-      <p>Set the <a href="#asynchronous-flag">asynchronous flag</a> to true
-       if <var>async</var> is <code>true</code>. Otherwise set it to false.
+      <p>Set the <a href="#asynchronous-flag">asynchronous flag</a> to the
+       value of <var>async</var>.
     </ul>
 
    <li>
@@ -1277,12 +1287,14 @@ X-Test: one, two
      value.
   </ol>
 
-  <p>On getting, the <a
-   href="#withcredentials"><code>withCredentials</code></a> attribute <em
-   class=ct>must</em> return <code>true</code> if the <a
-   href="#credentials-flag">credentials flag</a> is true, and
-   <code>false</code> if the <a href="#credentials-flag">credentials flag</a>
-   is false.
+  <p>On getting the <a
+   href="#withcredentials"><code>withCredentials</code></a> attribute it <em
+   class=ct>must</em> return the value of the <a
+   href="#credentials-flag">credentials flag</a>.
+
+  <p class=note>The <a href="#credentials-flag">credentials flag</a> has no
+   effect when <a href="#fetch" title=fetch>fetching</a> same-origin
+   resources.
 
   <h4 id=the-upload-attribute><span class=secno>3.6.5. </span>The <code
    title="">upload</code> attribute</h4>
@@ -1393,6 +1405,7 @@ X-Test: one, two
        encoding algorithm</a> with <var>data</var> as <var>form data
        set</var>.</p>
       <!-- XXX sufficient? prolly not -->
+      <!-- XXX need to add boundary parameter -->
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using <a
@@ -1566,8 +1579,10 @@ X-Test: one, two
        href="#request-password">request password</a> are always ignored as
        part of a <a href="#cross-origin-request">cross-origin request</a>;
        including them would allow a site to perform a distributed password
-       search. However, user agents will include credentials in the request
-       (if the user has any) as required elsewhere.</p>
+       search. However, user agents will include <a
+       href="#user-credentials">user credentials</a> in the request (if the
+       user has any and if the <a href="#credentials-flag">credentials
+       flag</a> is true).</p>
 
       <dl class=switch>
        <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
@@ -1632,10 +1647,10 @@ X-Test: one, two
    class=ct>must not</em> prompt the end user for their username and
    password. [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]
 
-  <p class=note>End users are not prompted if credentials are provided
+  <p class=note>End users are not prompted if username/password are provided
    through the <a href="#open"><code>open()</code></a> API so that authors
-   can implement their own user interface. They are also not prompted for non
-   same-origin requests.
+   can implement their own user interface. They are also not prompted for
+   cross-origin requests.
 
   <hr>
 

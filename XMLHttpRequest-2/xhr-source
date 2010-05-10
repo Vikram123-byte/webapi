@@ -326,6 +326,12 @@ client.send();</code></pre>
   <p><dfn id="dfn-obtain-unicode">convert a DOMString to a sequence of Unicode characters</dfn>
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
+
+  <p>The term <dfn>user credentials</dfn> for the purposes of this
+  specification means cookies, HTTP authentication, and client-side SSL
+  certificates. Specifically it does not refer to proxy authentication or
+  the <code title="http-origin">Origin</code> header.
+  <a href="#ref-cookies">[COOKIES]</a> <!-- XXX ref? --></p>
   
   <p>The terms and algorithms
   <dfn id="url-fragment"><code>&lt;fragment></code></dfn>,
@@ -428,11 +434,10 @@ interface <dfn id="xmlhttprequesteventtarget">XMLHttpRequestEventTarget</dfn> : 
 };
 
 interface <dfn id="xmlhttprequestupload">XMLHttpRequestUpload</dfn> : <span>XMLHttpRequestEventTarget</span> {
-  // for future use<!--END xhr2-->
+<!--END xhr2-->
 };
 
-[<span title="dom-XMLHttpRequest">Constructor</span><!--START xhr2-->,
- <span title="dom-XMLHttpRequest-anon">Constructor</span>(boolean <var title="">anon</var>)<!--END xhr2-->]
+[<span title="dom-XMLHttpRequest">Constructor</span>]
 interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEventTarget</span> {
   // <a href="#event-handler-attributes">event handler attributes</a>
            attribute <span>Function</span> <span>onreadystatechange</span>;
@@ -470,7 +475,11 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   readonly attribute ByteArray <span>responseBody</span>;<!--END xhr2-->
   readonly attribute DOMString <span>responseText</span>;
   readonly attribute Document <span>responseXML</span>;
-};</pre>
+};<!--START xhr2-->
+
+[<span title="dom-AnonXMLHttpRequest">Constructor</span>]
+interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpRequest</span> {
+};<!--END xhr2--></pre>
 
   <!-- XXX domintro boxes; HTML5-style -->
 
@@ -513,23 +522,25 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
   <!--START xhr2-->
   <p>The <code>XMLHttpRequest</code> object has an associated
-  <dfn>anonymous flag</dfn> that is set to either true or false when the
-  constructor is invoked. It affects whether credentials and the
-  <span><code>XMLHttpRequest</code> origin</span> are exposed.</p>
+  <dfn>anonymous flag</dfn>. When set to true <span>user credentials</span>
+  and the <span><code>XMLHttpRequest</code> origin</span> are not exposed
+  when <span title="fetch">fetching</span> resources. It is false by default
+  and can only be set to true by using the
+  <code title="dom-AnonXMLHttpRequest">AnonXMLHttpRequest()</code>
+  constructor.</p>
   <!--END xhr2-->
 
   <p>When the
-  <dfn id="dom-xmlhttprequest" title="dom-XMLHttpRequest"><code title="">XMLHttpRequest()</code></dfn>
+  <dfn id="dom-xmlhttprequest" title="dom-XMLHttpRequest"><code>XMLHttpRequest()</code></dfn>
   constructor is invoked, the user agent <em class="ct">must</em> return a
-  new <code>XMLHttpRequest</code> object<!--START xhr2--> with its
-  <span>anonymous flag</span> set to false<!--END xhr2-->.</p>
+  new <code>XMLHttpRequest</code> object.</p>
 
   <!--START xhr2-->
   <p>When the
-  <dfn id="dom-xmlhttprequest-anon" title="dom-XMLHttpRequest-anon"><code>XMLHttpRequest(<var title="">anon</var>)</code></dfn>
+  <dfn id="dom-anonxmlhttprequest" title="dom-AnonXMLHttpRequest"><code>AnonXMLHttpRequest()</code></dfn>
   constructor is invoked, the user agent <em class="ct">must</em> return a
-  new <code>XMLHttpRequest</code> object with its
-  <span>anonymous flag</span> set to <var title="">anon</var>.</p>
+  new <code>AnonXMLHttpRequest</code> object with its
+  <span>anonymous flag</span> set to true.</p>
   <!--END xhr2-->
 
   <h3 id="event-handler-attributes">Event Handler Attributes</h3>
@@ -643,8 +654,8 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
   <dl>
    <dt>The <dfn>asynchronous flag</dfn></dt>
-   <dd>A flag that is either true or false that indicates whether the
-   request is done asynchronously.</dd>
+   <dd>True when <span title="fetch">fetching</span> is done asychronously.
+   False when fetching is done synchronously.</dd>
 
    <dt>The <dfn>request method</dfn></dt>
    <dd>The method used in the request.</dd>
@@ -673,9 +684,10 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    terminated. By default this is 0 and has no observable effect.</dd>
 
    <dt>The <dfn>credentials flag</dfn></dt>
-   <dd>Indicates whether a cross-origin request will include cookie and HTTP
-   authentication data and whether cookies can be set. The flag is either
-   true or false. The default value is false.</dd>
+   <dd>True when <span>user credentials</span> are to be included in a
+   cross-origin request. False when they are to be excluded in a
+   cross-origin request and when cookies are to be ignored in its
+   response.</dd>
 
    <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events. The flag is
@@ -804,7 +816,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <!--END xhr2-->
 
    <li><p>Let <var>async</var> be the value of the <var>async</var> argument
-   or <code>true</code> if it was omitted.</p></li>
+   or true if it was omitted.</p></li>
 
    <li>
     <p>If the <var>user</var> argument was not omitted follow these sub
@@ -891,8 +903,8 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
      <li><p>Set the <span>request password</span> to <var>temp password</var>.</p></li>
 
-     <li><p>Set the <span>asynchronous flag</span> to true if <var>async</var> is
-     <code>true</code>. Otherwise set it to false.</p></li>
+     <li><p>Set the <span>asynchronous flag</span> to the value of
+     <var>async</var>.</p></li>
     </ul>
    </li>
 
@@ -1089,10 +1101,12 @@ X-Test: one, two
    <li><p>Set the <span>credentials flag</span> to the given value.</p></li>
   </ol>
 
-  <p>On getting, the <code>withCredentials</code> attribute
-  <em class="ct">must</em> return <code>true</code> if the
-  <span>credentials flag</span> is true, and <code>false</code> if the
-  <span>credentials flag</span> is false.</p>
+  <p>On getting the <code>withCredentials</code> attribute it
+  <em class="ct">must</em> return the value of the
+  <span>credentials flag</span>.</p>
+  
+  <p class="note">The <span>credentials flag</span> has no effect when
+  <span title="fetch">fetching</span> same-origin resources.</p>
 
 
   <h4>The <code title="">upload</code> attribute</h4>
@@ -1207,6 +1221,7 @@ X-Test: one, two
       with <var>data</var> as <var>form data set</var>.</p>
 
       <!-- XXX sufficient? prolly not -->
+      <!-- XXX need to add boundary parameter -->
      </dd>
      <!--END xhr2-->
     </dl>
@@ -1360,8 +1375,8 @@ X-Test: one, two
       <span>request password</span> are always ignored as part of a
       <span>cross-origin request</span>; including them would allow a site
       to perform a distributed password search. However, user agents will
-      include credentials in the request (if the user has any) as required
-      elsewhere.</p>
+      include <span>user credentials</span> in the request (if the user has
+      any and if the <span>credentials flag</span> is true).</p>
 
       <dl class="switch">
        <dt>If the <span>asynchronous flag</span> is false</dt>
@@ -1427,10 +1442,10 @@ X-Test: one, two
   <em class="ct">must not</em> prompt the end user for their username and
   password. [<cite><span>RFC2617</span></cite>]</p>
 
-  <p class="note">End users are not prompted if credentials are provided
-  through the <code>open()</code> API so that authors can implement their
-  own user interface.<!--START xhr2--> They are also not prompted for non same-origin
-  requests.<!--END xhr2--></p>
+  <p class="note">End users are not prompted if username/password are
+  provided through the <code>open()</code> API so that authors can implement
+  their own user interface.<!--START xhr2--> They are also not prompted for
+  cross-origin requests.<!--END xhr2--></p>
   
   <hr>
 
