@@ -10,7 +10,7 @@
 <div class="head">
 <h1>Web Timing</h1>
 
-  <h2 class="no-num no-toc">Working Draft May 20, 2010</h2>
+  <h2 class="no-num no-toc">Working Draft May 30, 2010</h2>
   <dl>
     <dt>This version:</dt>
     <dd><a href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
@@ -156,7 +156,7 @@ interface</h3>
   const unsigned short <a href="#navigation-type-browser">NAVIGATION_BROWSER</a> = 3;
   const unsigned short <a href="#navigation-type-newwindow">NAVIGATION_NEW_WINDOW</a> = 4;
   const unsigned short <a href="#navigation-type-reload">NAVIGATION_RELOAD</a> = 5;
-  readonly attribute unsigned short <a href="#nt-navigation-type" title="navigationtype">navigationType</a>;
+  readonly attribute unsigned short <a href="#nt-navigation-type" title="navigationtype">userNavigationType</a>;
 
   readonly attribute unsigned longlong <a href="#nt-navigation-start" title="navigationstart">navigationStart</a>;
   readonly attribute unsigned longlong <a href="#nt-last-unload" title="lastunload">lastUnload</a>;
@@ -177,7 +177,7 @@ interface</h3>
 </pre>
   <!--const unsigned short <a href="#navigation-redirectserver">NAVIGATION_REDIRECT</a> = 2;-->
 
-<h4><code><dfn id="nt-navigation-type">navigationType</dfn></code> attribute</h4>
+<h4><code><dfn id="nt-navigation-type">userNavigationType</dfn></code> attribute</h4>
 
 <p>This attribute must return the type of the last non-redirection <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#navigate">navigation</a>
@@ -252,9 +252,11 @@ retries fetching the same document due to failures.
 </p><h4><code><dfn id="nt-domain-lookupstart">domainLookupStart</dfn></code> attribute</h4>
 <p>This attribute must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time the user agent starts the domain name lookup
-for the current document. If the current document is retrieved from <a
+for the current document. 
+<!--If the current document is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, this attribute must return zero.
+-->
 
 </p><h4><code><dfn id="nt-domain-lookupend">domainLookupEnd</dfn></code> attribute</h4>
 <p>This attribute must return the number of milliseconds between midnight
@@ -376,7 +378,7 @@ transitionType attribute. -->
 <pre>
 if (timing.navigationEnd &gt; 0) {
   var page_load_time = timing.navigationEnd - timing.navigationStart;
-  if (timing.navigationType == timing.NAVIGATION_LINK) {
+  if (timing.userNavigationType == timing.NAVIGATION_LINK) {
   alert (page_load_time);
 }
 </pre>
@@ -419,7 +421,7 @@ facilitate timing measurement for elements on the root page.
   readonly attribute unsigned longlong <a href="#rt-fetch-end" title="fetchend">fetchEnd</a>;
 title="loadstart">loadStart</a>;-->
 
-<h4><code><dfn id="rt-resource-type">navigationType</dfn></code>
+<h4><code><dfn id="rt-resource-type">resourceType</dfn></code>
 attribute</h4>
 <p>This attribute must return one of the following <dfn
 id="nt-resource-type">resource types</dfn>:
@@ -546,7 +548,7 @@ create or update the <a href="#window-timing">window.timing</a> attribute:
     href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing
     context</a>, record the current time as <a
     href="#lastunload">lastUnload</a>.</li>
-  <li>Set the <a href="#navigationtype">navigationType</a>, the <a
+  <li>Set the <a href="#navigationtype">userNavigationType</a>, the <a
     href="#navigationstart">NavigationStart</a> and the <a
     href="#lastunload">lastUnload</a> attributes.</li>
   <li>If the resource is fetched from the <a
@@ -620,10 +622,10 @@ attribute:
 
 </p><p>If a <a href="#resource-timing-collector">ResourceTimingCollector</a> object is created and event handlers are added, all the  <a href="#resource-timing">ResourceTiming</a> objects must be delivered to all the event handlers through the ResourceTimingEvent.
 
-</p><p>The granularity and accuracy of the timing-related attributes in the <a
+</p><p>The accuracy of the timing-related attributes in the <a
 href="#navigation-timing">NavigationTiming</a> and <a
 href="#resource-timing">ResourceTiming</a> interfaces is recommended to be
-no less than one millisecond.
+one millisecond or finer.
 
 </p><h2>Privacy</h2>
 <p>This section is non-normative.
