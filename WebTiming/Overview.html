@@ -10,7 +10,7 @@
 <div class="head">
 <h1>Web Timing</h1>
 
-  <h2 class="no-num no-toc">Working Draft May 30, 2010</h2>
+  <h2 class="no-num no-toc">Working Draft June 06, 2010</h2>
   <dl>
     <dt>This version:</dt>
     <dd><a href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
@@ -63,7 +63,7 @@ function onLoad() {
   var latency = now - start;
   alert("page loading time: " + latency);
 }
-&lt;script&gt;
+&lt;/script&gt;
 &lt;/head&gt;
 &lt;body onload="onLoad()"&gt;
 &lt;!- Main page body goes from here. --&gt;
@@ -94,7 +94,7 @@ recent navigation, such as the mouse click on a link.
 &lt;script type="text/javascript"&gt;
 function onLoad() {
   var now = new Date().getTime();
-  var latency = now - timing.navigationStart;
+  var latency = now - performance.timing.navigationStart;
   alert("User-perceived page loading time: " + latency);
 }
 &lt;script&gt;
@@ -137,8 +137,8 @@ when a new value is assigned to it.
 the official term ECMAScript, since the term JavaScript is more
 widely known. <a href="#references">[ECMA262]</a>
 
-</p><h2>Web Application Timing</h2>
-<h3>Introduction</h3>
+</p><h2>Navigation Timing</h2>
+<p/><h3>Introduction</h3>
 <p>This section is non-normative</p>
 
 </p><p>This specification introduces an interface that provides
@@ -240,7 +240,8 @@ ends. If the last navigation is not a redirect, this attribute must return zero.
 
 </p><h4><code><dfn id="nt-redirect-count">redirectCount</dfn></code> attribute
 </h4><p>This attribute must return the number of redirections since the last
-non-redirection navigation under the current browsing context.
+non-redirection navigation under the current browsing context. If there is no
+redirection, this attribute must return zero.
 
 <h4><code><dfn id="nt-fetch-start">fetchStart</dfn></code> attribute</h4>
 <p>This attribute must return the number of milliseconds between midnight of
@@ -252,11 +253,9 @@ retries fetching the same document due to failures.
 </p><h4><code><dfn id="nt-domain-lookupstart">domainLookupStart</dfn></code> attribute</h4>
 <p>This attribute must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time the user agent starts the domain name lookup
-for the current document. 
-<!--If the current document is retrieved from <a
+for the current document. If the current document is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, this attribute must return zero.
--->
 
 </p><h4><code><dfn id="nt-domain-lookupend">domainLookupEnd</dfn></code> attribute</h4>
 <p>This attribute must return the number of milliseconds between midnight
@@ -329,14 +328,17 @@ values of the new request.
 January 1, 1970 (UTC) and the time when the user agent receives the first byte
 of the current element. If the current element is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
-relevant application caches</a>, this attribute must return zero.
+relevant application caches</a>, this attribute must return the time
+when the cache lookup begins.
 
 </p><h4><code><dfn id="nt-response-end">responseEnd</dfn></code> attribute
 </h4><p>This attribute must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent finishes receiving the
-last byte of the current document. If the current document is retrieved from <a
+last byte of the current document.
+If the current document is retrieved from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
-relevant application caches</a>, this attribute must return zero.
+relevant application caches</a>, this attribute must return the time when the
+user agent finishes retrieving the cached content.
 <!--
 <h4><code><dfn id="nt-fetch-end">fetchEnd</dfn></code> attribute</h4>
 <p>This attribute must return the number of milliseconds between midnight of
@@ -353,19 +355,24 @@ It must return zero when the load event is not fired yet.
 href="http://www.whatwg.org/specs/web-apps/current-work/#handler-onload">load
 event</a> is fired. -->
 
-</p><h3>The <code><dfn href="window-timing">window.timing</dfn></code> attribute</h3>
+</p><h3>The <code><dfn href="window-performance-timing">window.performance.timing</dfn></code> attribute</h3>
 
 <pre class="idl">
+interface <a href="#window-performance">Performance</a> {
+  readonly attribute <a href="#navigation-timing">NavigationTiming</a> <a href="window-performance-timing">timing</a>;
+};
+
 [Supplemental]
 interface Window {
-  readonly attribute <a href="#navigation-timing">NavigationTiming</a> <a href="window-timing">timing</a>;
+  readonly attribute <a href="#window-performance">Performance</a> performance;
 };
+
 </pre>
-The <dfn id="window-timing">window.timing</dfn> attribute represents the timing information related to the
-browsing contexts since the last non-redirection navigation. Each browsing
-context must have a unique <a href="window-timing">window.timing</a> attribute.
+The <dfn id="window-performance">window.performance</dfn> attribute provides a
+hosting area for performance related attributes. Specifically, the
+<dfn id="window-performance-timing">window.performance.timing</dfn> attribute represents the timing information related to the browsing contexts since the last non-redirection navigation. Each browsing context must have a unique <a href="window-performance-timing">window.performance.timing</a> attribute.
 NavigationTiming objects in the timing attribute must be sorted by the
-chronological order of the corresponding browsing context. 
+chronological order of the corresponding browsing context.
 <!--The first array
 element in navigations must have a non-redirection transition type value in its
 transitionType attribute and all other array elements, if any, must have
@@ -376,22 +383,23 @@ transitionType attribute. -->
   <!--<div class="exampleHeader">Example</div>-->
 <p> Following is an example of how to use the interface in an HTML page:
 <pre>
-if (timing.navigationEnd &gt; 0) {
-  var page_load_time = timing.navigationEnd - timing.navigationStart;
-  if (timing.userNavigationType == timing.NAVIGATION_LINK) {
+t = performance.timing;
+if (t.navigationEnd &gt; 0) {
+  var page_load_time = t.navigationEnd - t.navigationStart;
+  if (t.userNavigationType == t.NAVIGATION_LINK) {
   alert (page_load_time);
 }
 </pre>
 </p></div>
 
-</p><h3>Resource Timing</h3>
+</p><h2>Resource Timing</h2>
 <h3>Introduction</h3>
 <p>This section is non-normative
 </p><p>
 While the <a href="#navigation-timing">NavigationTiming</a> interface provides
 timing information regarding the root document, the <a href="#resource-timing">
 ResourceTiming</a> and <a
-href="#resource-timing-collector">REsourceTimingCollector</a> interface
+href="#resource-timing-collector">ResourceTimingCollector</a> interface
 facilitate timing measurement for elements on the root page. 
 
 </p><h3>The <code><a ref="#resource-timing">ResourceTiming</dfn></code> Interface</h3>
@@ -493,7 +501,7 @@ interface ResourceTimingCollector {
 };
 
 [Supplemental]
-interface Window {
+interface Window.performance {
   ResourceTimingCollector createResourceTimingCollector()
 };
 </pre>
@@ -504,7 +512,7 @@ ResourceTimingCollector object is created and an event handler is registered
 using addEventListener before the root document completes loading, all
 ResourceTiming objects must be delivered to the handler. If a
 ResourceTimingCollector object is created after the root document finishes
-loading, subsequent events should be deliver to the registered handlers as they
+loading, subsequent events should be delivered to the registered handlers as they
 occur.
 
 <div class="example"><div class="exampleHeader">Example</div><p>
@@ -517,10 +525,10 @@ after the object's creation. This allows the browser optimal opportunities to ga
 
 </p><h2>Processing model</h2>
 
-</p><h3>window.timing</h3>
+</p><h3>window.performance.timing</h3>
 
 <p>User agents should always update the
-<a href="#window-timing">window.timing</a> attribute unless the navigation is
+<a href="#window-performance-timing">window.performance.timing</a> attribute unless the navigation is
 aborted for any of the following reasons:
 <ul>
   <li>The navigation is caused by
@@ -534,7 +542,7 @@ aborted for any of the following reasons:
 </p><p> On navigation, before the user agent checks with the
 <a href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">
 relevant application caches</a>, it should carry out the following steps to
-create or update the <a href="#window-timing">window.timing</a> attribute:
+create or update the <a href="#window-performance-timing">window.performance.timing</a> attribute:
 <ol>
   <li>Record the current time as <a href="#navigationstart">navigationStart</a>.</li>
   <li>Determine the type of the <a
