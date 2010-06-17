@@ -462,11 +462,11 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
            attribute unsigned long <span>timeout</span>;
            attribute boolean <span>withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span>upload</span>;
-  void <span>send</span>();
-  void <span>send</span>(<span>Blob</span> <var>data</var>);
-  void <span>send</span>(Document <var>data</var>);
-  void <span>send</span>([AllowAny] DOMString? <var>data</var>);
-  void <span>send</span>(<span>FormData</span> <var>data</var>);
+  void <span title="dom-XMLHttpRequest-send">send</span>();
+  void <span title="dom-XMLHttpRequest-send">send</span>(<span>Blob</span> <var>data</var>);
+  void <span title="dom-XMLHttpRequest-send">send</span>(Document <var>data</var>);
+  void <span title="dom-XMLHttpRequest-send">send</span>([AllowAny] DOMString? <var>data</var>);
+  void <span title="dom-XMLHttpRequest-send">send</span>(<span>FormData</span> <var>data</var>);
   void <span>abort</span>();
 
   // <a href="#response">response</a>
@@ -631,7 +631,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <dd><p>The <code>open()</code> method has been successfully invoked.
    During this state request headers can be set using
    <code>setRequestHeader()</code> and the request can be made using the
-   <code>send()</code> method.</p></dd>
+   <code title="dom-XMLHttpRequest-send">send()</code> method.</p></dd>
 
    <dt><dfn id="headers-received-state" title="HEADERS_RECEIVED state"><code>HEADERS_RECEIVED</code></dfn>
    (numeric value 2)</dt>
@@ -651,8 +651,9 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
 
   <p>The <span title="OPENED state">OPENED</span> state has an associated
   <dfn id="send-flag"><code>send()</code> flag</dfn> that indicates whether
-  the <code>send()</code> method has been invoked. It can be either true
-  or false and has an initial value of false.</p>
+  the <code title="dom-XMLHttpRequest-send">send()</code> method has been
+  invoked. It can be either true or false and has an initial value of
+  false.</p>
 
   <p>The <span title="DONE state">DONE</span> state has an associated
   <dfn id="error-flag">error flag</dfn> that indicates some type of network
@@ -952,7 +953,8 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
   <p>As indicated in the algorithm below certain headers cannot be set and
   are left up to the user agent. In addition there are certain other headers
   the user agent will take control of if they are not set by the author as
-  indicated at the end of the <code>send()</code> method section.</p>
+  indicated at the end of the
+  <code title="dom-XMLHttpRequest-send">send()</code> method section.</p>
 
   <p class="note">The <code>setRequestHeader()</code> method appends a
   value if the HTTP header given as argument is already part of the
@@ -1056,7 +1058,8 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <!-- XXX it seems UAs always combine the values -->
   </ol>
 
-  <p class="note">See also the <code>send()</code> method regarding user
+  <p class="note">See also the
+  <code title="dom-XMLHttpRequest-send">send()</code> method regarding user
   agent header handling for caching, authentication, proxies, and
   cookies.</p>
 
@@ -1141,13 +1144,15 @@ X-Test: one, two
 
   <h4>The <code title="">send()</code> method</h4>
 
-  <!-- XXX domintro
-  <p>The <code>send()</code> method initiates the request and its optional
-  argument provides the <span>request entity body</span>.</p>
-  -->
+  <dl class="domintro">
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-send">send(<var title="">data</var>)</code></dt>
+   <dd><p>Initiates the request. The optional argument provides the
+   <span>request entity body</span>.</p></dd>
+  </dl>
+  <!-- XXX throws?! -->
 
   <p>When the
-  <dfn id="dom-xmlhttprequest-send" title="send"><code>send(<var>data</var>)</code></dfn>
+  <dfn id="dom-xmlhttprequest-send" title="dom-XMLHttpRequest-send"><code>send(<var>data</var>)</code></dfn>
   method is invoked, the user agent <em class="ct">must</em> run the
   following steps (unless otherwise noted). This algorithm gets aborted when
   the <code>open()</code> or <code>abort()</code> method is invoked. When
@@ -1305,8 +1310,8 @@ X-Test: one, two
      on the <code>XMLHttpRequestUpload</code> object.</p></li>
      
 
-     <li><p>Return the <code>send()</code> method call, but continue running
-     the steps in this algorithm.</p></li>
+     <li><p>Return the <code title="dom-XMLHttpRequest-send">send()</code>
+     method call, but continue running the steps in this algorithm.</p></li>
     </ol>
    </li>
 
@@ -1343,8 +1348,9 @@ X-Test: one, two
          which is counter to the whole idea of doing things synchronous.
         -->
 
-        <p class="note">The <code>send()</code> method call will now be
-        returned by virtue of this algorithm ending.</p>
+        <p class="note">The
+        <code title="dom-XMLHttpRequest-send">send()</code> method call will
+        now be returned by virtue of this algorithm ending.</p>
        </dd>
 
        <dt>If the <span>asynchronous flag</span> is true</dt>
@@ -1412,9 +1418,9 @@ X-Test: one, two
          which is counter to the whole idea of doing things synchronous.
         -->
 
-        <p class="note">The <code>send()</code> method call will now be
-        returned by virtue of this algorithm ending.</p>
-
+        <p class="note">The
+        <code title="dom-XMLHttpRequest-send">send()</code> method call will
+        now be returned by virtue of this algorithm ending.</p>
        </dd>
 
        <dt>If the <span>asynchronous flag</span> is true</dt>
@@ -2083,7 +2089,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   does not have an entity body the response entity body is null.</p>
 
   <p class="note">The <span>response entity body</span> is updated as part
-  of the <code>send()</code> algorithm.</p>
+  of the <code title="dom-XMLHttpRequest-send">send()</code> algorithm.</p>
 
   <hr>
 
