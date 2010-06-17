@@ -40,13 +40,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 16 June 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 17 June 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100616/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100616/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100617/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100617/</a>
 
     <dt>Latest Version:
 
@@ -123,7 +123,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 16 June 2010 <!--Last Call Working Draft-->Editor's Draft of
+  <p>This is the 17 June 2010 <!--Last Call Working Draft-->Editor's Draft of
    XMLHttpRequest. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR]%20">public-webapps@w3.org</a>
    (<a
@@ -528,23 +528,23 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   readonly attribute unsigned short <a href="#readystate">readyState</a>;
 
   // <a href="#request">request</a>
-  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>);
-  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>);
-  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>);
-  void <a href="#open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
-  void <a href="#setrequestheader">setRequestHeader</a>(DOMString <var>header</var>, DOMString <var>value</var>);
-  void <a href="#send">send</a>();
-  void <a href="#send">send</a>(Document <var>data</var>);
-  void <a href="#send">send</a>([AllowAny] DOMString? <var>data</var>);
-  void <a href="#abort">abort</a>();
+  void <a href="#dom-xmlhttprequest-open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>);
+  void <a href="#dom-xmlhttprequest-open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>);
+  void <a href="#dom-xmlhttprequest-open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>);
+  void <a href="#dom-xmlhttprequest-open">open</a>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
+  void <a href="#dom-xmlhttprequest-setrequestheader">setRequestHeader</a>(DOMString <var>header</var>, DOMString <var>value</var>);
+  void <a href="#dom-xmlhttprequest-send">send</a>();
+  void <a href="#dom-xmlhttprequest-send">send</a>(Document <var>data</var>);
+  void <a href="#dom-xmlhttprequest-send">send</a>([AllowAny] DOMString? <var>data</var>);
+  void <a href="#dom-xmlhttprequest-abort">abort</a>();
 
   // <a href="#response">response</a>
-  readonly attribute unsigned short <a href="#status">status</a>;
-  readonly attribute DOMString <a href="#statustext">statusText</a>;
-  DOMString <a href="#getresponseheader">getResponseHeader</a>(DOMString <var>header</var>);
-  DOMString <a href="#getallresponseheaders">getAllResponseHeaders</a>();
-  readonly attribute DOMString <a href="#responsetext">responseText</a>;
-  readonly attribute Document <a href="#responsexml">responseXML</a>;
+  readonly attribute unsigned short <a href="#dom-xmlhttprequest-status">status</a>;
+  readonly attribute DOMString <a href="#dom-xmlhttprequest-statustext">statusText</a>;
+  DOMString <a href="#dom-xmlhttprequest-getresponseheader">getResponseHeader</a>(DOMString <var>header</var>);
+  DOMString <a href="#dom-xmlhttprequest-getallresponseheaders">getAllResponseHeaders</a>();
+  readonly attribute DOMString <a href="#dom-xmlhttprequest-responsetext">responseText</a>;
+  readonly attribute Document <a href="#dom-xmlhttprequest-responsexml">responseXML</a>;
 };</pre>
   <!-- XXX domintro boxes; HTML5-style -->
 
@@ -587,6 +587,14 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    source</dfn>.
 
   <h3 id=constructors><span class=secno>3.3. </span>Constructors</h3>
+
+  <dl class=domintro>
+   <dt><var title="">client</var> = new <a href="#dom-xmlhttprequest"><code
+    title=dom-XMLHttpRequest>XMLHttpRequest</code></a>()
+
+   <dd>Returns a new <a
+    href="#xmlhttprequest"><code>XMLHttpRequest</code></a> object.
+  </dl>
 
   <p>When the <dfn id=dom-xmlhttprequest
    title=dom-XMLHttpRequest><code>XMLHttpRequest()</code></dfn> constructor
@@ -635,11 +643,12 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
     (numeric value 1)
 
    <dd>
-    <p>The <a href="#open"><code>open()</code></a> method has been
-     successfully invoked. During this state request headers can be set using
-     <a href="#setrequestheader"><code>setRequestHeader()</code></a> and the
-     request can be made using the <a href="#send"><code>send()</code></a>
-     method.
+    <p>The <a href="#dom-xmlhttprequest-open"><code>open()</code></a> method
+     has been successfully invoked. During this state request headers can be
+     set using <a
+     href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
+     and the request can be made using the <a
+     href="#dom-xmlhttprequest-send"><code>send()</code></a> method.
 
    <dt><dfn id=headers-received-state title="HEADERS_RECEIVED
     state"><code>HEADERS_RECEIVED</code></dfn> (numeric value 2)
@@ -666,8 +675,9 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
   <p>The <a href="#opened-state" title="OPENED state">OPENED</a> state has an
    associated <dfn id=send-flag><code>send()</code> flag</dfn> that indicates
-   whether the <a href="#send"><code>send()</code></a> method has been
-   invoked. It can be either true or false and has an initial value of false.
+   whether the <a href="#dom-xmlhttprequest-send"><code>send()</code></a>
+   method has been invoked. It can be either true or false and has an initial
+   value of false.
 
   <p>The <a href="#done-state" title="DONE state">DONE</a> state has an
    associated <dfn id=error-flag>error flag</dfn> that indicates some type of
@@ -715,7 +725,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    title="">open()</code> method</h4>
 
   <dl class=domintro>
-   <dt><var title="">client</var> . <a href="#open"><code
+   <dt><var title="">client</var> . <a href="#dom-xmlhttprequest-open"><code
     title=open>open(<var>method</var>, <var title="">url</var>,
     <var>async</var>, <var>user</var>, <var>password</var>)</code></a>
 
@@ -727,10 +737,11 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      href="#request-password">request password</a>.
   </dl>
 
-  <p>When the <dfn id=open title=open><code>open(<var>method</var>, <var
-   title="">url</var>, <var>async</var>, <var>user</var>,
-   <var>password</var>)</code></dfn> method is invoked, the user agent <em
-   class=ct>must</em> run these steps (unless otherwise indicated):
+  <p>When the <dfn id=dom-xmlhttprequest-open
+   title=open><code>open(<var>method</var>, <var title="">url</var>,
+   <var>async</var>, <var>user</var>, <var>password</var>)</code></dfn>
+   method is invoked, the user agent <em class=ct>must</em> run these steps
+   (unless otherwise indicated):
 
   <ol>
    <li>
@@ -954,26 +965,35 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
   <h4 id=the-setrequestheader-method><span class=secno>3.6.2. </span>The
    <code title="">setRequestHeader()</code> method</h4>
-  <!-- XXX domintro authors
-  The <code>setRequestHeader()</code> method can be used to set new request
-    headers and append to request headers already in the list.</p>
-  -->
+
+  <dl class=domintro>
+   <dt><var title="">client</var> . <code>setRequestHeader(<var
+    title="">header</var>, <var title="">value</var>)</code>
+
+   <dd>
+    <p>Appends an header to the list of <a
+     href="#author-request-headers">author request headers</a> or if the
+     header is already in the <a href="#author-request-headers">author
+     request headers</a> its value appended to.</p>
+    <!-- XXX should mention when it throws? -->
+  </dl>
 
   <p>As indicated in the algorithm below certain headers cannot be set and
    are left up to the user agent. In addition there are certain other headers
    the user agent will take control of if they are not set by the author as
-   indicated at the end of the <a href="#send"><code>send()</code></a> method
-   section.
+   indicated at the end of the <a
+   href="#dom-xmlhttprequest-send"><code>send()</code></a> method section.
 
   <p class=note>The <a
-   href="#setrequestheader"><code>setRequestHeader()</code></a> method
-   appends a value if the HTTP header given as argument is already part of
-   the <a href="#author-request-headers">author request headers</a> list.
+   href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
+   method appends a value if the HTTP header given as argument is already
+   part of the <a href="#author-request-headers">author request headers</a>
+   list.
 
-  <p>When the <dfn id=setrequestheader
-   title=setrequestheader><code>setRequestHeader(<var>header</var>,
-   <var>value</var>)</code></dfn> method is invoked, the user agent <em
-   class=ct>must</em> run these steps:
+  <p>When the <dfn id=dom-xmlhttprequest-setrequestheader
+   title=setrequestheader><code>setRequestHeader(<var title="">header</var>,
+   <var title="">value</var>)</code></dfn> method is invoked, the user agent
+   <em class=ct>must</em> run these steps:
 
   <ol>
    <li>
@@ -1078,9 +1098,10 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    <!-- XXX it seems UAs always combine the values -->
   </ol>
 
-  <p class=note>See also the <a href="#send"><code>send()</code></a> method
-   regarding user agent header handling for caching, authentication, proxies,
-   and cookies.
+  <p class=note>See also the <a
+   href="#dom-xmlhttprequest-send"><code>send()</code></a> method regarding
+   user agent header handling for caching, authentication, proxies, and
+   cookies.
 
   <div class=example>
    <pre><code>// The following script:
@@ -1103,15 +1124,16 @@ X-Test: one, two
   argument provides the <span>request entity body</span>.</p>
   -->
 
-  <p>When the <dfn id=send
+  <p>When the <dfn id=dom-xmlhttprequest-send
    title=send><code>send(<var>data</var>)</code></dfn> method is invoked, the
    user agent <em class=ct>must</em> run the following steps (unless
    otherwise noted). This algorithm gets aborted when the <a
-   href="#open"><code>open()</code></a> or <a
-   href="#abort"><code>abort()</code></a> method is invoked. When the <dfn
-   id=abort-send-algorithm title="abort send()"><code>send()</code> algorithm
-   is aborted</dfn> the user agent <em class=ct>must</em> terminate the
-   algorithm after finishing the step it is on.
+   href="#dom-xmlhttprequest-open"><code>open()</code></a> or <a
+   href="#dom-xmlhttprequest-abort"><code>abort()</code></a> method is
+   invoked. When the <dfn id=abort-send-algorithm title="abort
+   send()"><code>send()</code> algorithm is aborted</dfn> the user agent <em
+   class=ct>must</em> terminate the algorithm after finishing the step it is
+   on.
 
   <p class=note>The <code title="">send()</code> algorithm can only be
    aborted when the <a href="#asynchronous-flag">asynchronous flag</a> is
@@ -1178,17 +1200,17 @@ X-Test: one, two
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using <a
-     href="#setrequestheader"><code>setRequestHeader()</code></a> whose value
-     is a <a href="#valid-mime-type">valid MIME type</a> and has a
-     <code>charset</code> parameter whose value is not a case-insensitive
+     href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
+     whose value is a <a href="#valid-mime-type">valid MIME type</a> and has
+     a <code>charset</code> parameter whose value is not a case-insensitive
      match for <var>encoding</var>, and <var>encoding</var> is not null, set
      all the <code>charset</code> parameters of the <code>Content-Type</code>
      header to <var>encoding</var>.</p>
 
     <p>If no <code>Content-Type</code> header has been set using <a
-     href="#setrequestheader"><code>setRequestHeader()</code></a> and
-     <var>mime type</var> is not null set a <code>Content-Type</code> request
-     header with as value <var>mime type</var>.</p>
+     href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
+     and <var>mime type</var> is not null set a <code>Content-Type</code>
+     request header with as value <var>mime type</var>.</p>
     <!-- reminder: if we ever change this to always include charset it has
     to be included as the first parameter for compatibility reasons -->
     
@@ -1216,8 +1238,9 @@ X-Test: one, two
        historical reasons.</p>
 
      <li>
-      <p>Return the <a href="#send"><code>send()</code></a> method call, but
-       continue running the steps in this algorithm.
+      <p>Return the <a
+       href="#dom-xmlhttprequest-send"><code>send()</code></a> method call,
+       but continue running the steps in this algorithm.
     </ol>
 
    <li>
@@ -1246,7 +1269,8 @@ X-Test: one, two
          which is counter to the whole idea of doing things synchronous.
         -->
       
-      <p class=note>The <a href="#send"><code>send()</code></a> method call
+      <p class=note>The <a
+       href="#dom-xmlhttprequest-send"><code>send()</code></a> method call
        will now be returned by virtue of this algorithm ending.</p>
 
      <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
@@ -1300,8 +1324,8 @@ X-Test: one, two
    password. [<cite><a href="#ref-rfc2617">RFC2617</a></cite>]
 
   <p class=note>End users are not prompted if username/password are provided
-   through the <a href="#open"><code>open()</code></a> API so that authors
-   can implement their own user interface.
+   through the <a href="#dom-xmlhttprequest-open"><code>open()</code></a> API
+   so that authors can implement their own user interface.
 
   <hr>
 
@@ -1315,8 +1339,8 @@ X-Test: one, two
 
   <p>If the user agent implements a HTTP cache it <em class=ct>should</em>
    respect <code>Cache-Control</code> request headers set by the <a
-   href="#setrequestheader"><code>setRequestHeader()</code></a> (e.g.,
-   <code>Cache-Control: no-cache</code> bypasses the cache). It <em
+   href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
+   (e.g., <code>Cache-Control: no-cache</code> bypasses the cache). It <em
    class=ct>must not</em> send <code>Cache-Control</code> or
    <code>Pragma</code> request headers automatically unless the end user
    explicitly requests such behavior (e.g. by (force-)reloading the page).
@@ -1325,8 +1349,8 @@ X-Test: one, two
    agent generated conditional request the user agent <em class=ct>must</em>
    act as if the server gave a <code>200 OK</code> response with the
    appropriate content. The user agent <em class=ct>must</em> allow <a
-   href="#setrequestheader"><code>setRequestHeader()</code></a> to override
-   automatic cache validation by setting request headers (e.g.
+   href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
+   to override automatic cache validation by setting request headers (e.g.
    <code>If-None-Match</code> or <code>If-Modified-Since</code>), in which
    case <code>304 Not Modified</code> responses <em class=ct>must</em> be
    passed through. [<cite><a href="#rfc-rfc2616">RFC2616</a></cite>]
@@ -1343,17 +1367,17 @@ X-Test: one, two
    <li>
     <p>Both headers <em class=ct>must not</em> be modified if they are
      already set through <a
-     href="#setrequestheader"><code>setRequestHeader()</code></a>.
+     href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>.
 
    <li>
     <p>If not set through <a
-     href="#setrequestheader"><code>setRequestHeader()</code></a>
+     href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
      <code>Accept-Language</code> <em class=ct>should</em> be set as
      appropriate.
 
    <li>
     <p>If not set through <a
-     href="#setrequestheader"><code>setRequestHeader()</code></a>
+     href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>
      <code>Accept</code> <em class=ct>must</em> be set with as value
      <code>*/*</code>.
   </ul>
@@ -1367,8 +1391,8 @@ X-Test: one, two
    user agents <em class=ct>should not</em> include additional request
    headers other than those mentioned above or other than those authors are
    not allowed to set using <a
-   href="#setrequestheader"><code>setRequestHeader()</code></a>. This ensures
-   that authors have a reasonably predictable API.
+   href="#dom-xmlhttprequest-setrequestheader"><code>setRequestHeader()</code></a>.
+   This ensures that authors have a reasonably predictable API.
 
   <h4 id=infrastructure-for-the-send-method><span class=secno>3.6.4.
    </span>Infrastructure for the <code title="">send()</code> method</h4>
@@ -1500,7 +1524,8 @@ X-Test: one, two
   </ol>
 
   <p class=note>A future version of this specification will dispatch an
-   <code>error</code>/<a href="#abort"><code>abort</code></a> event here as
+   <code>error</code>/<a
+   href="#dom-xmlhttprequest-abort"><code>abort</code></a> event here as
    well. (Depending on the type of error.)
 
   <hr>
@@ -1550,9 +1575,9 @@ X-Test: one, two
   <h4 id=the-abort-method><span class=secno>3.6.5. </span>The <code
    title="">abort()</code> method</h4>
 
-  <p>When the <dfn id=abort><code>abort()</code></dfn> method is invoked, the
-   user agent <em class=ct>must</em> run these steps (unless otherwise
-   noted):
+  <p>When the <dfn id=dom-xmlhttprequest-abort><code>abort()</code></dfn>
+   method is invoked, the user agent <em class=ct>must</em> run these steps
+   (unless otherwise noted):
 
   <ol>
    <li>
@@ -1618,8 +1643,8 @@ X-Test: one, two
   <h4 id=the-status-attribute><span class=secno>3.7.1. </span>The <code
    title="">status</code> attribute</h4>
 
-  <p>The <dfn id=status><code>status</code></dfn> attribute <em
-   class=ct>must</em> return the result of running these steps:
+  <p>The <dfn id=dom-xmlhttprequest-status><code>status</code></dfn>
+   attribute <em class=ct>must</em> return the result of running these steps:
 
   <ol>
    <li>
@@ -1638,8 +1663,8 @@ X-Test: one, two
   <h4 id=the-statustext-attribute><span class=secno>3.7.2. </span>The <code
    title="">statusText</code> attribute</h4>
 
-  <p>The <dfn id=statustext><code>statusText</code></dfn> attribute <em
-   class=ct>must</em> return the result of running these steps:
+  <p>The <dfn id=dom-xmlhttprequest-statustext><code>statusText</code></dfn>
+   attribute <em class=ct>must</em> return the result of running these steps:
 
   <ol>
    <li>
@@ -1658,7 +1683,7 @@ X-Test: one, two
   <h4 id=the-getresponseheader-method><span class=secno>3.7.3. </span>The
    <code title="">getResponseHeader()</code> method</h4>
 
-  <p>When the <dfn id=getresponseheader
+  <p>When the <dfn id=dom-xmlhttprequest-getresponseheader
    title=getresponseheader><code>getResponseHeader(<var>header</var>)</code></dfn>
    is invoked, the user agent <em class=ct>must</em> run these steps:
 
@@ -1725,8 +1750,9 @@ client.onreadystatechange = function() {
    <code title="">getAllResponseHeaders()</code> method</h4>
 
   <p>When the <dfn
-   id=getallresponseheaders><code>getAllResponseHeaders()</code></dfn> method
-   is invoked, the user agent <em class=ct>must</em> run the following steps:
+   id=dom-xmlhttprequest-getallresponseheaders><code>getAllResponseHeaders()</code></dfn>
+   method is invoked, the user agent <em class=ct>must</em> run the following
+   steps:
 
   <ol>
    <li>
@@ -1803,8 +1829,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    have an entity body the response entity body is null.
 
   <p class=note>The <a href="#response-entity-body">response entity body</a>
-   is updated as part of the <a href="#send"><code>send()</code></a>
-   algorithm.
+   is updated as part of the <a
+   href="#dom-xmlhttprequest-send"><code>send()</code></a> algorithm.
 
   <hr>
 
@@ -1923,8 +1949,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <h4 id=the-responsetext-attribute><span class=secno>3.7.6. </span>The <code
    title="">responseText</code> attribute</h4>
 
-  <p>The <dfn id=responsetext><code>responseText</code></dfn> attribute <em
-   class=ct>must</em> return the result of running these steps:
+  <p>The <dfn
+   id=dom-xmlhttprequest-responsetext><code>responseText</code></dfn>
+   attribute <em class=ct>must</em> return the result of running these steps:
 
   <ol>
    <li>
@@ -1940,8 +1967,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <h4 id=the-responsexml-attribute><span class=secno>3.7.7. </span>The <code
    title="">responseXML</code> attribute</h4>
 
-  <p>The <dfn id=responsexml><code>responseXML</code></dfn> attribute <em
-   class=ct>must</em> return the result of running these steps:
+  <p>The <dfn
+   id=dom-xmlhttprequest-responsexml><code>responseXML</code></dfn> attribute
+   <em class=ct>must</em> return the result of running these steps:
 
   <ol>
    <li>
