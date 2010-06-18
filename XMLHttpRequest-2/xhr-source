@@ -497,9 +497,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   // <a href="#response">response</a>
   readonly attribute unsigned short <span title="dom-XMLHttpRequest-status">status</span>;
   readonly attribute DOMString <span title="dom-XMLHttpRequest-statusText">statusText</span>;
-  DOMString <span>getResponseHeader</span>(DOMString <var>header</var>);
-  DOMString <span>getAllResponseHeaders</span>();<!--START xhr2-->
-  void <span>overrideMimeType</span>(DOMString <var>mime</var>);
+  DOMString <span title="dom-XMLHttpRequest-getResponseHeader">getResponseHeader</span>(DOMString <var>header</var>);
+  DOMString <span title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders</span>();<!--START xhr2-->
+  void <span title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType</span>(DOMString <var>mime</var>);
   readonly attribute ByteArray <span title="dom-XMLHttpRequest-responseBody">responseBody</span>;<!--END xhr2-->
   readonly attribute DOMString <span title="dom-XMLHttpRequest-responseText">responseText</span>;
   readonly attribute Document <span title="dom-XMLHttpRequest-responseXML">responseXML</span>;
@@ -2037,8 +2037,15 @@ X-Test: one, two
 
   <h4>The <code title="">getResponseHeader()</code> method</h4>
 
+  <dl class="domintro">
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-getResponseHeader">getResponseHeader(<var title="">header</var>)</dt>
+   <dd><p>Returns the header field value from the response of which the
+   field name matches <var title="">header</var>, unless the field name is
+   <code>Set-Cookie</code> or <code>Set-Cookie2</code>.</p></dd>
+  </dl>
+
   <p>When the
-  <dfn id="dom-xmlhttprequest-getresponseheader" title="getresponseheader"><code>getResponseHeader(<var>header</var>)</code></dfn>
+  <dfn id="dom-xmlhttprequest-getresponseheader" title="dom-XMLHttpRequest-getResponseHeader"><code>getResponseHeader(<var title="">header</var>)</code></dfn>
   is invoked, the user agent <em class="ct">must</em> run these steps:</p>
 
   <ol>
@@ -2078,8 +2085,9 @@ X-Test: one, two
 
   <!--START xhr2-->
   <p class="note">The Cross-Origin Resource Sharing specification filters
-  the headers that are exposed by <code>getResponseHeader()</code> for non
-  <span>same-origin</span> requests.
+  the headers that are exposed by
+  <code title="dom-XMLHttpRequest-getResponseHeader">getResponseHeader()</code>
+  for non <span>same-origin</span> requests.
   [<cite><span>CORS</span></cite>]</p>
   <!--END xhr2-->
 
@@ -2104,6 +2112,13 @@ client.onreadystatechange = function() {
 
 
   <h4>The <code title="">getAllResponseHeaders()</code> method</h4>
+
+  <dl class="domintro">
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders()</dt>
+   <dd><p>Returns all headers from the response, with the exception of those
+   whose field name is <code>Set-Cookie</code> or
+   <code>Set-Cookie2</code>.</p></dd>
+  </dl>
 
   <p>When the
   <dfn id="dom-xmlhttprequest-getallresponseheaders"><code>getAllResponseHeaders()</code></dfn>
@@ -2130,8 +2145,9 @@ client.onreadystatechange = function() {
 
   <!--START xhr2-->
   <p class="note">The Cross-Origin Resource Sharing specification filters
-  the headers that are exposed by <code>getAllResponseHeaders()</code> for
-  non <span>same-origin</span> requests.
+  the headers that are exposed by
+  <code title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders()</code>
+  for non <span>same-origin</span> requests.
   [<cite><span>CORS</span></cite>]</p>
   <!--END xhr2-->
 
@@ -2166,7 +2182,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   type the <code>Content-Type</code> header contains without any
   parameters or null if the header could not be parsed properly or was
   omitted. The <dfn id="override-mime-type">override MIME type</dfn> is
-  <!--START xhr1-->always null<!--END xhr1--><!--START xhr2-->initially null and can get a value if <code>overrideMimeType()</code> is
+  <!--START xhr1-->always null<!--END xhr1--><!--START xhr2-->initially null and can get a value if <code title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType()</code> is
   invoked<!--END xhr2-->. <dfn id="final-mime-type">Final MIME type</dfn> is the
   override MIME type unless that is null in which case it is the response
   MIME type.</p>
@@ -2176,7 +2192,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   or null if there was no <code>charset</code> parameter or if
   the header could not be parsed properly or was omitted. The
   <dfn id="override-charset">override charset</dfn> is <!--START xhr1-->always null<!--END xhr1--><!--START xhr2-->initially null and
-  can get a value if <code title="">overrideMimeType()</code> is invoked<!--END xhr2-->.
+  can get a value if <code title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType()</code> is invoked<!--END xhr2-->.
   <dfn id="final-charset">Final charset</dfn> is the override charset unless
   that is null in which case it is the response charset.</p>
 
@@ -2312,16 +2328,22 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <!--START xhr2-->
   <h4>The <code title="">overrideMimeType()</code> method</h4>
+  
+  <dl class="domintro">
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType(<var title="">mime</var>)</code></dt>
+   <dd><p>Sets the <code>Content-Type</code> header for the response to
+   <var title="">mime</var>.</p></dd>
+  </dl>
 
   <p>When the
-  <dfn id="dom-xmlhttprequest-overridemimetype" title="overridemimetype"><code>overrideMimeType(<var>mime</var>)</code></dfn>
-  method is invoked, the user agent <em class="ct">must</em> run the
-  following steps:</p>
+  <dfn id="dom-xmlhttprequest-overridemimetype" title="dom-XMLHttpRequest-overrideMimeType"><code>overrideMimeType(<var title="">mime</var>)</code></dfn>
+  method is invoked, the user agent <em class="ct">must</em> run these
+  steps:</p>
 
   <ol>
-   <li><p>If parsing <var>mime</var> analogously to the value of the
-   <code>Content-Type</code> headers fails raise a <code>SYNTAX_ERR</code>
-   exception and abort this algorithm.</p></li>
+   <li><p>If parsing <var title="">mime</var> analogously to the value of
+   the <code>Content-Type</code> headers fails raise a
+   <code>SYNTAX_ERR</code> exception and abort this algorithm.</p></li>
 
    <li><p>If a MIME type (without any parameters) is successfully parsed set
    <span>override MIME type</span> to that MIME type.</p></li>
@@ -2540,31 +2562,6 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;<!--END xhr2--></pre>
   DOM Level 3 Core in due course, as they are appropriate for other API
   specifications as well.</p>
 
-  <!--START xhr1-->
-  <h2 class="no-num" id="notcovered">Not in this Specification</h2>
-
-  <p><em>This section is non-normative.</em></p>
-
-  <p>This specification does not include the following features which are
-  being considered for a future version of this specification:</p>
-
-  <ul>
-   <li><code title="event-xhr-load">load</code> event and <code>onload</code> attribute;</li>
-   <li><code title="event-xhr-error">error</code> event and <code>onerror</code> attribute;</li>
-   <li><code title="event-xhr-progress">progress</code> event and <code>onprogress</code> attribute;</li>
-   <li><code title="">abort</code> event and <code>onabort</code> attribute;</li>
-   <li>Timers have been suggested, perhaps an <code>ontimeout</code>
-    attribute;</li>
-   <li>Property to disable following redirects;</li>
-   <li><code title="">responseXML</code> for <code>text/html</code>
-   documents;</li>
-   <li>Cross-origin <code title="">XMLHttpRequest</code>;</li>
-   <li><code>responseBody</code> to deal with byte streams;</li>
-   <li><code>overrideMimeType</code> to fix up MIME types;</li>
-   <li><code>getRequestHeader()</code> and
-   <code>removeRequestHeader()</code>.</li>
-  </ul>
-  <!--END xhr1-->
 
 
   <!--START xhr2-->
@@ -2582,7 +2579,11 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;<!--END xhr2--></pre>
    attribute).</p></li>
 
    <li><p>The ability to override the media type and character encoding of
-   the response through the <code>overrideMimeType()</code> method.</p></li>
+   the response through the
+   <code title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType()</code>
+   method.</p></li>
+   
+   <li><p>The ability to set a timeout for the request.</p></li>
 
    <li><p>The ability to transfer <code>Blob</code>, <code>File</code>, and
    <code>FormData</code> objects.</p></li>
