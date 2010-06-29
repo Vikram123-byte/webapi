@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 18 June 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 29 June 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100618/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100618/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100629/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100629/</a>
 
     <dt>Latest Version:
 
@@ -110,7 +110,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 18 June 2010 <!--Last Call Working Draft-->Editor's Draft of
+  <p>This is the 29 June 2010 <!--Last Call Working Draft-->Editor's Draft of
    XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -601,7 +601,6 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 [<a href="#dom-anonxmlhttprequest" title=dom-AnonXMLHttpRequest>Constructor</a>]
 interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhttprequest">XMLHttpRequest</a> {
 };</pre>
-  <!-- XXX domintro boxes; HTML5-style -->
 
   <h3 id=origin-and-base-url><span class=secno>3.1. </span>Origin and Base
    URL</h3>
@@ -896,7 +895,7 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
    <dd>True when <a href="#user-credentials">user credentials</a> are to be
     included in a cross-origin request. False when they are to be excluded in
     a cross-origin request and when cookies are to be ignored in its
-    response.
+    response. By default this is false.
 
    <dt>The <dfn id=upload-complete-flag>upload complete flag</dfn>
 
@@ -927,7 +926,32 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
      href="#request-url">request URL</a>, <a
      href="#asynchronous-flag">asynchronous flag</a>, <a
      href="#request-username">request username</a>, and <a
-     href="#request-password">request password</a>.
+     href="#request-password">request password</a>.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if one of the following is
+     true:</p>
+
+    <ul>
+     <li><var title="">method</var> is not a valid HTTP method.
+
+     <li><var title="">url</var> cannot be resolved.
+
+     <li><var title="">url</var> contains the <code>"user:password"</code>
+      format in the <a href="#userinfo"><code>userinfo</code></a> production.
+    </ul>
+
+    <p>Throws a <a href="#security-err"><code>SECURITY_ERR</code></a>
+     exception if <var title="">method</var> is a case-insensitive match for
+     <code>CONNECT</code>, <code>TRACE</code> or <code>TRACK</code>.</p>
+
+    <p>Throws a <code>NOT_SUPPORTED_ERR</code> exception if the &lt;scheme>
+     of <var title="">url</var> is not supported.</p>
+
+    <p>Throws an <code>INVALID_ACCESS_ERR</code> exception if either <var
+     title="">user</var> or <var title="">password</var> is passed as
+     argument and the <a href="#origin">origin</a> of <var title="">url</var>
+     does not match the <a
+     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>.</p>
   </dl>
 
   <p>When the <dfn id=dom-xmlhttprequest-open
@@ -1065,11 +1089,6 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
        overall set of steps.
 
      <li>
-      <p>If the syntax of <var>user</var> does not match the syntax specified
-       by the relevant authentication scheme, raise a <code>SYNTAX_ERR</code>
-       exception and terminate the overall set of steps.
-
-     <li>
       <p>If <var>user</var> is null let <var>temp user</var> be null.
 
      <li>
@@ -1090,12 +1109,6 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
        href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>
        raise an <code>INVALID_ACCESS_ERR</code> exception and terminate the
        overall set of steps.
-
-     <li>
-      <p>If the syntax of <var>password</var> does not match the syntax
-       specified by the relevant authentication scheme, raise a
-       <code>SYNTAX_ERR</code> exception and terminate the overall set of
-       steps.
 
      <li>
       <p>If <var>password</var> is null let <var>temp password</var> be null.
@@ -1183,7 +1196,15 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
      href="#author-request-headers">author request headers</a> or if the
      header is already in the <a href="#author-request-headers">author
      request headers</a> its value appended to.</p>
-    <!-- XXX should mention when it throws? -->
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
+     <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+     href="#send-flag"><code>send()</code> flag</a> is true.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if <var
+     title="">header</var> is not a valid HTTP header field name or if <var
+     title="">value</var> is not a valid HTTP header field value.</p>
   </dl>
 
   <p class=note>As indicated in the algorithm below certain headers cannot be
@@ -1287,13 +1308,12 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
      match for <code>Proxy-</code> or <code>Sec-</code> (including when
      <var>header</var> is just <code>Proxy-</code> or <code>Sec-</code>).</p>
 
-    <p class=note>The above headers are not allowed to be set as they are
-     better controlled by the user agent as it knows best what value they
-     ought to have. Header names starting with <code>Sec-</code> are not
-     allowed to be set to allow new headers to be minted in the future that
-     are guaranteed not to come from <a
-     href="#xmlhttprequest"><code>XMLHttpRequest</code></a>. (Older clients
-     would however still be vulnerable as they allow such headers to be set.)</p>
+    <p class=note>The above headers are controlled by the user agent to let
+     it control those aspects of transport. This guarantees data integrity to
+     some extent. Header names starting with <code>Sec-</code> are not
+     allowed to be set to allow new headers to be minted that are guaranteed
+     not to come from <a
+     href="#xmlhttprequest"><code>XMLHttpRequest</code></a>.</p>
 
    <li>
     <p>If <var>header</var> is not in the <a
@@ -1343,6 +1363,11 @@ X-Test: one, two
 
     <p>When set: sets the value of the <a href="#request-timeout">request
      timeout</a>.</p>
+
+    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
+     state is not <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+     href="#send-flag"><code>send()</code> flag</a> is true.</p>
   </dl>
 
   <p>The <dfn id=dom-xmlhttprequest-timeout
@@ -1386,6 +1411,14 @@ X-Test: one, two
 
     <p>When set: sets the value of the <a
      href="#credentials-flag">credentials flag</a>.</p>
+
+    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
+     state is not <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+     href="#send-flag"><code>send()</code> flag</a> is true.</p>
+
+    <p>When set: throws an <code>INVALID_ACCESS_ERR</code> exception if the
+     <a href="#anonymous-flag">anonymous flag</a> is true.</p>
   </dl>
 
   <p>The <dfn id=dom-xmlhttprequest-withcredentials
@@ -1452,9 +1485,15 @@ X-Test: one, two
 
    <dd>
     <p>Initiates the request. The optional argument provides the <a
-     href="#request-entity-body">request entity body</a>.
+     href="#request-entity-body">request entity body</a>. The argument is
+     ignored if <a href="#request-method">request method</a> is
+     <code>GET</code> or <code>HEAD</code>.</p>
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
+     <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+     href="#send-flag"><code>send()</code> flag</a> is true.</p>
   </dl>
-  <!-- XXX throws?! -->
 
   <p>When the <dfn id=dom-xmlhttprequest-send
    title=dom-XMLHttpRequest-send><code>send(<var>data</var>)</code></dfn>
@@ -1483,8 +1522,9 @@ X-Test: one, two
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>If the <span>request method is <code>GET</code> or <code>HEAD</code>
-     act as if <var>data</var> is null.</span></p>
+    <p>If the <a href="#request-method">request method</a> is a
+     case-sensitive match for <code>GET</code> or <code>HEAD</code> act as if
+     <var title="">data</var> is null.</p>
 
     <p>If the <var>data</var> argument has been omitted or is null, do not
      include a <a href="#request-entity-body">request entity body</a> and go
@@ -2764,7 +2804,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
    <dd>
     <p>Sets the <code>Content-Type</code> header for the response to <var
-     title="">mime</var>.
+     title="">mime</var>.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if <var title="">mime</var>
+     is not a valid media type.</p>
   </dl>
 
   <p>When the <dfn id=dom-xmlhttprequest-overridemimetype
@@ -2981,6 +3024,14 @@ interface <dfn id=formdata>FormData</dfn> {
 
   <h3 id=formdata-constructors><span class=secno>4.1. </span>Constructors</h3>
 
+  <dl class=domintro>
+   <dt><var title="">fd</var> = <a href="#dom-formdata"><code
+    title=dom-FormData>FormData()</code></a>
+
+   <dd>
+    <p>Returns a new <a href="#formdata"><code>FormData</code></a> object.
+  </dl>
+
   <p>When the <dfn id=dom-formdata
    title=dom-FormData><code>FormData()</code></dfn> constructor is invoked a
    new <a href="#formdata"><code>FormData</code></a> object <em
@@ -2988,6 +3039,16 @@ interface <dfn id=formdata>FormData</dfn> {
 
   <h3 id=the-append-method><span class=secno>4.2. </span>The <code
    title="">append()</code> method</h3>
+
+  <dl class=domintro>
+   <dt><var title="">fd</var> . <a href="#dom-formdata-append"><code
+    title=dom-FormData-append>append(<var title="">name</var>, <var
+    title="">value</var>)</code></a>
+
+   <dd>
+    <p>Appends a new name/value-pair to the <a
+     href="#formdata"><code>FormData</code></a> object.
+  </dl>
 
   <p>When the <dfn id=dom-formdata-append
    title=dom-FormData-append><code>append(<var>name</var>,

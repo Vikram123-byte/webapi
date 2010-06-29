@@ -484,7 +484,6 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpRequest</span> {
 };</pre>
 
-  <!-- XXX domintro boxes; HTML5-style -->
 
 
   <h3>Origin and Base URL</h3>
@@ -707,7 +706,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <dd>True when <span>user credentials</span> are to be included in a
    cross-origin request. False when they are to be excluded in a
    cross-origin request and when cookies are to be ignored in its
-   response.</dd>
+   response. By default this is false.</dd>
 
    <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events. The flag is
@@ -732,9 +731,37 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <var title="">url</var>, <var title="">async</var>, <var title="">user</var>,
    <var title="">password</var>)</code></dt>
 
-   <dd><p>Sets the <span>request method</span>, <span>request URL</span>,
-   <span>asynchronous flag</span>, <span>request username</span>, and
-   <span>request password</span>.</p></dd>
+   <dd>
+    <p>Sets the <span>request method</span>, <span>request URL</span>,
+    <span>asynchronous flag</span>, <span>request username</span>, and
+    <span>request password</span>.</p>
+   
+    <p>Throws a <code>SYNTAX_ERR</code> exception if one of the following is
+    true:</p>
+    
+    <ul>
+     <li><var title="">method</var> is not a valid HTTP method.</li>
+     <li><var title="">url</var> cannot be resolved.</li>
+     <li><var title="">url</var> contains the <code>"user:password"</code>
+     format in the <code>userinfo</code> production.</li>
+    </ul>
+    
+    <p>Throws a <code>SECURITY_ERR</code> exception if
+    <var title="">method</var> is a case-insensitive match for
+    <code>CONNECT</code>, <code>TRACE</code> or <code>TRACK</code>.</p>
+    
+    
+
+    <p>Throws a <code>NOT_SUPPORTED_ERR</code> exception if the &lt;scheme>
+    of <var title="">url</var> is not supported.</p>
+    
+    
+    <p>Throws an <code>INVALID_ACCESS_ERR</code> exception if either
+    <var title="">user</var> or <var title="">password</var> is passed as
+    argument and the <span>origin</span> of <var title="">url</var> does not
+    match the <span><code>XMLHttpRequest</code> origin</span>.</p>
+    
+   </dd>
   </dl>
 
   <p>When the
@@ -856,11 +883,6 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      of steps.</p></li>
      
 
-     <li><p>If the syntax of <var>user</var> does not match the syntax
-     specified by the relevant authentication scheme, raise a
-     <code>SYNTAX_ERR</code> exception and terminate the overall set of
-     steps.</p></li>
-
      <li><p>If <var>user</var> is null let <var>temp user</var>
      be null.</p></li>
 
@@ -883,11 +905,6 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      <code>INVALID_ACCESS_ERR</code> exception and terminate the overall set
      of steps.</p></li>
      
-
-     <li><p>If the syntax of <var>password</var> does not match the syntax
-     specified by the relevant authentication scheme, raise a
-     <code>SYNTAX_ERR</code> exception and terminate the overall set of
-     steps.</p></li>
 
      <li><p>If <var>password</var> is null let
      <var>temp password</var> be null.</p></li>
@@ -938,20 +955,26 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
 
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
   </ol>
-  
-  
+
 
 
   <h4>The <code title="">setRequestHeader()</code> method</h4>
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-setRequestHeader">setRequestHeader(<var title="">header</var>, <var title="">value</var>)</code></dt>
-   
+
    <dd>
     <p>Appends an header to the list of
     <span>author request headers</span> or if the header is already in the
     <span>author request headers</span> its value appended to.</p>
-    <!-- XXX should mention when it throws? -->
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is
+    not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if the
+    <span><code>send()</code> flag</span> is true.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if
+    <var title="">header</var> is not a valid HTTP header field name or if
+    <var title="">value</var> is not a valid HTTP header field value.</p>
    </dd>
   </dl>
 
@@ -1038,13 +1061,11 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
     match for <code>Proxy-</code> or <code>Sec-</code> (including when
     <var>header</var> is just <code>Proxy-</code> or <code>Sec-</code>).</p>
 
-    <p class="note">The above headers are not allowed to be set as they are
-    better controlled by the user agent as it knows best what value they
-    ought to have. Header names starting with <code>Sec-</code> are not
-    allowed to be set to allow new headers to be minted in the future that
-    are guaranteed not to come from <code>XMLHttpRequest</code>. (Older
-    clients would however still be vulnerable as they allow such headers to
-    be set.)</p>
+    <p class="note">The above headers are controlled by the user agent to
+    let it control those aspects of transport. This guarantees data
+    integrity to some extent. Header names starting with <code>Sec-</code>
+    are not allowed to be set to allow new headers to be minted that are
+    guaranteed not to come from <code>XMLHttpRequest</code>.</p>
    </li>
 
    <li><p>If <var>header</var> is not in the
@@ -1086,6 +1107,9 @@ X-Test: one, two
    <dd>
     <p>Returns the value of the <span>request timeout</span>.</p>
     <p>When set: sets the value of the <span>request timeout</span>.</p>
+    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
+    state is not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if
+    the <span><code>send()</code> flag</span> is true.</p>
    </dd>
   </dl>
 
@@ -1120,6 +1144,11 @@ X-Test: one, two
    <dd>
     <p>Returns the value of the <span>credentials flag</span>.</p>
     <p>When set: sets the value of the <span>credentials flag</span>.</p>
+    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
+    state is not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if
+    the <span><code>send()</code> flag</span> is true.</p>
+    <p>When set: throws an <code>INVALID_ACCESS_ERR</code> exception if the
+    <span>anonymous flag</span> is true.</p>
    </dd>
   </dl>
 
@@ -1175,10 +1204,17 @@ X-Test: one, two
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-send">send(<var title="">data</var>)</code></dt>
-   <dd><p>Initiates the request. The optional argument provides the
-   <span>request entity body</span>.</p></dd>
+   <dd>
+    <p>Initiates the request. The optional argument provides the
+    <span>request entity body</span>. The argument is ignored if
+    <span>request method</span> is <code>GET</code> or
+    <code>HEAD</code>.</p>
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is
+    not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if the
+    <span><code>send()</code> flag</span> is true.</p>
+   </dd>
   </dl>
-  <!-- XXX throws?! -->
 
   <p>When the
   <dfn id="dom-xmlhttprequest-send" title="dom-XMLHttpRequest-send"><code>send(<var>data</var>)</code></dfn>
@@ -1204,8 +1240,9 @@ X-Test: one, two
    steps.</p></li>
 
    <li>
-    <p>If the <span>request method</var> is <code>GET</code> or
-    <code>HEAD</code> act as if  <var>data</var> is null.</p>
+    <p>If the <span>request method</span> is a case-sensitive match for
+    <code>GET</code> or <code>HEAD</code> act as if <var title="">data</var>
+    is null.</p>
     
     <p>If the <var>data</var> argument has been omitted or is
     null, do not include a <span>request entity body</span>
@@ -2279,8 +2316,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType(<var title="">mime</var>)</code></dt>
-   <dd><p>Sets the <code>Content-Type</code> header for the response to
-   <var title="">mime</var>.</p></dd>
+   <dd>
+    <p>Sets the <code>Content-Type</code> header for the response to
+    <var title="">mime</var>.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if
+    <var title="">mime</var> is not a valid media type.</p>
+   </dd>
   </dl>
 
   <p>When the
@@ -2454,12 +2496,23 @@ interface <dfn>FormData</dfn> {
 
   <h3 id="formdata-constructors">Constructors</h3>
 
+  <dl class="domintro">
+   <dt><var title="">fd</var> = <code title="dom-FormData">FormData()</code></dt>
+   <dd><p>Returns a new <code>FormData</code> object.</p></dd>
+  </dl>
+
   <p>When the
   <dfn id="dom-formdata" title="dom-FormData"><code>FormData()</code></dfn>
   constructor is invoked a new <code>FormData</code> object
   <em class="ct">must</em> be returned.</p>
 
   <h3>The <code title="">append()</code> method</h3>
+
+  <dl class="domintro">
+   <dt><var title="">fd</var> . <code title="dom-FormData-append">append(<var title="">name</var>, <var title="">value</var>)</code></dt>
+   <dd><p>Appends a new name/value-pair to the <code>FormData</code>
+   object.</p></dd>
+  </dl>
 
   <p>When the
   <dfn title="dom-FormData-append" id="dom-formdata-append"><code>append(<var>name</var>, <var>value</var>)</code></dfn>

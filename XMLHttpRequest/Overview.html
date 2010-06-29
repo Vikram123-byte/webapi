@@ -40,13 +40,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 18 June 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 29 June 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100618/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100618/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100629/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100629/</a>
 
     <dt>Latest Version:
 
@@ -123,7 +123,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 18 June 2010 <!--Last Call Working Draft-->Editor's Draft of
+  <p>This is the 29 June 2010 <!--Last Call Working Draft-->Editor's Draft of
    XMLHttpRequest. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR]%20">public-webapps@w3.org</a>
    (<a
@@ -544,7 +544,6 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   readonly attribute DOMString <a href="#dom-xmlhttprequest-responsetext" title=dom-XMLHttpRequest-responseText>responseText</a>;
   readonly attribute Document <a href="#dom-xmlhttprequest-responsexml" title=dom-XMLHttpRequest-responseXML>responseXML</a>;
 };</pre>
-  <!-- XXX domintro boxes; HTML5-style -->
 
   <h3 id=origin-and-base-url><span class=secno>3.1. </span>Origin and Base
    URL</h3>
@@ -753,7 +752,31 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      href="#request-url">request URL</a>, <a
      href="#asynchronous-flag">asynchronous flag</a>, <a
      href="#request-username">request username</a>, and <a
-     href="#request-password">request password</a>.
+     href="#request-password">request password</a>.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if one of the following is
+     true:</p>
+
+    <ul>
+     <li><var title="">method</var> is not a valid HTTP method.
+
+     <li><var title="">url</var> cannot be resolved.
+
+     <li><var title="">url</var> contains the <code>"user:password"</code>
+      format in the <a href="#userinfo"><code>userinfo</code></a> production.
+    </ul>
+
+    <p>Throws a <a href="#security-err"><code>SECURITY_ERR</code></a>
+     exception if <var title="">method</var> is a case-insensitive match for
+     <code>CONNECT</code>, <code>TRACE</code> or <code>TRACK</code>.</p>
+
+    <p>Throws a <a href="#security-err"><code>SECURITY_ERR</code></a>
+     exception if the <a href="#origin">origin</a> of <var title="">url</var>
+     does not match the <a
+     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>.</p>
+
+    <p>Throws a <code>NOT_SUPPORTED_ERR</code> exception if the &lt;scheme>
+     of <var title="">url</var> is not supported.</p>
   </dl>
 
   <p>When the <dfn id=dom-xmlhttprequest-open
@@ -882,11 +905,6 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
     <ol>
      <li>
-      <p>If the syntax of <var>user</var> does not match the syntax specified
-       by the relevant authentication scheme, raise a <code>SYNTAX_ERR</code>
-       exception and terminate the overall set of steps.
-
-     <li>
       <p>If <var>user</var> is null let <var>temp user</var> be null.
 
      <li>
@@ -901,12 +919,6 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      steps:</p>
 
     <ol>
-     <li>
-      <p>If the syntax of <var>password</var> does not match the syntax
-       specified by the relevant authentication scheme, raise a
-       <code>SYNTAX_ERR</code> exception and terminate the overall set of
-       steps.
-
      <li>
       <p>If <var>password</var> is null let <var>temp password</var> be null.
 
@@ -979,9 +991,6 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      <code>readystatechange</code> event</a>.
   </ol>
 
-  <p class=note>A future version or extension of this specification will
-   define a way of doing cross-origin requests.
-
   <h4 id=the-setrequestheader-method><span class=secno>3.6.2. </span>The
    <code title="">setRequestHeader()</code> method</h4>
 
@@ -996,7 +1005,15 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      href="#author-request-headers">author request headers</a> or if the
      header is already in the <a href="#author-request-headers">author
      request headers</a> its value appended to.</p>
-    <!-- XXX should mention when it throws? -->
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
+     <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+     href="#send-flag"><code>send()</code> flag</a> is true.</p>
+
+    <p>Throws a <code>SYNTAX_ERR</code> exception if <var
+     title="">header</var> is not a valid HTTP header field name or if <var
+     title="">value</var> is not a valid HTTP header field value.</p>
   </dl>
 
   <p class=note>As indicated in the algorithm below certain headers cannot be
@@ -1090,13 +1107,12 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      match for <code>Proxy-</code> or <code>Sec-</code> (including when
      <var>header</var> is just <code>Proxy-</code> or <code>Sec-</code>).</p>
 
-    <p class=note>The above headers are not allowed to be set as they are
-     better controlled by the user agent as it knows best what value they
-     ought to have. Header names starting with <code>Sec-</code> are not
-     allowed to be set to allow new headers to be minted in the future that
-     are guaranteed not to come from <a
-     href="#xmlhttprequest"><code>XMLHttpRequest</code></a>. (Older clients
-     would however still be vulnerable as they allow such headers to be set.)</p>
+    <p class=note>The above headers are controlled by the user agent to let
+     it control those aspects of transport. This guarantees data integrity to
+     some extent. Header names starting with <code>Sec-</code> are not
+     allowed to be set to allow new headers to be minted that are guaranteed
+     not to come from <a
+     href="#xmlhttprequest"><code>XMLHttpRequest</code></a>.</p>
 
    <li>
     <p>If <var>header</var> is not in the <a
@@ -1141,9 +1157,15 @@ X-Test: one, two
 
    <dd>
     <p>Initiates the request. The optional argument provides the <a
-     href="#request-entity-body">request entity body</a>.
+     href="#request-entity-body">request entity body</a>. The argument is
+     ignored if <a href="#request-method">request method</a> is
+     <code>GET</code> or <code>HEAD</code>.</p>
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
+     <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+     href="#send-flag"><code>send()</code> flag</a> is true.</p>
   </dl>
-  <!-- XXX throws?! -->
 
   <p>When the <dfn id=dom-xmlhttprequest-send
    title=dom-XMLHttpRequest-send><code>send(<var>data</var>)</code></dfn>
@@ -1172,8 +1194,9 @@ X-Test: one, two
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>If the <span>request method is <code>GET</code> or <code>HEAD</code>
-     act as if <var>data</var> is null.</span></p>
+    <p>If the <a href="#request-method">request method</a> is a
+     case-sensitive match for <code>GET</code> or <code>HEAD</code> act as if
+     <var title="">data</var> is null.</p>
 
     <p>If the <var>data</var> argument has been omitted or is null, do not
      include a <a href="#request-entity-body">request entity body</a> and go
