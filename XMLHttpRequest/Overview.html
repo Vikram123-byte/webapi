@@ -778,14 +778,15 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      exception if <var title="">method</var> is a case-insensitive match for
      <code>CONNECT</code>, <code>TRACE</code> or <code>TRACK</code>.</p>
 
-    <p>Throws a <a href="#security-err"><code>SECURITY_ERR</code></a>
-     exception if the <a href="#origin">origin</a> of <var title="">url</var>
-     does not match the <a
-     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>.</p>
-
     <p>Throws a <code>NOT_SUPPORTED_ERR</code> exception if the <a
      href="#url-scheme"><code>&lt;scheme></code></a> of <var
      title="">url</var> is not supported.</p>
+
+    <p>Throws an <code>INVALID_ACCESS_ERR</code> exception if either <var
+     title="">user</var> or <var title="">password</var> is passed as
+     argument and the <a href="#origin">origin</a> of <var title="">url</var>
+     does not match the <a
+     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>.</p>
   </dl>
 
   <p>When the <dfn id=dom-xmlhttprequest-open
@@ -900,41 +901,44 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
      format let <var>temp user</var> be the user part.
 
    <li>
-    <p>If the <a href="#origin">origin</a> of <var title="">url</var> is not
-     <a href="#same-origin">same origin</a> with the <a
-     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>
-     raise a <a href="#security-err"><code>SECURITY_ERR</code></a> exception
-     and terminate these steps.
-
-   <li>
     <p>Let <var>async</var> be the value of the <var>async</var> argument or
      true if it was omitted.
 
    <li>
-    <p>If the <var>user</var> argument was not omitted follow these sub
-     steps:</p>
+    <p>If the <var title="">user</var> argument was not omitted follow these
+     sub steps:</p>
 
     <ol>
      <li>
-      <p>If <var>user</var> is null let <var>temp user</var> be null.
+      <p>If <var title="">user</var> is not null and the <a
+       href="#origin">origin</a> of <var title="">url</var> is not <a
+       href="#same-origin">same origin</a> with the <a
+       href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>
+       raise an <code>INVALID_ACCESS_ERR</code> exception and terminate the
+       overall set of steps.
 
      <li>
-      <p>Otherwise let <var>temp user</var> be <var>user</var>.
+      <p>Let <var>temp user</var> be <var>user</var>.
     </ol>
 
     <p class=note>These steps override anything that may have been set by the
      <var title="">url</var> argument.</p>
 
    <li>
-    <p>If the <var>password</var> argument was not omitted follow these sub
-     steps:</p>
+    <p>If the <var title="">password</var> argument was not omitted follow
+     these sub steps:</p>
 
     <ol>
      <li>
-      <p>If <var>password</var> is null let <var>temp password</var> be null.
+      <p>If <var title="">password</var> is not null and the <a
+       href="#origin">origin</a> of <var title="">url</var> is not <a
+       href="#same-origin">same origin</a> with the <a
+       href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>
+       raise an <code>INVALID_ACCESS_ERR</code> exception and terminate the
+       overall set of steps.
 
      <li>
-      <p>Otherwise let <var>temp password</var> be <var>password</var>.
+      <p>Let <var>temp password</var> be <var>password</var>.
     </ol>
 
     <p class=note>These steps override anything that may have been set by the
@@ -1307,48 +1311,63 @@ X-Test: one, two
     </ol>
 
    <li>
-    <p><a href="#fetch">Fetch</a> the <a href="#request-url">request URL</a>
-     from <i title="">origin</i> <a
-     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>,
-     with the <i title="">synchronous flag</i> set if the <a
-     href="#asynchronous-flag">asynchronous flag</a> is false, using HTTP
-     method <a href="#request-method">request method</a>, user <a
-     href="#request-username">request username</a> (if non-null) and password
-     <a href="#request-password">request password</a> (if non-null), taking
-     into account the <a href="#request-entity-body">request entity body</a>,
-     list of <a href="#author-request-headers">author request headers</a> and
-     the rules listed at the end of this section.</p>
-
     <dl class=switch>
-     <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+     <dt>If the <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+      origin</a> and the <a href="#request-url">request URL</a> are <a
+      href="#same-origin">same origin</a>
 
      <dd>
-      <p>While making the request also follow the <a
-       href="#same-origin-request-event-rules">same-origin request event
-       rules</a>.</p>
-      <!--
+      <p>These are the <dfn id=same-origin-request-steps>same-origin request
+       steps</dfn>.</p>
+
+      <p><a href="#fetch">Fetch</a> the <a href="#request-url">request
+       URL</a> from <i title="">origin</i> <a
+       href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a>,
+       with the <i title="">synchronous flag</i> set if the <a
+       href="#asynchronous-flag">asynchronous flag</a> is false, using HTTP
+       method <a href="#request-method">request method</a>, user <a
+       href="#request-username">request username</a> (if non-null) and
+       password <a href="#request-password">request password</a> (if
+       non-null), taking into account the <a
+       href="#request-entity-body">request entity body</a>, list of <a
+       href="#author-request-headers">author request headers</a> and the
+       rules listed at the end of this section.</p>
+
+      <dl class=switch>
+       <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
+
+       <dd>
+        <p>While making the request also follow the <a
+         href="#same-origin-request-event-rules">same-origin request event
+         rules</a>.</p>
+        <!--
          This cannot involve any task queue whatsoever because that would
          mean other tasks on the task queue might get processed as well
          which is counter to the whole idea of doing things synchronous.
         -->
-      
-      <p class=note>The <a href="#dom-xmlhttprequest-send"><code
-       title=dom-XMLHttpRequest-send>send()</code></a> method call will now
-       be returned by virtue of this algorithm ending.</p>
+        
+        <p class=note>The <a href="#dom-xmlhttprequest-send"><code
+         title=dom-XMLHttpRequest-send>send()</code></a> method call will now
+         be returned by virtue of this algorithm ending.</p>
 
-     <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
+       <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
+
+       <dd>
+        <p>While processing the request, as data becomes available and when
+         the user interferes with the request, <a href="#queue-a-task"
+         title="queue a task">queue tasks</a> to update the <a
+         href="#response-entity-body">response entity body</a> and follow the
+         <a href="#same-origin-request-event-rules">same-origin request event
+         rules</a>.</p>
+      </dl>
+
+     <dt>Otherwise
 
      <dd>
-      <p><span>Make progress notifications</span>.</p>
+      <p>These are the <dfn id=cross-origin-request-steps>cross-origin
+       request steps</dfn>.</p>
 
-      <p><span>Make upload progress notifications</span>.</p>
-
-      <p>While processing the request, as data becomes available and when the
-       user interferes with the request, <a href="#queue-a-task" title="queue
-       a task">queue tasks</a> to update the <a
-       href="#response-entity-body">response entity body</a> and follow the
-       <a href="#same-origin-request-event-rules">same-origin request event
-       rules</a>.</p>
+      <p>This is a <a href="#network-error">network error</a>.</p>
     </dl>
   </ol>
 
@@ -1471,16 +1490,35 @@ X-Test: one, two
    <dt>If the response has an HTTP status code of 301, 302, 303, or 307
 
    <dd>
-    <p>If the <a href="#origin">origin</a> of the <a href="#url">URL</a>
-     conveyed by the <code title=http-location>Location</code> header is <a
-     href="#same-origin">same origin</a> with the <a
-     href="#xmlhttprequest-origin"><code>XMLHttpRequest</code> origin</a> and
-     the redirect does not violate infinite loop precautions, transparently
-     follow the redirect while observing the <a
-     href="#same-origin-request-event-rules">same-origin request event
-     rules</a>.</p>
+    <p>If the redirect violates infinite loop precautions this is a <a
+     href="#network-error">network error</a>.</p>
 
-    <p>Otherwise, this is a <a href="#network-error">network error</a>.</p>
+    <p>Otherwise, run these steps:</p>
+
+    <ol>
+     <li>
+      <p>Set the <a href="#request-url">request URL</a> to the <a
+       href="#url">URL</a> conveyed by the <code>Location</code> header.
+
+     <li>
+      <p>If the <a href="#url-scheme"><code>&lt;scheme></code></a> of <a
+       href="#request-url">request URL</a> is not supported this is a <a
+       href="#network-error">network error</a>. Terminate the steps for this
+       algorithm if that is the case.
+
+     <li>
+      <p>If the <a href="#xmlhttprequest-origin"><code>XMLHttpRequest</code>
+       origin</a> and the <a href="#origin">origin</a> of <a
+       href="#request-url">request URL</a> are <a href="#same-origin">same
+       origin</a> transparently follow the redirect while observing the <a
+       href="#same-origin-request-event-rules">same-origin request event
+       rules</a>.
+
+     <li>
+      <p>Otherwise, follow the <a
+       href="#cross-origin-request-steps">cross-origin request steps</a> and
+       terminate the steps for this algorithm.
+    </ol>
 
     <p class=note>HTTP places requirements on the user agent regarding the
      preservation of the <a href="#request-method">request method</a> and <a
