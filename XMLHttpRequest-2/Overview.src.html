@@ -458,11 +458,12 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   void <span title="dom-XMLHttpRequest-open">open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
   void <span title="dom-XMLHttpRequest-setRequestHeader">setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);
            attribute unsigned long <span title="dom-XMLHttpRequest-timeout">timeout</span>;
+           attribute boolean <span title="dom-XMLHttpRequest-asBlob">asBlob</span>;
            attribute boolean <span title="dom-XMLHttpRequest-withCredentials">withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span title="dom-XMLHttpRequest-upload">upload</span>;
   void <span title="dom-XMLHttpRequest-send">send</span>();
   void <span title="dom-XMLHttpRequest-send">send</span>(<span>Blob</span> <var>data</var>);
-  void <span title="dom-XMLHttpRequest-send">send</span>(Document <var>data</var>);
+  void <span title="dom-XMLHttpRequest-send">send</span>(<span>Document</span> <var>data</var>);
   void <span title="dom-XMLHttpRequest-send">send</span>([AllowAny] DOMString? <var>data</var>);
   void <span title="dom-XMLHttpRequest-send">send</span>(<span>FormData</span> <var>data</var>);
   void <span title="dom-XMLHttpRequest-abort">abort</span>();
@@ -474,8 +475,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   DOMString <span title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders</span>();
   void <span title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType</span>(DOMString <var>mime</var>);
   readonly attribute ByteArray <span title="dom-XMLHttpRequest-responseBody">responseBody</span>;
+  readonly attribute <span>Blob</span> <span title="dom-XMLHttpRequest-responseBlob">responseBlob</span>;
   readonly attribute DOMString <span title="dom-XMLHttpRequest-responseText">responseText</span>;
-  readonly attribute Document <span title="dom-XMLHttpRequest-responseXML">responseXML</span>;
+  readonly attribute <span>Document</span> <span title="dom-XMLHttpRequest-responseXML">responseXML</span>;
 };
 
 [<span title="dom-AnonXMLHttpRequest">Constructor</span>]
@@ -698,13 +700,18 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    
    <dt>The <dfn>request timeout</dfn></dt>
    <dd>The amount of milliseconds a request can take before being
-   terminated.</dd>
+   terminated. Initially zero.</dd>
+
+   <dt>The <dfn>as blob flag</dfn></dt>
+   <dd>Either true or false. When true
+   <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code> can be
+   used. Initially false.</dd>
 
    <dt>The <dfn>credentials flag</dfn></dt>
    <dd>True when <span>user credentials</span> are to be included in a
    cross-origin request. False when they are to be excluded in a
    cross-origin request and when cookies are to be ignored in its
-   response.</dd>
+   response. Initially false.</dd>
 
    <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events. The flag is
@@ -915,7 +922,9 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      <li><p>Empty the list of <span>author request headers</span>.</p>
 
      
-     <li><p>Set the <span>request timeout</span> to 0.</p></li>
+     <li><p>Set the <span>request timeout</span> to zero.</p></li>
+
+     <li><p>Set the <span>as blob flag</span> to false.</p></li>
 
      <li><p>Set the <span>credentials flag</span> to false.</p></li>
      
@@ -1111,6 +1120,44 @@ X-Test: one, two
   <p>On getting, the <code title="dom-XMLHttpRequest-timeout">timeout</code>
   attribute <em class="ct">must</em> return the value of the
   <span>request timeout</span>.</p>
+
+
+  <h4>The <code title="">asBlob</code> attribute</h4>
+
+  <dl class="domintro">
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-asBlob">asBlob</code></dt>
+   <dd>
+    <p>Returns the value of the <span>as blob flag</span>.</p>
+    <p>When set: sets the value of the <span>as blob flag</span>.</p>
+    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
+    state is not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if
+    the <span><code>send()</code> flag</span> is true.</p>
+   </dd>
+  </dl>
+
+  <p>The
+  <dfn id="dom-xmlhttprequest-asblob" title="dom-XMLHttpRequest-asBlob"><code>asBlob</code></dfn>
+  attribute controls the <span>as blob flag</span>.</p>
+
+  <p>On setting the <code title="dom-XMLHttpRequest-asBlob">asBlob</code>
+  attribute these steps <em class="ct">must</em> be run:</p>
+
+  <ol>
+   <li><p>If the state is not
+   <span title="dom-XMLHttpRequest-OPENED">OPENED</span> raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the <span><code>send()</code> flag</span> is true raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>Set the <span>as blob flag</span> to the given value.</p></li>
+  </ol>
+
+  <p>On getting the <code title="dom-XMLHttpRequest-asBlob">asBlob</code>
+  attribute it <em class="ct">must</em> return the value of the
+  <span>as blob flag</span>.</p>
 
 
   <h4>The <code title="">withCredentials</code> attribute</h4>
@@ -2321,7 +2368,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseBody">responseBody</code></dt>
-   <dd><p>Returns the <span>response entity body</span>.</p></dd>
+   <dd>
+    <p>Returns the <span>response entity body</span>.</p>
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
+    <span>as blob flag</span> is true.</p>
+   </dd>
   </dl>
 
   <p class="XXX">Waiting for ECMAScript.</p>
@@ -2332,11 +2383,47 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   steps:</p>
 
   <ol>
-   <li><p>If the state is not <span title="dom-XMLHttpRequest-LOADING">LOADING</span> or
-   <span title="dom-XMLHttpRequest-DONE">DONE</span> return null and terminate these
+   <li><p>If the <span>as blob flag</span> is true raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
+   <li><p>If the state is not
+   <span title="dom-XMLHttpRequest-LOADING">LOADING</span> or
+   <span title="dom-XMLHttpRequest-DONE">DONE</span> return null and
+   terminate these steps.</p></li>
+
    <li><p>Return a <code>ByteArray</code> object representing the
+   <span>response entity body</span> or return null if the
+   response entity body is null.</p></li>
+  </ol>
+
+
+  <h4>The <code title="">responseBlob</code> attribute</h4>
+
+  <dl class="domintro">
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code></dt>
+   <dd>
+    <p>Returns the <span>response entity body</span>.</p>
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
+    <span>as blob flag</span> is false.</p>
+   </dd>
+  </dl>
+
+  <p>The
+  <dfn id="dom-xmlhttprequest-responseblob" title="dom-XMLHttpRequest-responseBlob"><code>responseBlob</code></dfn>
+  attribute <em class="ct">must</em> return the result of running these
+  steps:</p>
+
+  <ol>
+   <li><p>If the <span>as blob flag</span> is false raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+
+   <li><p>If the state is not
+   <span title="dom-XMLHttpRequest-DONE">DONE</span> return null and
+   terminate these steps.</p></li>
+
+   <li><p>Return a <code>Blob</code> object representing the
    <span>response entity body</span> or return null if the
    response entity body is null.</p></li>
   </ol>
@@ -2347,7 +2434,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseText">responseText</code></dt>
-   <dd><p>Returns the <span>text response entity body</span>.</p></dd>
+   <dd>
+    <p>Returns the <span>text response entity body</span>.</p>
+    
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
+    <span>as blob flag</span> is true.</p>
+    
+   </dd>
   </dl>
 
   <p>The
@@ -2356,6 +2449,12 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   steps:</p>
 
   <ol>
+   
+   <li><p>If the <span>as blob flag</span> is true raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+   
+
    <li><p>If the state is not <span title="dom-XMLHttpRequest-LOADING">LOADING</span> or
    <span title="dom-XMLHttpRequest-DONE">DONE</span> return the empty string and
    terminate these steps.</p></li>
@@ -2368,7 +2467,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseXML">responseXML</code></dt>
-   <dd><p>Returns the <span>document response entity body</span>.</p></dd>
+   <dd>
+    <p>Returns the <span>document response entity body</span>.</p>
+    
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
+    <span>as blob flag</span> is true.</p>
+    
+   </dd>
   </dl>
 
 
@@ -2378,6 +2483,12 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   steps:</p>
 
   <ol>
+   
+   <li><p>If the <span>as blob flag</span> is true raise an
+   <code>INVALID_STATE_ERR</code> exception and terminate these
+   steps.</p></li>
+   
+
    <li><p>If the state is not <span title="dom-XMLHttpRequest-DONE">DONE</span> return
    null and terminate these steps.</p></li>
 
@@ -2547,6 +2658,10 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
   <ul>
    <li><p>The ability to make cross-origin requests.</p></li>
 
+   <li><p>The ability to make anonymous requests &mdash;
+   <code>Referer</code>, origin, and credentials are not part of the
+   request.</p></li>
+
    <li><p>The ability to register for progress events. Both for downloads
    (put listeners on the <code>XMLHttpRequest</code> object itself) and
    uploads (put listeners on the <code>XMLHttpRequestUpload</code> object,
@@ -2563,7 +2678,11 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <li><p>The ability to transfer <code>Blob</code>, <code>File</code>, and
    <code>FormData</code> objects.</p></li>
 
-   <li><p class="XXX">byte streams</p></li>
+   <li><p>The <code title="dom-XMLHttpRequest-asBlob">asBlob</code> and
+   <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code>
+   attributes for streaming large amounts of data to the client.</p></li>
+
+   <li><p class="XXX">responseBody</p></li>
   </ul>
   
 
