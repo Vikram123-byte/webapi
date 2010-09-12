@@ -35,14 +35,14 @@
   <div class="head">
    <p><a href="http://www.w3.org/"><img height="48" width="72" alt="W3C" src="http://www.w3.org/Icons/w3c_home"></a></p>
 
-
+   
    <h1 class="head" id="xmlhttprequest-level-2">XMLHttpRequest Level 2</h1>
 
    <h2 class="no-num no-toc" id="w3c-doctype">[LONGSTATUS] [DATE: 3 August 2002]</h2>
 
    <dl>
     <dt>This Version:</dt>
-    <dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/WD-XMLHttpRequest2-[CDATE]/</a></dd>
+    <dd><a href="[VERSION]/">http://www.w3.org/TR/[YEAR]/ED-XMLHttpRequest2-[CDATE]/</a></dd>
 
     <dt>Latest Version:</dt>
     <dd><a href="http://www.w3.org/TR/XMLHttpRequest2/">http://www.w3.org/TR/XMLHttpRequest2/</a></dd>
@@ -51,12 +51,12 @@
     <dd><a href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/">http://dev.w3.org/2006/webapi/XMLHttpRequest-2/</a></dd>
 
     <dt>Previous Versions:</dt>
-
-
+    
+    
     <dd><a href="http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/">http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/</a></dd>
     <dd><a href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080930/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080930/</a></dd>
     <dd><a href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/</a></dd>
-
+    
 
     <dt>Editor:</dt>
     <dd><a href="http://annevankesteren.nl/">Anne van Kesteren</a>
@@ -81,13 +81,13 @@
 
   <h2 class="no-num no-toc" id="specabstract">Abstract</h2>
 
-
+  
   <p>The XMLHttpRequest Level 2 specification enhances the
   <code title="">XMLHttpRequest</code> object with new features, such as
   cross-origin requests, progress events, and the handling of byte streams
   for both sending and receiving.</p>
-
-
+  
+  
 
   <h2 class="no-num no-toc" id="sotd">Status of this Document</h2>
 
@@ -103,7 +103,7 @@
   (<a href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
   with <samp>[XHR2]</samp> at the start of the subject line.</p>
 
-
+  
 
   <p>This document is produced by the
   <a href="http://www.w3.org/2008/webapps/">Web Applications</a> (WebApps) Working Group.
@@ -129,7 +129,7 @@
   obsoleted by other documents at any time. It is inappropriate to cite this
   document as other than work in progress.</p>
 
-
+  
 
 
   <h2 class="no-num no-toc" id="toc">Table of Contents</h2>
@@ -161,22 +161,21 @@
    <p>Some simple code to do something with data from an XML document
    fetched over the network:</p>
 
-   <pre><code>function test(data) {
+   <pre><code>function processData(data) {
  // taking care of data
 }
 
 function handler() {
- if(this.readyState == 4 &amp;&amp; this.status == 200) {
-  // so far so good
-  if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').firstChild.data)
-     // success!
-   test(this.responseXML.getElementById('test').firstChild.data);
-  else
-   test(null);
- } else if (this.readyState == 4 &amp;&amp; this.status != 200) {
-  // fetched the wrong page or network error...
-  test(null);
- }
+  if(this.readyState == 4 &amp;&amp; this.status == 200) {
+    // so far so good
+    if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
+      // success!
+      processData(this.responseXML.getElementById('test').textContent);
+      return;
+    }
+  }
+  // something went wrong
+  processData(null);
 }
 
 var client = new XMLHttpRequest();
@@ -187,23 +186,23 @@ client.send();</code></pre>
    <p>If you just want to log a message to the server:</p>
 
    <pre><code>function log(message) {
- var client = new XMLHttpRequest();
- client.open("POST", "/log");
- client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
- client.send(message);
+  var client = new XMLHttpRequest();
+  client.open("POST", "/log");
+  client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+  client.send(message);
 }</code></pre>
 
    <p>Or if you want to check the status of a document on the server:</p>
 
    <pre><code>function fetchStatus(address) {
- var client = new XMLHttpRequest();
- client.onreadystatechange = function() {
-  // in case of network errors this might not give reliable results
-  if(this.readyState == 4)
-   returnStatus(this.status);
- }
- client.open("HEAD", address);
- client.send();
+  var client = new XMLHttpRequest();
+  client.onreadystatechange = function() {
+    // in case of network errors this might not give reliable results
+    if(this.readyState == 4)
+      returnStatus(this.status);
+  }
+  client.open("HEAD", address);
+  client.send();
 }</code></pre>
   </div>
 
@@ -244,12 +243,12 @@ client.send();</code></pre>
   <p>This specification relies on several underlying specifications.</p>
 
   <dl>
-
+   
    <dt>Cross-Origin Resource Sharing</dt>
    <dd><p>A <span>conforming user agent</span> <em class="ct">must</em>
    support the algorithms of the Cross-Origin Resource Sharing
    specification. [<cite><span>CORS</span></cite>]</p></dd>
-
+   
 
    <dt>DOM</dt>
    <dd><p>A <span title="conforming user agent">conforming user agent</span>
@@ -300,13 +299,13 @@ client.send();</code></pre>
   is defined by the Web IDL specification.
   [<cite><span>WebIDL</span></cite>]</p>
 
-
+  
   <p>The term <dfn>user credentials</dfn> for the purposes of this
   specification means cookies, HTTP authentication, and client-side SSL
   certificates. Specifically it does not refer to proxy authentication or
   the <code title="http-origin">Origin</code> header.
   <a href="#ref-cookies">[COOKIES]</a> <!-- XXX ref? --></p>
-
+  
 
   <p>The terms and algorithms
   <dfn id="url-fragment"><code>&lt;fragment></code></dfn>,
@@ -362,7 +361,7 @@ client.send();</code></pre>
   cancelable, and which uses the <code>Event</code> interface, is to be
   dispatched at the <code>XMLHttpRequest</code> object.</p>
 
-
+  
   <p class="XXX">To
   <dfn id="dispatch-progress-event" title="dispatch a progress event">dispatch
   a progress event called <var>e</var></dfn> means&hellip;
@@ -376,7 +375,7 @@ client.send();</code></pre>
   <p>The <dfn id="blob"><code>Blob</code></dfn> and
   <dfn id="file"><code>File</code></dfn> interfaces are defined by the
   File API specification. [<cite><span>FileAPI</span></cite>]</p>
-
+  
 
   <h3 id="extensibility">Extensibility</h3>
 
@@ -497,7 +496,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
 
   <h3 id="constructors">Constructors</h3>
 
-
+  
   <p>The <code>XMLHttpRequest</code> object has an associated
   <dfn>anonymous flag</dfn>. When set to true <span>user credentials</span>
   and the <span><code>XMLHttpRequest</code> origin</span> are not exposed
@@ -505,16 +504,16 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
   and can only be set to true by using the
   <code title="dom-AnonXMLHttpRequest">AnonXMLHttpRequest()</code>
   constructor.</p>
-
+  
 
   <dl class="domintro">
    <dt><var title="">client</var> = new <code title="dom-XMLHttpRequest">XMLHttpRequest</code>()</dt>
    <dd>Returns a new <code>XMLHttpRequest</code> object.</dd>
-
+   
    <dt><var title="">client</var> = new <code title="dom-AnonXMLHttpRequest">AnonXMLHttpRequest</code>()</dt>
    <dd>Returns a new <code>AnonXMLHttpRequest</code> object that has the
    <span>anonymous flag</span> set to true.</dd>
-
+   
   </dl>
 
   <p>When the
@@ -522,17 +521,17 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
   constructor is invoked, the user agent <em class="ct">must</em> return a
   new <code>XMLHttpRequest</code> object.</p>
 
-
+  
   <p>When the
   <dfn id="dom-anonxmlhttprequest" title="dom-AnonXMLHttpRequest"><code>AnonXMLHttpRequest()</code></dfn>
   constructor is invoked, the user agent <em class="ct">must</em> return a
   new <code>AnonXMLHttpRequest</code> object with its
   <span>anonymous flag</span> set to true.</p>
-
+  
 
   <h3 id="event-handler-attributes">Event Handler Attributes</h3>
 
-
+  
   <p>The following are the
   <span>event handler attributes</span> (and their corresponding
   <span title="event handler event type">event handler event types</span>)
@@ -568,7 +567,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      <td><dfn id="handler-xhr-onloadend" title="handler-xhr-onloadend"><code>onloadend</code></dfn>
      <td><code title="event-xhr-loadend">loadend</code>
   </table>
-
+  
 
   <p>The following is the
   <span title="event handler attributes">event handler attribute</span> (and
@@ -672,7 +671,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <dt>The <dfn>request entity body</dfn></dt>
    <dd>The <span>entity body</span> used in the request.</dd>
 
-
+   
    <dt>The <dfn>request timeout</dfn></dt>
    <dd>The amount of milliseconds a request can take before being
    terminated. Initially zero.</dd>
@@ -699,13 +698,13 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <dt>The <dfn id="upload-events-flag">upload events flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events for
    cross-origin requests. The flag is either true or false.</dd>
-
+   
   </dl>
 
-
+  
   <p>The <code>XMLHttpRequest</code> object also has an associated
   <code>XMLHttpRequestUpload</code> object.</p>
-
+  
 
 
   <h4>The <code title="">open()</code> method</h4>
@@ -900,7 +899,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
 
      <li><p>Empty the list of <span>author request headers</span>.</p>
 
-
+     
      <li><p>Set the <span>request timeout</span> to zero.</p></li>
 
      <li><p>Set the <span>as blob flag</span> to false.</p></li>
@@ -908,7 +907,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      <li><p>Set the <span>follow redirects flag</span> to true.</p></li>
 
      <li><p>Set the <span>credentials flag</span> to false.</p></li>
-
+     
 
      <li><p>Set the <span><code>send()</code> flag</span> to false.</p></li>
 
@@ -916,7 +915,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
     </ul>
    </li>
 
-   <li><p>Switch the the state to
+   <li><p>Switch the state to
    <span title="dom-XMLHttpRequest-OPENED">OPENED</span>.</p></li>
 
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
@@ -950,11 +949,11 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
   the author as indicated at the end of the
   <code title="dom-XMLHttpRequest-send">send()</code> method section.</p>
 
-
+  
   <p class="note">For non <span>same origin</span> requests using the HTTP
   <code>GET</code> method a preflight request is made when headers other
   than <code>Accept</code> and <code>Accept-Language</code> are set.</p>
-
+  
 
   <p>When the
   <dfn id="dom-xmlhttprequest-setrequestheader" title="dom-XMLHttpRequest-setRequestHeader"><code>setRequestHeader(<var title="">header</var>, <var title="">value</var>)</code></dfn>
@@ -1065,7 +1064,7 @@ X-Test: one, two
 ...</code></pre>
   </div>
 
-
+  
   <h4>The <code title="">timeout</code> attribute</h4>
 
   <dl class="domintro">
@@ -1242,7 +1241,7 @@ X-Test: one, two
   <dfn id="dom-xmlhttprequest-upload" title="dom-XMLHttpRequest-upload"><code>upload</code></dfn>
   attribute <em class="ct">must</em> return the associated
   <code>XMLHttpRequestUpload</code> object.</p>
-
+  
 
 
   <h4>The <code title="">send()</code> method</h4>
@@ -1297,7 +1296,7 @@ X-Test: one, two
     null, and then follow these rules:</p>
 
     <dl class="switch">
-
+     
      <dt>If <var>data</var> is a <code>Blob</code></dt>
 
      <dd>
@@ -1308,7 +1307,7 @@ X-Test: one, two
       <p>Let the <span>request entity body</span> be the raw data
       represented by <var>data</var>.</p>
      </dd>
-
+     
 
      <dt>If <var>data</var> is a <code>Document</code>
 
@@ -1350,7 +1349,7 @@ X-Test: one, two
       and encoded as UTF-8.</p>
      </dd>
 
-
+     
      <dt>If <var>data</var> is a <code>FormData</code></dt>
 
      <dd>
@@ -1363,7 +1362,7 @@ X-Test: one, two
       <!-- XXX sufficient? prolly not -->
       <!-- XXX need to add boundary parameter -->
      </dd>
-
+     
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using
@@ -1387,21 +1386,21 @@ X-Test: one, two
    <li><p>If the <span>asynchronous flag</span> is false release the
    <span>storage mutex</span>.</p></li>
 
-
+   
    <li><p>If the <span>asynchronous flag</span> is true and one or more
    event listeners are registered on the <code>XMLHttpRequestUpload</code>
    object set the <span>upload events flag</span> to true. Otherwise, set
    the <span>upload events flag</span> to false.</p></li>
-
+   
 
    <li><p>Set the <span>error flag</span> to false.</p></li>
 
-
+   
    <li><p>Set the <span>upload complete flag</span> to true if there is no
    <span>request entity body</span> or if the
    <span>request entity body</span> is empty. Otherwise, set the
    <span>upload complete flag</span> to false.</p></li>
-
+   
 
    <li>
     <p>If the <span>asynchronous flag</span> is true run these substeps:</p>
@@ -1416,13 +1415,13 @@ X-Test: one, two
       historical reasons.</p>
      </li>
 
-
+     
      <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-loadstart">loadstart</code>.</p></li>
 
      <li><p>If the <span>upload complete flag</span> is false
      <span>dispatch a progress event</span> called <code title="event-xhr-loadstart">loadstart</code>
      on the <code>XMLHttpRequestUpload</code> object.</p></li>
-
+     
 
      <li><p>Return the <code title="dom-XMLHttpRequest-send">send()</code>
      method call, but continue running the steps in this algorithm.</p></li>
@@ -1467,11 +1466,11 @@ X-Test: one, two
 
        <dt>If the <span>asynchronous flag</span> is true</dt>
        <dd>
-
+        
         <p><span>Make progress notifications</span>.</p>
 
         <p><span>Make upload progress notifications</span>.</p>
-
+        
 
         <p>While processing the request, as data becomes available and when
         the user interferes with the request,
@@ -1486,9 +1485,9 @@ X-Test: one, two
      <dd>
       <p>These are the <dfn>cross-origin request steps</dfn>.</p>
 
+      
 
-
-
+      
       <p>Make a <span>cross-origin request</span>, passing these as
       parameters:</p>
 
@@ -1551,7 +1550,7 @@ X-Test: one, two
         <span>cross-origin request event rules</span>.</p>
        </dd>
       </dl>
-
+      
      </dd>
     </dl>
    </li>
@@ -1705,12 +1704,12 @@ X-Test: one, two
     some type of error, such as HTTP status code 410.</p>
    </dd>
 
-
+   
    <dt>If <span>request timeout</span> is not 0 and since the request
    started the amount of milliseconds specified by
    <span>request timeout</span> has passed</dt>
    <dd><p>This is a <span>timeout error</span>.</p></dd>
-
+   
 
    <dt>Once all HTTP headers have been received, the
    <span>asynchronous flag</span> is true, and either the
@@ -1734,7 +1733,7 @@ X-Test: one, two
    <dd><p><span>Switch to the DONE state</span>.</p></dd>
   </dl>
 
-
+  
   <hr>
 
   <p>The <dfn>cross-origin request event rules</dfn> are as follows:</p>
@@ -1785,7 +1784,7 @@ X-Test: one, two
    <span>asynchronous flag</span> is false</dt>
    <dd><p><span>Switch to the DONE state</span>.</p></dd>
   </dl>
-
+  
 
   <hr>
 
@@ -1798,12 +1797,12 @@ X-Test: one, two
   <code>ABORT_ERR</code> and event
   <code title="event-xhr-abort">abort</code>.</p>
 
-
+  
   <p>When something is said to be an <dfn>timeout error</dfn> run the
   <span>request error</span> steps for exception
   <code>TIMEOUT_ERR</code> and event
   <code title="event-xhr-timeout">timeout</code>.</p>
-
+  
 
   <p>When something is said to be a <dfn>request error</dfn> for
   exception <var>exception</var> and event <var>event</var> run these
@@ -1836,7 +1835,7 @@ X-Test: one, two
     <span>asynchronous flag</span> is true.</p>
    </li>
 
-
+   
    <li><p><span>Dispatch a progress event</span> called <var>event</var>.</p></li>
 
    <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-loadend">loadend</code>.</p></li>
@@ -1856,12 +1855,12 @@ X-Test: one, two
      object.</p></li>
     </ol>
    </li>
-
+   
 
    <li><p>Terminate the overall algorithm.</p></li>
   </ol>
 
-
+  
 
   <hr>
 
@@ -1896,14 +1895,14 @@ X-Test: one, two
 
    <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
 
-
+   
    <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-load">load</code>.</p></li>
 
    <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-loadend">loadend</code>.</p></li>
-
+   
   </ol>
 
-
+  
   <hr>
 
   <p>When it is said to <dfn>make progress notifications</dfn>, while the
@@ -1944,7 +1943,7 @@ X-Test: one, two
   </ul>
 
   <!-- XXX successfully uploaded? -->
-
+  
 
 
   <h4>The <code title="">abort()</code> method</h4>
@@ -1990,7 +1989,7 @@ X-Test: one, two
 
      <li><p><span>Dispatch a <code>readystatechange</code> event</span>.</p></li>
 
-
+     
      <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-abort">abort</code>.</p></li>
 
      <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-loadend">loadend</code>.</p></li>
@@ -2009,10 +2008,10 @@ X-Test: one, two
        on the <code>XMLHttpRequestUpload</code> object.</p></li>
       </ol>
      </li>
-
+     
     </ol>
 
-
+    
    </li>
 
    <li>
@@ -2122,13 +2121,13 @@ X-Test: one, two
    <li><p>Return null.</p></li>
   </ol>
 
-
+  
   <p class="note">The Cross-Origin Resource Sharing specification filters
   the headers that are exposed by
   <code title="dom-XMLHttpRequest-getResponseHeader">getResponseHeader()</code>
   for non <span>same-origin</span> requests.
   [<cite><span>CORS</span></cite>]</p>
-
+  
 
   <div class="example">
 
@@ -2182,13 +2181,13 @@ client.onreadystatechange = function() {
    U+003A COLON U+0020 SPACE pair.</p></li>
   </ol>
 
-
+  
   <p class="note">The Cross-Origin Resource Sharing specification filters
   the headers that are exposed by
   <code title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders()</code>
   for non <span>same-origin</span> requests.
   [<cite><span>CORS</span></cite>]</p>
-
+  
 
   <div class="example">
    <p>For the following script:</p>
@@ -2197,9 +2196,9 @@ client.onreadystatechange = function() {
 client.open("GET", "narwhals-too.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 2) {
-  print(this.getAllResponseHeaders());
- }
+  if(this.readyState == 2) {
+    print(this.getAllResponseHeaders());
+  }
 }</code></pre>
 
    <p>The <code>print()</code> function will get to process something
@@ -2235,7 +2234,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <dfn id="final-charset">Final charset</dfn> is the override charset unless
   that is null in which case it is the response charset.</p>
 
-
+  
 
   <hr>
 
@@ -2330,7 +2329,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code title="">+xml</code> terminate these steps and return
    null.</li>
 
-
+   
    <li>
     <p>If <span>final MIME type</span> is <code>text/html</code> let
     <var>document</var> be a
@@ -2340,7 +2339,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     disabled and then terminate this algorithm.
     [<cite><span>HTML5</span></cite>]</p>
    </li>
-
+   
 
    <li>
     <p>Otherwise, let <var>document</var> be a
@@ -2360,7 +2359,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   </ol>
 
 
-
+  
   <h4>The <code title="">overrideMimeType()</code> method</h4>
 
   <dl class="domintro">
@@ -2455,7 +2454,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <span>response entity body</span> or return null if the
    response entity body is null.</p></li>
   </ol>
-
+  
 
 
   <h4>The <code title="">responseText</code> attribute</h4>
@@ -2464,10 +2463,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseText">responseText</code></dt>
    <dd>
     <p>Returns the <span>text response entity body</span>.</p>
-
+    
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
     <span>as blob flag</span> is true.</p>
-
+    
    </dd>
   </dl>
 
@@ -2477,11 +2476,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   steps:</p>
 
   <ol>
-
+   
    <li><p>If the <span>as blob flag</span> is true raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
-
+   
 
    <li><p>If the state is not <span title="dom-XMLHttpRequest-LOADING">LOADING</span> or
    <span title="dom-XMLHttpRequest-DONE">DONE</span> return the empty string and
@@ -2497,10 +2496,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseXML">responseXML</code></dt>
    <dd>
     <p>Returns the <span>document response entity body</span>.</p>
-
+    
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
     <span>as blob flag</span> is true.</p>
-
+    
    </dd>
   </dl>
 
@@ -2511,11 +2510,11 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   steps:</p>
 
   <ol>
-
+   
    <li><p>If the <span>as blob flag</span> is true raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
-
+   
 
    <li><p>If the state is not <span title="dom-XMLHttpRequest-DONE">DONE</span> return
    null and terminate these steps.</p></li>
@@ -2523,7 +2522,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li><p>Return the <span>document response entity body</span>.</p></li> <!-- XXX same object -->
   </ol>
 
-
+  
   <p class="note">The
   <code title="dom-XMLHttpRequest-responseXML">responseXML</code> attribute
   has XML in its name for historical reasons. It also returns HTML resources
@@ -2633,7 +2632,7 @@ interface <dfn>FormData</dfn> {
   entry with its name set to <var>name</var> and its value set to
   <var>value</var> and add it to the end of the collection the
   <code>FormData</code> object represents.</p>
-
+  
 
 
   <h2 id="exceptions">Exceptions</h2>
@@ -2666,11 +2665,11 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
   <p>The <dfn id="abort-err"><code>ABORT_ERR</code></dfn> exception is
   raised when the user aborts a request in synchronous requests.</p>
 
-
+  
   <p>The <dfn id="timeout-err"><code>TIMEOUT_ERR</code></dfn> exception is
   raised when the author specified timeout has passed before the request
   could complete in synchronous requests.</p>
-
+  
 
   <p class="note">These exceptions will be folded into an update of
   DOM Level 3 Core in due course, as they are appropriate for other API
@@ -2678,7 +2677,7 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
 
 
 
-
+  
   <h2 class="no-num" id="differences">Differences from XMLHttpRequest</h2>
 
   <p>XMLHttpRequest Level 2 adds the following new features:</p>
@@ -2712,7 +2711,7 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
 
    <li><p class="XXX">responseBody</p></li>
   </ul>
-
+  
 
 
   <h2 class="no-num" id="references">References</h2>
@@ -2724,12 +2723,12 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <dd><cite><a href="http://tools.ietf.org/html/draft-ietf-httpstate-cookie">HTTP
    State Management Mechanism</a></cite> (work in progress), A. Barth. IETF.</dd>
 
-
+   
    <dt>[<dfn id="ref-cors">CORS</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/waf/access-control/">Cross-Origin
    Resource Sharing</a></cite> (work in progress), A. van Kesteren.
    W3C.</dd>
-
+   
 
    <dt>[<dfn id="ref-dom2events">DOM2Events</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/DOM-Level-2-Events/">Document
@@ -2746,11 +2745,11 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <dd><cite><a href="http://www.ecma-international.org/publications/standards/Ecma-262.htm">ECMAScript
    Language Specification</a></cite>. ECMA.</dd>
 
-
+   
    <dt>[<dfn id="ref-fileapi">FileAPI</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/webapi/FileAPI/">File
    API</a></cite> (work in progress), A. Ranganathan. W3C.</dd>
-
+   
 
    <dt>[<dfn id="ref-html5">HTML5</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/html/wg/html5/">HTML5</a></cite>
@@ -2770,11 +2769,11 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <cite><a href="http://www.kb.cert.org/vuls/id/150227">HTTP proxy default
    configurations allow arbitrary TCP connections</a></cite>, US-CERT.</dd>
 
-
+   
    <dt>[<dfn id="ref-pe">PE</dfn>]</dt>
    <dd><cite><a href="http://www.w3.org/TR/progress-events/">Progress Events
    1.0</a></cite> (work in progress), C. McCathieNeville. W3C.</dd>
-
+   
 
    <dt>[<dfn id="ref-rfc2046">RFC2046</dfn>]</dt>
    <dd><cite><a href="http://ietf.org/rfc/rfc2046">Multipurpose Internet Mail

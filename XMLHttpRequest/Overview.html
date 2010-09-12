@@ -40,13 +40,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 3 September 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 September 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100903/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100903/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100912/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100912/</a>
 
     <dt>Latest Version:
 
@@ -129,7 +129,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 3 September 2010 <!--Last Call Working Draft-->Editor's
+  <p>This is the 12 September 2010 <!--Last Call Working Draft-->Editor's
    Draft of XMLHttpRequest. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR]%20">public-webapps@w3.org</a>
    (<a
@@ -310,22 +310,21 @@
    <p>Some simple code to do something with data from an XML document fetched
     over the network:</p>
 
-   <pre><code>function test(data) {
+   <pre><code>function processData(data) {
  // taking care of data
 }
 
 function handler() {
- if(this.readyState == 4 &amp;&amp; this.status == 200) {
-  // so far so good
-  if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').firstChild.data)
-     // success!
-   test(this.responseXML.getElementById('test').firstChild.data);
-  else
-   test(null);
- } else if (this.readyState == 4 &amp;&amp; this.status != 200) {
-  // fetched the wrong page or network error...
-  test(null);
- }
+  if(this.readyState == 4 &amp;&amp; this.status == 200) {
+    // so far so good
+    if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
+      // success!
+      processData(this.responseXML.getElementById('test').textContent);
+      return;
+    }
+  }
+  // something went wrong
+  processData(null);
 }
 
 var client = new XMLHttpRequest();
@@ -336,23 +335,23 @@ client.send();</code></pre>
    <p>If you just want to log a message to the server:</p>
 
    <pre><code>function log(message) {
- var client = new XMLHttpRequest();
- client.open("POST", "/log");
- client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
- client.send(message);
+  var client = new XMLHttpRequest();
+  client.open("POST", "/log");
+  client.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+  client.send(message);
 }</code></pre>
 
    <p>Or if you want to check the status of a document on the server:</p>
 
    <pre><code>function fetchStatus(address) {
- var client = new XMLHttpRequest();
- client.onreadystatechange = function() {
-  // in case of network errors this might not give reliable results
-  if(this.readyState == 4)
-   returnStatus(this.status);
- }
- client.open("HEAD", address);
- client.send();
+  var client = new XMLHttpRequest();
+  client.onreadystatechange = function() {
+    // in case of network errors this might not give reliable results
+    if(this.readyState == 4)
+      returnStatus(this.status);
+  }
+  client.open("HEAD", address);
+  client.send();
 }</code></pre>
   </div>
 
@@ -991,7 +990,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
     </ul>
 
    <li>
-    <p>Switch the the state to <a href="#dom-xmlhttprequest-opened"
+    <p>Switch the state to <a href="#dom-xmlhttprequest-opened"
      title=dom-XMLHttpRequest-OPENED>OPENED</a>.
 
    <li>
@@ -1946,9 +1945,9 @@ client.onreadystatechange = function() {
 client.open("GET", "narwhals-too.txt", true);
 client.send();
 client.onreadystatechange = function() {
- if(this.readyState == 2) {
-  print(this.getAllResponseHeaders());
- }
+  if(this.readyState == 2) {
+    print(this.getAllResponseHeaders());
+  }
 }</code></pre>
 
    <p>The <code>print()</code> function will get to process something like:</p>
