@@ -206,7 +206,7 @@
 }
 
 function handler() {
-  if(this.readyState == 4 &amp;&amp; this.status == 200) {
+  if(this.readyState == this.DONE &amp;&amp; this.status == 200) {
     // so far so good
     if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
       // success!
@@ -238,7 +238,7 @@ client.send();</code></pre>
   var client = new XMLHttpRequest();
   client.onreadystatechange = function() {
     // in case of network errors this might not give reliable results
-    if(this.readyState == 4)
+    if(this.readyState == this.DONE)
       returnStatus(this.status);
   }
   client.open("HEAD", address);
@@ -286,12 +286,14 @@ client.send();</code></pre>
    
 
    <dt>DOM</dt>
-   <dd><p>A <span title="conforming user agent">conforming user agent</span>
-   <em class="ct">must</em> support at least the subset of the functionality
-   defined in DOM Events and DOM Core that this specification relies upon,
-   such as various exceptions and <code>EventTarget</code>.
+   <dd><p>A <span>conforming user agent</span> <em class="ct">must</em>
+   support at least the subset of the functionality defined in DOM Events
+   and DOM Core that this specification relies upon, such as various
+   exceptions and <code>EventTarget</code>.
    [<cite><span>DOM2Events</span></cite>]
    [<cite><span>DOM3Core</span></cite>]</p></dd>
+
+   
 
    <dt>HTML5</dt>
    <dd>
@@ -569,10 +571,10 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   invoked. It can be either true or false and has an initial value of
   false.</p>
 
-  <p>The <span title="dom-XMLHttpRequest-DONE">DONE</span> state has an associated
-  <dfn id="error-flag">error flag</dfn> that indicates some type of network
-  error or abortion. It can be either true or false and has an initial value
-  of false.</p>
+  <p>The <dfn id="error-flag">error flag</dfn> indicates some type of
+  network error or abortion. It is used during the
+  <span title="dom-XMLHttpRequest-DONE">DONE</span> state. It can be either
+  true or false and has an initial value of false.</p>
 
 
   <h3 id="request">Request</h3>
@@ -586,7 +588,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    False when fetching is done synchronously.</dd>
 
    <dt>The <dfn>request method</dfn></dt>
-   <dd>The method used in the request.</dd>
+   <dd>The HTTP method used in the request.</dd>
 
    <dt>The <dfn>request URL</dfn></dt>
    <dd>The <span>URL</span> used in the request.</dd>
@@ -604,7 +606,8 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    request.</p>
 
    <dt>The <dfn>request entity body</dfn></dt>
-   <dd>The <span>entity body</span> used in the request.</dd>
+   <dd>The <span>entity body</span> used in the request or null if there is
+   no <span>entity body</span>.</dd>
 
    
   </dl>
@@ -726,6 +729,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
    <code>&lt;scheme></code> and <var title="">url</var> contains this format
    raise a <code>SYNTAX_ERR</code> and terminate these steps.</p></li>
 
+   <!-- XXX need to throw here for "user:password" or just "user" for
+            cross-origin unless we solve this in another way -->
+
    <li><p>If <var title="">url</var> contains the <code>"user:password"</code>
    format let <var>temp user</var> be the user part and
    <var>temp password</var> be the password part.</p></li>
@@ -825,8 +831,9 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
 
    <dd>
     <p>Appends an header to the list of
-    <span>author request headers</span> or if the header is already in the
-    <span>author request headers</span> its value appended to.</p>
+    <span>author request headers</span>, or if <var>header</var> is already
+    in the list of <span>author request headers</span>, combines its value
+    with <var>value</var>.</p>
 
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is
     not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if the
@@ -1377,8 +1384,6 @@ X-Test: one, two
    </li>
 
    
-
-   <li><p>Terminate the overall algorithm.</p></li>
   </ol>
 
   
@@ -2054,6 +2059,7 @@ const unsigned short <span>ABORT_ERR</span> = 20;</pre>
   Robin Berjon,
   Rune Halvorsen,
   Ruud Steltenpool,
+  Sergiu Dumitriu,
   Simon Pieters,
   Stewart Brodie,
   Sunava Dutta,

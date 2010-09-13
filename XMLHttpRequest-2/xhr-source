@@ -215,7 +215,7 @@
 }
 
 function handler() {
-  if(this.readyState == 4 &amp;&amp; this.status == 200) {
+  if(this.readyState == this.DONE &amp;&amp; this.status == 200) {
     // so far so good
     if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
       // success!
@@ -247,7 +247,7 @@ client.send();</code></pre>
   var client = new XMLHttpRequest();
   client.onreadystatechange = function() {
     // in case of network errors this might not give reliable results
-    if(this.readyState == 4)
+    if(this.readyState == this.DONE)
       returnStatus(this.status);
   }
   client.open("HEAD", address);
@@ -300,12 +300,20 @@ client.send();</code></pre>
    <!--END xhr2-->
 
    <dt>DOM</dt>
-   <dd><p>A <span title="conforming user agent">conforming user agent</span>
-   <em class="ct">must</em> support at least the subset of the functionality
-   defined in DOM Events and DOM Core that this specification relies upon,
-   such as various exceptions and <code>EventTarget</code>.
+   <dd><p>A <span>conforming user agent</span> <em class="ct">must</em>
+   support at least the subset of the functionality defined in DOM Events
+   and DOM Core that this specification relies upon, such as various
+   exceptions and <code>EventTarget</code>.
    [<cite><span>DOM2Events</span></cite>]
    [<cite><span>DOM3Core</span></cite>]</p></dd>
+
+   <!--START xhr2-->
+   <dt>File API</dt>
+   <dd><p>A <span>conforming user agent</span> <em class="ct">must</em>
+   support at least the subset of the functionality defined in File API that
+   this specification relies upon, such as the <code>Blob</code> and
+   <code>File</code> interfaces. [<cite><span>FileAPI</span></cite>]</p>
+   <!--END xhr2-->
 
    <dt>HTML5</dt>
    <dd>
@@ -684,10 +692,10 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
   invoked. It can be either true or false and has an initial value of
   false.</p>
 
-  <p>The <span title="dom-XMLHttpRequest-DONE">DONE</span> state has an associated
-  <dfn id="error-flag">error flag</dfn> that indicates some type of network
-  error or abortion. It can be either true or false and has an initial value
-  of false.</p>
+  <p>The <dfn id="error-flag">error flag</dfn> indicates some type of
+  network error or abortion. It is used during the
+  <span title="dom-XMLHttpRequest-DONE">DONE</span> state. It can be either
+  true or false and has an initial value of false.</p>
 
 
   <h3 id="request">Request</h3>
@@ -701,7 +709,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    False when fetching is done synchronously.</dd>
 
    <dt>The <dfn>request method</dfn></dt>
-   <dd>The method used in the request.</dd>
+   <dd>The HTTP method used in the request.</dd>
 
    <dt>The <dfn>request URL</dfn></dt>
    <dd>The <span>URL</span> used in the request.</dd>
@@ -719,12 +727,13 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    request.</p>
 
    <dt>The <dfn>request entity body</dfn></dt>
-   <dd>The <span>entity body</span> used in the request.</dd>
+   <dd>The <span>entity body</span> used in the request or null if there is
+   no <span>entity body</span>.</dd>
 
    <!--START xhr2-->
    <dt>The <dfn>request timeout</dfn></dt>
    <dd>The amount of milliseconds a request can take before being
-   terminated. Initially zero.</dd>
+   terminated. Initially zero. Zero means there is no timeout.</dd>
 
    <dt>The <dfn>as blob flag</dfn></dt>
    <dd>Either true or false. When true
@@ -873,6 +882,9 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <code>&lt;scheme></code> and <var title="">url</var> contains this format
    raise a <code>SYNTAX_ERR</code> and terminate these steps.</p></li>
 
+   <!-- XXX need to throw here for "user:password" or just "user" for
+            cross-origin unless we solve this in another way -->
+
    <li><p>If <var title="">url</var> contains the <code>"user:password"</code>
    format let <var>temp user</var> be the user part and
    <var>temp password</var> be the password part.</p></li>
@@ -980,8 +992,9 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
 
    <dd>
     <p>Appends an header to the list of
-    <span>author request headers</span> or if the header is already in the
-    <span>author request headers</span> its value appended to.</p>
+    <span>author request headers</span>, or if <var>header</var> is already
+    in the list of <span>author request headers</span>, combines its value
+    with <var>value</var>.</p>
 
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is
     not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if the
@@ -1517,9 +1530,9 @@ X-Test: one, two
        <dt>If the <span>asynchronous flag</span> is true</dt>
        <dd>
         <!--START xhr2-->
-        <p><span>Make progress notifications</span>.</p>
-
         <p><span>Make upload progress notifications</span>.</p>
+
+        <p><span>Make progress notifications</span>.</p>
         <!--END xhr2-->
 
         <p>While processing the request, as data becomes available and when
@@ -1888,10 +1901,6 @@ X-Test: one, two
    </li>
 
    <!--START xhr2-->
-   <li><p><span>Dispatch a progress event</span> called <var>event</var>.</p></li>
-
-   <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-loadend">loadend</code>.</p></li>
-
    <li>
     <p>If the <span>upload complete flag</span> is false, follow these
     substeps:</p>
@@ -1907,9 +1916,11 @@ X-Test: one, two
      object.</p></li>
     </ol>
    </li>
-   <!--END xhr2-->
 
-   <li><p>Terminate the overall algorithm.</p></li>
+   <li><p><span>Dispatch a progress event</span> called <var>event</var>.</p></li>
+
+   <li><p><span>Dispatch a progress event</span> called <code title="event-xhr-loadend">loadend</code>.</p></li>
+   <!--END xhr2-->
   </ol>
 
   <!--START xhr1-->
@@ -2622,7 +2633,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <tr>
      <td><dfn id="event-xhr-progress" title="event-xhr-progress"><code>progress</code></dfn></td>
      <td><code>ProgressEvent</code></td>
-     <td>While loading and sending data.</td>
+     <td>While sending and loading data.</td>
     </tr>
     <tr>
      <td><dfn id="event-xhr-abort" title="event-xhr-abort"><code>abort</code></dfn></td>
@@ -2944,6 +2955,7 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;<!--END xhr2--></pre>
   Robin Berjon,
   Rune Halvorsen,
   Ruud Steltenpool,
+  Sergiu Dumitriu,
   Simon Pieters,
   Stewart Brodie,
   Sunava Dutta,

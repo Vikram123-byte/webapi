@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 12 September 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 13 September 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100912/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100912/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100913/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100913/</a>
 
     <dt>Latest Version:
 
@@ -110,7 +110,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 12 September 2010 <!--Last Call Working Draft-->Editor's
+  <p>This is the 13 September 2010 <!--Last Call Working Draft-->Editor's
    Draft of XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -299,7 +299,7 @@
 }
 
 function handler() {
-  if(this.readyState == 4 &amp;&amp; this.status == 200) {
+  if(this.readyState == this.DONE &amp;&amp; this.status == 200) {
     // so far so good
     if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
       // success!
@@ -331,7 +331,7 @@ client.send();</code></pre>
   var client = new XMLHttpRequest();
   client.onreadystatechange = function() {
     // in case of network errors this might not give reliable results
-    if(this.readyState == 4)
+    if(this.readyState == this.DONE)
       returnStatus(this.status);
   }
   client.open("HEAD", address);
@@ -382,13 +382,22 @@ client.send();</code></pre>
    <dt>DOM
 
    <dd>
-    <p>A <a href="#conforming-user-agent" title="conforming user
-     agent">conforming user agent</a> <em class=ct>must</em> support at least
-     the subset of the functionality defined in DOM Events and DOM Core that
-     this specification relies upon, such as various exceptions and
-     <code>EventTarget</code>. [<cite><a
+    <p>A <a href="#conforming-user-agent">conforming user agent</a> <em
+     class=ct>must</em> support at least the subset of the functionality
+     defined in DOM Events and DOM Core that this specification relies upon,
+     such as various exceptions and <code>EventTarget</code>. [<cite><a
      href="#ref-dom2events">DOM2Events</a></cite>] [<cite><a
      href="#ref-dom3core">DOM3Core</a></cite>]
+
+   <dt>File API
+
+   <dd>
+    <p>A <a href="#conforming-user-agent">conforming user agent</a> <em
+     class=ct>must</em> support at least the subset of the functionality
+     defined in File API that this specification relies upon, such as the <a
+     href="#blob"><code>Blob</code></a> and <a
+     href="#file"><code>File</code></a> interfaces. [<cite><a
+     href="#ref-fileapi">FileAPI</a></cite>]</p>
 
    <dt>HTML5
 
@@ -831,11 +840,10 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
    title=dom-XMLHttpRequest-send>send()</code></a> method has been invoked.
    It can be either true or false and has an initial value of false.
 
-  <p>The <a href="#dom-xmlhttprequest-done"
-   title=dom-XMLHttpRequest-DONE>DONE</a> state has an associated <dfn
-   id=error-flag>error flag</dfn> that indicates some type of network error
-   or abortion. It can be either true or false and has an initial value of
-   false.
+  <p>The <dfn id=error-flag>error flag</dfn> indicates some type of network
+   error or abortion. It is used during the <a
+   href="#dom-xmlhttprequest-done" title=dom-XMLHttpRequest-DONE>DONE</a>
+   state. It can be either true or false and has an initial value of false.
 
   <h3 id=request><span class=secno>3.6. </span>Request</h3>
 
@@ -850,7 +858,7 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
 
    <dt>The <dfn id=request-method>request method</dfn>
 
-   <dd>The method used in the request.
+   <dd>The HTTP method used in the request.
 
    <dt>The <dfn id=request-url>request URL</dfn>
 
@@ -871,12 +879,13 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
 
    <dt>The <dfn id=request-entity-body>request entity body</dfn>
 
-   <dd>The <a href="#entity-body">entity body</a> used in the request.
+   <dd>The <a href="#entity-body">entity body</a> used in the request or null
+    if there is no <a href="#entity-body">entity body</a>.
 
    <dt>The <dfn id=request-timeout>request timeout</dfn>
 
    <dd>The amount of milliseconds a request can take before being terminated.
-    Initially zero.
+    Initially zero. Zero means there is no timeout.
 
    <dt>The <dfn id=as-blob-flag>as blob flag</dfn>
 
@@ -1050,6 +1059,9 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
      for the relevant <a href="#url-scheme"><code>&lt;scheme></code></a> and
      <var title="">url</var> contains this format raise a
      <code>SYNTAX_ERR</code> and terminate these steps.
+   </li>
+   <!-- XXX need to throw here for "user:password" or just "user" for
+            cross-origin unless we solve this in another way -->
 
    <li>
     <p>If <var title="">url</var> contains the <code>"user:password"</code>
@@ -1190,9 +1202,10 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
 
    <dd>
     <p>Appends an header to the list of <a
-     href="#author-request-headers">author request headers</a> or if the
-     header is already in the <a href="#author-request-headers">author
-     request headers</a> its value appended to.</p>
+     href="#author-request-headers">author request headers</a>, or if
+     <var>header</var> is already in the list of <a
+     href="#author-request-headers">author request headers</a>, combines its
+     value with <var>value</var>.</p>
 
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
      <a href="#dom-xmlhttprequest-opened"
@@ -1814,10 +1827,10 @@ X-Test: one, two
        <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is true
 
        <dd>
-        <p><a href="#make-progress-notifications">Make progress
+        <p><a href="#make-upload-progress-notifications">Make upload progress
          notifications</a>.</p>
 
-        <p><a href="#make-upload-progress-notifications">Make upload progress
+        <p><a href="#make-progress-notifications">Make progress
          notifications</a>.</p>
 
         <p>While processing the request, as data becomes available and when
@@ -2261,15 +2274,6 @@ X-Test: one, two
      href="#asynchronous-flag">asynchronous flag</a> is true.</p>
 
    <li>
-    <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-     called <var>event</var>.
-
-   <li>
-    <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
-     called <a href="#event-xhr-loadend"><code
-     title=event-xhr-loadend>loadend</code></a>.
-
-   <li>
     <p>If the <a href="#upload-complete-flag">upload complete flag</a> is
      false, follow these substeps:</p>
 
@@ -2293,7 +2297,13 @@ X-Test: one, two
     </ol>
 
    <li>
-    <p>Terminate the overall algorithm.
+    <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+     called <var>event</var>.
+
+   <li>
+    <p><a href="#dispatch-progress-event">Dispatch a progress event</a>
+     called <a href="#event-xhr-loadend"><code
+     title=event-xhr-loadend>loadend</code></a>.
   </ol>
 
   <hr>
@@ -3131,7 +3141,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
      <td><code>ProgressEvent</code>
 
-     <td>While loading and sending data.
+     <td>While sending and loading data.
 
     <tr>
      <td><dfn id=event-xhr-abort
@@ -3445,9 +3455,9 @@ const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
    Maciej Stachowiak, Magnus Kristiansen, Marc Hadley, Marcos Caceres, Mark
    Baker, Mark Birbeck, Mark Nottingham, Mark S. Miller, Martin Hassman,
    Mohamed Zergaoui, Olli Pettay, Pawel Glowacki, Peter Michaux, Philip
-   Taylor, Robin Berjon, Rune Halvorsen, Ruud Steltenpool, Simon Pieters,
-   Stewart Brodie, Sunava Dutta, Thomas Roessler, Tom Magliery, and Zhenbin
-   Xu for their contributions to this specification.
+   Taylor, Robin Berjon, Rune Halvorsen, Ruud Steltenpool, Sergiu Dumitriu,
+   Simon Pieters, Stewart Brodie, Sunava Dutta, Thomas Roessler, Tom
+   Magliery, and Zhenbin Xu for their contributions to this specification.
 
   <p>Special thanks to the Microsoft employees who first implemented the
    <code title="">XMLHttpRequest</code> interface, which was first widely
