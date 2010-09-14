@@ -40,13 +40,13 @@
 
    <h1 class=head id=the-xmlhttprequest-object>XMLHttpRequest</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 13 September 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 14 September 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100913/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100913/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100914/">http://www.w3.org/TR/2010/ED-XMLHttpRequest-20100914/</a>
 
     <dt>Latest Version:
 
@@ -129,7 +129,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 13 September 2010 <!--Last Call Working Draft-->Editor's
+  <p>This is the 14 September 2010 <!--Last Call Working Draft-->Editor's
    Draft of XMLHttpRequest. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR]%20">public-webapps@w3.org</a>
    (<a
@@ -311,20 +311,21 @@
     over the network:</p>
 
    <pre><code>function processData(data) {
- // taking care of data
+  // taking care of data
 }
 
 function handler() {
-  if(this.readyState == this.DONE &amp;&amp; this.status == 200) {
-    // so far so good
-    if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
+  if(this.readyState == this.DONE) {
+    if(this.status == 200 &amp;&amp;
+       this.responseXML != null &amp;&amp;
+       this.responseXML.getElementById('test').textContent) {
       // success!
       processData(this.responseXML.getElementById('test').textContent);
       return;
     }
+    // something went wrong
+    processData(null);
   }
-  // something went wrong
-  processData(null);
 }
 
 var client = new XMLHttpRequest();
@@ -724,7 +725,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
 
    <dt>The <dfn id=request-url>request URL</dfn>
 
-   <dd>The <a href="#url">URL</a> used in the request.
+   <dd>The resolved <a href="#url">URL</a> used in the request.
 
    <dt>The <dfn id=request-username>request username</dfn>
 
@@ -1149,6 +1150,9 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
    agent header handling for caching, authentication, proxies, and cookies.
 
   <div class=example>
+   <p>Some simple code demonstrating what happens when setting the same
+    header twice:</p>
+
    <pre><code>// The following script:
 var client = new XMLHttpRequest();
 client.open('GET', 'demo.cgi');
@@ -1156,10 +1160,8 @@ client.setRequestHeader('X-Test', 'one');
 client.setRequestHeader('X-Test', 'two');
 client.send();
 
-// ...would result in the following header being sent:
-...
-X-Test: one, two
-...</code></pre>
+// &hellip;results in the following header being sent:
+X-Test: one, two</code></pre>
   </div>
 
   <h4 id=the-send-method><span class=secno>3.6.3. </span>The <code

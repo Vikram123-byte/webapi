@@ -162,20 +162,21 @@
    fetched over the network:</p>
 
    <pre><code>function processData(data) {
- // taking care of data
+  // taking care of data
 }
 
 function handler() {
-  if(this.readyState == this.DONE &amp;&amp; this.status == 200) {
-    // so far so good
-    if(this.responseXML != null &amp;&amp; this.responseXML.getElementById('test').textContent) {
+  if(this.readyState == this.DONE) {
+    if(this.status == 200 &amp;&amp;
+       this.responseXML != null &amp;&amp;
+       this.responseXML.getElementById('test').textContent) {
       // success!
       processData(this.responseXML.getElementById('test').textContent);
       return;
     }
+    // something went wrong
+    processData(null);
   }
-  // something went wrong
-  processData(null);
 }
 
 var client = new XMLHttpRequest();
@@ -662,7 +663,7 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <dd>The HTTP method used in the request.</dd>
 
    <dt>The <dfn>request URL</dfn></dt>
-   <dd>The <span>URL</span> used in the request.</dd>
+   <dd>The resolved <span>URL</span> used in the request.</dd>
 
    <dt>The <dfn>request username</dfn></dt>
    <dd>The username used in the request or null if there is no
@@ -701,8 +702,8 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    response. Initially false.</dd>
 
    <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
-   <dd>Used to determine whether to send upload progress events. The flag is
-   either true or false.</dd>
+   <dd>Used to determine when to stop sending upload progress events. The
+   flag is either true or false.</dd>
 
    <dt>The <dfn id="upload-events-flag">upload events flag</dfn></dt>
    <dd>Used to determine whether to send upload progress events for
@@ -1064,6 +1065,9 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
   cookies.</p>
 
   <div class="example">
+   <p>Some simple code demonstrating what happens when setting the same
+   header twice:</p>
+
    <pre><code>// The following script:
 var client = new XMLHttpRequest();
 client.open('GET', 'demo.cgi');
@@ -1071,10 +1075,8 @@ client.setRequestHeader('X-Test', 'one');
 client.setRequestHeader('X-Test', 'two');
 client.send();
 
-// ...would result in the following header being sent:
-...
-X-Test: one, two
-...</code></pre>
+// &hellip;results in the following header being sent:
+X-Test: one, two</code></pre>
   </div>
 
   
