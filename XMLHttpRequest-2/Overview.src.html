@@ -260,6 +260,8 @@ client.send();</code></pre>
    [<cite><span>DOM3Core</span></cite>]</p></dd>
 
    
+   <!-- XXX ArrayBuffer -->
+
    <dt>File API</dt>
    <dd><p>A <span>conforming user agent</span> <em class="ct">must</em>
    support at least the subset of the functionality defined in File API that
@@ -381,6 +383,9 @@ client.send();</code></pre>
   are defined by the Cross-Origin Resource Sharing specification.
   [<cite><span>CORS</span></cite>]
 
+  <p class="XXX">The <dfn id="arraybuffer"><code>ArrayBuffer</code></dfn> interface is
+  defined &hellip;</p>
+
   <p>The <dfn id="blob"><code>Blob</code></dfn> and
   <dfn id="file"><code>File</code></dfn> interfaces are defined by the
   File API specification. [<cite><span>FileAPI</span></cite>]</p>
@@ -445,6 +450,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
            attribute boolean <span title="dom-XMLHttpRequest-withCredentials">withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span title="dom-XMLHttpRequest-upload">upload</span>;
   void <span title="dom-XMLHttpRequest-send">send</span>();
+  void <span title="dom-XMLHttpRequest-send">send</span>(<span>ArrayBuffer</span> <var>data</var>);
   void <span title="dom-XMLHttpRequest-send">send</span>(<span>Blob</span> <var>data</var>);
   void <span title="dom-XMLHttpRequest-send">send</span>(<span>Document</span> <var>data</var>);
   void <span title="dom-XMLHttpRequest-send">send</span>([AllowAny] DOMString? <var>data</var>);
@@ -457,7 +463,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   DOMString <span title="dom-XMLHttpRequest-getResponseHeader">getResponseHeader</span>(DOMString <var>header</var>);
   DOMString <span title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders</span>();
   void <span title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType</span>(DOMString <var>mime</var>);
-  readonly attribute ByteArray <span title="dom-XMLHttpRequest-responseBody">responseBody</span>;
+  readonly attribute <span>ArrayBuffer</span> <span title="dom-XMLHttpRequest-responseArrayBuffer">responseArrayBuffer</span>;
   readonly attribute <span>Blob</span> <span title="dom-XMLHttpRequest-responseBlob">responseBlob</span>;
   readonly attribute DOMString <span title="dom-XMLHttpRequest-responseText">responseText</span>;
   readonly attribute <span>Document</span> <span title="dom-XMLHttpRequest-responseXML">responseXML</span>;
@@ -1312,6 +1318,10 @@ X-Test: one, two</code></pre>
 
     <dl class="switch">
      
+     <dt>If <var>data</var> is a <code>ArrayBuffer</code></dt>
+     <dd><p>Let the <span>request entity body</span> be the raw data
+     represented by <var>data</var>.</p></dd>
+
      <dt>If <var>data</var> is a <code>Blob</code></dt>
 
      <dd>
@@ -2393,10 +2403,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   </ol>
 
 
-  <h4>The <code title="">responseBody</code> attribute</h4>
+  <h4>The <code title="">responseArrayBuffer</code> attribute</h4>
 
   <dl class="domintro">
-   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseBody">responseBody</code></dt>
+   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseArrayBuffer">responseArrayBuffer</code></dt>
    <dd>
     <p>Returns the <span>response entity body</span>.</p>
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
@@ -2404,10 +2414,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    </dd>
   </dl>
 
-  <p class="XXX">Waiting for ECMAScript.</p>
-
   <p>The
-  <dfn id="dom-xmlhttprequest-responsebody" title="dom-XMLHttpRequest-responseBody"><code>responseBody</code></dfn>
+  <dfn id="dom-xmlhttprequest-responsearraybuffer" title="dom-XMLHttpRequest-responseArrayBuffer"><code>responseArrayBuffer</code></dfn>
   attribute <em class="ct">must</em> return the result of running these
   steps:</p>
 
@@ -2424,9 +2432,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li><p>If the <span>error flag</span> is true return null and terminate
    these steps.</p></li>
 
-   <li><p>Return a <code>ByteArray</code> object representing the
+   <li><p>Return an <code>ArrayBuffer</code> object representing the
    <span>response entity body</span> or return null if the
-   response entity body is null.</p></li>
+   <span>response entity body</span> is null.</p></li>
   </ol>
 
 
@@ -2716,14 +2724,21 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
 
    <li><p>The ability to set a timeout for the request.</p></li>
 
-   <li><p>The ability to transfer <code>Blob</code>, <code>File</code>, and
-   <code>FormData</code> objects.</p></li>
+   <li><p>The ability to take control over redirects.</p></li>
+   <!-- followRedirects -->
+
+   <li><p>The ability to transfer <code>ArrayBuffer</code>,
+   <code>Blob</code>, <code>File</code>, and <code>FormData</code>
+   objects.</p></li>
+
+   <li>The
+   <code title=dom-XMLHttpRequest-responseArrayBuffer>responseArrayBuffer</code>
+   attribute to access the <span>response entity body</span> as
+   <code>ArrayBuffer</code>.</p></li>
 
    <li><p>The <code title="dom-XMLHttpRequest-asBlob">asBlob</code> and
    <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code>
    attributes for streaming large amounts of data to the client.</p></li>
-
-   <li><p class="XXX">responseBody</p></li>
   </ul>
   
 

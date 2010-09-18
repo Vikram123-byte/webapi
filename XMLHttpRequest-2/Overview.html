@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 14 September 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 18 September 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100914/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100914/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100918/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100918/</a>
 
     <dt>Latest Version:
 
@@ -110,7 +110,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 14 September 2010 <!--Last Call Working Draft-->Editor's
+  <p>This is the 18 September 2010 <!--Last Call Working Draft-->Editor's
    Draft of XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -233,8 +233,9 @@
        <li><a href="#the-overridemimetype-method"><span class=secno>3.7.6.
         </span>The <code title="">overrideMimeType()</code> method</a>
 
-       <li><a href="#the-responsebody-attribute"><span class=secno>3.7.7.
-        </span>The <code title="">responseBody</code> attribute</a>
+       <li><a href="#the-responsearraybuffer-attribute"><span
+        class=secno>3.7.7. </span>The <code
+        title="">responseArrayBuffer</code> attribute</a>
 
        <li><a href="#the-responseblob-attribute"><span class=secno>3.7.8.
         </span>The <code title="">responseBlob</code> attribute</a>
@@ -389,6 +390,8 @@ client.send();</code></pre>
      such as various exceptions and <code>EventTarget</code>. [<cite><a
      href="#ref-dom2events">DOM2Events</a></cite>] [<cite><a
      href="#ref-dom3core">DOM3Core</a></cite>]
+   </dd>
+   <!-- XXX ArrayBuffer -->
 
    <dt>File API
 
@@ -515,6 +518,9 @@ client.send();</code></pre>
    defined by the Cross-Origin Resource Sharing specification. [<cite><a
    href="#ref-cors">CORS</a></cite>]
 
+  <p class=XXX>The <dfn id=arraybuffer><code>ArrayBuffer</code></dfn>
+   interface is defined &hellip;
+
   <p>The <dfn id=blob><code>Blob</code></dfn> and <dfn
    id=file><code>File</code></dfn> interfaces are defined by the File API
    specification. [<cite><a href="#ref-fileapi">FileAPI</a></cite>]
@@ -578,6 +584,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
            attribute boolean <a href="#dom-xmlhttprequest-withcredentials" title=dom-XMLHttpRequest-withCredentials>withCredentials</a>;
   readonly attribute <a href="#xmlhttprequestupload">XMLHttpRequestUpload</a> <a href="#dom-xmlhttprequest-upload" title=dom-XMLHttpRequest-upload>upload</a>;
   void <a href="#dom-xmlhttprequest-send" title=dom-XMLHttpRequest-send>send</a>();
+  void <a href="#dom-xmlhttprequest-send" title=dom-XMLHttpRequest-send>send</a>(<a href="#arraybuffer">ArrayBuffer</a> <var>data</var>);
   void <a href="#dom-xmlhttprequest-send" title=dom-XMLHttpRequest-send>send</a>(<a href="#blob">Blob</a> <var>data</var>);
   void <a href="#dom-xmlhttprequest-send" title=dom-XMLHttpRequest-send>send</a>(<span>Document</span> <var>data</var>);
   void <a href="#dom-xmlhttprequest-send" title=dom-XMLHttpRequest-send>send</a>([AllowAny] DOMString? <var>data</var>);
@@ -590,7 +597,7 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   DOMString <a href="#dom-xmlhttprequest-getresponseheader" title=dom-XMLHttpRequest-getResponseHeader>getResponseHeader</a>(DOMString <var>header</var>);
   DOMString <a href="#dom-xmlhttprequest-getallresponseheaders" title=dom-XMLHttpRequest-getAllResponseHeaders>getAllResponseHeaders</a>();
   void <a href="#dom-xmlhttprequest-overridemimetype" title=dom-XMLHttpRequest-overrideMimeType>overrideMimeType</a>(DOMString <var>mime</var>);
-  readonly attribute ByteArray <a href="#dom-xmlhttprequest-responsebody" title=dom-XMLHttpRequest-responseBody>responseBody</a>;
+  readonly attribute <a href="#arraybuffer">ArrayBuffer</a> <a href="#dom-xmlhttprequest-responsearraybuffer" title=dom-XMLHttpRequest-responseArrayBuffer>responseArrayBuffer</a>;
   readonly attribute <a href="#blob">Blob</a> <a href="#dom-xmlhttprequest-responseblob" title=dom-XMLHttpRequest-responseBlob>responseBlob</a>;
   readonly attribute DOMString <a href="#dom-xmlhttprequest-responsetext" title=dom-XMLHttpRequest-responseText>responseText</a>;
   readonly attribute <span>Document</span> <a href="#dom-xmlhttprequest-responsexml" title=dom-XMLHttpRequest-responseXML>responseXML</a>;
@@ -1647,6 +1654,13 @@ X-Test: one, two</code></pre>
      null, and then follow these rules:</p>
 
     <dl class=switch>
+     <dt>If <var>data</var> is a <a
+      href="#arraybuffer"><code>ArrayBuffer</code></a>
+
+     <dd>
+      <p>Let the <a href="#request-entity-body">request entity body</a> be
+       the raw data represented by <var>data</var>.
+
      <dt>If <var>data</var> is a <a href="#blob"><code>Blob</code></a>
 
      <dd>
@@ -2930,13 +2944,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      href="#override-charset">override charset</a> to its value.
   </ol>
 
-  <h4 id=the-responsebody-attribute><span class=secno>3.7.7. </span>The <code
-   title="">responseBody</code> attribute</h4>
+  <h4 id=the-responsearraybuffer-attribute><span class=secno>3.7.7.
+   </span>The <code title="">responseArrayBuffer</code> attribute</h4>
 
   <dl class=domintro>
    <dt><var title="">client</var> . <a
-    href="#dom-xmlhttprequest-responsebody"><code
-    title=dom-XMLHttpRequest-responseBody>responseBody</code></a>
+    href="#dom-xmlhttprequest-responsearraybuffer"><code
+    title=dom-XMLHttpRequest-responseArrayBuffer>responseArrayBuffer</code></a>
 
    <dd>
     <p>Returns the <a href="#response-entity-body">response entity body</a>.</p>
@@ -2945,10 +2959,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      href="#as-blob-flag">as blob flag</a> is true.</p>
   </dl>
 
-  <p class=XXX>Waiting for ECMAScript.
-
-  <p>The <dfn id=dom-xmlhttprequest-responsebody
-   title=dom-XMLHttpRequest-responseBody><code>responseBody</code></dfn>
+  <p>The <dfn id=dom-xmlhttprequest-responsearraybuffer
+   title=dom-XMLHttpRequest-responseArrayBuffer><code>responseArrayBuffer</code></dfn>
    attribute <em class=ct>must</em> return the result of running these steps:
 
   <ol>
@@ -2967,9 +2979,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      terminate these steps.
 
    <li>
-    <p>Return a <code>ByteArray</code> object representing the <a
-     href="#response-entity-body">response entity body</a> or return null if
-     the response entity body is null.
+    <p>Return an <a href="#arraybuffer"><code>ArrayBuffer</code></a> object
+     representing the <a href="#response-entity-body">response entity
+     body</a> or return null if the <a href="#response-entity-body">response
+     entity body</a> is null.
   </ol>
 
   <h4 id=the-responseblob-attribute><span class=secno>3.7.8. </span>The <code
@@ -3302,9 +3315,21 @@ const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
     <p>The ability to set a timeout for the request.
 
    <li>
-    <p>The ability to transfer <a href="#blob"><code>Blob</code></a>, <a
+    <p>The ability to take control over redirects.
+   </li>
+   <!-- followRedirects -->
+
+   <li>
+    <p>The ability to transfer <a
+     href="#arraybuffer"><code>ArrayBuffer</code></a>, <a
+     href="#blob"><code>Blob</code></a>, <a
      href="#file"><code>File</code></a>, and <a
      href="#formdata"><code>FormData</code></a> objects.
+
+   <li>The <a href="#dom-xmlhttprequest-responsearraybuffer"><code
+    title=dom-XMLHttpRequest-responseArrayBuffer>responseArrayBuffer</code></a>
+    attribute to access the <a href="#response-entity-body">response entity
+    body</a> as <a href="#arraybuffer"><code>ArrayBuffer</code></a>.
 
    <li>
     <p>The <a href="#dom-xmlhttprequest-asblob"><code
@@ -3312,9 +3337,6 @@ const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
      href="#dom-xmlhttprequest-responseblob"><code
      title=dom-XMLHttpRequest-responseBlob>responseBlob</code></a> attributes
      for streaming large amounts of data to the client.
-
-   <li>
-    <p class=XXX>responseBody
   </ul>
 
   <h2 class=no-num id=references>References</h2>
