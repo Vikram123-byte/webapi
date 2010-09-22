@@ -7,7 +7,7 @@
           to you should that happen.
           ******* WARNING *********************************************************
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Web Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Overview.html,v 1.15 2010-06-22 21:31:09 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>22 June 2010</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+<title>Web Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Overview.html,v 1.16 2010-09-22 00:13:19 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>21 September 2010</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -52,6 +52,7 @@
       <li><em>interactive notification</em>: A notification which can receive events from user actions and deliver them to the application which created the notification.</li>
       <li><em>persistent notification</em>: A notification which is displayed until the user explicitly dismisses it.</li>
       <li><em>notification platform</em>: A notification platform is a system outside the user agent which provides desktop notifications.  Examples include Growl on MacOS, NotifyOSD on Linux, and the Windows notification API.</li>
+      <li><em>origin</em>: In this document, "origin" or "security origin" refers to an origin as used by Cross-Origin Resource Sharing. [<cite><a href="#CORS" class="bibref">CORS</a></cite>]</li>
       <li><em>simple notification</em>: A notification which consists only of an icon and one or two lines of text.</li>
       <li><em>user gesture</em>: A script event is considered a user gesture if it directly resulted from the user using an input device. For example, the <code>onclick</code> and <code>onkeypress</code> events are user gestures.  Scripts run by a timeout, or for example an <code>onload</code> event are not user gestures.</li>
       <li><em>web notification</em>: A notification which consists of Web platform content, such as HTML or SVG.</li>
@@ -64,7 +65,7 @@
     <ul>
       <li>An implementation which uses only the existing notification platforms in major platforms to display notifications must be able to comply with the specification.</li>
       <li>The specification must allow compliant implementations regardless of platform or device.</li>
-      <li>The specification must not allow unwanted notifications to be displayed.</li>
+      <li>The specification must provide controls to users in order to prevent unwanted notifications to be displayed.</li>
       <li>The specification must define an event model for interactive notifications.</li>
       <li>The specification must address security issues.</li>
       <li>The specification should not require any implementation to display persistent notifications.</li>
@@ -73,8 +74,8 @@
 
     The specification attempts to address the following use cases:
     <ul>
-      <li>An application shows a "you've got mail" alert in the form of an ambient notification, with no interaction necessary.</li>
-      <li>An application shows "you've got mail" as an alert, and allow the user to easily return to the inbox.</li>
+      <li>An application alerts the user "you've got mail" in the form of an ambient notification, with no interaction necessary.</li>
+      <li>An application alerts the user "you've got mail" as an interactive notification which allows the user to easily return to the inbox.</li>
       <li>A calendar application alerts the user for an upcoming meeting, and allows the user to easily specify a "snooze" delay of several possible time periods.</li>
       <li>A system alerts the user "your printer is out of paper".</li>
       <li>An application with multiple simultaneous execution contexts (like a multi-tab email application) wants to show notifications without creating duplicate notifications.</li>
@@ -86,7 +87,7 @@
     <p>
       This specification provides an API to generate <em>notifications</em> to
       alert users outside of the web page.  It does not specify exactly how a user
-      agent should display these alerts; the best presentation depends on the device
+      agent should display these notifications; the best presentation depends on the device
       where the user agent is run.  When this specificiation refers to displaying
       notifications on the "desktop", it generally refers to some static display
       area outside the web page, but may take several forms, including:
@@ -126,19 +127,13 @@
 	  without this they could create a negative experience for the user.
 	</p>
 
-	<p>
-	  A user agent must not show any notifications generated by script from a particular
-	  origin until the user has granted permission for that origin to show notifications.
-	  Furthermore a request for such permission should only be allowed when 
-	  initiated by a user gesture.
-	</p>
       </div>
   </div>
 
   <div class="section"><h2 id="idl-if-Notification">4. The Notification interface</h2>
     
     <p>
-      The Notification interface represents a single alert to be shown to the user. It extends the EventTarget interface defined in [<cite><a href="#DOMEVENTS" class="bibref">DOMEVENTS</a></cite>].
+      The Notification interface represents a single notification to be shown to the user. It extends the EventTarget interface defined in [<cite><a href="#DOMEVENTS" class="bibref">DOMEVENTS</a></cite>].
     </p>
     <div class="boxed"><p><span class="idlTitle">the Notification interface</span></p><pre class="schema" title="the Notification interface">interface <a href="#idl-if-Notification">Notification</a> : EventTarget {
 
@@ -174,7 +169,7 @@
       Function</dt><dd><p>
 	      An event listener function corresponding to the event type "close".  This
 	      event listener must be invoked after the "display" event, at the point
-	      when the alert is dismissed by the user, closed by script, or closed by the notification
+	      when the notification is dismissed by the user, closed by script, or closed by the notification
 	      platform.
 	    </p></dd><dt id="dfn-ondisplay"><code>ondisplay</code>
       of type
@@ -224,6 +219,12 @@
       Notification objects which represent <em>simple notifications</em>, and to manage
       notification permissions.
     </p>
+    <p>
+      A user agent must not show any notifications generated by script from a particular
+      origin until the user has granted permission for that origin to show notifications.
+      Furthermore a request for such permission should only be allowed when 
+      initiated by a user gesture.
+    </p>
     <div class="boxed"><p><span class="idlTitle">the NotificationCenter interface</span></p><pre class="schema" title="the NotificationCenter interface">interface <a href="#idl-if-NotificationCenter">NotificationCenter</a> {
   // permission values
   const unsigned long      <a href="#idl-defs-permission values-PERMISSION_ALLOWED">PERMISSION_ALLOWED</a>      = 0;
@@ -242,8 +243,10 @@
 	    </dd><dt id="idl-defs-permission values-PERMISSION_UNKNOWN"><code>PERMISSION_UNKNOWN</code></dt><dd>
 	      <p>
 		indicates that the user has not 
-		taken an action regarding notifications for scripts from this origin, but
-		unless otherwise specified, user agents must act as if permission has been denied.
+		taken an action regarding notifications for scripts from this origin.  The user agent
+		must not show notifications for origins with this permission level, but it is provided
+		to allow applications to display appropriate user interfaces for the PERMISSION_UNKNOWN
+		and PERMISSION_DENIED cases.
 	      </p>
 	    </dd><dt id="idl-defs-permission values-PERMISSION_DENIED"><code>PERMISSION_DENIED</code></dt><dd>
 	      <p>
@@ -258,7 +261,7 @@
 	      which indicates the permission level granted to the origin of the 
 	      script.	    
 	    </p></dd></dl></div><div class="section"><h4 class="idl-header" id="idl-attrs-NotificationCenter">Methods</h4><dl class="idl-meth"><dt id="dfn-createnotification"><code>createNotification</code></dt><dd><p>
-	      Returns a new text notification object with the provided content.
+	      Returns a new simple notification object with the provided content.
 	    </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>iconUrl</code>
           of type
           DOMString</dt><dd>
@@ -338,7 +341,7 @@
 	    </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>url</code>
           of type
           DOMString</dt><dd>
-	      The URL of a resource which contains content to be shown as the alert.
+	      The URL of a resource which contains content to be shown as the notification.
 	      The URL parameter must be resolved relative to the base URL of the document or worker script.
 	    </dd></dl></dd><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
 	      <p>A notification object representing the new notification.</p>
@@ -353,7 +356,7 @@
 	      </p>
 	    </td></tr></table></dd></dl></dd></dl></div></div>
 
-    <div class="section"><h3 id="">7.1. Unsupported content types</h3>
+    <div class="section"><h3 id="">7.1. Unsupported content types</h3><p><strong>This section is not normative.</strong></p>
       
       <p>
 	User agents which use an existing notification platform and support only simple notifications may not
@@ -448,7 +451,7 @@
       </p>
     </div>
   </div>
-  <div class="section"><h2 id="interactions">9. Interacting with notifications</h2>
+  <div class="section"><h2 id="interactions">9. Interacting with notifications</h2><p><strong>This section is not normative.</strong></p>
     
     <div class="section"><h3 id="">9.1. Using events</h3>
       
@@ -473,7 +476,7 @@ notification.show();</pre></div>
 
       <p>
 	The <code>close</code> events occurs when the notification is dismissed by the user.
-	Authors may use this event to perform actions when alerts are acknowledged.
+	Authors may use this event to perform actions when notifications are acknowledged.
       </p>
       <p>
 	In the following example, when a meeting reminder notification is acknowledged, the
@@ -524,7 +527,9 @@ notification.show();</pre></div>
       
       
       
-    <dt id="DOMEVENTS">DOMEVENTS</dt><dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events">Document Object Model (DOM) Level 3 Events Specification</a></cite>,
+      
+    <dt id="CORS">CORS</dt><dd><cite><a href="http://www.w3.org/TR/cors/">Cross-Origin Resource Sharing</a></cite>,
+    </dd><dt id="DOMEVENTS">DOMEVENTS</dt><dd><cite><a href="http://www.w3.org/TR/DOM-Level-3-Events">Document Object Model (DOM) Level 3 Events Specification</a></cite>,
     </dd><dt id="HTML5">HTML5</dt><dd><cite><a href="http://www.w3.org/TR/html5/">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>,
     </dd><dt id="WEBWORKERS">WEBWORKERS</dt><dd><cite><a href="http://whatwg.org/ww/">Web Workers</a></cite>,
     </dd></dl>
