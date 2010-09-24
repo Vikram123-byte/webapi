@@ -2,8 +2,35 @@
 <html lang="en">
 <head>
   <meta content="text/html; charset=us-ascii" http-equiv="content-type">
-  <title>Web Timing</title>
-  <link href="WebTiming.css" rel="stylesheet" type="text/css">
+  <title>Navigation Timing</title>
+<style type="text/css">
+   pre.idl { border:solid thin; background:#eee; color:#000; padding:0.5em }
+   pre.idl :link, pre.idl :visited { color:inherit; background:transparent }
+   pre code { color:inherit; background:transparent }
+   div.example { margin-left:1em; padding-left:1em; border-left:double; color:#222; background:#fcfcfc }
+   .note { margin-left:2em; font-weight:bold; font-style:italic; color:#008000 }
+   p.note::before { content:"Note: " }
+   .XXX { padding:.5em; border:solid #f00 }
+   p.XXX::before { content:"Issue: " }
+   dl.switch { padding-left:2em }
+   dl.switch > dt { text-indent:-1.5em }
+   dl.switch > dt:before { content:'\21AA'; padding:0 0.5em 0 0; display:inline-block; width:1em; text-align:right; line-height:0.5em }
+   dl.domintro { color: green; margin: 2em 0 2em 2em; padding: 0.5em 1em; border: none; background: #DDFFDD; }
+   dl.domintro dt, dl.domintro dt * { color: black; text-decoration: none; }
+   dl.domintro dd { margin: 0.5em 0 1em 2em; padding: 0; }
+   dl.domintro dd p { margin: 0.5em 0; }
+   dl.domintro:before { display: table; margin: -1em -0.5em -0.5em auto; width: auto; content: 'This box is non-normative. Implementation requirements are given below this box.'; color: red; border: solid 2px; background: white; padding: 0 0.25em; }
+   em.ct { text-transform:lowercase; font-variant:small-caps; font-style:normal }
+   dfn { font-weight:bold; font-style:normal }
+   code { color:orangered }
+   code :link, code :visited { color:inherit }
+   hr:not(.top) { display:block; background:none; border:none; padding:0; margin:2em 0; height:auto }
+   table { border-collapse:collapse; border-style:hidden hidden none hidden }
+   table thead { border-bottom:solid }
+   table tbody th:first-child { border-left:solid }
+   table td, table th { border-left:solid; border-right:solid; border-bottom:solid thin; vertical-align:top; padding:0.2em }
+  </style>
+  <link href="http://www.w3.org/StyleSheets/TR/W3C-ED.css" rel="stylesheet" type="text/css">
 </head>
 
 <body class="draft">
@@ -11,22 +38,37 @@
 <div class="head">
 <h1>Navigation Timing</h1>
 
-<h2 class="no-num no-toc" id="working-draft-august-27-2010">Working Draft
+<h2 class="no-num no-toc" id="working-draft-august-27-2010">Editor's Draft
 August 27, 2010</h2>
 <dl>
   <dt>This version:</dt>
     <dd><a
-      href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
+      href="http://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overview.html">http://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overview.html</a></dd>
   <dt>Latest version:</dt>
     <dd><a
-      href="http://dev.w3.org/2006/webapi/WebTiming/">http://dev.w3.org/2006/webapi/WebTiming/</a></dd>
+      href="http://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overview.html">http://dvcs.w3.org/hg/webperf/raw-file/tip/specs/NavigationTiming/Overview.html</a></dd>
   <dt>Editors:</dt>
-    <dd class="vcard"><span class="fn">Zhiheng Wang</span>, <span
-      class="org">Google Inc.</span>, <span
-      class="email">zhihengw@google.com</span> </dd>
+    <dd class="vcard"><span class="fn">Zhiheng Wang</span> (<span
+      class="org">Google Inc.</span>) &lt;<a
+      class="email" href="mailto:zhihengw@google.com">zhihengw@google.com</a>&gt; </dd>
 </dl>
 
-<p class="copyright">Copyright 2009, All Rights Reserved</p>
+   <p class=copyright><a
+    href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a>
+    &copy; 2010 <a href="http://www.w3.org/"><acronym title="World Wide Web
+    Consortium">W3C</acronym></a><sup>&reg;</sup> (<a
+    href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute
+    of Technology">MIT</acronym></a>, <a
+    href="http://www.ercim.org/"><acronym title="European Research Consortium
+    for Informatics and Mathematics">ERCIM</acronym></a>, <a
+    href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C <a
+    href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+    <a
+    href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a>
+
+    and <a
+    href="http://www.w3.org/Consortium/Legal/copyright-documents">document
+    use</a> rules apply.</p>
 </div>
 
 <h2 class="no-num no-toc" id="abstract">Abstract</h2>
@@ -37,11 +79,46 @@ timing information related to navigation and elements. </p>
 <h2 class="no-num no-toc" id="status-of-this-document">Status of this
 document</h2>
 
+  <p><em>This section describes the status of this document at the time of
+   its publication. Other documents may supersede this document. A list of
+   current W3C publications and the latest revision of this technical report
+   can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
+   index</a> at http://www.w3.org/TR/.</em></p>
+
 <p>This is a <strong>work in progress</strong> and may change without any
 notices. </p>
 
-<p>Please direct your comments regarding this document to
-public-web-perf@w3.org or zhihengw@google.com. All feedback is welcome. </p>
+<p>Please send comments
+   to <a href="mailto:public-web-perf@w3.org?subject=[NT]%20">public-web-perf@w3.org</a>
+   (<a href="http://lists.w3.org/Archives/Public/public-web-perf/">archived</a>)
+   with <samp>[NT]</samp> at the start of the subject line.</p>
+
+<p>This document is produced by
+   the <a href="http://www.w3.org/2010/webperf/">Web Performance</a>
+   Working Group. The Web Performance Working Group is part of
+   the <a href="http://www.w3.org/2006/rwc/Activity">Rich Web Clients
+   Activity</a> in the
+   W3C <a href="http://www.w3.org/Interaction/">Interaction
+   Domain</a>.
+
+<p>Publication as a Working Draft does not imply endorsement by the
+W3C Membership. This is a draft document and may be updated, replaced
+or obsoleted by other documents at any time. It is inappropriate to
+cite this document as other than work in progress. </p>
+
+<p>This document was produced by a group operating under
+   the <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5
+   February 2004 W3C Patent Policy</a>. W3C maintains
+   a <a href="http://www.w3.org/2004/01/pp-impl/45211/status"
+   rel="disclosure">public list of any patent disclosures</a> made in
+   connection with the deliverables of the group; that page also
+   includes instructions for disclosing a patent. An individual who
+   has actual knowledge of a patent which the individual believes
+   contains <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential
+   Claim(s)</a> must disclose the information in accordance
+   with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section
+   6 of the W3C Patent Policy</a>.</p>
+
 
 <h2 class="no-num no-toc" id="table-of-contents">Table of Contents</h2>
 <!--begin-toc-->
@@ -360,7 +437,7 @@ id="nt-request-start">requestStart</dfn></code> attribute</h4>
 
 <p>This attribute must return the number of milliseconds between midnight of
 January 1, 1970 (UTC) and the time when the user agent starts requesting the
-current document from the server, or from <a
+current document  from the server, or from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">relevant
 application caches</a>, or from an HTML file.</p>
 
@@ -368,8 +445,8 @@ application caches</a>, or from an HTML file.</p>
 id="nt-request-end">requestEnd</dfn></code> attribute</h4>
 
 <p>This attribute must return the number of milliseconds between midnight of
-January 1, 1970 (UTC) and the time when the user agent finishes requesting
-the current document from the server, or from <a
+January 1, 1970 (UTC) and the time when the user agent receives the first byte
+of the response from the server, or from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">relevant
 application caches</a>, or from an HTML file.</p>
 
@@ -387,6 +464,9 @@ January 1, 1970 (UTC) and the time when the user agent receives the first
 byte of the response from the server, or from <a
 href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">relevant
 application caches</a>, or from an HTML file. </p>
+
+<div class=XXX><p>responseStart and requestEnd are referring to the same time
+value. Both are kept to maintain the naming consistency.</p></div>
 
 <h4 id="responseend-attribute"><code><dfn
 id="nt-response-end">responseEnd</dfn></code> attribute </h4>
@@ -579,20 +659,14 @@ window.performance.navigation are replaced with these instances.</p>
     href="#nt-navigation-start">navigationStart</a>.</li>
   <li>Immediately before the user agent <a
     href="http://dev.w3.org/html5/spec/Overview.html#unloading-documents">unloads</a>
-    the previous <a
-    href="http://dev.w3.org/html5/spec/Overview.html#document">document</a>
-    in the current <a
-    href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing
-    context</a>, record the current time as <a
-    href="#nt-unload-end">unloadEventStart</a>.</li>
+    the previous <a href="http://dev.w3.org/html5/spec/Overview.html#document">document</a>
+    in the current <a href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing
+    context</a>, record the current time as <a href="#nt-unload-end">unloadEventStart</a>.</li>
   <li>Immediately after the user agent <a
     href="http://dev.w3.org/html5/spec/Overview.html#unloading-documents">unloads</a>
-    the previous <a
-    href="http://dev.w3.org/html5/spec/Overview.html#document">document</a>
-    in the current <a
-    href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing
-    context</a>, record the current time as <a
-    href="#nt-unload-end">unloadEventEnd</a>.</li>
+    the previous <a href="http://dev.w3.org/html5/spec/Overview.html#document">document</a>
+    in the current <a href="http://dev.w3.org/html5/spec/Overview.html#browsing-context">browsing
+    context</a>, record the current time as <a href="#nt-unload-end">unloadEventEnd</a>.</li>
   <li id="step-fetchstart">fetch start: Immediately before a user agent
     checks with the <a
     href="http://www.whatwg.org/specs/web-apps/current-work/#relevant-application-cache">relevant
@@ -627,11 +701,8 @@ window.performance.navigation are replaced with these instances.</p>
   <li id="step-request-start">Record the time as <a
     href="#nt-request-start">requestStart</a> immediately before transmitting
     the request to the server or proxy or other subsystems.</li>
-  <li>Record the time as <a href="#nt-request-end">requestEnd</a> immediately
-    after transmitting the entire request to the server or proxy or other
-    subsystem.</li>
-  <li id="step-response-start">Record the time as <a
-    href="#nt-response-start">responseStart</a> immediately after the user
+  <li>Record the time as <a href="#nt-request-end">requestEnd</a> and
+    <a href="#nt-response-start">responseStart</a> immediately after the user
     agent receives the first trunk of the response.</li>
   <li id="step-response-end">Record the time as <a
     href="#nt-response-end">responseEnd</a> immediately after receiving the
@@ -698,171 +769,6 @@ window.performance.navigation are replaced with these instances.</p>
 <p>The accuracy of the timing-related attributes in the <a
 href="#navigation-timing">NavigationTiming</a> interfaces is recommended to
 be one millisecond or finer. </p>
-
-<div class="XXX">
-<p><b>Starting from Aug. 16, ResourceTiming has become its own W3C <a
-href="../ResourceTiming/Overview.html">draft</a> in the Web Performance
-WG.</b></p>
-</div>
-<!--
-<h2 id=resource-timing-0><span class=secno>5 </span>Resource Timing</h2>
-<h3 id=introduction-1><span class=secno>5.1 </span>Introduction</h3>
-<p>This section is non-normative</p>
-
-<p>
-While the <a href="#navigation-timing">NavigationTiming</a> interface provides
-timing information regarding the root document, the <a href="#resource-timing">
-ResourceTiming</a> and <a href="#resource-timing-collector">ResourceTimingCollector</a> interface
-facilitate timing measurement for elements on the root page. 
-The <dfn id=resource-timing>ResourceTiming</dfn> attribute represents the
-timing information related to an
-<a href=http://dev.w3.org/html5/spec/Overview.html#elements>element</a>.
-Each of the following elements must have a unique timing attribute:
-<a href="http://dev.w3.org/html5/spec/Overview.html#the-iframe-element">iframe</a>, 
-<a href="http://dev.w3.org/html5/spec/Overview.html#the-img-element">img</a>, 
-<a href="http://dev.w3.org/html5/spec/Overview.html#script">script</a>, 
-<a href="http://dev.w3.org/html5/spec/Overview.html#the-object-element">object</a>, 
-<a href="http://dev.w3.org/html5/spec/Overview.html#the-embed-element">embed</a> and
-<a href="http://dev.w3.org/html5/spec/Overview.html#the-link-element">link</a> with the link type of
-<a href="http://dev.w3.org/html5/spec/Overview.html#link-type-stylesheet">stylesheet</a>.
-
-
-
-</p><h3 id="the-resourcetiming-interface"><span class=secno>5.2 </span>The
-<code><a ref="#resource-timing">ResourceTiming</a></code> Interface</h3>
-<pre class=idl>interface <a href=#resource-timing>ResourceTiming</a> {
-const unsigned short <a href=#rt-resourcetype-script>RESOURCE_SCRIPT</a> = 1;
-const unsigned short <a href=#rt-resource-type-image>RESOURCE_IMAGE</a> = 2;
-const unsigned short <a href=#rt-resource-type-cssimage>RESOURCE_CSSIMAGE</a> = 3;
-const unsigned short <a href=#rt-resource-type-stylesheet>RESOURCE_STYLESHEET</a> = 4;
-const unsigned short <a href=#rt-resource-type-object>RESOURCE_OBJECT</a> = 5;
-const unsigned short <a href=#rt-resource-type-subdocument>RESOURCE_SUBDOCUMENT</a> = 6;
-const unsigned short <a href=#rt-resource-type-xhr>RESOURCE_XHLHTTPREQUEST</a> = 7;
-readonly attribute unsigned short <a href=#rt-resource-type title=resourcetype>resourceType</a>;
-
-readonly attribute DOMString <a href=#rt-url title=url>url</a>;
-readonly attribute unsigned longlong <a href=#rt-redirect-start title=redirectstart>redirectStart</a>;
-readonly attribute unsigned longlong <a href=#rt-redirect-end title=redirectend>redirectEnd</a>;
-readonly attribute unsigned short <a href=#rt-redirect-count title=redirectcount>redirectEnd</a>;
-readonly attribute unsigned longlong <a href=#rt-fetch-start title=resourcetime-fetchstart>fetchStart</a>;
-readonly attribute unsigned longlong <a href=#rt-load title=load>load</a>;
-};
-</pre>
-readonly attribute unsigned longlong <a href=#rt-fetch-end title=resourcetime-fetchend>fetchEnd</a>;
-
-<h4 id=resourcetype-attribute><code><dfn id=rt-resource-type>resourceType</dfn></code> attribute</h4>
-<p>This attribute must return one of the following <dfn id=nt-resource-type>resource types</dfn>:
-<dl>
-
-<dt><dfn id=rt-resource-type-script>RESOURCE_SCRIPT</dfn>: the resource is script.</dt>
-<dt><dfn id=rt-resource-type-image>RESOURCE_IMAGE</dfn>: the resource is an image.</dt>
-<dt><dfn id=rt-resource-type-cssimage>RESOURCE_CSSIMAGE</dfn>: the resource is a CSS image.</dt>
-<dt><dfn id=rt-resource-type-stylesheet>RESOURCE_STYLESHEET</dfn>: the resource is a stylesheet.</dt>
-<dt><dfn id=rt-resource-type-object>RESOURCE_OBJECT</dfn>: the resource is an object.</dt>
-<dt><dfn id=rt-resource-type-subdocument>RESOURCE_SUBDOCUMENT</dfn>: the resource is a document.</dt>
-<dt><dfn id=rt-resource-type-xhr>RESOURCE_XMLHTTPREQUEST</dfn>: the resource is a XML HTTP request.</dt>
-</dl>
-<h4 id=url-attribute><code><dfn id=rt-url>url</dfn></code> attribute</h4>
-<p>This attribute must return the <a href=http://dev.w3.org/html5/spec/Overview.html#url>URL</a> of the associated resource.
-
-<h4 id=fetchstart-attribute-0><code><dfn id=rt-fetch-start>fetchStart</dfn></code> attribute</h4><p>This attribute must return the number of milliseconds between midnight of January 1, 1970 (UTC) and the time when the user agent starts to <a href=http://dev.w3.org/html5/spec/Overview.html#fetching-resources>fetch</a> the resource. This time should not be overwritten if the user agent retries fetching the same resource due to failures.
-// fetchEnd needs to be removed in the interest of preserving user privacy.
-
-<h4 id=fetchend-attribute><code><dfn id=rt-fetch-end>fetchEnd</dfn></code>
-attribute</h4>
-<p>This attribute must return the number of milliseconds between midnight of
-January 1, 1970 (UTC) and the time when the user agent finish
-<a href=http://dev.w3.org/html5/spec/Overview.html#fetching-resources>fetching</a>
-the resource. This time should not be overwritten if the user agent retries
-fetching the same document due to failures.
-
-<h4 id=load-attribute><code><dfn id=rt-load>load</dfn></code> attribute
-</h4><p>This attribute must return the number of milliseconds between midnight of January 1, 1970 (UTC) and the time when the resource is loaded.
-
-</p><p> When an element is set or changed and if it results in a <a href=http://dev.w3.org/html5/spec/Overview.html#fetch>fetch</a>, 
-
-its timing attribute must be updated.
-
-</p><h3 id="the-resourcetimingcollector-interface"><span class=secno>5.3 </span>
-The <code><dfn href=resourcetimingcollector>ResourceTimingCollector</dfn></code> interface</h3>
-<pre class=idl>
-interface ResourceTimingEvent : Event {
-readonly attribute array[ResourceTiming] timing;
-};
-
-interface ResourceTimingCollector {
-void addEventListener(in EventListener listener)
-void removeEventListener(in EventListener listener)
-};
-
-[Supplemental]
-interface Window.performance {
-ResourceTimingCollector createResourceTimingCollector()
-};
-</pre>
-
-<p>ResourceTiming objects associated with embedded objects on the root document
-must be saved until the root document completes loading. If a
-ResourceTimingCollector object is created and an event handler is registered
-using addEventListener before the root document completes loading, all
-ResourceTiming objects must be delivered to the handler. If a
-ResourceTimingCollector object is created after the root document finishes
-loading, subsequent events should be delivered to the registered handlers as
-they occur.
-</p>
-
-<div class=example><div class=exampleHeader>Example</div><p>
-Any ResourceTiming object
-created prior to the end of onload will receive events for all resources (even
-if they complete prior to the object's creation). If a ResourceTiming object
-is created after onload, it will only receive events about resources completed
-after the object's creation. This allows the browser optimal opportunities to
-garbage collect. </div>
-<h3 id=processing-model><span class=secno>5.4 </span>Processing model</h3>
-<p>A user agent must allocate space to store all the <a href="#resource-timing">
-ResourceTiming</a> objects generated in the following process. 
-</p><ol>
-// We can't release these objects on navigation. A navigation could be
-// interrupted event after it's started, e.g., users refuse to unload the 
-// page, in which case we still want to keep these objects.
-
-<li>Before a user agent fetches a resource for an element that associates
-with a ResourceTiming object, the following steps must be run:
-<ol>
-<li>Create a new <a href=#resource-timing>ResourceTiming</a> object.</li>
-<li>Record the <a href=#rt-resource-type>resourceType</a> attribute.</li>
-<li>Before a user agent runs the
-<a href=http://dev.w3.org/html5/spec/Overview.html#changesToNetworkingModel>
-fetching algorithm</a>, it must record the current time in the
-<a href=#nt-fetch-start>fetchStart</a> attribute.</li>
-<li>Record the time as <a href=#rt-load>load</a> attribute
-immediately after the user agent finishes loading the resource into DOM.</li>
-<li>If a ResourceTimingCollector object exists, dispatch a ResourceTimingEvent
-with the ResourceTiming object to all registered event handlers.</li>
-<li>Save the ResourceTiming object unless the root document has finished 
-loading.</li>
-</ol></li>
-<li>When an event handler is added by <a href="">addEventListener</a>,
-the user agent must check if there is any saved
-<a href=#resource-timing>ResourceTiming</a> objects. If so, it must dispatch
-a ResourceTimingEvent to this new event handler and pass it with all
-the ResourceTiming objects.</li>
-<li>After the root document is loaded and the
-<a href="http://dev.w3.org/html5/spec/webappapis.html#handler-window-onload">
-onload</a> event is handled, a user agent may discard all the
-<a href=#resource-timing>ResourceTiming</a> objects it saves. All these objects
-must not be discarded before this time.</li>
-<li>Saved <a href="#resource-timing">ResourceTiming</a> objects should be
-cleaned up during the
-<a href="http://dev.w3.org/html5/spec/history.html#unloading-document-cleanup-steps">
-unloading document cleanup steps</a>.</li>
-</ol>
-<div class=example><div class=exampleHeader>Example</div><p>
-To avoid maintaining its own data storage while collecting timing information
-of all the resources, a page can create the ResourceTimingCollector and register
-the ResourceTimingEvent handler in the body onload handler. 
-</p></div>
--->
 
 <h2 id="privacy"></h2>
 
