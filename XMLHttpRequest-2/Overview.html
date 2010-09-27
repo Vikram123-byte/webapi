@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 18 September 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 27 September 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100918/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100918/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100927/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20100927/</a>
 
     <dt>Latest Version:
 
@@ -110,7 +110,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 18 September 2010 <!--Last Call Working Draft-->Editor's
+  <p>This is the 27 September 2010 <!--Last Call Working Draft-->Editor's
    Draft of XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -391,7 +391,9 @@ client.send();</code></pre>
      href="#ref-dom2events">DOM2Events</a></cite>] [<cite><a
      href="#ref-dom3core">DOM3Core</a></cite>]
    </dd>
-   <!-- XXX ArrayBuffer -->
+   <!-- XXX ArrayBuffer
+   https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/TypedArray-spec.html
+   -->
 
    <dt>File API
 
@@ -1125,7 +1127,11 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
      <var title="">url</var> argument.</p>
 
    <li>
-    <p><a href="#abort-send-algorithm" title="abort send()">Abort the
+    <p><a href="#terminated0" title="terminate abort()">Terminate the
+     <code>abort()</code> algorithm</a>.
+
+   <li>
+    <p><a href="#terminated" title="terminate send()">Terminate the
      <code>send()</code> algorithm</a>.
 
    <li>
@@ -1617,18 +1623,20 @@ X-Test: one, two</code></pre>
 
   <p>When the <dfn id=dom-xmlhttprequest-send
    title=dom-XMLHttpRequest-send><code>send(<var>data</var>)</code></dfn>
-   method is invoked, the user agent <em class=ct>must</em> run the following
-   steps (unless otherwise noted). This algorithm gets aborted when the <a
+   method is invoked, the user agent <em class=ct>must</em> run these steps
+   (unless otherwise noted). This algorithm can be <dfn id=terminated
+   title="terminate send()">terminated</dfn> by invoking the <a
    href="#dom-xmlhttprequest-open"><code
    title=dom-XMLHttpRequest-open>open()</code></a> or <a
    href="#dom-xmlhttprequest-abort"><code
-   title=dom-XMLHttpRequest-abort>abort()</code></a> method is invoked. When
-   the <dfn id=abort-send-algorithm title="abort send()"><code>send()</code>
-   algorithm is aborted</dfn> the user agent <em class=ct>must</em> terminate
-   the algorithm after finishing the step it is on.
+   title=dom-XMLHttpRequest-abort>abort()</code></a> method. When it is <a
+   href="#terminated" title="terminate send()">terminated</a> the user agent
+   <em class=ct>must</em> terminate the algorithm after finishing the step it
+   is on.
 
-  <p class=note>The <code title="">send()</code> algorithm can only be
-   aborted when the <a href="#asynchronous-flag">asynchronous flag</a> is
+  <p class=note>The <a href="#dom-xmlhttprequest-send"><code
+   title=dom-XMLHttpRequest-send>send()</code></a> algorithm can only be
+   terminated when the <a href="#asynchronous-flag">asynchronous flag</a> is
    true and only after the method call has returned.
 
   <ol>
@@ -2432,11 +2440,22 @@ X-Test: one, two</code></pre>
   <p>When the <dfn id=dom-xmlhttprequest-abort
    title=dom-XMLHttpRequest-abort><code>abort()</code></dfn> method is
    invoked, the user agent <em class=ct>must</em> run these steps (unless
-   otherwise noted):
+   otherwise noted). This algorithm can be <dfn id=terminated0
+   title="terminate abort()">terminated</dfn> by invoking the <a
+   href="#dom-xmlhttprequest-open"><code
+   title=dom-XMLHttpRequest-open>open()</code></a> method. When it is <a
+   href="#terminated0" title="terminate abort()">terminated</a> the user
+   agent <em class=ct>must</em> terminate the algorithm after finishing the
+   step it is on.
+
+  <p class=note>The <a href="#dom-xmlhttprequest-abort"><code
+   title=dom-XMLHttpRequest-abort>abort()</code></a> algorithm can only be
+   terminated by invoking <a href="#dom-xmlhttprequest-open"><code
+   title=dom-XMLHttpRequest-open>open()</code></a> from an event handler.
 
   <ol>
    <li>
-    <p><a href="#abort-send-algorithm" title="abort send()">Abort the
+    <p><a href="#terminated" title="terminate send()">Terminate the
      <code>send()</code> algorithm</a>.
 
    <li>
