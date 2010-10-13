@@ -1,0 +1,212 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--
+          ******* WARNING *********************************************************
+          This document was automatically generated using the Re-Spec specification
+          publishing system. Edits made here will be lost when it is regenerated
+          and chances are high that the editor will do something quite unpleasant
+          to you should that happen.
+          ******* WARNING *********************************************************
+        --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Web URL Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: WebNotifications.html,v 1.1 2010-10-13 07:43:04 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web URL Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>21 September 2010</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+        <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
+        (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
+        <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
+        <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved. W3C
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+        <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and 
+        <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document  use</a> rules apply.
+      </p></div><hr></hr>
+
+  
+
+  <h2 id="specabstract">Abstract</h2><div class="section">
+    
+    <p>
+      This document defines APIs for alerting the user outside of a web page
+      by displaying notifications with Web content provided on a URL.
+      For a broader overview of notifications, including definitions and use cases,
+      see <a href="Overview.html">Notifications Overview</a>.
+    </p>
+
+    <p>
+      This document extends and depends on Notifications specification providing
+      text/icon notifications [<cite><a href="#NOTIFICATIONS" class="bibref">NOTIFICATIONS</a></cite>].
+    </p>
+    
+  </div>
+
+  <div class="section"><h2 id="sotd">Status of this Document</h2>
+    
+    <p>
+      This document is an Editor's Draft and is not suitable for purposes other
+      than reviewing the specification being developed.
+    </p>
+  </div>
+
+  <div class="section"><h2 id="contents">Table of Contents</h2>
+    
+
+    <ul class="toc"><li><a href="#definitions">1. Definitions</a></li><li><a href="#introduction">2. Introduction</a></li><li><ul class="toc"><li><a href="#permissions">2.1. Permissions</a></li></ul></li><li><a href="#html">3. Web notifications</a></li><li><ul class="toc"><li><a href="#">3.1. Unsupported content types</a></li></ul></li><li><a href="#interactions">4. Interacting with notifications</a></li><li><ul class="toc"><li><a href="#">4.1. Using window.opener</a></li></ul></li><li><a href="#algorithms">5. Queueing and displaying notifications</a></li><li><ul class="toc"><li><a href="#displaying">5.1. Displaying notifications</a></li><li><a href="#replacing">5.2. Replacing a notification</a></li></ul></li><li><a href="#">6. References</a></li></ul>
+  </div>
+
+  <div class="section"><h2 id="definitions">1. Definitions</h2>
+    
+
+    <ul>
+      <li><em>simple notification</em>: A notification which consists only of an icon and one or two lines of text.</li>
+      <li><em>web notification</em>: A notification which consists of Web platform content, such as HTML or SVG.</li>
+    </ul>
+  </div>
+
+  <div class="section"><h2 id="introduction">2. Introduction</h2><p><strong>This section is not normative.</strong></p>
+    
+
+    <p>
+      This specification extends the capabilities of Notifications defined in [<cite><a href="#NOTIFICATIONS" class="bibref">NOTIFICATIONS</a></cite>] by allowing
+      the notification to contain content supplied by a URL, such as HTML or SVG, allowing for interactive
+      and dynamic notifications.
+    </p>
+
+    <div class="section"><h3 id="permissions">2.1. Permissions</h3>
+      
+      <p>
+	Throughout this document, "notification permission is allowed" shall mean that 
+	the permission level of the 'notifications' feature for the current
+	security origin is <code>USER_ALLOWED</code>  or <code>DEFAULT_ALLOWED</code>
+	in the meaning of [<cite><a href="#PERMISSIONS" class="bibref">PERMISSIONS</a></cite>], and "notification permission is denied" shall mean 
+	that the current permission level has some other value.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="html">3. Web notifications</h2>
+    
+    <p>
+      In addition to displaying simple notifications, some user agents may use a notification platform that is
+      capable of displaying notifications which contain web content, such as HTML or SVG.  This supplemental 
+      interface exposes that ability.
+    </p>
+    <div class="boxed"><p><span class="idlTitle">supplemental NotificationCenter interface</span></p><pre class="schema" title="supplemental NotificationCenter interface">[Supplemental] interface <a href="#idl-if-NotificationCenter">NotificationCenter</a> {
+  Notification <a href="#dfn-createwebnotification">createWebNotification</a>(in DOMString url)
+                                        raises(Exception);
+};</pre></div><div class="section" id="idl-if-NotificationCenter"><div class="section"><h4 class="idl-header" id="idl-attrs-NotificationCenter">Methods</h4><dl class="idl-meth"><dt id="dfn-createwebnotification"><code>createWebNotification</code></dt><dd><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>url</code>
+          of type
+          DOMString</dt><dd>
+	      The URL of a resource which contains content to be shown as the notification.
+	      The URL parameter must be resolved relative to the base URL of the document or worker script.
+	    </dd></dl></dd><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
+	      <p>A notification object representing the new notification.</p>
+	    </td></tr></table></dd><dt>Exceptions</dt><dd><table><tr><td><a href="#idl-if-Exception">Exception</a></td><td>
+	      <p>
+		If notification permissions are denied, this method will throw a <code>SECURITY_ERR</code>.
+	      </p>
+
+	      <p>
+		If the URL is invalid or cannot be resolved, a <code>SYNTAX_ERR</code> is raised.
+	      </p>
+	    </td></tr></table></dd></dl></dd></dl></div></div>
+    
+    <div class="section"><h3 id="">3.1. Unsupported content types</h3><p><strong>This section is not normative.</strong></p>
+      
+      <p>
+	User agents which use an existing notification platform and support only simple notifications may not
+	support all types of web content.  These user agents may attempt to extract simple notification content
+	from web content such as the <a href="#elem-title" class="elem-name">&lt;title&gt;</a> tag of HTML content as the notification.
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="interactions">4. Interacting with notifications</h2>
+    
+    <div class="section"><h3 id="">4.1. Using window.opener</h3>
+      
+      <p>
+	A web notification is a separate window, and script running within
+	that context should be able to communicate to other windows, subject to the
+	rules which generally apply to cross-domain communication.
+      </p>
+      <p>
+	Within a web notification, the <code>window.opener</code> property should be
+	set to the window which created the notification.  If the notification was
+	created by a worker script, <code>window.opener</code> should be <code>null</code>.
+      </p>
+
+      <p>
+	The following example uses <code>window.opener</code> to return to the application
+	which created the notification in response to a click, and then close the notification.
+      </p>
+
+      <div class="boxed"><div><span class="exampleTitle">Example: </span></div><pre class="example" title="">notification.html
+---
+New email arrived! 
+&lt;a href="#" onclick="window.opener.focus(); window.close();"&gt;
+  Go to Inbox
+&lt;/a&gt;
+
+script.js
+---
+var notification = window.notifications.createWebNotification("notification.html");
+notification.show();</pre></div>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="algorithms">5. Queueing and displaying notifications</h2>
+    
+    <p>
+      These algorithm supersede the corresponding algorithms in [<cite><a href="#NOTIFICATIONS" class="bibref">NOTIFICATIONS</a></cite>], providing for the
+      fetching of the content URL.
+    </p>
+    
+    <div class="section"><h3 id="displaying">5.1. Displaying notifications</h3>
+      
+      <p>
+	When a user agent is to <em>display a notification</em>, the user agent should perform the following steps:
+	<ol>
+	  <li>
+	    Fetch the resource given by <code>url</code> using the algorithm defined in [<cite><a href="#HTML5" class="bibref">HTML5</a></cite>].
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the notification
+	    object and stop executing this algorithm.
+	  </li>
+	  <li>Fire the <code>display</code> event on the notification object.</li>
+	  <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
+	</ol>
+      </p>
+    </div>
+
+    <div class="section"><h3 id="replacing">5.2. Replacing a notification</h3>
+      
+      <p>
+	When a user agent is to <em>replace a notification</em>, the user agent should perform the following steps.
+	Let <em>old</em> be the notification to be replaced by <em>new</em>.
+	<ol>
+	  <li>
+	    Fetch the <code>url</code> resource in <em>new</em> using the algorithm defined in [<cite><a href="#HTML5" class="bibref">HTML5</a></cite>].
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the <em>new</em> notification
+	    object and stop executing this algorithm,m returning the error information.  The <em>old</em> notification is not affected.
+	  </li>
+	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
+	  <li>Fire the <code>display</code> event on the <em>new</em> notification object.</li>
+	  <li>If the underlying notification platform supports replacement, replace <em>old</em> with <em>new</em> on the device.</li>
+	  <li>If the underlying notification platform does not support replacment, remove <em>old</em> from the device and show <em>new</em> on the device.</li>
+	</ol>
+      </p>
+    </div>
+  </div>
+
+  <div class="section"><h2 id="">6. References</h2>
+    
+    <dl class="bibliography">
+      
+      
+      
+    <dt id="HTML5">HTML5</dt><dd><cite><a href="http://www.w3.org/TR/html5/">HTML5: A vocabulary and associated APIs for HTML and XHTML</a></cite>,
+    </dd><dt id="NOTIFICATIONS">NOTIFICATIONS</dt><dd><cite><a href="Notifications.html">Notifications</a></cite>,
+    </dd><dt id="PERMISSIONS">PERMISSIONS</dt><dd><cite><a href="FeaturePermissions.html">Feature Permissions</a></cite>,
+    </dd></dl>
+  </div>
+
+</body></html>

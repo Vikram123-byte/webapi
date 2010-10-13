@@ -1,0 +1,232 @@
+<specification 
+              xmlns='http://berjon.com/ns/re-spec/' 
+              xmlns:rs='http://berjon.com/ns/re-spec/' 
+              version='1.0' 
+              xml:lang='en'>
+
+  <metadata>
+    <title>Web URL Notifications</title>
+    <styling type='W3C' status='ED'/>
+    <date year='2010' month='09' day='21'/>
+    <editors>
+      <person>
+        <name>John Gregg</name>
+        <email>johnnyg@google.com</email>
+        <company>Google</company>
+        <company-url>http://www.google.com/</company-url>
+      </person>
+    </editors>
+  </metadata>
+
+  <section xml:id='abstract' type='w3c-abstract'>
+    <title>Abstract</title>
+    <p>
+      This document defines APIs for alerting the user outside of a web page
+      by displaying notifications with Web content provided on a URL.
+      For a broader overview of notifications, including definitions and use cases,
+      see <a href="Overview.html">Notifications Overview</a>.
+    </p>
+
+    <p>
+      This document extends and depends on Notifications specification providing
+      text/icon notifications [NOTIFICATIONS].
+    </p>
+    <!--
+    <ednote>
+      <p>
+        Last update: $Id: WebNotifications.xml,v 1.1 2010-10-13 07:42:38 jgregg Exp $.
+      </p>
+    </ednote>
+    -->
+  </section>
+
+  <section xml:id='sotd' type='w3c-sotd'>
+    <title>Status of this Document</title>
+    <p>
+      This document is an Editor's Draft and is not suitable for purposes other
+      than reviewing the specification being developed.
+    </p>
+  </section>
+
+  <section xml:id='contents' type='toc'>
+    <title>Table of Contents</title>
+
+    <?respec-toc?>
+  </section>
+
+  <section xml:id='definitions'>
+    <title>Definitions</title>
+
+    <ul>
+      <li><em>simple notification</em>: A notification which consists only of an icon and one or two lines of text.</li>
+      <li><em>web notification</em>: A notification which consists of Web platform content, such as HTML or SVG.</li>
+    </ul>
+  </section>
+
+  <section xml:id='introduction' normativity='not normative'>
+    <title>Introduction</title>
+
+    <p>
+      This specification extends the capabilities of Notifications defined in [NOTIFICATIONS] by allowing
+      the notification to contain content supplied by a URL, such as HTML or SVG, allowing for interactive
+      and dynamic notifications.
+    </p>
+
+    <section xml:id='permissions'>
+      <title>Permissions</title>
+      <p>
+	Throughout this document, "notification permission is allowed" shall mean that 
+	the permission level of the 'notifications' feature for the current
+	security origin is <code>USER_ALLOWED</code>  or <code>DEFAULT_ALLOWED</code>
+	in the meaning of [PERMISSIONS], and "notification permission is denied" shall mean 
+	that the current permission level has some other value.
+      </p>
+    </section>
+  </section>
+
+  <section xml:id='html'>
+    <title>Web notifications</title>
+    <p>
+      In addition to displaying simple notifications, some user agents may use a notification platform that is
+      capable of displaying notifications which contain web content, such as HTML or SVG.  This supplemental 
+      interface exposes that ability.
+    </p>
+    <schema>
+      <title>supplemental NotificationCenter interface</title>
+      <idl>
+	<interface name='NotificationCenter' supplemental='true'>
+	  <method name='createWebNotification'>
+	    <returns type='Notification'>
+	      <p>A notification object representing the new notification.</p>
+	    </returns>
+	    <param name='url' type='DOMString'>
+	      The URL of a resource which contains content to be shown as the notification.
+	      The URL parameter must be resolved relative to the base URL of the document or worker script.
+	    </param>
+	    <exception name='Exception'>
+	      <p>
+		If notification permissions are denied, this method will throw a <code>SECURITY_ERR</code>.
+	      </p>
+
+	      <p>
+		If the URL is invalid or cannot be resolved, a <code>SYNTAX_ERR</code> is raised.
+	      </p>
+	    </exception>
+	  </method>
+	</interface>
+      </idl>
+    </schema>
+    
+    <section normativity='not normative'>
+      <title>Unsupported content types</title>
+      <p>
+	User agents which use an existing notification platform and support only simple notifications may not
+	support all types of web content.  These user agents may attempt to extract simple notification content
+	from web content such as the <el>title</el> tag of HTML content as the notification.
+      </p>
+    </section>
+  </section>
+
+  <section xml:id='interactions'>
+    <title>Interacting with notifications</title>
+    <section>
+      <title>Using window.opener</title>
+      <p>
+	A web notification is a separate window, and script running within
+	that context should be able to communicate to other windows, subject to the
+	rules which generally apply to cross-domain communication.
+      </p>
+      <p>
+	Within a web notification, the <code>window.opener</code> property should be
+	set to the window which created the notification.  If the notification was
+	created by a worker script, <code>window.opener</code> should be <code>null</code>.
+      </p>
+
+      <p>
+	The following example uses <code>window.opener</code> to return to the application
+	which created the notification in response to a click, and then close the notification.
+      </p>
+
+      <example>
+	notification.html
+	---
+	New email arrived! 
+	&lt;a href="#" onclick="window.opener.focus(); window.close();"&gt;
+	  Go to Inbox
+	&lt;/a&gt;
+
+	script.js
+	---
+	var notification = window.notifications.createWebNotification("notification.html");
+	notification.show();
+      </example>
+    </section>
+  </section>
+
+  <section xml:id='algorithms'>
+    <title>Queueing and displaying notifications</title>
+    <p>
+      These algorithm supersede the corresponding algorithms in [NOTIFICATIONS], providing for the
+      fetching of the content URL.
+    </p>
+    
+    <section xml:id='displaying'>
+      <title>Displaying notifications</title>
+      <p>
+	When a user agent is to <em>display a notification</em>, the user agent should perform the following steps:
+	<ol>
+	  <li>
+	    Fetch the resource given by <code>url</code> using the algorithm defined in [HTML5].
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the notification
+	    object and stop executing this algorithm.
+	  </li>
+	  <li>Fire the <code>display</code> event on the notification object.</li>
+	  <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
+	</ol>
+      </p>
+    </section>
+
+    <section xml:id='replacing'>
+      <title>Replacing a notification</title>
+      <p>
+	When a user agent is to <em>replace a notification</em>, the user agent should perform the following steps.
+	Let <em>old</em> be the notification to be replaced by <em>new</em>.
+	<ol>
+	  <li>
+	    Fetch the <code>url</code> resource in <em>new</em> using the algorithm defined in [HTML5].
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the <em>new</em> notification
+	    object and stop executing this algorithm,m returning the error information.  The <em>old</em> notification is not affected.
+	  </li>
+	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
+	  <li>Fire the <code>display</code> event on the <em>new</em> notification object.</li>
+	  <li>If the underlying notification platform supports replacement, replace <em>old</em> with <em>new</em> on the device.</li>
+	  <li>If the underlying notification platform does not support replacment, remove <em>old</em> from the device and show <em>new</em> on the device.</li>
+	</ol>
+      </p>
+    </section>
+  </section>
+
+  <section>
+    <title>References</title>
+    <bibliography>
+      <bibentry xml:id='HTML5'>
+	<title>HTML5: A vocabulary and associated APIs for HTML and XHTML</title>
+	<link>http://www.w3.org/TR/html5/</link>
+      </bibentry>
+      <bibentry xml:id='NOTIFICATIONS'>
+	<title>Notifications</title>
+	<link>Notifications.html</link>
+      </bibentry>
+      <bibentry xml:id='PERMISSIONS'>
+	<title>Feature Permissions</title>
+	<link>FeaturePermissions.html</link>
+      </bibentry>
+    </bibliography>
+  </section>
+
+</specification>
+
