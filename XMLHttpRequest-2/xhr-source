@@ -497,7 +497,6 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   void <span title="dom-XMLHttpRequest-open">open</span>(DOMString <var>method</var>, DOMString <var title="">url</var>, boolean <var>async</var>, DOMString? <var>user</var>, DOMString? <var>password</var>);
   void <span title="dom-XMLHttpRequest-setRequestHeader">setRequestHeader</span>(DOMString <var>header</var>, DOMString <var>value</var>);<!--START xhr2-->
            attribute unsigned long <span title="dom-XMLHttpRequest-timeout">timeout</span>;
-           attribute boolean <span title="dom-XMLHttpRequest-asBlob">asBlob</span>;
            attribute boolean <span title="dom-XMLHttpRequest-withCredentials">withCredentials</span>;
   readonly attribute <span>XMLHttpRequestUpload</span> <span title="dom-XMLHttpRequest-upload">upload</span>;<!--END xhr2-->
   void <span title="dom-XMLHttpRequest-send">send</span>();<!--START xhr2-->
@@ -513,9 +512,7 @@ interface <dfn id="xmlhttprequest">XMLHttpRequest</dfn> : <span>XMLHttpRequestEv
   readonly attribute DOMString <span title="dom-XMLHttpRequest-statusText">statusText</span>;
   DOMString <span title="dom-XMLHttpRequest-getResponseHeader">getResponseHeader</span>(DOMString <var>header</var>);
   DOMString <span title="dom-XMLHttpRequest-getAllResponseHeaders">getAllResponseHeaders</span>();<!--START xhr2-->
-  void <span title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType</span>(DOMString <var>mime</var>);
-  readonly attribute <span>ArrayBuffer</span> <span title="dom-XMLHttpRequest-responseArrayBuffer">responseArrayBuffer</span>;
-  readonly attribute <span>Blob</span> <span title="dom-XMLHttpRequest-responseBlob">responseBlob</span>;<!--END xhr2-->
+  void <span title="dom-XMLHttpRequest-overrideMimeType">overrideMimeType</span>(DOMString <var>mime</var>);<!--END xhr2-->
   readonly attribute DOMString <span title="dom-XMLHttpRequest-responseText">responseText</span>;
   readonly attribute <span>Document</span> <span title="dom-XMLHttpRequest-responseXML">responseXML</span>;
 };<!--START xhr2-->
@@ -743,11 +740,6 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    <dd>The amount of milliseconds a request can take before being
    terminated. Initially zero. Zero means there is no timeout.</dd>
 
-   <dt>The <dfn>as blob flag</dfn></dt>
-   <dd>Either true or false. When true
-   <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code> can be
-   used. Initially false.</dd>
-
    <dt>The <dfn>credentials flag</dfn></dt>
    <dd>True when <span>user credentials</span> are to be included in a
    cross-origin request. False when they are to be excluded in a
@@ -970,8 +962,6 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      <!--START xhr2-->
      <li><p>Set the <span>request timeout</span> to zero.</p></li>
 
-     <li><p>Set the <span>as blob flag</span> to false.</p></li>
-
      <li><p>Set the <span>credentials flag</span> to false.</p></li>
      <!--END xhr2-->
 
@@ -1168,44 +1158,6 @@ X-Test: one, two</code></pre>
   <p>On getting, the <code title="dom-XMLHttpRequest-timeout">timeout</code>
   attribute <em class="ct">must</em> return the value of the
   <span>request timeout</span>.</p>
-
-
-  <h4>The <code title="">asBlob</code> attribute</h4>
-
-  <dl class="domintro">
-   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-asBlob">asBlob</code></dt>
-   <dd>
-    <p>Returns the value of the <span>as blob flag</span>.</p>
-    <p>When set: sets the value of the <span>as blob flag</span>.</p>
-    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
-    state is not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if
-    the <span><code>send()</code> flag</span> is true.</p>
-   </dd>
-  </dl>
-
-  <p>The
-  <dfn id="dom-xmlhttprequest-asblob" title="dom-XMLHttpRequest-asBlob"><code>asBlob</code></dfn>
-  attribute controls the <span>as blob flag</span>.</p>
-
-  <p>On setting the <code title="dom-XMLHttpRequest-asBlob">asBlob</code>
-  attribute these steps <em class="ct">must</em> be run:</p>
-
-  <ol>
-   <li><p>If the state is not
-   <span title="dom-XMLHttpRequest-OPENED">OPENED</span> raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
-   steps.</p></li>
-
-   <li><p>If the <span><code>send()</code> flag</span> is true raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
-   steps.</p></li>
-
-   <li><p>Set the <span>as blob flag</span> to the given value.</p></li>
-  </ol>
-
-  <p>On getting the <code title="dom-XMLHttpRequest-asBlob">asBlob</code>
-  attribute it <em class="ct">must</em> return the value of the
-  <span>as blob flag</span>.</p>
 
 
   <h4>The <code title="">withCredentials</code> attribute</h4>
@@ -2427,75 +2379,6 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li><p>If a <code>charset</code> parameter is successfully parsed set
    <span>override charset</span> to its value.</p></li>
   </ol>
-
-
-  <h4>The <code title="">responseArrayBuffer</code> attribute</h4>
-
-  <dl class="domintro">
-   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseArrayBuffer">responseArrayBuffer</code></dt>
-   <dd>
-    <p>Returns the <span>response entity body</span>.</p>
-    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
-    <span>as blob flag</span> is true.</p>
-   </dd>
-  </dl>
-
-  <p>The
-  <dfn id="dom-xmlhttprequest-responsearraybuffer" title="dom-XMLHttpRequest-responseArrayBuffer"><code>responseArrayBuffer</code></dfn>
-  attribute <em class="ct">must</em> return the result of running these
-  steps:</p>
-
-  <ol>
-   <li><p>If the <span>as blob flag</span> is true raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
-   steps.</p></li>
-
-   <li><p>If the state is not
-   <span title="dom-XMLHttpRequest-LOADING">LOADING</span> or
-   <span title="dom-XMLHttpRequest-DONE">DONE</span> return null and
-   terminate these steps.</p></li>
-
-   <li><p>If the <span>error flag</span> is true return null and terminate
-   these steps.</p></li>
-
-   <li><p>Return an <code>ArrayBuffer</code> object representing the
-   <span>response entity body</span> or return null if the
-   <span>response entity body</span> is null.</p></li>
-  </ol>
-
-
-  <h4>The <code title="">responseBlob</code> attribute</h4>
-
-  <dl class="domintro">
-   <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code></dt>
-   <dd>
-    <p>Returns the <span>response entity body</span>.</p>
-    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the
-    <span>as blob flag</span> is false.</p>
-   </dd>
-  </dl>
-
-  <p>The
-  <dfn id="dom-xmlhttprequest-responseblob" title="dom-XMLHttpRequest-responseBlob"><code>responseBlob</code></dfn>
-  attribute <em class="ct">must</em> return the result of running these
-  steps:</p>
-
-  <ol>
-   <li><p>If the <span>as blob flag</span> is false raise an
-   <code>INVALID_STATE_ERR</code> exception and terminate these
-   steps.</p></li>
-
-   <li><p>If the state is not
-   <span title="dom-XMLHttpRequest-DONE">DONE</span> return null and
-   terminate these steps.</p></li>
-
-   <li><p>If the <span>error flag</span> is true return null and terminate
-   these steps.</p></li>
-
-   <li><p>Return a <code>Blob</code> object representing the
-   <span>response entity body</span> or return null if the
-   response entity body is null.</p></li>
-  </ol>
   <!--END xhr2-->
 
 
@@ -2754,14 +2637,6 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;<!--END xhr2--></pre>
    <code>Blob</code>, <code>File</code>, and <code>FormData</code>
    objects.</p></li>
 
-   <li>The
-   <code title=dom-XMLHttpRequest-responseArrayBuffer>responseArrayBuffer</code>
-   attribute to access the <span>response entity body</span> as
-   <code>ArrayBuffer</code>.</p></li>
-
-   <li><p>The <code title="dom-XMLHttpRequest-asBlob">asBlob</code> and
-   <code title="dom-XMLHttpRequest-responseBlob">responseBlob</code>
-   attributes for streaming large amounts of data to the client.</p></li>
   </ul>
   <!--END xhr2-->
 
