@@ -227,10 +227,16 @@
        <li><a href="#the-overridemimetype-method"><span class=secno>3.7.6.
         </span>The <code title="">overrideMimeType()</code> method</a>
 
-       <li><a href="#the-responsetext-attribute"><span class=secno>3.7.7.
+       <li><a href="#the-responsetype-attribute"><span class=secno>3.7.7.
+        </span>The <code title>responseType</code> attribute</a>
+
+       <li><a href="#the-response-attribute"><span class=secno>3.7.8.
+        </span>The <code title>response</code> attribute</a>
+
+       <li><a href="#the-responsetext-attribute"><span class=secno>3.7.9.
         </span>The <code title="">responseText</code> attribute</a>
 
-       <li><a href="#the-responsexml-attribute"><span class=secno>3.7.8.
+       <li><a href="#the-responsexml-attribute"><span class=secno>3.7.10.
         </span>The <code title="">responseXML</code> attribute</a>
       </ul>
 
@@ -584,6 +590,8 @@ interface <dfn id=xmlhttprequest>XMLHttpRequest</dfn> : <a href="#xmlhttprequest
   DOMString <a href="#dom-xmlhttprequest-getresponseheader" title=dom-XMLHttpRequest-getResponseHeader>getResponseHeader</a>(DOMString <var>header</var>);
   DOMString <a href="#dom-xmlhttprequest-getallresponseheaders" title=dom-XMLHttpRequest-getAllResponseHeaders>getAllResponseHeaders</a>();
   void <a href="#dom-xmlhttprequest-overridemimetype" title=dom-XMLHttpRequest-overrideMimeType>overrideMimeType</a>(DOMString <var>mime</var>);
+           attribute DOMString <a href="#dom-xmlhttprequest-responsetype" title=dom-XMLHttpRequest-responseType>responseType</a>;
+  readonly attribute any <a href="#dom-xmlhttprequest-response" title=dom-XMLHttpRequest-response>response</a>;
   readonly attribute DOMString <a href="#dom-xmlhttprequest-responsetext" title=dom-XMLHttpRequest-responseText>responseText</a>;
   readonly attribute <span>Document</span> <a href="#dom-xmlhttprequest-responsexml" title=dom-XMLHttpRequest-responseXML>responseXML</a>;
 };
@@ -1151,6 +1159,11 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
 
      <li>
       <p>Set the <a href="#credentials-flag">credentials flag</a> to false.
+
+     <li>
+      <p>Set the <a href="#dom-xmlhttprequest-responsetype"><code
+       title=dom-XMLHttpRequest-responseType>responseType</code></a>
+       attribute's value to the empty string.
 
      <li>
       <p>Set the <a href="#send-flag"><code>send()</code> flag</a> to false.
@@ -2747,8 +2760,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <p>The <dfn id=document-response-entity-body>document response entity
    body</dfn> is either a <code>Document</code> representing the <a
-   href="#response-entity-body">response entity body</a> or null. The
-   document response entity body is the return value of the following
+   href="#response-entity-body">response entity body</a> or null. If the <a
+   href="#document-response-entity-body">document response entity body</a>
+   has no value assigned to it let it be the return value of the following
    algorithm:
 
   <ol>
@@ -2788,6 +2802,24 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Return <var>document</var>.
   </ol>
 
+  <p>The <dfn id=blob-response-entity-body>blob response entity body</dfn> is
+   a <a href="#blob"><code>Blob</code></a> representing the <a
+   href="#response-entity-body">response entity body</a>. If the <a
+   href="#blob-response-entity-body">blob response entity body</a> has no
+   value assigned to it let it be the return value of the following
+   algorithm:
+
+  <ol>
+   <li>
+    <p>If the <a href="#response-entity-body">response entity body</a> is
+     null, return an empty <a href="#blob"><code>Blob</code></a> object and
+     terminate these steps.
+
+   <li>
+    <p>Return a <a href="#blob"><code>Blob</code></a> object representing the
+     <a href="#response-entity-body">response entity body</a>.
+  </ol>
+
   <h4 id=the-overridemimetype-method><span class=secno>3.7.6. </span>The
    <code title="">overrideMimeType()</code> method</h4>
 
@@ -2825,7 +2857,129 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      href="#override-charset">override charset</a> to its value.
   </ol>
 
-  <h4 id=the-responsetext-attribute><span class=secno>3.7.7. </span>The <code
+  <h4 id=the-responsetype-attribute><span class=secno>3.7.7. </span>The <code
+   title>responseType</code> attribute</h4>
+
+  <dl class=domintro>
+   <dt><var title="">client</var> . <a
+    href="#dom-xmlhttprequest-responsetype"><code
+    title=dom-XMLHttpRequest-responseType>responseType</code></a> [ = <var
+    title>value</var> ]
+
+   <dd>
+    <p>Returns the response type.</p>
+
+    <p>Can be set to change the response type. Values are: the empty string
+     (default), "<code title>text</code>", "<code title>document</code>", and
+     "<a href="#blob"><code title>blob</code></a>".</p>
+
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
+     <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or <a
+     href="#dom-xmlhttprequest-headers_received"
+     title="dom-XMLHttpRequest-HEADERS_RECEIVED">HEADERS_RECEIVED</a>.</p>
+  </dl>
+
+  <p>On setting the <dfn id=dom-xmlhttprequest-responsetype
+   title=dom-XMLHttpRequest-responseType><code>responseType</code></dfn>
+   attribute these steps <em class=ct>must</em> be run:
+
+  <ol>
+   <li>
+    <p>If the state is not <a href="#dom-xmlhttprequest-opened"
+     title=dom-XMLHttpRequest-OPENED>OPENED</a> or <a
+     href="#dom-xmlhttprequest-headers_received"
+     title="dom-XMLHttpRequest-HEADERS_RECEIVED">HEADERS_RECEIVED</a> raise
+     an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
+
+   <li>
+    <p>If the given value is not the empty string, "<code title>text</code>",
+     "<code title>document</code>", or "<a href="#blob"><code
+     title>blob</code></a>" terminate these steps.
+
+   <li>
+    <p>Set the <a href="#dom-xmlhttprequest-responsetype"><code
+     title=dom-XMLHttpRequest-responseType>responseType</code></a>
+     attribute's value to the given value.
+  </ol>
+
+  <p>On getting the <a href="#dom-xmlhttprequest-responsetype"><code
+   title=dom-XMLHttpRequest-responseType>responseType</code></a> attribute it
+   <em class=ct>must</em> return its value.
+
+  <h4 id=the-response-attribute><span class=secno>3.7.8. </span>The <code
+   title>response</code> attribute</h4>
+
+  <dl class=domintro>
+   <dt><var title="">client</var> . <a
+    href="#dom-xmlhttprequest-response"><code
+    title=dom-XMLHttpRequest-response>response</code></a>
+
+   <dd>
+    <p>Returns the <a href="#response-entity-body">response entity body</a>.
+  </dl>
+
+  <p>The <dfn id=dom-xmlhttprequest-response
+   title=dom-XMLHttpRequest-response><code>response</code></dfn> attribute
+   <em class=ct>must</em> return the result of running these steps:
+
+  <dl class=switch>
+   <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
+    title=dom-XMLHttpRequest-responseType>responseType</code></a> is the
+    empty string or "<code title>text</code>"
+
+   <dd>
+    <ol>
+     <li>
+      <p>If the state is not <a href="#dom-xmlhttprequest-loading"
+       title=dom-XMLHttpRequest-LOADING>LOADING</a> or <a
+       href="#dom-xmlhttprequest-done" title=dom-XMLHttpRequest-DONE>DONE</a>
+       return the empty string and terminate these steps.
+
+     <li>
+      <p>If the <a href="#error-flag">error flag</a> is true return the empty
+       string and terminate these steps.
+
+     <li>
+      <p>Return the <a href="#text-response-entity-body">text response entity
+       body</a>.
+    </ol>
+
+   <dt>Otherwise
+
+   <dd>
+    <ol>
+     <li>
+      <p>If the state is not <a href="#dom-xmlhttprequest-done"
+       title=dom-XMLHttpRequest-DONE>DONE</a> return null and terminate these
+       steps.
+
+     <li>
+      <p>If the <a href="#error-flag">error flag</a> is true return null and
+       terminate these steps.
+
+     <li>
+      <dl class=switch>
+       <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
+        title=dom-XMLHttpRequest-responseType>responseType</code></a> is
+        "<code title>document</code>"
+
+       <dd>
+        <p>Return the <a href="#document-response-entity-body">document
+         response entity body</a>.
+
+       <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
+        title=dom-XMLHttpRequest-responseType>responseType</code></a> is "<a
+        href="#blob"><code title>blob</code></a>"
+
+       <dd>
+        <p>Return the <a href="#blob-response-entity-body">blob response
+         entity body</a>.
+      </dl>
+    </ol>
+  </dl>
+
+  <h4 id=the-responsetext-attribute><span class=secno>3.7.9. </span>The <code
    title="">responseText</code> attribute</h4>
 
   <dl class=domintro>
@@ -2837,8 +2991,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Returns the <a href="#text-response-entity-body">text response entity
      body</a>.</p>
 
-    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the <span>as
-     blob flag</span> is true.</p>
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if <a
+     href="#dom-xmlhttprequest-responsetype"><code
+     title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
+     empty string or "<code title>text</code>".
   </dl>
 
   <p>The <dfn id=dom-xmlhttprequest-responsetext
@@ -2847,7 +3003,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <ol>
    <li>
-    <p>If the <span>as blob flag</span> is true raise an
+    <p>If <a href="#dom-xmlhttprequest-responsetype"><code
+     title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
+     empty string or "<code title>text</code>" raise an
      <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
@@ -2865,7 +3023,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      body</a>.
   </ol>
 
-  <h4 id=the-responsexml-attribute><span class=secno>3.7.8. </span>The <code
+  <h4 id=the-responsexml-attribute><span class=secno>3.7.10. </span>The <code
    title="">responseXML</code> attribute</h4>
 
   <dl class=domintro>
@@ -2877,8 +3035,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Returns the <a href="#document-response-entity-body">document response
      entity body</a>.</p>
 
-    <p>Throws an <code>INVALID_STATE_ERR</code> exception if the <span>as
-     blob flag</span> is true.</p>
+    <p>Throws an <code>INVALID_STATE_ERR</code> exception if <a
+     href="#dom-xmlhttprequest-responsetype"><code
+     title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
+     empty string or "<code title>document</code>".
   </dl>
 
   <p>The <dfn id=dom-xmlhttprequest-responsexml
@@ -2887,7 +3047,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <ol>
    <li>
-    <p>If the <span>as blob flag</span> is true raise an
+    <p>If <a href="#dom-xmlhttprequest-responsetype"><code
+     title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
+     empty string or "<code title>document</code>" raise an
      <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
@@ -2902,8 +3064,6 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li>
     <p>Return the <a href="#document-response-entity-body">document response
      entity body</a>.
-   </li>
-   <!-- XXX same object -->
   </ol>
 
   <p class=note>The <a href="#dom-xmlhttprequest-responsexml"><code
@@ -3121,6 +3281,12 @@ const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
      href="#blob"><code>Blob</code></a>, <a
      href="#file"><code>File</code></a>, and <a
      href="#formdata"><code>FormData</code></a> objects.
+
+   <li>
+    <p>The <a href="#dom-xmlhttprequest-responsetype"><code
+     title=dom-XMLHttpRequest-responseType>responseType</code></a> and <a
+     href="#dom-xmlhttprequest-response"><code
+     title=dom-XMLHttpRequest-response>response</code></a> attributes.
   </ul>
 
   <h2 class=no-num id=references>References</h2>
