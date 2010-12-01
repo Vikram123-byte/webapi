@@ -738,16 +738,6 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
    no <span>entity body</span>.</dd>
 
    <!--START xhr2-->
-   <dt>The <dfn>request timeout</dfn></dt>
-   <dd>The amount of milliseconds a request can take before being
-   terminated. Initially zero. Zero means there is no timeout.</dd>
-
-   <dt>The <dfn>credentials flag</dfn></dt>
-   <dd>True when <span>user credentials</span> are to be included in a
-   cross-origin request. False when they are to be excluded in a
-   cross-origin request and when cookies are to be ignored in its
-   response. Initially false.</dd>
-
    <dt>The <dfn id="upload-complete-flag">upload complete flag</dfn></dt>
    <dd>Used to determine when to stop sending upload progress events. The
    flag is either true or false.</dd>
@@ -962,9 +952,13 @@ interface <dfn id="anonxmlhttprequest">AnonXMLHttpRequest</dfn> : <span>XMLHttpR
      <li><p>Empty the list of <span>author request headers</span>.</p>
 
      <!--START xhr2-->
-     <li><p>Set the <span>request timeout</span> to zero.</p></li>
+     <li><p>Set the
+     <code title="dom-XMLHttpRequest-timeout">timeout</code> attribute's
+     value to zero.</p></li>
 
-     <li><p>Set the <span>credentials flag</span> to false.</p></li>
+     <li><p>Set the
+     <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
+     attribute's value to false.</p></li>
 
      <li><p>Set the
      <code title="dom-XMLHttpRequest-responseType">responseType</code>
@@ -1134,19 +1128,16 @@ X-Test: one, two</code></pre>
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-timeout">timeout</code></dt>
    <dd>
-    <p>Returns the value of the <span>request timeout</span>.</p>
-    <p>When set: sets the value of the <span>request timeout</span>.</p>
+    <p>The amount of milliseconds a request can take before being
+    terminated. Initially zero. Zero means there is no timeout.</p>
     <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
     state is not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if
     the <span><code>send()</code> flag</span> is true.</p>
    </dd>
   </dl>
 
-  <p>The
+  <p>On setting the
   <dfn id="dom-xmlhttprequest-timeout" title="dom-XMLHttpRequest-timeout"><code>timeout</code></dfn>
-  attribute controls the <span>request timeout</span>.</p>
-
-  <p>On setting the <code title="dom-XMLHttpRequest-timeout">timeout</code>
   attribute these steps <em class="ct">must</em> be run:</p>
 
   <ol>
@@ -1158,12 +1149,12 @@ X-Test: one, two</code></pre>
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>Set <span>request timeout</span> to the given value.</p></li>
+   <li><p>Set <code title="dom-XMLHttpRequest-timeout">timeout</code>
+   attribute's value to the given value.</p></li>
   </ol>
 
   <p>On getting, the <code title="dom-XMLHttpRequest-timeout">timeout</code>
-  attribute <em class="ct">must</em> return the value of the
-  <span>request timeout</span>.</p>
+  attribute <em class="ct">must</em> return its value.</p>
 
 
   <h4>The <code title="">withCredentials</code> attribute</h4>
@@ -1171,8 +1162,10 @@ X-Test: one, two</code></pre>
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code></dt>
    <dd>
-    <p>Returns the value of the <span>credentials flag</span>.</p>
-    <p>When set: sets the value of the <span>credentials flag</span>.</p>
+    <p>True when <span>user credentials</span> are to be included in a
+    cross-origin request. False when they are to be excluded in a
+    cross-origin request and when cookies are to be ignored in its response.
+    Initially false.</dd>
     <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
     state is not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or if
     the <span><code>send()</code> flag</span> is true.</p>
@@ -1181,12 +1174,8 @@ X-Test: one, two</code></pre>
    </dd>
   </dl>
 
-  <p>The
-  <dfn id="dom-xmlhttprequest-withcredentials" title="dom-XMLHttpRequest-withCredentials"><code>withCredentials</code></dfn>
-  attribute controls the <span>credentials flag</span>.</p>
-
   <p>On setting the
-  <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
+  <dfn id="dom-xmlhttprequest-withcredentials" title="dom-XMLHttpRequest-withCredentials"><code>withCredentials</code></dfn>
   attribute these steps <em class="ct">must</em> be run:</p>
 
   <ol>
@@ -1202,16 +1191,19 @@ X-Test: one, two</code></pre>
    <code>INVALID_ACCESS_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>Set the <span>credentials flag</span> to the given value.</p></li>
+   <li><p>Set the
+   <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
+   attribute's value to the given value.</p></li>
   </ol>
 
   <p>On getting the
   <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
-  attribute it <em class="ct">must</em> return the value of the
-  <span>credentials flag</span>.</p>
+  attribute it <em class="ct">must</em> return its value.</p>
 
-  <p class="note">The <span>credentials flag</span> has no effect when
-  <span title="fetch">fetching</span> same-origin resources.</p>
+  <p class="note">The
+  <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
+  attribute has no effect when <span title="fetch">fetching</span>
+  same-origin resources.</p>
 
 
   <h4>The <code title="">upload</code> attribute</h4>
@@ -1500,7 +1492,9 @@ X-Test: one, two</code></pre>
        <dd>The <span><code>XMLHttpRequest</code> origin</span>.</dd>
 
        <dt>credentials flag</dt>
-       <dd>The <span>credentials flag</span>.</dd>
+       <dd>The
+       <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
+       attribute's value.</dd>
 
        <dt>force preflight flag</dt>
        <dd>The <span>upload events flag</span>.</dd>
@@ -1511,7 +1505,9 @@ X-Test: one, two</code></pre>
       <span>cross-origin request</span>; including them would allow a site
       to perform a distributed password search. However, user agents will
       include <span>user credentials</span> in the request (if the user has
-      any and if the <span>credentials flag</span> is true).</p>
+      any and if
+      <code title="dom-XMLHttpRequest-withCredentials">withCredentials</code>
+      is true).</p>
 
       <dl class="switch">
        <dt>If the <span>asynchronous flag</span> is false</dt>
@@ -1689,9 +1685,9 @@ X-Test: one, two</code></pre>
    </dd>
 
    <!--START xhr2-->
-   <dt>If <span>request timeout</span> is not 0 and since the request
-   started the amount of milliseconds specified by
-   <span>request timeout</span> has passed</dt>
+   <dt>If <code title="dom-XMLHttpRequest-timeout">timeout</code> is not 0
+   and since the request started the amount of milliseconds specified by
+   <code title="dom-XMLHttpRequest-timeout">timeout</code> has passed</dt>
    <dd><p>This is a <span>timeout error</span>.</p></dd>
    <!--END xhr2-->
 
@@ -1734,9 +1730,9 @@ X-Test: one, two</code></pre>
    <i title="">abort error</i></dt>
    <dd><p>This is an <span>abort error</span>.</p></dd>
 
-   <dt>If <span>request timeout</span> is not 0 and since the request
-   started the amount of milliseconds specified by
-   <span>request timeout</span> has passed</dt>
+   <dt>If <code title="dom-XMLHttpRequest-timeout">timeout</code> is not 0
+   and since the request started the amount of milliseconds specified by
+   <code title="dom-XMLHttpRequest-timeout">timeout</code> has passed</dt>
    <dd><p>This is a <span>timeout error</span>.</p></dd>
 
    <dt>Once all HTTP headers have been received, the

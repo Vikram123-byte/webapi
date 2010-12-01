@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 30 November 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 1 December 2010</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20101130/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20101130/</a>
+     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20101201/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20101201/</a>
 
     <dt>Latest Version:
 
@@ -110,8 +110,8 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 30 November 2010 <!--Last Call Working Draft-->Editor's
-   Draft of XMLHttpRequest Level 2. Please send comments to <a
+  <p>This is the 1 December 2010 <!--Last Call Working Draft-->Editor's Draft
+   of XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
    href="http://lists.w3.org/Archives/Public/public-webapps/">archived</a>)
@@ -883,18 +883,6 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
    <dd>The <a href="#entity-body">entity body</a> used in the request or null
     if there is no <a href="#entity-body">entity body</a>.
 
-   <dt>The <dfn id=request-timeout>request timeout</dfn>
-
-   <dd>The amount of milliseconds a request can take before being terminated.
-    Initially zero. Zero means there is no timeout.
-
-   <dt>The <dfn id=credentials-flag>credentials flag</dfn>
-
-   <dd>True when <a href="#user-credentials">user credentials</a> are to be
-    included in a cross-origin request. False when they are to be excluded in
-    a cross-origin request and when cookies are to be ignored in its
-    response. Initially false.
-
    <dt>The <dfn id=upload-complete-flag>upload complete flag</dfn>
 
    <dd>Used to determine when to stop sending upload progress events. The
@@ -1155,10 +1143,14 @@ interface <dfn id=anonxmlhttprequest>AnonXMLHttpRequest</dfn> : <a href="#xmlhtt
        headers</a>.</p>
 
      <li>
-      <p>Set the <a href="#request-timeout">request timeout</a> to zero.
+      <p>Set the <a href="#dom-xmlhttprequest-timeout"><code
+       title=dom-XMLHttpRequest-timeout>timeout</code></a> attribute's value
+       to zero.
 
      <li>
-      <p>Set the <a href="#credentials-flag">credentials flag</a> to false.
+      <p>Set the <a href="#dom-xmlhttprequest-withcredentials"><code
+       title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
+       attribute's value to false.
 
      <li>
       <p>Set the <a href="#dom-xmlhttprequest-responsetype"><code
@@ -1364,11 +1356,8 @@ X-Test: one, two</code></pre>
     title=dom-XMLHttpRequest-timeout>timeout</code></a>
 
    <dd>
-    <p>Returns the value of the <a href="#request-timeout">request
-     timeout</a>.</p>
-
-    <p>When set: sets the value of the <a href="#request-timeout">request
-     timeout</a>.</p>
+    <p>The amount of milliseconds a request can take before being terminated.
+     Initially zero. Zero means there is no timeout.</p>
 
     <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
      state is not <a href="#dom-xmlhttprequest-opened"
@@ -1376,13 +1365,9 @@ X-Test: one, two</code></pre>
      href="#send-flag"><code>send()</code> flag</a> is true.</p>
   </dl>
 
-  <p>The <dfn id=dom-xmlhttprequest-timeout
+  <p>On setting the <dfn id=dom-xmlhttprequest-timeout
    title=dom-XMLHttpRequest-timeout><code>timeout</code></dfn> attribute
-   controls the <a href="#request-timeout">request timeout</a>.
-
-  <p>On setting the <a href="#dom-xmlhttprequest-timeout"><code
-   title=dom-XMLHttpRequest-timeout>timeout</code></a> attribute these steps
-   <em class=ct>must</em> be run:
+   these steps <em class=ct>must</em> be run:
 
   <ol>
    <li>
@@ -1395,13 +1380,14 @@ X-Test: one, two</code></pre>
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>Set <a href="#request-timeout">request timeout</a> to the given value.
+    <p>Set <a href="#dom-xmlhttprequest-timeout"><code
+     title=dom-XMLHttpRequest-timeout>timeout</code></a> attribute's value to
+     the given value.
   </ol>
 
   <p>On getting, the <a href="#dom-xmlhttprequest-timeout"><code
    title=dom-XMLHttpRequest-timeout>timeout</code></a> attribute <em
-   class=ct>must</em> return the value of the <a
-   href="#request-timeout">request timeout</a>.
+   class=ct>must</em> return its value.
 
   <h4 id=the-withcredentials-attribute><span class=secno>3.6.4. </span>The
    <code title="">withCredentials</code> attribute</h4>
@@ -1412,27 +1398,22 @@ X-Test: one, two</code></pre>
     title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
 
    <dd>
-    <p>Returns the value of the <a href="#credentials-flag">credentials
-     flag</a>.</p>
-
-    <p>When set: sets the value of the <a
-     href="#credentials-flag">credentials flag</a>.</p>
-
-    <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
-     state is not <a href="#dom-xmlhttprequest-opened"
-     title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
-     href="#send-flag"><code>send()</code> flag</a> is true.</p>
-
-    <p>When set: throws an <code>INVALID_ACCESS_ERR</code> exception if the
-     <a href="#anonymous-flag">anonymous flag</a> is true.</p>
+    <p>True when <a href="#user-credentials">user credentials</a> are to be
+     included in a cross-origin request. False when they are to be excluded
+     in a cross-origin request and when cookies are to be ignored in its
+     response. Initially false.
   </dl>
 
-  <p>The <dfn id=dom-xmlhttprequest-withcredentials
-   title=dom-XMLHttpRequest-withCredentials><code>withCredentials</code></dfn>
-   attribute controls the <a href="#credentials-flag">credentials flag</a>.
+  <p>When set: throws an <code>INVALID_STATE_ERR</code> exception if the
+   state is not <a href="#dom-xmlhttprequest-opened"
+   title=dom-XMLHttpRequest-OPENED>OPENED</a> or if the <a
+   href="#send-flag"><code>send()</code> flag</a> is true.
 
-  <p>On setting the <a href="#dom-xmlhttprequest-withcredentials"><code
-   title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
+  <p>When set: throws an <code>INVALID_ACCESS_ERR</code> exception if the <a
+   href="#anonymous-flag">anonymous flag</a> is true.
+
+  <p>On setting the <dfn id=dom-xmlhttprequest-withcredentials
+   title=dom-XMLHttpRequest-withCredentials><code>withCredentials</code></dfn>
    attribute these steps <em class=ct>must</em> be run:
 
   <ol>
@@ -1450,18 +1431,19 @@ X-Test: one, two</code></pre>
      <code>INVALID_ACCESS_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>Set the <a href="#credentials-flag">credentials flag</a> to the given
-     value.
+    <p>Set the <a href="#dom-xmlhttprequest-withcredentials"><code
+     title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
+     attribute's value to the given value.
   </ol>
 
   <p>On getting the <a href="#dom-xmlhttprequest-withcredentials"><code
    title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
-   attribute it <em class=ct>must</em> return the value of the <a
-   href="#credentials-flag">credentials flag</a>.
+   attribute it <em class=ct>must</em> return its value.
 
-  <p class=note>The <a href="#credentials-flag">credentials flag</a> has no
-   effect when <a href="#fetch" title=fetch>fetching</a> same-origin
-   resources.
+  <p class=note>The <a href="#dom-xmlhttprequest-withcredentials"><code
+   title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
+   attribute has no effect when <a href="#fetch" title=fetch>fetching</a>
+   same-origin resources.
 
   <h4 id=the-upload-attribute><span class=secno>3.6.5. </span>The <code
    title="">upload</code> attribute</h4>
@@ -1779,7 +1761,9 @@ X-Test: one, two</code></pre>
 
        <dt>credentials flag
 
-       <dd>The <a href="#credentials-flag">credentials flag</a>.
+       <dd>The <a href="#dom-xmlhttprequest-withcredentials"><code
+        title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a>
+        attribute's value.
 
        <dt>force preflight flag
 
@@ -1792,8 +1776,10 @@ X-Test: one, two</code></pre>
        including them would allow a site to perform a distributed password
        search. However, user agents will include <a
        href="#user-credentials">user credentials</a> in the request (if the
-       user has any and if the <a href="#credentials-flag">credentials
-       flag</a> is true).</p>
+       user has any and if <a
+       href="#dom-xmlhttprequest-withcredentials"><code
+       title=dom-XMLHttpRequest-withCredentials>withCredentials</code></a> is
+       true).</p>
 
       <dl class=switch>
        <dt>If the <a href="#asynchronous-flag">asynchronous flag</a> is false
@@ -1986,9 +1972,11 @@ X-Test: one, two</code></pre>
     <p class=note>This does not include HTTP responses that indicate some
      type of error, such as HTTP status code 410.</p>
 
-   <dt>If <a href="#request-timeout">request timeout</a> is not 0 and since
+   <dt>If <a href="#dom-xmlhttprequest-timeout"><code
+    title=dom-XMLHttpRequest-timeout>timeout</code></a> is not 0 and since
     the request started the amount of milliseconds specified by <a
-    href="#request-timeout">request timeout</a> has passed
+    href="#dom-xmlhttprequest-timeout"><code
+    title=dom-XMLHttpRequest-timeout>timeout</code></a> has passed
 
    <dd>
     <p>This is a <a href="#timeout-error">timeout error</a>.
@@ -2052,9 +2040,11 @@ X-Test: one, two</code></pre>
    <dd>
     <p>This is an <a href="#abort-error">abort error</a>.
 
-   <dt>If <a href="#request-timeout">request timeout</a> is not 0 and since
+   <dt>If <a href="#dom-xmlhttprequest-timeout"><code
+    title=dom-XMLHttpRequest-timeout>timeout</code></a> is not 0 and since
     the request started the amount of milliseconds specified by <a
-    href="#request-timeout">request timeout</a> has passed
+    href="#dom-xmlhttprequest-timeout"><code
+    title=dom-XMLHttpRequest-timeout>timeout</code></a> has passed
 
    <dd>
     <p>This is a <a href="#timeout-error">timeout error</a>.
