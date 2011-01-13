@@ -7,7 +7,7 @@
           to you should that happen.
           ******* WARNING *********************************************************
         --><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Web Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Notifications.html,v 1.1 2010-10-13 07:43:04 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>12 October 2010</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
+<title>Web Notifications</title><link rel="stylesheet" href="respec-w3c.css" type="text/css"></link><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/base" type="text/css"></link><meta name="revision" content="$Id: Notifications.html,v 1.2 2011-01-13 00:04:52 jgregg Exp $"></meta></head><body><div class="head"><p><a href="http://www.w3.org/"><img src="http://www.w3.org/Icons/w3c_home" width="72" height="48" alt="W3C"></img></a></p><h1 class="head">Web Notifications</h1><h2 id="pagesubtitle">W3C Editor's Draft <em>11 January 2011</em></h2><dl><dt>Editor:</dt><dd><span class="person">John Gregg (<a href="http://www.google.com/">Google</a>) &lt;<a href="mailto:johnnyg@google.com">johnnyg@google.com</a>&gt;</span></dd></dl><p class="copyright"><a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">Copyright</a> ©2006
         <a href="http://www.w3.org/"><acronym title="World Wide Web Consortium">W3C</acronym></a><sup>®</sup>
         (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology">MIT</acronym></a>,
         <a href="http://www.ercim.org/"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></a>,
@@ -40,7 +40,7 @@
   <div class="section"><h2 id="contents">Table of Contents</h2>
     
 
-    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><a href="#permissions">2. Permissions</a></li><li><a href="#idl-if-Notification">3. The Notification interface</a></li><li><a href="#idl-if-NotificationCenter">4. The NotificationCenter interface</a></li><li><a href="#window">5. Accessing notifications</a></li><li><ul class="toc"><li><a href="#">5.1. Accessing from pages</a></li><li><a href="#">5.2. Accessing from workers</a></li></ul></li><li><a href="#algorithms">6. Queueing and displaying notifications</a></li><li><ul class="toc"><li><a href="#">6.1. Queueing notifications</a></li><li><a href="#displaying">6.2. Displaying notifications</a></li><li><a href="#replacing">6.3. Replacing a notification</a></li></ul></li><li><a href="#interactions">7. Interacting with notifications</a></li><li><ul class="toc"><li><a href="#">7.1. Using events</a></li></ul></li><li><a href="#">8. References</a></li></ul>
+    <ul class="toc"><li><a href="#introduction">1. Introduction</a></li><li><a href="#permissions">2. Permissions</a></li><li><a href="#idl-if-Notification">3. The Notification interface</a></li><li><ul class="toc"><li><a href="#">3.1. Directionality</a></li><li><a href="#">3.2. Event handler attributes</a></li><li><a href="#">3.3. Constructors</a></li></ul></li><li><a href="#algorithms">4. Queueing and displaying notifications</a></li><li><ul class="toc"><li><a href="#">4.1. Queueing notifications</a></li><li><a href="#displaying">4.2. Displaying notifications</a></li><li><a href="#replacing">4.3. Replacing a notification</a></li></ul></li><li><a href="#interactions">5. Interacting with notifications</a></li><li><ul class="toc"><li><a href="#">5.1. Using events</a></li></ul></li><li><a href="#">6. References</a></li></ul>
   </div>
 
   <div class="section"><h2 id="introduction">1. Introduction</h2><p><strong>This section is not normative.</strong></p>
@@ -85,7 +85,7 @@
   void               <a href="#dfn-show">show</a>();
   void               <a href="#dfn-cancel">cancel</a>();
            attribute Function   <a href="#dfn-onclick">onclick</a>;
-           attribute Function   <a href="#dfn-ondisplay">ondisplay</a>;
+           attribute Function   <a href="#dfn-onshow">onshow</a>;
            attribute Function   <a href="#dfn-onerror">onerror</a>;
            attribute Function   <a href="#dfn-onclose">onclose</a>;
            attribute DOMString  <a href="#dfn-replaceid">replaceId</a>;
@@ -93,12 +93,7 @@
 };</pre></div><div class="section" id="idl-if-Notification"><div class="section"><h4 class="idl-header" id="idl-meths-Notification">Attributes</h4><dl class="idl-attr"><dt id="dfn-dir"><code>dir</code>
       of type
       DOMString</dt><dd><p>
-	      The <code>dir</code> attribute specifies the directionality of the notification, and
-	      has all the properties of the <code>dir</code> attribute as defined in [<cite><a href="#HTML5" class="bibref">HTML5</a></cite>]. 
-	    </p><p>
-	      Since the notification does not have a parent element, if the notification's directionality
-	      state is not <em>ltr</em> or <em>rtl</em>, the directionality shall be the same as
-	      the document, or <em>ltr</em> if there is no document.
+	      The <code>dir</code> attribute specifies the directionality of the notification.
 	    </p></dd><dt id="dfn-onclick"><code>onclick</code>
       of type
       Function</dt><dd><p>
@@ -113,13 +108,19 @@
       of type
       Function</dt><dd><p>
 	      An event listener function corresponding to the event type "close".  This
-	      event listener must be invoked after the "display" event, at the point
+	      event listener must be invoked after the "show" event, at the point
 	      when the notification is dismissed by the user, closed by script, or closed by the notification
 	      platform.
-	    </p></dd><dt id="dfn-ondisplay"><code>ondisplay</code>
+	    </p></dd><dt id="dfn-onerror"><code>onerror</code>
       of type
       Function</dt><dd><p>
-	      An event listener function corresponding to the event type "display".  This
+	      An event listener function corresponding to the event type "error".  This
+	      event listener must be invoked after the <code>show()</code> method is called, if the
+	      notification cannot be displayed to the user because of an error.
+	    </p></dd><dt id="dfn-onshow"><code>onshow</code>
+      of type
+      Function</dt><dd><p>
+	      An event listener function corresponding to the event type "show".  This
 	      event listener must be invoked after the <code>show()</code> method is called, at the
 	      point when the notification actually becomes visible to the user.
 	    </p><p>
@@ -128,12 +129,6 @@
 		this event may precede the notification becoming visible; however the notification
 		will never become visible before this event is dispatched.
 	      </em>
-	    </p></dd><dt id="dfn-onerror"><code>onerror</code>
-      of type
-      Function</dt><dd><p>
-	      An event listener function corresponding to the event type "error".  This
-	      event listener must be invoked after the <code>show()</code> method is called, if the
-	      notification cannot be displayed to the user because of an error.
 	    </p></dd><dt id="dfn-replaceid"><code>replaceId</code>
       of type
       DOMString</dt><dd><p>
@@ -152,23 +147,64 @@
 	      agent, this may happen immediately or be postponed, but must eventually
 	      be done, following the algorithm for queueing a notification below.
 	    </p><p>
-	      If notification permission is denied, this method will dispatch an error event (SECURITY_ERR).
+	      A user agent must not show any notifications if notification permission is denied.
+	      If notification permission is denied when <code>show()</code> is invoked, 
+	      an <code>error</code> event must be fired on this notification object.
 	    </p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd></dl></div></div>
-  </div>
-
-  <div class="section"><h2 id="idl-if-NotificationCenter">4. The NotificationCenter interface</h2>
     
-    <p>
-      The NotificationCenter interface exposes the ability for web pages to create
-      Notification objects which represent <em>simple notifications</em>, and to manage
-      notification permissions.
-    </p>
-    <p>
-      A user agent must not show any notifications if notification permission is denied.
-    </p>
-    <div class="boxed"><p><span class="idlTitle">the NotificationCenter interface</span></p><pre class="schema" title="the NotificationCenter interface">interface <a href="#idl-if-NotificationCenter">NotificationCenter</a> {
-  <a href="#idl-if-Notification">Notification</a> <a href="#dfn-createnotification">createNotification</a>(in DOMString iconUrl, in DOMString title, in DOMString body);
-};</pre></div><div class="section" id="idl-if-NotificationCenter"><div class="section"><h4 class="idl-header" id="idl-attrs-NotificationCenter">Methods</h4><dl class="idl-meth"><dt id="dfn-createnotification"><code>createNotification</code></dt><dd><p>
+    <div class="section"><h3 id="">3.1. Directionality</h3>
+      
+      <p>
+	The <code>dir</code> attribute of the <code>Notification</code> interface has
+	has all the properties of the <code>dir</code> attribute as defined in [<cite><a href="#HTML5" class="bibref">HTML5</a></cite>], however
+	since the notification does not have a parent element, it must receive a default
+	value elsewhere, as follows.
+      </p>
+      <p>
+        In environments where the global object is represented by the <code>Window</code>
+	object, and the notification's directionality state is not <em>ltr</em> or <em>rtl</em>,
+	the directionality must be the same as	the <code>Document</code> object associated
+	with the global <code>Window</code> object.
+
+	In other environments, if the notification's directionality state is not <em>ltr</em> or <em>rtl</em>,
+	the directionality should be <em>ltr</em>.
+      </p>
+    </div>
+
+    
+    <div class="section"><h3 id="">3.2. Event handler attributes</h3>
+      
+      <p>The following are event handler attributes (and their corresponding event handler event types, as defined by [<cite><a href="#HTML5" class="bibref">HTML5</a></cite>]) that must be supported as DOM attributes by the Notification object.</p>
+      <table>
+	<thead style="border-bottom: medium solid;">
+	  <tr>
+	    <th>event handler attribute</th>
+	    <th>event handler event type</th>
+	  </tr>
+	</thead>
+	<tr>
+	  <td><code>onclick</code></td>
+	  <td><code>click</code></td>
+	</tr>
+	<tr>
+	  <td><code>onshow</code></td>
+	  <td><code>show</code></td>
+	</tr>
+	<tr>
+	  <td><code>onerror</code></td>
+	  <td><code>error</code></td>
+	</tr>
+	<tr>
+	  <td><code>onclose</code></td>
+	  <td><code>close</code></td>
+	</tr>
+      </table>
+    </div>
+    
+    <div class="section"><h3 id="">3.3. Constructors</h3>
+      
+      <div class="boxed"><p><span class="idlTitle">Constructing a notification</span></p><pre class="schema" title="Constructing a notification">  <a href="#idl-if-Notification">Notification</a> <a href="#dfn-notification">Notification</a>(in DOMString iconUrl, in DOMString title, in DOMString body);
+</pre></div><dt id="dfn-notification"><code>Notification</code></dt><dd><p>
 	      Returns a new simple notification object with the provided content.
 	    </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>iconUrl</code>
           of type
@@ -184,35 +220,17 @@
           DOMString</dt><dd>
 	      Secondary text, or body, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
 	    </dd></dl></dd><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
-	      <p>A notification object representing the new notification.</p>
-	    </td></tr></table></dd><dt>No Exceptions</dt></dl></dd></dl></div></div>
-  </div>
-
-  <div class="section"><h2 id="window">5. Accessing notifications</h2>
-    
-    <div class="section"><h3 id="">5.1. Accessing from pages</h3>
-      
+	      <p>A new notification object.</p>
+	    </td></tr></table></dd><dt>No Exceptions</dt></dl></dd>
       <p>
-	In page context, the NotificationCenter methods are accessed from the Navigator object.  [<cite><a href="#HTML5" class="bibref">HTML5</a></cite>]
+	When the <code>Notification()</code> constructor is invoked, the user agent must return a new Notification object.
       </p>
-      <div class="boxed"><p><span class="idlTitle">Notifications via Navigator</span></p><pre class="schema" title="Notifications via Navigator">
-	  Navigator implements NotificationCenter;
-	</pre></div>
-    </div>
-    <div class="section"><h3 id="">5.2. Accessing from workers</h3>
-      
-      <p>
-	From worker context, the NotificationCenter methods are accessed from the WorkerNavigator object.  [<cite><a href="#WEBWORKERS" class="bibref">WEBWORKERS</a></cite>]
-      </p>
-      <div class="boxed"><p><span class="idlTitle">Notifications via WorkerNavigator</span></p><pre class="schema" title="Notifications via WorkerNavigator">
-	  WorkerNavigator implements NotificationCenter;
-	</pre></div>
     </div>
   </div>
 
-  <div class="section"><h2 id="algorithms">6. Queueing and displaying notifications</h2>
+  <div class="section"><h2 id="algorithms">4. Queueing and displaying notifications</h2>
     
-    <div class="section"><h3 id="">6.1. Queueing notifications</h3>
+    <div class="section"><h3 id="">4.1. Queueing notifications</h3>
       
       <p>
 	If the device allows notifications to displayed immediately without limitations on
@@ -241,7 +259,7 @@
 	    <li>If the replacement returned error information, stop.</li>
 	    <li>Remove <em>existing</em> from the <em>list of active notifications</em>.</li>
 	    <li>Add the new notification to the <em>list of active notifications</em>.</li>
-	  </ol>
+  </ol>
 	</li>
 	<li>Add the notification to the <em>queue of pending notifications</em>.</li>
 	<li>Wait until there is available space on the device.</li>
@@ -255,7 +273,7 @@
       </p>
     </div>
 
-    <div class="section"><h3 id="displaying">6.2. Displaying notifications</h3>
+    <div class="section"><h3 id="displaying">4.2. Displaying notifications</h3>
       
       <p>
 	When a user agent is to <em>display a notification</em>, the user agent should perform the following steps:
@@ -267,13 +285,13 @@
 	    If the fetch algorithm returns error information, fire the <code>error</code> event on the notification
 	    object and stop executing this algorithm.
 	  </li>
-	  <li>Fire the <code>display</code> event on the notification object.</li>
+	  <li>Fire the <code>show</code> event on the notification object.</li>
 	  <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
 	</ol>
       </p>
     </div>
 
-    <div class="section"><h3 id="replacing">6.3. Replacing a notification</h3>
+    <div class="section"><h3 id="replacing">4.3. Replacing a notification</h3>
       
       <p>
 	When a user agent is to <em>replace a notification</em>, the user agent should perform the following steps.
@@ -287,23 +305,23 @@
 	    object and stop executing this algorithm,m returning the error information.  The <em>old</em> notification is not affected.
 	  </li>
 	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
-	  <li>Fire the <code>display</code> event on the <em>new</em> notification object.</li>
+	  <li>Fire the <code>show</code> event on the <em>new</em> notification object.</li>
 	  <li>If the underlying notification platform supports replacement, replace <em>old</em> with <em>new</em> on the device.</li>
 	  <li>If the underlying notification platform does not support replacment, remove <em>old</em> from the device and show <em>new</em> on the device.</li>
 	</ol>
       </p>
     </div>
   </div>
-  <div class="section"><h2 id="interactions">7. Interacting with notifications</h2><p><strong>This section is not normative.</strong></p>
+  <div class="section"><h2 id="interactions">5. Interacting with notifications</h2><p><strong>This section is not normative.</strong></p>
     
-    <div class="section"><h3 id="">7.1. Using events</h3>
+    <div class="section"><h3 id="">5.1. Using events</h3>
       
       <p>
 	Notification objects dispatch events during their lifecycle, which authors can use
 	to generate desired behaviors.
       </p>
       <p>
-	The <code>display</code> event occurs when the notification is shown to the user -- 
+	The <code>show</code> event occurs when the notification is shown to the user -- 
 	this may be at some time after the <code>show()</code> method is called in the case
 	of limited display space and a queue.
       </p>
@@ -313,8 +331,8 @@
 	the notification is shown, it is displayed for only 15 seconds.
       </p>
 
-      <div class="boxed"><div><span class="exampleTitle">Example: </span></div><pre class="example" title="">var notification = window.notifications.createNotification("mail.png", "New Email Received");
-notification.ondisplay = function() { setTimeout(notification.cancel(), 15000); }
+      <div class="boxed"><div><span class="exampleTitle">Example: </span></div><pre class="example" title="">var notification = new Notification("mail.png", "New Email Received");
+notification.onshow = function() { setTimeout(notification.cancel(), 15000); }
 notification.show();</pre></div>
 
       <p>
@@ -326,13 +344,13 @@ notification.show();</pre></div>
 	application suppresses other forms of reminders.
       </p>
 
-      <div class="boxed"><div><span class="exampleTitle">Example: </span></div><pre class="example" title="">var notification = window.notifications.createWebNotification("/reminder.html?eventId=" + event.id);
+      <div class="boxed"><div><span class="exampleTitle">Example: </span></div><pre class="example" title="">var notification = new Notification("calendar.png", "Meeting about to begin", "Room 101");
 notification.onclose = function() { cancelReminders(event); }
 notification.show();</pre></div>	
     </div>
   </div>
 
-  <div class="section"><h2 id="">8. References</h2>
+  <div class="section"><h2 id="">6. References</h2>
     
     <dl class="bibliography">
       

@@ -7,7 +7,7 @@
   <metadata>
     <title>Web Notifications</title>
     <styling type='W3C' status='ED'/>
-    <date year='2010' month='10' day='12'/>
+    <date year='2011' month='01' day='11'/>
     <editors>
       <person>
         <name>John Gregg</name>
@@ -28,7 +28,7 @@
     <!--
     <ednote>
       <p>
-        Last update: $Id: Notifications.xml,v 1.1 2010-10-13 07:42:38 jgregg Exp $.
+        Last update: $Id: Notifications.xml,v 1.2 2011-01-13 00:04:37 jgregg Exp $.
       </p>
     </ednote>
     -->
@@ -96,9 +96,10 @@
 	      agent, this may happen immediately or be postponed, but must eventually
 	      be done, following the algorithm for queueing a notification below.
 	    </p>
-
 	    <p>
-	      If notification permission is denied, this method will dispatch an error event (SECURITY_ERR).
+	      A user agent must not show any notifications if notification permission is denied.
+	      If notification permission is denied when <code>show()</code> is invoked, 
+	      an <code>error</code> event must be fired on this notification object.
 	    </p>
 	  </method>
 	  <method name='cancel'>
@@ -121,9 +122,9 @@
 	      </em>
 	    </p>
 	  </attribute>
-	  <attribute type='Function' name='ondisplay'>
+	  <attribute type='Function' name='onshow'>
 	    <p>
-	      An event listener function corresponding to the event type "display".  This
+	      An event listener function corresponding to the event type "show".  This
 	      event listener must be invoked after the <code>show()</code> method is called, at the
 	      point when the notification actually becomes visible to the user.
 	    </p>
@@ -145,7 +146,7 @@
 	  <attribute type='Function' name='onclose'>
 	    <p>
 	      An event listener function corresponding to the event type "close".  This
-	      event listener must be invoked after the "display" event, at the point
+	      event listener must be invoked after the "show" event, at the point
 	      when the notification is dismissed by the user, closed by script, or closed by the notification
 	      platform.
 	    </p>
@@ -159,39 +160,70 @@
 	      shown simultaneously.
 	    </p>
 	  </attribute>
-
 	  <attribute type='DOMString' name='dir'>
 	    <p>
-	      The <code>dir</code> attribute specifies the directionality of the notification, and
-	      has all the properties of the <code>dir</code> attribute as defined in [HTML5]. 
-	    </p>
-	    <p>
-	      Since the notification does not have a parent element, if the notification's directionality
-	      state is not <em>ltr</em> or <em>rtl</em>, the directionality shall be the same as
-	      the document, or <em>ltr</em> if there is no document.
+	      The <code>dir</code> attribute specifies the directionality of the notification.
 	    </p>
 	  </attribute>
-	    
 	</interface>
       </idl>
     </schema>
-  </section>
+    
+    <section>
+      <title>Directionality</title>
+      <p>
+	The <code>dir</code> attribute of the <code>Notification</code> interface has
+	has all the properties of the <code>dir</code> attribute as defined in [HTML5], however
+	since the notification does not have a parent element, it must receive a default
+	value elsewhere, as follows.
+      </p>
+      <p>
+        In environments where the global object is represented by the <code>Window</code>
+	object, if the notification's directionality state is not <em>ltr</em> or <em>rtl</em>,
+	the directionality must be the same as	the <code>Document</code> object associated
+	with the global <code>Window</code> object.
 
-  <section xml:id='idl-if-NotificationCenter'>
-    <title>The NotificationCenter interface</title>
-    <p>
-      The NotificationCenter interface exposes the ability for web pages to create
-      Notification objects which represent <em>simple notifications</em>, and to manage
-      notification permissions.
-    </p>
-    <p>
-      A user agent must not show any notifications if notification permission is denied.
-    </p>
-    <schema>
-      <title>the NotificationCenter interface</title>
-      <idl>
-	<interface name='NotificationCenter'>
-	  <method name='createNotification'>
+	In other environments, if the notification's directionality state is not <em>ltr</em> or <em>rtl</em>,
+	the directionality should be <em>ltr</em>.
+      </p>
+    </section>
+
+    
+    <section>
+      <title>Event handler attributes</title>
+      <p>The following are event handler attributes (and their corresponding event handler event types, as defined by [HTML5]) that must be supported as DOM attributes by the Notification object.</p>
+      <table>
+	<thead style="border-bottom: medium solid;" >
+	  <tr>
+	    <th>event handler attribute</th>
+	    <th>event handler event type</th>
+	  </tr>
+	</thead>
+	<tr>
+	  <td><code>onclick</code></td>
+	  <td><code>click</code></td>
+	</tr>
+	<tr>
+	  <td><code>onshow</code></td>
+	  <td><code>show</code></td>
+	</tr>
+	<tr>
+	  <td><code>onerror</code></td>
+	  <td><code>error</code></td>
+	</tr>
+	<tr>
+	  <td><code>onclose</code></td>
+	  <td><code>close</code></td>
+	</tr>
+      </table>
+    </section>
+    
+    <section>
+      <title>Constructors</title>
+      <schema>
+	<title>Constructing a notification</title>
+	<idl>
+	  <method name="Notification">
 	    <p>
 	      Returns a new simple notification object with the provided content.
 	    </p>
@@ -206,39 +238,14 @@
 	      Secondary text, or body, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
 	    </param>
 	    <returns type='Notification'>
-	      <p>A notification object representing the new notification.</p>
+	      <p>A new notification object.</p>
 	    </returns>
 	  </method>
-	</interface>
-      </idl>
-    </schema>
-  </section>
-
-  <section xml:id='window'>
-    <title>Accessing notifications</title>
-    <section>
-      <title>Accessing from pages</title>
-      <p>
-	In page context, the NotificationCenter methods are accessed from the Navigator object.  [HTML5]
-      </p>
-      <schema>
-	<title>Notifications via Navigator</title>
-	<idl>
-	  Navigator implements NotificationCenter;
 	</idl>
       </schema>
-    </section>
-    <section>
-      <title>Accessing from workers</title>
       <p>
-	From worker context, the NotificationCenter methods are accessed from the WorkerNavigator object.  [WEBWORKERS]
+	When the <code>Notification()</code> constructor is invoked, the user agent must return a new Notification object.
       </p>
-      <schema>
-	<title>Notifications via WorkerNavigator</title>
-	<idl>
-	  WorkerNavigator implements NotificationCenter;
-	</idl>
-      </schema>
     </section>
   </section>
 
@@ -273,7 +280,7 @@
 	    <li>If the replacement returned error information, stop.</li>
 	    <li>Remove <em>existing</em> from the <em>list of active notifications</em>.</li>
 	    <li>Add the new notification to the <em>list of active notifications</em>.</li>
-	  </ol>
+  </ol>
 	</li>
 	<li>Add the notification to the <em>queue of pending notifications</em>.</li>
 	<li>Wait until there is available space on the device.</li>
@@ -299,7 +306,7 @@
 	    If the fetch algorithm returns error information, fire the <code>error</code> event on the notification
 	    object and stop executing this algorithm.
 	  </li>
-	  <li>Fire the <code>display</code> event on the notification object.</li>
+	  <li>Fire the <code>show</code> event on the notification object.</li>
 	  <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
 	</ol>
       </p>
@@ -319,7 +326,7 @@
 	    object and stop executing this algorithm,m returning the error information.  The <em>old</em> notification is not affected.
 	  </li>
 	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
-	  <li>Fire the <code>display</code> event on the <em>new</em> notification object.</li>
+	  <li>Fire the <code>show</code> event on the <em>new</em> notification object.</li>
 	  <li>If the underlying notification platform supports replacement, replace <em>old</em> with <em>new</em> on the device.</li>
 	  <li>If the underlying notification platform does not support replacment, remove <em>old</em> from the device and show <em>new</em> on the device.</li>
 	</ol>
@@ -335,7 +342,7 @@
 	to generate desired behaviors.
       </p>
       <p>
-	The <code>display</code> event occurs when the notification is shown to the user -- 
+	The <code>show</code> event occurs when the notification is shown to the user -- 
 	this may be at some time after the <code>show()</code> method is called in the case
 	of limited display space and a queue.
       </p>
@@ -346,8 +353,8 @@
       </p>
 
       <example>
-	var notification = window.notifications.createNotification("mail.png", "New Email Received");
-	notification.ondisplay = function() { setTimeout(notification.cancel(), 15000); }
+	var notification = new Notification("mail.png", "New Email Received");
+	notification.onshow = function() { setTimeout(notification.cancel(), 15000); }
 	notification.show();
       </example>
 
@@ -361,7 +368,7 @@
       </p>
 
       <example>
-	var notification = window.notifications.createWebNotification("/reminder.html?eventId=" + event.id);
+	var notification = new Notification("calendar.png", "Meeting about to begin", "Room 101");
 	notification.onclose = function() { cancelReminders(event); }
 	notification.show();
       </example>	
