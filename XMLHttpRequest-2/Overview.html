@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 1 December 2010</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 26 January 2011</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20101201/">http://www.w3.org/TR/2010/ED-XMLHttpRequest2-20101201/</a>
+     href="http://www.w3.org/TR/2011/ED-XMLHttpRequest2-20110126/">http://www.w3.org/TR/2011/ED-XMLHttpRequest2-20110126/</a>
 
     <dt>Latest Version:
 
@@ -59,6 +59,9 @@
      href="http://dev.w3.org/2006/webapi/XMLHttpRequest-2/">http://dev.w3.org/2006/webapi/XMLHttpRequest-2/</a>
 
     <dt>Previous Versions:
+
+    <dd><a
+     href="http://www.w3.org/TR/2010/WD-XMLHttpRequest2-20100907/">http://www.w3.org/TR/2010/WD-XMLHttpRequest2-20100907/</a>
 
     <dd><a
      href="http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/">http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/</a>
@@ -110,7 +113,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 1 December 2010 <!--Last Call Working Draft-->Editor's Draft
+  <p>This is the 26 January 2011 <!--Last Call Working Draft-->Editor's Draft
    of XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -228,10 +231,10 @@
         </span>The <code title="">overrideMimeType()</code> method</a>
 
        <li><a href="#the-responsetype-attribute"><span class=secno>3.7.7.
-        </span>The <code title>responseType</code> attribute</a>
+        </span>The <code title="">responseType</code> attribute</a>
 
        <li><a href="#the-response-attribute"><span class=secno>3.7.8.
-        </span>The <code title>response</code> attribute</a>
+        </span>The <code title="">response</code> attribute</a>
 
        <li><a href="#the-responsetext-attribute"><span class=secno>3.7.9.
         </span>The <code title="">responseText</code> attribute</a>
@@ -513,8 +516,9 @@ client.send();</code></pre>
    defined by the Cross-Origin Resource Sharing specification. [<cite><a
    href="#ref-cors">CORS</a></cite>]
 
-  <p class=XXX>The <dfn id=arraybuffer><code>ArrayBuffer</code></dfn>
-   interface is defined &hellip;
+  <p>The <dfn id=arraybuffer><code>ArrayBuffer</code></dfn> interface is
+   defined in the Typed Array specification. [<cite><a
+   href="#ref-typed-array">TypedArray</a></cite>]
 
   <p>The <dfn id=blob><code>Blob</code></dfn> and <dfn
    id=file><code>File</code></dfn> interfaces are defined by the File API
@@ -2810,6 +2814,26 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      <a href="#response-entity-body">response entity body</a>.
   </ol>
 
+  <p>The <dfn id=arraybuffer-response-entity-body>arraybuffer response entity
+   body</dfn> is an <a href="#arraybuffer"><code>ArrayBuffer</code></a>
+   representing the <a href="#response-entity-body">response entity body</a>.
+   If the <a href="#arraybuffer-response-entity-body">arraybuffer response
+   entity body</a> has no value assigned to it let it be the return value of
+   the following algorithm:
+
+  <ol>
+   <li>
+    <p>If the <a href="#response-entity-body">response entity body</a> is
+     null, return an empty <a
+     href="#arraybuffer"><code>ArrayBuffer</code></a> object and terminate
+     these steps.
+
+   <li>
+    <p>Return an <a href="#arraybuffer"><code>ArrayBuffer</code></a> object
+     representing the <a href="#response-entity-body">response entity
+     body</a>.
+  </ol>
+
   <h4 id=the-overridemimetype-method><span class=secno>3.7.6. </span>The
    <code title="">overrideMimeType()</code> method</h4>
 
@@ -2848,7 +2872,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   </ol>
 
   <h4 id=the-responsetype-attribute><span class=secno>3.7.7. </span>The <code
-   title>responseType</code> attribute</h4>
+   title="">responseType</code> attribute</h4>
 
   <dl class=domintro>
    <dt><var title="">client</var> . <a
@@ -2860,8 +2884,9 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Returns the response type.</p>
 
     <p>Can be set to change the response type. Values are: the empty string
-     (default), "<code title>text</code>", "<code title>document</code>", and
-     "<a href="#blob"><code title>blob</code></a>".</p>
+     (default), "<code title="">arraybuffer</code>", "<code
+     title="">blob</code>", "<code title="">document</code>", and "<code
+     title="">text</code>".</p>
 
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is not
      <a href="#dom-xmlhttprequest-opened"
@@ -2883,9 +2908,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
      an <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
-    <p>If the given value is not the empty string, "<code title>text</code>",
-     "<code title>document</code>", or "<a href="#blob"><code
-     title>blob</code></a>" terminate these steps.
+    <p>If the given value is not the empty string, "<code
+     title="">arraybuffer</code>", "<code title="">blob</code>", "<code
+     title="">document</code>", or "<code title="">text</code>" terminate
+     these steps.
 
    <li>
     <p>Set the <a href="#dom-xmlhttprequest-responsetype"><code
@@ -2898,7 +2924,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <em class=ct>must</em> return its value.
 
   <h4 id=the-response-attribute><span class=secno>3.7.8. </span>The <code
-   title>response</code> attribute</h4>
+   title="">response</code> attribute</h4>
 
   <dl class=domintro>
    <dt><var title="">client</var> . <a
@@ -2916,7 +2942,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <dl class=switch>
    <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
     title=dom-XMLHttpRequest-responseType>responseType</code></a> is the
-    empty string or "<code title>text</code>"
+    empty string or "<code title="">text</code>"
 
    <dd>
     <ol>
@@ -2952,19 +2978,27 @@ Content-Type: text/plain; charset=utf-8</code></pre>
       <dl class=switch>
        <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
         title=dom-XMLHttpRequest-responseType>responseType</code></a> is
-        "<code title>document</code>"
+        "<code title="">arraybuffer</code>"
 
        <dd>
-        <p>Return the <a href="#document-response-entity-body">document
+        <p>Return the <a href="#arraybuffer-response-entity-body">arraybuffer
          response entity body</a>.
 
        <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
-        title=dom-XMLHttpRequest-responseType>responseType</code></a> is "<a
-        href="#blob"><code title>blob</code></a>"
+        title=dom-XMLHttpRequest-responseType>responseType</code></a> is
+        "<code title="">blob</code>"
 
        <dd>
         <p>Return the <a href="#blob-response-entity-body">blob response
          entity body</a>.
+
+       <dt>If <a href="#dom-xmlhttprequest-responsetype"><code
+        title=dom-XMLHttpRequest-responseType>responseType</code></a> is
+        "<code title="">document</code>"
+
+       <dd>
+        <p>Return the <a href="#document-response-entity-body">document
+         response entity body</a>.
       </dl>
     </ol>
   </dl>
@@ -2984,7 +3018,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if <a
      href="#dom-xmlhttprequest-responsetype"><code
      title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
-     empty string or "<code title>text</code>".
+     empty string or "<code title="">text</code>".
   </dl>
 
   <p>The <dfn id=dom-xmlhttprequest-responsetext
@@ -2995,7 +3029,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li>
     <p>If <a href="#dom-xmlhttprequest-responsetype"><code
      title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
-     empty string or "<code title>text</code>" raise an
+     empty string or "<code title="">text</code>" raise an
      <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
@@ -3028,7 +3062,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if <a
      href="#dom-xmlhttprequest-responsetype"><code
      title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
-     empty string or "<code title>document</code>".
+     empty string or "<code title="">document</code>".
   </dl>
 
   <p>The <dfn id=dom-xmlhttprequest-responsexml
@@ -3039,7 +3073,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <li>
     <p>If <a href="#dom-xmlhttprequest-responsetype"><code
      title=dom-XMLHttpRequest-responseType>responseType</code></a> is not the
-     empty string or "<code title>document</code>" raise an
+     empty string or "<code title="">document</code>" raise an
      <code>INVALID_STATE_ERR</code> exception and terminate these steps.
 
    <li>
@@ -3381,6 +3415,12 @@ const unsigned short <a href="#timeout-err">TIMEOUT_ERR</a> = 23;</pre>
 
    <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized Resource
     Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard. IETF.
+
+   <dd>[<dfn id=ref-typed-array>TypedArray</dfn>]
+
+   <dd><cite><a
+    href="https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/TypedArray-spec.html">Typed
+    Array</a></cite>, V. Vukicevic, K. Russell. Khronos.
 
    <dt>[<dfn id=ref-webidl>WebIDL</dfn>]
 

@@ -53,6 +53,7 @@
     <dt>Previous Versions:</dt>
     
     
+    <dd><a href="http://www.w3.org/TR/2010/WD-XMLHttpRequest2-20100907/">http://www.w3.org/TR/2010/WD-XMLHttpRequest2-20100907/</a></dd>
     <dd><a href="http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/">http://www.w3.org/TR/2009/WD-XMLHttpRequest2-20090820/</a></dd>
     <dd><a href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080930/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080930/</a></dd>
     <dd><a href="http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/">http://www.w3.org/TR/2008/WD-XMLHttpRequest2-20080225/</a></dd>
@@ -385,8 +386,8 @@ client.send();</code></pre>
   are defined by the Cross-Origin Resource Sharing specification.
   [<cite><span>CORS</span></cite>]
 
-  <p class="XXX">The <dfn id="arraybuffer"><code>ArrayBuffer</code></dfn> interface is
-  defined &hellip;</p>
+  <p>The <dfn id="arraybuffer"><code>ArrayBuffer</code></dfn> interface is
+  defined in the Typed Array specification. [<cite><span>TypedArray</span></cite>]</p>
 
   <p>The <dfn id="blob"><code>Blob</code></dfn> and
   <dfn id="file"><code>File</code></dfn> interfaces are defined by the
@@ -2288,10 +2289,10 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   </ol>
 
   
-  <p>The <dfn id="blob-response-entity-body">blob response entity
-  body</dfn> is a <code>Blob</code> representing the
-  <span>response entity body</span>. If the
-  <span>blob response entity body</span> has no value assigned to it let
+  <p>The
+  <dfn id="blob-response-entity-body">blob response entity body</dfn> is a
+  <code>Blob</code> representing the <span>response entity body</span>. If
+  the <span>blob response entity body</span> has no value assigned to it let
   it be the return value of the following algorithm:</p>
 
   <ol>
@@ -2299,6 +2300,22 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    <code>Blob</code> object and terminate these steps.</p></li>
 
    <li><p>Return a <code>Blob</code> object representing the
+   <span>response entity body</span>.</p></li>
+  </ol>
+
+
+  <p>The
+  <dfn id="arraybuffer-response-entity-body">arraybuffer response entity body</dfn>
+  is an <code>ArrayBuffer</code> representing the
+  <span>response entity body</span>. If the
+  <span>arraybuffer response entity body</span> has no value assigned to it
+  let it be the return value of the following algorithm:</p>
+
+  <ol>
+   <li><p>If the <span>response entity body</span> is null, return an empty
+   <code>ArrayBuffer</code> object and terminate these steps.</p></li>
+
+   <li><p>Return an <code>ArrayBuffer</code> object representing the
    <span>response entity body</span>.</p></li>
   </ol>
 
@@ -2336,16 +2353,19 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
 
 
-  <h4>The <code title>responseType</code> attribute</h4>
+  <h4>The <code title="">responseType</code> attribute</h4>
 
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-responseType">responseType</code> [ = <var title>value</var> ]</dt>
    <dd>
     <p>Returns the response type.</p>
-    <p>Can be set to change the response type. Values are: the empty string
-    (default), "<code title>text</code>", "<code title>document</code>", and
-    "<code title>blob</code>".</p>
+    <p>Can be set to change the response type. Values are:
+    the empty string (default),
+    "<code title="">arraybuffer</code>",
+    "<code title="">blob</code>",
+    "<code title="">document</code>", and
+    "<code title="">text</code>".</p>
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if the state is
     not <span title="dom-XMLHttpRequest-OPENED">OPENED</span> or
     <span title="dom-XMLHttpRequest-HEADERS_RECEIVED">HEADERS_RECEIVED</span>.</p>
@@ -2363,9 +2383,13 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    raise an <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
 
-   <li><p>If the given value is not the empty string,
-   "<code title>text</code>", "<code title>document</code>", or
-   "<code title>blob</code>" terminate these steps.</p></li>
+   <li><p>If the given value is not
+    the empty string,
+    "<code title="">arraybuffer</code>",
+    "<code title="">blob</code>",
+    "<code title="">document</code>", or
+    "<code title="">text</code>"
+    terminate these steps.</p></li>
 
    <li><p>Set the
    <code title="dom-XMLHttpRequest-responseType">responseType</code>
@@ -2378,7 +2402,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
 
 
-  <h4>The <code title>response</code> attribute</h4>
+  <h4>The <code title="">response</code> attribute</h4>
 
   <dl class="domintro">
    <dt><var title="">client</var> . <code title="dom-XMLHttpRequest-response">response</code></dt>
@@ -2392,7 +2416,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
 
   <dl class="switch">
    <dt>If <code title="dom-XMLHttpRequest-responseType">responseType</code>
-   is the empty string or "<code title>text</code>"</dt>
+   is the empty string or "<code title="">text</code>"</dt>
    <dd>
     <ol>
      <li><p>If the state is not
@@ -2420,15 +2444,21 @@ Content-Type: text/plain; charset=utf-8</code></pre>
       <dl class="switch">
        <dt>If
        <code title="dom-XMLHttpRequest-responseType">responseType</code> is
-       "<code title>document</code>"</dt>
+       "<code title="">arraybuffer</code>"</dt>
        <dd><p>Return the
-       <span>document response entity body</span>.</p></dd>
+       <span>arraybuffer response entity body</span>.</p></dd>
 
        <dt>If
        <code title="dom-XMLHttpRequest-responseType">responseType</code> is
-       "<code title>blob</code>"</dt>
+       "<code title="">blob</code>"</dt>
        <dd><p>Return the
        <span>blob response entity body</span>.</p></dd>
+
+       <dt>If
+       <code title="dom-XMLHttpRequest-responseType">responseType</code> is
+       "<code title="">document</code>"</dt>
+       <dd><p>Return the
+       <span>document response entity body</span>.</p></dd>
       </dl>
      </li>
     </ol>
@@ -2446,7 +2476,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if
     <code title="dom-XMLHttpRequest-responseType">responseType</code> is not
-    the empty string or "<code title>text</code>".
+    the empty string or "<code title="">text</code>".
     
    </dd>
   </dl>
@@ -2460,7 +2490,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    
    <li><p>If
    <code title="dom-XMLHttpRequest-responseType">responseType</code> is not
-   the empty string or "<code title>text</code>" raise an
+   the empty string or "<code title="">text</code>" raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
    
@@ -2485,7 +2515,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
     
     <p>Throws an <code>INVALID_STATE_ERR</code> exception if
     <code title="dom-XMLHttpRequest-responseType">responseType</code> is not
-    the empty string or "<code title>document</code>".
+    the empty string or "<code title="">document</code>".
     
    </dd>
   </dl>
@@ -2499,7 +2529,7 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    
    <li><p>If
    <code title="dom-XMLHttpRequest-responseType">responseType</code> is not
-   the empty string or "<code title>document</code>" raise an
+   the empty string or "<code title="">document</code>" raise an
    <code>INVALID_STATE_ERR</code> exception and terminate these
    steps.</p></li>
    
@@ -2794,6 +2824,12 @@ const unsigned short <span>TIMEOUT_ERR</span> = 23;</pre>
    <dd><cite><a href="http://ietf.org/rfc/rfc3987">Internationalized
    Resource Identifiers (IRIs)</a></cite>, M. Duerst, M. Suignard.
    IETF.</dd>
+
+   
+   <dd>[<dfn id="ref-typed-array">TypedArray</dfn>]</dt>
+   <dd><cite><a href="https://cvs.khronos.org/svn/repos/registry/trunk/public/webgl/doc/spec/TypedArray-spec.html">Typed
+   Array</a></cite>, V. Vukicevic, K. Russell. Khronos.</dd>
+   
 
    <dt>[<dfn id="ref-webidl">WebIDL</dfn>]</dt>
    <dd><cite><a href="http://dev.w3.org/2006/webapi/WebIDL/">Web
