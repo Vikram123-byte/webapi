@@ -40,13 +40,13 @@
 
    <h1 class=head id=xmlhttprequest-level-2>XMLHttpRequest Level 2</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 3 February 2011</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>Editor's Draft 7 February 2011</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2011/ED-XMLHttpRequest2-20110203/">http://www.w3.org/TR/2011/ED-XMLHttpRequest2-20110203/</a>
+     href="http://www.w3.org/TR/2011/ED-XMLHttpRequest2-20110207/">http://www.w3.org/TR/2011/ED-XMLHttpRequest2-20110207/</a>
 
     <dt>Latest Version:
 
@@ -113,7 +113,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 3 February 2011 <!--Last Call Working Draft-->Editor's Draft
+  <p>This is the 7 February 2011 <!--Last Call Working Draft-->Editor's Draft
    of XMLHttpRequest Level 2. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[XHR2]%20">public-webapps@w3.org</a>
    (<a
@@ -1594,9 +1594,8 @@ X-Test: one, two</code></pre>
        the result of running the <a
        href="#multipart/form-data-encoding-algorithm"><code>multipart/form-data</code>
        encoding algorithm</a> with <var>data</var> as <var>form data
-       set</var>.</p>
-      <!-- XXX sufficient? prolly not -->
-      <!-- XXX need to add boundary parameter -->
+       set</var> and with UTF-8 as the explicit character encoding.</p>
+      <!-- XXX need to add boundary parameter? -->
     </dl>
 
     <p>If a <code>Content-Type</code> header is set using <a
@@ -3188,7 +3187,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
    title="">FormData</code> Interface</h2>
 
   <p>The <a href="#formdata"><code>FormData</code></a> object represents an
-   ordered collection of entries. Each entry has a name and value.
+   ordered collection of entries. Each entry has a name, a value, a type, and
+   potentially a filename.
 
   <pre class=idl>[<a href="#dom-formdata" title=dom-FormData>Constructor</a>]
 interface <dfn id=formdata>FormData</dfn> {
@@ -3228,10 +3228,24 @@ interface <dfn id=formdata>FormData</dfn> {
   <p>When the <dfn id=dom-formdata-append
    title=dom-FormData-append><code>append(<var>name</var>,
    <var>value</var>)</code></dfn> method is invoked, the user agent <em
-   class=ct>must</em> create a new entry with its name set to <var>name</var>
-   and its value set to <var>value</var> and add it to the end of the
-   collection the <a href="#formdata"><code>FormData</code></a> object
-   represents.
+   class=ct>must</em> create a new entry with the following parameters set:
+
+  <ul>
+   <li>Set its name to <var>name</var>.
+
+   <li>Set its value to <var>value</var>.
+
+   <li>Set its type to "text" if <var>value</var> is a string and "file" if
+    it is a <a href="#blob"><code>Blob</code></a>.
+
+   <li>If type is "file" set filename to the empty string if the value is not
+    a <a href="#file"><code>File</code></a> and set it to the <a
+    href="#file"><code>File</code></a>'s <code
+    title=dom-File-name>name</code> otherwise.
+  </ul>
+
+  <p>Append this entry to the end of the collection the <a
+   href="#formdata"><code>FormData</code></a> object represents.
 
   <h2 id=exceptions><span class=secno>5. </span>Exceptions</h2>
 

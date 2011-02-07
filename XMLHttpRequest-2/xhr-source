@@ -1340,10 +1340,10 @@ X-Test: one, two</code></pre>
 
       <p>Let the <span>request entity body</span> be the result of running
       the <span><code>multipart/form-data</code> encoding algorithm</span>
-      with <var>data</var> as <var>form data set</var>.</p>
+      with <var>data</var> as <var>form data set</var> and with UTF-8 as the
+      explicit character encoding.</p>
 
-      <!-- XXX sufficient? prolly not -->
-      <!-- XXX need to add boundary parameter -->
+      <!-- XXX need to add boundary parameter? -->
      </dd>
      <!--END xhr2-->
     </dl>
@@ -2682,7 +2682,8 @@ Content-Type: text/plain; charset=utf-8</code></pre>
   <h2 id="the-formdata-interface">The <code title="">FormData</code> Interface</h2>
 
   <p>The <code>FormData</code> object represents an ordered collection of
-  entries. Each entry has a name and value.</p>
+  entries. Each entry has a name, a value, a type, and potentially a
+  filename.</p>
 
   <pre class="idl">[<span title="dom-FormData">Constructor</span>]
 interface <dfn>FormData</dfn> {
@@ -2716,8 +2717,17 @@ interface <dfn>FormData</dfn> {
   <p>When the
   <dfn title="dom-FormData-append" id="dom-formdata-append"><code>append(<var>name</var>, <var>value</var>)</code></dfn>
   method is invoked, the user agent <em class="ct">must</em> create a new
-  entry with its name set to <var>name</var> and its value set to
-  <var>value</var> and add it to the end of the collection the
+  entry with the following parameters set:</p>
+  <ul>
+   <li>Set its name to <var>name</var>.
+   <li>Set its value to <var>value</var>.
+   <li>Set its type to "text" if <var>value</var> is a string and "file" if
+   it is a <code>Blob</code>.</li>
+   <li>If type is "file" set filename to the empty string if the value is
+   not a <code>File</code> and set it to the <code>File</code>'s
+   <code title="dom-File-name">name</code> otherwise.</li>
+  </ul>
+  <p>Append this entry to the end of the collection the
   <code>FormData</code> object represents.</p>
   <!--END xhr2-->
 
