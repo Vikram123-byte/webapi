@@ -7,7 +7,7 @@
   <metadata>
     <title>Web Notifications</title>
     <styling type='W3C' status='ED'/>
-    <date year='2011' month='01' day='11'/>
+    <date year='2011' month='02' day='13'/>
     <editors>
       <person>
         <name>John Gregg</name>
@@ -22,13 +22,11 @@
     <title>Abstract</title>
     <p>
       This document defines an API for displaying simple notifications to the user.
-      For a broader overview of notifications, including definitions and use cases,
-      see <a href="Overview.html">Notifications Overview</a>.
     </p>
     <!--
     <ednote>
       <p>
-        Last update: $Id: Notifications.xml,v 1.2 2011-01-13 00:04:37 jgregg Exp $.
+        Last update: $Id: Notifications.xml,v 1.3 2011-02-14 02:54:53 jgregg Exp $.
       </p>
     </ednote>
     -->
@@ -48,13 +46,68 @@
     <?respec-toc?>
   </section>
 
+  <section xml:id='definitions'>
+    <title>Definitions</title>
+
+    <ul>
+      <li><em>ambient notification</em>: A notification which appears and disappears automatically without user action.</li>
+      <li><em>interactive notification</em>: A notification which can receive events from user actions and deliver them to the application which created the notification.</li>
+      <li><em>persistent notification</em>: A notification which is displayed until the user explicitly dismisses it.</li>
+      <li><em>notification platform</em>: A notification platform is a system outside the user agent which provides desktop notifications.  Examples include Growl on MacOS, NotifyOSD on Linux, and the Windows notification API.</li>
+      <li><em>simple notification</em>: A notification which consists only of an icon and one or two lines of text.</li>
+      <li><em>web notification</em>: A notification which consists of Web platform content, such as HTML or SVG.</li>
+    </ul>
+  </section>
+
+  <section xml:id='requirements'>
+    <title>Requirements and use cases</title>  
+    This specification must meet the following requirements:
+    <ul>
+      <li>An implementation which uses only the existing notification platforms in major platforms to display notifications must be able to comply with the specification.</li>
+      <li>The specification must allow compliant implementations regardless of platform or device.</li>
+      <li>The specification must provide controls to users in order to prevent unwanted notifications to be displayed.</li>
+      <li>The specification must define an event model for interactive notifications.</li>
+      <li>The specification must address security issues.</li>
+      <li>The specification should not require any implementation to display persistent notifications.</li>
+      <li>The specification should be compatible with other Web technologies, such as HTML and SVG.</li>
+    </ul>
+
+    The specification attempts to address the following use cases:
+    <ul>
+      <li>An application alerts the user "you've got mail" in the form of an ambient notification, with no interaction necessary.</li>
+      <li>An application alerts the user "you've got mail" as an interactive notification which allows the user to easily return to the inbox.</li>
+      <li>A calendar application alerts the user for an upcoming meeting, and allows the user to easily specify a "snooze" delay of several possible time periods.</li>
+      <li>A system alerts the user "your printer is out of paper".</li>
+      <li>An application with multiple simultaneous execution contexts (like a multi-tab email application) wants to show notifications without creating duplicate notifications.</li>
+    </ul>
+  </section>
+  
   <section xml:id='introduction' normativity='not normative'>
     <title>Introduction</title>
+    <p>
+      This specification provides an API to generate <em>simple notifications</em> to
+      alert users outside of the web page.  It does not specify exactly how a user
+      agent should display these notifications; the best presentation depends on the device
+      where the user agent is run.  When this specificiation refers to displaying
+      notifications on the "desktop", it generally refers to some static display
+      area outside the web page, but may take several forms, including:
+      <ul>
+        <li>a corner of the user's display,</li>
+        <li>an area within the chrome of the user agent,</li>
+        <li>the "home" screen of a mobile device,</li>
+        <li><em>et al.</em></li>
+      </ul>
+      This specification does not define exactly how the user agent should display
+      the notification, and the API is designed to be flexible with respect to
+      presentation options.
+    </p>
     <p>
       This specification is designed to be compatible with existing notification platforms
       as much as possible, but also to be platform-independent.  Since the common platforms
       do not provide the same functionality, this spec will indicate what events are guaranteed
-      and which are not.
+      and which are not.  In particular, notifications as specified here only can contain
+      text and icon content.  In the future, notifications generated from Web content may
+      wish to contain Web content themselves, but that is outside the scope of this document.
     </p>    
     <p>
       In general, the event model for notifications is best-effort; while the Notification 
@@ -62,6 +115,14 @@
       listening for that event, but <em>must not depend on receiving it</em>,
       in case the underlying notification platform does not provide that capability.
     </p>
+   
+    <section>
+      <title>Security</title>
+      <p>
+	Notifications should only be presented when the user has indicated they are desired;
+	without this they could create a negative experience for the user.
+      </p>     
+      </section>
   </section>
 
   <section xml:id='permissions'>
@@ -323,7 +384,7 @@
 	  </li>
 	  <li>
 	    If the fetch algorithm returns error information, fire the <code>error</code> event on the <em>new</em> notification
-	    object and stop executing this algorithm,m returning the error information.  The <em>old</em> notification is not affected.
+	    object and stop executing this algorithm, returning the error information.  The <em>old</em> notification is not affected.
 	  </li>
 	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
 	  <li>Fire the <code>show</code> event on the <em>new</em> notification object.</li>
@@ -397,10 +458,6 @@
       <bibentry xml:id='PERMISSIONS'>
 	<title>Feature Permissions</title>
 	<link>FeaturePermissions.html</link>
-      </bibentry>
-      <bibentry xml:id='WEB-NOTIFICATIONS'>
-	<title>Web URL Notifications</title>
-	<link>WebNotifications.html</link>
       </bibentry>
     </bibliography>
   </section>
