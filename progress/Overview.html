@@ -40,13 +40,14 @@
 
    <h1 class=head>Progress Events</h1>
 
-   <h2 class="no-num no-toc" id=w3c-doctype>W3C Working Draft 24 January 2011</h2>
+   <h2 class="no-num no-toc" id=w3c-doctype>W3C Working Draft 15 February
+    2011</h2>
 
    <dl>
     <dt>This Version:
 
     <dd><a
-     href="http://www.w3.org/TR/2011/WD-progress-events-20110124/">http://www.w3.org/TR/2011/WD-progress-events-20110124/</a>
+     href="http://www.w3.org/TR/2011/WD-progress-events-20110215/">http://www.w3.org/TR/2011/WD-progress-events-20110215/</a>
 
     <dt>Latest Version:
 
@@ -115,7 +116,7 @@
    can be found in the <a href="http://www.w3.org/TR/">W3C technical reports
    index</a> at http://www.w3.org/TR/.</em>
 
-  <p>This is the 24 January 2011 <!--Last Call Working Draft-->W3C Working
+  <p>This is the 15 February 2011 <!--Last Call Working Draft-->W3C Working
    Draft of Progress Events. Please send comments to <a
    href="mailto:public-webapps@w3.org?subject=[progress-events]%20">public-webapps@w3.org</a>
    (<a
@@ -196,12 +197,12 @@
    <li><a href="#the-progressevent-interface"><span class=secno>3. </span>The
     <code title="">ProgressEvent</code> Interface</a>
     <ul class=toc>
-     <li><a href="#initializing-progressevent-for-http-enti"><span
-      class=secno>3.1. </span>Initializing <code
-      title="">ProgressEvent</code> for HTTP Entity Bodies</a>
+     <li><a href="#dispatching-events-of-type-progressevent"><span
+      class=secno>3.1. </span>Dispatching events of type <code
+      title="">ProgressEvent</code> for HTTP</a>
 
-     <li><a href="#initializing-progressevent-for-other-con"><span
-      class=secno>3.2. </span>Initializing <code
+     <li><a href="#dispatch-events-of-type-progressevent-fo"><span
+      class=secno>3.2. </span>Dispatch events of type <code
       title="">ProgressEvent</code> for other contexts</a>
 
      <li><a href="#security-considerations-for-initializing"><span
@@ -209,8 +210,8 @@
       title="">ProgressEvent</code></a>
     </ul>
 
-   <li><a href="#suggested-progressevent-types"><span class=secno>4.
-    </span>Suggested <code title="">ProgressEvent</code> Types</a>
+   <li><a href="#suggested-progressevent-names"><span class=secno>4.
+    </span>Suggested <code title="">ProgressEvent</code> Names</a>
 
    <li class=no-num><a href="#references">References</a>
 
@@ -262,8 +263,13 @@
 
   <h3 id=terminology><span class=secno>2.1. </span>Terminology</h3>
 
-  <p><dfn id=event><code>Event</code></dfn> is defined by DOM Events. <a
-   href="#ref-domevents">[DOMEvents]</a>
+  <p><dfn id=bubble-flag>Bubble flag</dfn>, <dfn id=cancel-flag>cancel
+   flag</dfn> dispatch, <dfn id=dispatch-flag>dispatch flag</dfn>, <dfn
+   id=concept-event title=concept-event>event</dfn>, <dfn
+   id=event><code>Event</code></dfn>, <dfn id=dom-event-initevent
+   title=dom-Event-initEvent><code>initEvent()</code></dfn>, and <dfn
+   id=concept-event-name title=concept-event-name>name</dfn> are defined by
+   DOM Core. <a href="#ref-domcore">[DOMCore]</a>
 
   <p><dfn id=http-content-length
    title=http-content-length><code>Content-Length</code></dfn> and <dfn
@@ -303,74 +309,110 @@
   readonly attribute unsigned long long <a href="#dom-progressevent-loaded" title=dom-ProgressEvent-loaded>loaded</a>;
   readonly attribute unsigned long long <a href="#dom-progressevent-total" title=dom-ProgressEvent-total>total</a>;
 
-  void <a href="#dom-progressevent-initprogressevent" title=dom-ProgressEvent-initProgressEvent>initProgressEvent</a>(DOMString <var title="">typeArg</var>, boolean <var title="">canBubbleArg</var>, boolean <var title="">cancelableArg</var>, boolean <var title="">lengthComputableArg</var>, unsigned long long <var title="">loadedArg</var>, unsigned long long <var title="">totalArg</var>);
+  void <a href="#dom-progressevent-initprogressevent" title=dom-ProgressEvent-initProgressEvent>initProgressEvent</a>(DOMString <var title="">type</var>, optional boolean <var title="">bubbles</var>, optional boolean <var title="">cancelable</var>, optional boolean <var title="">lengthComputable</var>, optional unsigned long long <var title="">loaded</var>, optional unsigned long long <var title="">total</var>);
 };</pre>
+
+  <p><a href="#concept-event" title=concept-event>Events</a> of type <a
+   href="#progressevent"><code>ProgressEvent</code></a> indicate some kind of
+   progression.
+
+  <p><a href="#concept-event" title=concept-event>Events</a> of type <a
+   href="#progressevent"><code>ProgressEvent</code></a> have an associated
+   <dfn id=value title=concept-ProgressEvent-value>value</dfn>, <dfn
+   id=maximum title=concept-ProgressEvent-maximum>maximum</dfn>, and <dfn
+   id=maximum-known-flag>maximum known flag</dfn>. The <a href="#value"
+   title=concept-ProgressEvent-value>value</a> and <a href="#maximum"
+   title=concept-ProgressEvent-maximum>maximum</a> are initially zero and the
+   <a href="#maximum-known-flag">maximum known flag</a> is initially unset.
 
   <p>The <dfn id=dom-progressevent-lengthcomputable
    title=dom-ProgressEvent-lengthComputable><code>lengthComputable</code></dfn>
-   must return true when the length of the progress is known, or false
-   otherwise.
+   attribute must return true if the <a href="#maximum-known-flag">maximum
+   known flag</a> is set and false otherwise.
 
   <p>The <dfn id=dom-progressevent-loaded
-   title=dom-ProgressEvent-loaded><code>loaded</code></dfn> must return the
-   current state of progression.
+   title=dom-ProgressEvent-loaded><code>loaded</code></dfn> attribute must
+   return <a href="#value" title=concept-ProgressEvent-value>value</a>.
 
   <p>The <dfn id=dom-progressevent-total
-   title=dom-ProgressEvent-total><code>total</code></dfn> must return the
-   length of the progress, or zero if that is unknown.
+   title=dom-ProgressEvent-total><code>total</code></dfn> attribute must
+   return <a href="#maximum" title=concept-ProgressEvent-maximum>maximum</a>.
+   
 
-  <p>The <dfn id=dom-progressevent-initprogressevent
-   title=dom-ProgressEvent-initProgressEvent><code>initProgressEvent</code></dfn>
-   method must initialize the event in a manner analogous to the
-   similarly-named method in the DOM Events interfaces. <a
-   href="#ref-domevents">[DOMEvents]</a>
+  <p>When the <dfn id=dom-progressevent-initprogressevent
+   title=dom-ProgressEvent-initProgressEvent><code>initProgressEvent(<var
+   title>type</var>, <var title>bubbles</var>, <var title>cancelable</var>,
+   <var title="">lengthComputable</var>, <var title="">loaded</var>, <var
+   title="">total</var>)</code></dfn> method is invoked these steps must be
+   run:
 
-  <h3 id=initializing-progressevent-for-http-enti><span class=secno>3.1.
-   </span>Initializing <code title="">ProgressEvent</code> for HTTP Entity
-   Bodies</h3>
+  <ol>
+   <li>
+    <p>If the <a href="#dispatch-flag">dispatch flag</a> is set, terminate
+     these steps.
+
+   <li>
+    <p>Invoke <a href="#dom-event-initevent"><code
+     title=dom-Event-initEvent>initEvent()</code></a> with up to the first
+     three arguments.
+
+   <li>
+    <p>If the <var title="">lengthComputable</var> argument is not omitted
+     and is true, set the <a href="#maximum-known-flag">maximum known
+     flag</a>.
+
+   <li>
+    <p>If the <var title="">loaded</var> argument is not omitted, set <a
+     href="#value" title=concept-ProgressEvent-value>value</a> to <var
+     title="">loaded</var>.
+
+   <li>
+    <p>If the <var title="">total</var> argument is not omitted, set <a
+     href="#maximum" title=concept-ProgressEvent-maximum>maximum</a> to <var
+     title="">total</var>.
+  </ol>
+
+  <h3 id=dispatching-events-of-type-progressevent><span class=secno>3.1.
+   </span>Dispatching events of type <code title="">ProgressEvent</code> for
+   HTTP</h3>
 
   <p>When a specification says to <dfn
-   id=dispatch-an-http-entity-body-progress-ev
-   title=dispatch-an-http-entity-body-progress-event>dispatch an HTTP entity
-   body progress event named <var>e</var></dfn> it means that an event with
-   the name <var>e</var>, which does not bubble and is not cancelable, and
-   which uses the <a href="#progressevent"><code>ProgressEvent</code></a>
-   interface, is to be dispatched at the indicated object, with the remaining
-   members of the <a href="#progressevent"><code>ProgressEvent</code></a>
-   object set as follows, depending on the <a href="#entity-body">entity
-   body</a> involved:
+   id=dispatch-an-http-progress-event-named-e
+   title=dispatch-an-http-entity-body-progress-event>dispatch an HTTP
+   progress event named <var>e</var></dfn> these steps:
 
-  <dl>
-   <dt><a href="#dom-progressevent-lengthcomputable"><code
-    title=dom-ProgressEvent-lengthComputable>lengthComputable</code></a>
+  <ol>
+   <li>Let <var title="">event</var> be an <a href="#concept-event"
+    title=concept-event>event</a> of type <a
+    href="#progressevent"><code>ProgressEvent</code></a>
 
-   <dd>
-    <p>True if the length is known, or false otherwise.
+   <li>Set <var title="">event</var>'s <a href="#concept-event-name"
+    title=concept-event-name>name</a> to <var title="">e</var>
 
-   <dt><a href="#dom-progressevent-loaded"><code
-    title=dom-ProgressEvent-loaded>loaded</code></a>
+   <li>Set <a href="#value" title=concept-ProgressEvent-value>value</a> to
+    the number of HTTP <a href="#entity-body">entity body</a> octets
+    transferred.
 
-   <dd>
-    <p>The number of <a href="#entity-body">entity body</a> octets
-     transferred.
+   <li>If the length of the HTTP <a href="#entity-body">entity body</a> is
+    known through the <a href="#http-content-length"><code
+    title=http-content-length>Content-Length</code></a> header, set the <a
+    href="#maximum-known-flag">maximum known flag</a> and set <a
+    href="#maximum" title=concept-ProgressEvent-maximum>maximum</a> to the
+    length.
 
-   <dt><a href="#dom-progressevent-total"><code
-    title=dom-ProgressEvent-total>total</code></a>
+   <li><span title=concept-event-dispatch>Dispatch</span> <var
+    title="">event</var> to the indicated object.
+  </ol>
 
-   <dd>
-    <p>The length of the <a href="#entity-body">entity body</a> as given by
-     the <a href="#http-content-length"><code
-     title=http-content-length>Content-Length</code></a> header, or zero if
-     it is unknown.
-  </dl>
-
-  <h3 id=initializing-progressevent-for-other-con><span class=secno>3.2.
-   </span>Initializing <code title="">ProgressEvent</code> for other contexts</h3>
+  <h3 id=dispatch-events-of-type-progressevent-fo><span class=secno>3.2.
+   </span>Dispatch events of type <code title="">ProgressEvent</code> for
+   other contexts</h3>
 
   <p>This is left as an exercise for the editor of the specification that
    introduces such a context. The editor is encouraged to define it in a way
-   consistent with this and other specifications using the <code
-   title="">ProgressEvent</code> interface.
+   consistent with this and other specifications using <a
+   href="#concept-event" title=concept-event>events</a> of type <code
+   title="">ProgressEvent</code>.
 
   <h3 id=security-considerations-for-initializing><span class=secno>3.3.
    </span>Security Considerations for Initializing <code
@@ -381,16 +423,18 @@
    information would be revealed that cannot be obtained otherwise. <a
    href="#ref-cors">[CORS]</a>
 
-  <h2 id=suggested-progressevent-types><span class=secno>4. </span>Suggested
-   <code title="">ProgressEvent</code> Types</h2>
+  <h2 id=suggested-progressevent-names><span class=secno>4. </span>Suggested
+   <code title="">ProgressEvent</code> Names</h2>
 
   <p><em>This section is non-normative.</em>
 
-  <p>The suggested event types for use with the <code
-   title="">ProgressEvent</code> interface are summarized in the table below.
-   Specification editors are free to tune the details to their specific
-   scenarios, though are strongly encouraged to discuss their usage with the
-   W3C WebApps Working Group on <a
+  <p>The suggested <a href="#concept-event-name"
+   title=concept-event-name>names</a> for use with <a href="#concept-event"
+   title=concept-event>events</a> of type <a
+   href="#progressevent"><code>ProgressEvent</code></a> interface are
+   summarized in the table below. Specification editors are free to tune the
+   details to their specific scenarios, though are strongly encouraged to
+   discuss their usage with the W3C WebApps Working Group on <a
    href="mailto:public-webapps@w3.org">public-webapps@w3.org</a> to ensure
    input from people familiar with the subject.
 
@@ -421,7 +465,8 @@
 
      <td>Zero or more.
 
-     <td>After <code title="">loadstart</code> has been dispatched.
+     <td>After <code title="">loadstart</code> has been <span
+      title=concept-event-dispatch>dispatched</span>.
 
     <tr>
      <th><code title="">error</code>
@@ -431,8 +476,11 @@
      <td>Zero or once.
 
      <td rowspan=3>After the last <code title="">progress</code> has been
-      dispatched, or after <code title="">loadstart</code> has been
-      dispatched if <code title="">progress</code> has not been dispatched.
+      <span title=concept-event-dispatch>dispatched</span>, or after <code
+      title="">loadstart</code> has been <span
+      title=concept-event-dispatch>dispatched</span> if <code
+      title="">progress</code> has not been <span
+      title=concept-event-dispatch>dispatched</span>.
 
     <tr>
      <th><code>abort</code>
@@ -456,8 +504,8 @@
      <td>Once.
 
      <td>After one of <code title="">error</code>, <code
-      title="">abort</code>, or <code title="">load</code> has been
-      dispatched.
+      title="">abort</code>, or <code title="">load</code> has been <span
+      title=concept-event-dispatch>dispatched</span>.
   </table>
 
   <p>The <code title="">error</code>, <code title="">abort</code>, and <code
@@ -465,10 +513,11 @@
 
   <p>Throughout the web platform the <code title="">error</code>, <code
    title="">abort</code>, and <code title="">load</code> event types have
-   traditionally not had a default action and did not bubble so it is
-   suggested that for consistency all event types using the <code
-   title="">ProgressEvent</code> interface do not bubble and are not
-   cancelable.
+   their <a href="#bubble-flag">bubble flag</a> and <a
+   href="#cancel-flag">cancel flag</a> unset so it is suggested that for
+   consistency all <a href="#concept-event" title=concept-event>events</a> of
+   type <a href="#progressevent"><code>ProgressEvent</code></a> have these
+   unset.
 
   <h2 class=no-num id=references>References</h2>
 
@@ -481,11 +530,11 @@
     href="http://dev.w3.org/2006/waf/access-control/">Cross-Origin Resource
     Sharing</a></cite> (work in progress), A. van Kesteren. W3C.
 
-   <dt>[<dfn id=ref-domevents>DOMEvents</dfn>]
+   <dt>[<dfn id=ref-domcore>DOMCore</dfn>]
 
-   <dd><cite><a href="http://www.w3.org/TR/DOM-Level-2-Events/">Document
-    Object Model (DOM) Level 2 Events Specification</a></cite>, T. Pixley.
-    W3C.
+   <dd><cite><a
+    href="http://dvcs.w3.org/hg/domcore/raw-file/tip/Overview.html">DOM
+    Core</a></cite> (work in progress), A. van Kesteren. W3C.
 
    <dt>[<dfn id=ref-html>HTML</dfn>]
 
