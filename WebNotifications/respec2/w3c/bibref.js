@@ -50,7 +50,7 @@ define(
                         $("<dt/>").attr({id: "bib-" + ref}).appendTo($dl).text("[" + ref + "]");
                         var $dd = $("<dd><em>waiting for reference to load...</em></dd>").appendTo($dl);
                         // utils.proxyLoad(conf.respecBase + "bibref/" + ref + ".html", this._makeCB(ref));
-                        require({ baseUrl: conf.respecBase }, ["w3c/bibref/" + ref], function (def) {
+                        require({ baseUrl: conf.respecBase }, ["respec2/w3c/bibref/" + ref], function (def) {
                             $("#bib-" + def.id).next().html(def.html);
                             $("script[data-requiremodule=\"w3c/bibref/" + def.id + "\"]").remove();
                         });
