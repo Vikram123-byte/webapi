@@ -1,0 +1,1031 @@
+<!DOCTYPE html PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN' 'http://www.w3.org/TR/html4/loose.dtd'>
+<html lang="en" dir="ltr" about="" property="dc:language" content="en" prefix="dc: http://purl.org/dc/terms/ bibo: http://purl.org/ontology/bibo/ foaf: http://xmlns.com/foaf/0.1/ xsd: http://www.w3.org/2001/XMLSchema#">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Web Notifications</title>
+    
+    
+  <style type="text/css">
+/*
+    XXX this is not up to date with the needs of various other parts, it will require
+        to be synched up with the latest developments
+        It may be that this will be split up so that only the parts that are acually used
+        by the document get to be included (e.g. WebIDL).
+*/
+
+/*****************************************************************
+ * ReSpec 2 CSS
+ * Robin Berjon, 2010-01-04
+ *****************************************************************/
+
+/* --- INLINES --- */
+em.rfc2119 { 
+    text-transform:     lowercase;
+    font-variant:       small-caps;
+    font-style:         normal;
+    color:              #900;
+}
+
+h1 acronym, h2 acronym, h3 acronym, h4 acronym, h5 acronym, h6 acronym, a acronym,
+h1 abbr, h2 abbr, h3 abbr, h4 abbr, h5 abbr, h6 abbr, a abbr {
+    border: none;
+}
+
+dfn {
+    font-weight:    bold;
+}
+
+a.internalDFN {
+    color:  inherit;
+    border-bottom:  medium solid #99c;
+    text-decoration:    none;
+}
+
+a.externalDFN {
+    color:  inherit;
+    border-bottom:  medium dotted #ccc;
+    text-decoration:    none;
+}
+
+a.bibref {
+    text-decoration:    none;
+}
+
+code {
+    color:  #ff4500;
+}
+
+
+/* --- WEB IDL --- */
+pre.idl {
+    border-top: 1px solid #90b8de;
+    border-bottom: 1px solid #90b8de;
+    padding:    1em;
+    line-height:    120%;
+}
+
+pre.idl::before {
+    content:    "WebIDL";
+    display:    block;
+    width:      150px;
+    background: #90b8de;
+    color:  #fff;
+    font-family:    initial;
+    padding:    3px;
+    font-weight:    bold;
+    margin: -1em 0 1em -1em;
+}
+
+.idlType {
+    color:  #ff4500;
+    font-weight:    bold;
+    text-decoration:    none;
+}
+
+/*.idlModule*/
+/*.idlModuleID*/
+/*.idlInterface*/
+.idlInterfaceID {
+    font-weight:    bold;
+    color:  #005a9c;
+}
+
+.idlSuperclass {
+    font-style: italic;
+    color:  #005a9c;
+}
+
+/*.idlAttribute*/
+.idlAttrType {
+    color:  #005a9c;
+}
+.idlAttrName {
+    color:  #ff4500;
+}
+.idlAttrName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlMethod*/
+.idlMethType {
+    color:  #005a9c;
+}
+.idlMethName {
+    color:  #ff4500;
+}
+.idlMethName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlParam*/
+.idlParamType {
+    color:  #005a9c;
+}
+.idlParamName {
+    font-style: italic;
+}
+
+.extAttr {
+    color:  #666;
+}
+
+/*.idlConst*/
+.idlConstType {
+    color:  #005a9c;
+}
+.idlConstName {
+    color:  #ff4500;
+}
+.idlConstName a {
+    color:  #ff4500;
+    border-bottom:  1px dotted #ff4500;
+    text-decoration: none;
+}
+
+/*.idlException*/
+.idlExceptionID {
+    font-weight:    bold;
+    color:  #c00;
+}
+
+.idlTypedefID, .idlTypedefType {
+    color:  #005a9c;
+}
+
+.idlRaises, .idlRaises a.idlType, .idlRaises a.idlType code, .excName a, .excName a code {
+    color:  #c00;
+    font-weight:    normal;
+}
+
+.excName a {
+    font-family:    monospace;
+}
+
+.idlRaises a.idlType, .excName a.idlType {
+    border-bottom:  1px dotted #c00;
+}
+
+.excGetSetTrue, .excGetSetFalse, .prmNullTrue, .prmNullFalse, .prmOptTrue, .prmOptFalse {
+    width:  45px;
+    text-align: center;
+}
+.excGetSetTrue, .prmNullTrue, .prmOptTrue { color:  #0c0; }
+.excGetSetFalse, .prmNullFalse, .prmOptFalse { color:  #c00; }
+
+.idlImplements a {
+    font-weight:    bold;
+}
+
+dl.attributes, dl.methods, dl.constants {
+    margin-left:    2em;
+}
+
+.attributes dt, .methods dt, .constants dt {
+    font-weight:    normal;
+}
+
+.attributes dt code, .methods dt code, .constants dt code {
+    font-weight:    bold;
+    color:  #000;
+    font-family:    monospace;
+}
+
+.attributes dt code {
+    background:  #ffffd2;
+}
+
+.attributes dt .idlAttrType code {
+    color:  #005a9c;
+    background:  transparent;
+    font-family:    inherit;
+    font-weight:    normal;
+    font-style: italic;
+}
+
+.methods dt code {
+    background:  #d9e6f8;
+}
+
+.constants dt code {
+    background:  #ddffd2;
+}
+
+.attributes dd, .methods dd, .constants dd {
+    margin-bottom:  1em;
+}
+
+table.parameters, table.exceptions {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    margin: 0.5em 0;
+    width:  100%;
+}
+table.parameters { border-bottom:  1px solid #90b8de; }
+table.exceptions { border-bottom:  1px solid #deb890; }
+
+.parameters th, .exceptions th {
+    color:  #fff;
+    padding:    3px 5px;
+    text-align: left;
+    font-family:    initial;
+    font-weight:    normal;
+    text-shadow:    #666 1px 1px 0;
+}
+.parameters th { background: #90b8de; }
+.exceptions th { background: #deb890; }
+
+.parameters td, .exceptions td {
+    padding:    3px 10px;
+    border-top: 1px solid #ddd;
+    vertical-align: top;
+}
+
+.parameters tr:first-child td, .exceptions tr:first-child td {
+    border-top: none;
+}
+
+.parameters td.prmName, .exceptions td.excName, .exceptions td.excCodeName {
+    width:  100px;
+}
+
+.parameters td.prmType {
+    width:  120px;
+}
+
+table.exceptions table {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    width:  100%;
+}
+
+/* --- TOC --- */
+.toc a {
+    text-decoration:    none;
+}
+
+a .secno {
+    color:  #000;
+}
+
+/* --- TABLE --- */
+table.simple {
+    border-spacing: 0;
+    border-collapse:    collapse;
+    border-bottom:  3px solid #005a9c;
+}
+
+.simple th {
+    background: #005a9c;
+    color:  #fff;
+    padding:    3px 5px;
+    text-align: left;
+}
+
+.simple th[scope="row"] {
+    background: inherit;
+    color:  inherit;
+    border-top: 1px solid #ddd;
+}
+
+.simple td {
+    padding:    3px 10px;
+    border-top: 1px solid #ddd;
+}
+
+.simple tr:nth-child(even) {
+    background: #f0f6ff;
+}
+
+/* --- DL --- */
+.section dd > p:first-child {
+    margin-top: 0;
+}
+
+.section dd > p:last-child {
+    margin-bottom: 0;
+}
+
+.section dd {
+    margin-bottom:  1em;
+}
+
+.section dl.attrs dd, .section dl.eldef dd {
+    margin-bottom:  0;
+}
+
+/* --- EXAMPLES --- */
+pre.example {
+    border-top: 1px solid #ff4500;
+    border-bottom: 1px solid #ff4500;
+    padding:    1em;
+    margin-top: 1em;
+}
+
+pre.example::before {
+    content:    "Example";
+    display:    block;
+    width:      150px;
+    background: #ff4500;
+    color:  #fff;
+    font-family:    initial;
+    padding:    3px;
+    font-weight:    bold;
+    margin: -1em 0 1em -1em;
+}
+
+/* --- EDITORIAL NOTES --- */
+.issue {
+    padding:    1em;
+    border: 1px solid #f00;
+    background: #ffc;
+}
+
+.issue::before {
+    content:    "Issue";
+    display:    block;
+    width:  150px;
+    margin: -1.5em 0 0.5em 0;
+    font-weight:    bold;
+    border: 1px solid #f00;
+    background: #fff;
+    padding:    3px 1em;
+}
+
+.note {
+    padding:    1em;
+    border: 2px solid #cff6d9;
+    background: #e2fff0;
+}
+
+.note::before {
+    content:    "Note";
+    display:    block;
+    width:  150px;
+    margin: -1.5em 0 0.5em 0;
+    font-weight:    bold;
+    border: 1px solid #cff6d9;
+    background: #fff;
+    padding:    3px 1em;
+}
+
+
+/* --- SYNTAX HIGHLIGHTING --- */
+/* Pretty printing styles. Used with prettify.js. */
+.str { color: #080; }
+.kwd { color: #008; }
+.com { color: #800; }
+.typ { color: #606; }
+.lit { color: #066; }
+.pun { color: #660; }
+.pln { color: #000; }
+.tag { color: #008; }
+.atn { color: #606; }
+.atv { color: #080; }
+.dec { color: #606; }
+pre.prettyprint { padding: 2px; border: 1px solid #888 }
+
+/* Specify class=linenums on a pre to get line numbering */
+ol.linenums { margin-top: 0; margin-bottom: 0 } /* IE indents via margin-left */
+li.L0, li.L1, li.L2, li.L3, li.L5, li.L6, li.L7, li.L8 { list-style-type: none }
+/* Alternate shading for lines */
+li.L1, li.L3, li.L5, li.L7, li.L9 { background: #eee }
+
+@media print {
+  .str { color: #060; }
+  .kwd { color: #006; font-weight: bold; }
+  .com { color: #600; font-style: italic; }
+  .typ { color: #404; font-weight: bold; }
+  .lit { color: #044; }
+  .pun { color: #440; }
+  .pln { color: #000; }
+  .tag { color: #006; font-weight: bold; }
+  .atn { color: #404; }
+  .atv { color: #060; }
+}
+</style><link rel="stylesheet" href="http://www.w3.org/StyleSheets/TR/W3C-WD.css" type="text/css" media="all" charset="utf-8"><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="respec2/w3c/bibref/DOM-LEVEL-3-EVENTS" src="respec2/w3c/bibref/DOM-LEVEL-3-EVENTS.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="respec2/w3c/bibref/HTML5" src="respec2/w3c/bibref/HTML5.js"></script><script type="text/javascript" charset="utf-8" async="" data-requirecontext="_" data-requiremodule="respec2/w3c/bibref/PERMISSIONS" src="respec2/w3c/bibref/PERMISSIONS.js"></script></head>
+  <body><div class="head">
+    <p>
+    
+      <a href="http://www.w3.org/"><img width="72" height="48" src="http://www.w3.org/Icons/w3c_home" alt="W3C"></a>
+    
+    
+    </p>
+    <h1 class="title" id="title" rel="dc:title">Web Notifications</h1>
+    
+    <h2 id="w3c-working-draft-01-march-2011"><acronym title="World Wide Web Consortium">W3C</acronym> Working Draft 01 March 2011</h2>
+    <dl>
+      
+        <dt>This Version:</dt><dd>   <a href="http://www.w3.org/TR/2011/WD-notifications-20110301/">http://www.w3.org/TR/2011/WD-notifications-20110301/</a></dd>
+        <dt>Latest Published Version:</dt><dd>   <a href="http://www.w3.org/TR/notifications/">http://www.w3.org/TR/notifications/</a></dd>
+        
+          <dt>Latest Editor's Draft:</dt><dd>   <a href="http://dev.w3.org/2006/webapi/WebNotifications/">http://dev.w3.org/2006/webapi/WebNotifications/</a></dd>
+        
+      
+      
+        
+      
+      
+      
+  
+    <dt>Editor:</dt>
+    
+      <dd class="Editor" rel="bibo:editor"><span typeof="foaf:Person"><span class="name" property="foaf:name">John Gregg</span>, 
+          
+            <a class="company" href="http://www.google.com/" rel="foaf:workplaceHomepage">Google</a>
+          
+        
+         &lt;<a class="email" href="mailto:johnnyg@google.com" rel="foaf:mbox">johnnyg@google.com</a>&gt;
+        
+      </span></dd>
+    
+  
+
+      
+  
+
+    </dl>
+    
+    
+  
+
+    
+    <p class="copyright">
+    
+      <a class="license" href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright" rel="license">Copyright</a> © 
+      2011
+      
+      <span rel="dcterms:publisher"><a class="publisher" href="http://www.w3.org/" rel="foaf:homepage" property="foaf:name" content="W3C"><acronym title="World Wide Web Consortium"><acronym title="World Wide Web Consortium">W3C</acronym></acronym></a></span><sup>®</sup>
+      (<a href="http://www.csail.mit.edu/"><acronym title="Massachusetts Institute of Technology"><acronym title="Massachusetts Institute of Technology">MIT</acronym></acronym></a>,
+      <a href="http://www.ercim.eu/"><acronym title="European Research Consortium for Informatics and Mathematics"><acronym title="European Research Consortium for Informatics and Mathematics">ERCIM</acronym></acronym></a>,
+      <a href="http://www.keio.ac.jp/">Keio</a>), All Rights Reserved.
+      <acronym title="World Wide Web Consortium">W3C</acronym> <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Legal_Disclaimer">liability</a>,
+      <a href="http://www.w3.org/Consortium/Legal/ipr-notice#W3C_Trademarks">trademark</a> and
+      <a href="http://www.w3.org/Consortium/Legal/copyright-documents">document use</a> rules apply.
+    
+    </p><hr></div>
+
+  <div id="abstract" class="introductory section" property="dcterms:absract" datatype="" about="#abstract" typeof="bibo:Chapter"><h2>Abstract</h2>
+    <p>
+      This document defines an API for displaying simple notifications to the user.
+    </p>
+  </div><div id="sotd" class="introductory section" about="#sotd" typeof="bibo:Chapter">
+      <h2>Status of This Document</h2>
+      <p><em>This section describes the status of this document at the time of its publication. Other 
+      documents may supersede this document. A list of current <acronym title="World Wide Web Consortium">W3C</acronym> publications and the latest revision 
+      of this technical report can be found in the <a href="http://www.w3.org/TR/"><acronym title="World Wide Web Consortium">W3C</acronym> technical reports 
+      index</a> at http://www.w3.org/TR/.</em></p>
+      
+      <p>
+        This document was published by the <a href="http://www.w3.org/2010/web-notifications/">Web Notification Working Group</a> as 
+        a
+        First Public Working Draft.
+         This document is intended to become a <acronym title="World Wide Web Consortium">W3C</acronym> Recommendation.
+        If you wish to make comments regarding this document, please send them to 
+        <a href="mailto:public-web-notification@w3.org">public-web-notification@w3.org</a> 
+        (<a href="mailto:public-web-notification-request@w3.org?subject=subscribe">subscribe</a>,
+        <a href="http://lists.w3.org/Archives/Public/public-web-notification/">archives</a>).
+        
+        
+        All feedback is welcome.
+      </p>
+      
+        <p>
+          Publication as a First Public Working Draft does not imply endorsement by the <acronym title="World Wide Web Consortium">W3C</acronym> Membership. This is a draft 
+          document and may be updated, replaced or obsoleted by other documents at any time. It is inappropriate
+          to cite this document as other than work in progress.
+        </p>
+      
+      
+      <p>
+        This document was produced by a group operating under the 
+        <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/">5 February 2004 <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>.
+        
+        <acronym title="World Wide Web Consortium">W3C</acronym> maintains a <a href="http://www.w3.org/2004/01/pp-impl/45313/status" rel="disclosure">public list of any patent disclosures</a> 
+        made in connection with the deliverables of the group; that page also includes instructions for disclosing a patent. An
+        individual who has actual knowledge of a patent which the individual believes contains 
+        <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#def-essential">Essential Claim(s)</a> must disclose the
+        information in accordance with <a href="http://www.w3.org/Consortium/Patent-Policy-20040205/#sec-Disclosure">section 
+        6 of the <acronym title="World Wide Web Consortium">W3C</acronym> Patent Policy</a>.
+      </p>
+    </div><div id="toc" about="#toc" typeof="bibo:Chapter" class="section"><h2 class="introductory">Table of Contents</h2><ul class="toc"><li class="tocline"><a href="#definitions" class="tocxref"><span class="secno">1. </span>Definitions</a></li><li class="tocline"><a href="#requirements" class="tocxref"><span class="secno">2. </span>Requirements and use cases</a></li><li class="tocline"><a href="#introduction" class="tocxref"><span class="secno">3. </span>Introduction</a><ul class="toc"><li class="tocline"><a href="#security" class="tocxref"><span class="secno">3.1 </span>Security</a></li></ul></li><li class="tocline"><a href="#permissions" class="tocxref"><span class="secno">4. </span>Permissions</a></li><li class="tocline"><a href="#idl-if-Notification" class="tocxref"><span class="secno">5. </span>The Notification interface</a><ul class="toc"><li class="tocline"><a href="#methods" class="tocxref"><span class="secno">5.1 </span>Methods</a></li><li class="tocline"><a href="#attributes" class="tocxref"><span class="secno">5.2 </span>Attributes</a></li><li class="tocline"><a href="#directionality" class="tocxref"><span class="secno">5.3 </span>Directionality</a></li><li class="tocline"><a href="#event-handler-attributes" class="tocxref"><span class="secno">5.4 </span>Event handler attributes</a></li></ul></li><li class="tocline"><a href="#algorithms" class="tocxref"><span class="secno">6. </span>Queueing and displaying notifications</a><ul class="toc"><li class="tocline"><a href="#queueing-notifications" class="tocxref"><span class="secno">6.1 </span>Queueing notifications</a></li><li class="tocline"><a href="#displaying" class="tocxref"><span class="secno">6.2 </span>Displaying notifications</a></li><li class="tocline"><a href="#replacing" class="tocxref"><span class="secno">6.3 </span>Replacing a notification</a></li></ul></li><li class="tocline"><a href="#interactions" class="tocxref"><span class="secno">7. </span>Interacting with notifications</a><ul class="toc"><li class="tocline"><a href="#using-events" class="tocxref"><span class="secno">7.1 </span>Using events</a></li></ul></li><li class="tocline"><a href="#references" class="tocxref"><span class="secno">A. </span>References</a><ul class="toc"><li class="tocline"><a href="#normative-references" class="tocxref"><span class="secno">A.1 </span>Normative references</a></li></ul></li></ul></div>
+
+  <div id="definitions" about="#definitions" typeof="bibo:Chapter" class="section"><!--OddPage--><h2><span class="secno">1. </span>Definitions</h2>
+    
+
+    <ul>
+      <li><em>ambient notification</em>: A notification which appears and disappears automatically without user action.</li>
+      <li><em>interactive notification</em>: A notification which can receive events from user actions and deliver them to the application which created the notification.</li>
+      <li><em>persistent notification</em>: A notification which is displayed until the user explicitly dismisses it.</li>
+      <li><em>notification platform</em>: A notification platform is a system outside the user agent which provides desktop notifications.  Examples include Growl on MacOS, NotifyOSD on Linux, and the Windows notification API.</li>
+      <li><em>simple notification</em>: A notification which consists only of an icon and one or two lines of text.</li>
+      <li><em>web notification</em>: A notification which consists of Web platform content, such as HTML or SVG.</li>
+    </ul>
+  </div>
+
+  <div id="requirements" about="#requirements" typeof="bibo:Chapter" class="section"><!--OddPage--><h2><span class="secno">2. </span>Requirements and use cases</h2>
+      
+    This specification must meet the following requirements:
+    <ul>
+      <li>An implementation which uses only the existing notification platforms in major platforms to display notifications must be able to comply with the specification.</li>
+      <li>The specification must allow compliant implementations regardless of platform or device.</li>
+      <li>The specification must provide controls to users in order to prevent unwanted notifications to be displayed.</li>
+      <li>The specification must define an event model for interactive notifications.</li>
+      <li>The specification must address security issues.</li>
+      <li>The specification should not require any implementation to display persistent notifications.</li>
+      <li>The specification should be compatible with other Web technologies, such as HTML and SVG.</li>
+    </ul>
+
+    The specification attempts to address the following use cases:
+    <ul>
+      <li>An application alerts the user "you've got mail" in the form of an ambient notification, with no interaction necessary.</li>
+      <li>An application alerts the user "you've got mail" as an interactive notification which allows the user to easily return to the inbox.</li>
+      <li>A calendar application alerts the user for an upcoming meeting, and allows the user to easily specify a "snooze" delay of several possible time periods.</li>
+      <li>A system alerts the user "your printer is out of paper".</li>
+      <li>An application with multiple simultaneous execution contexts (like a multi-tab email application) wants to show notifications without creating duplicate notifications.</li>
+    </ul>
+  </div>
+  
+  <div id="introduction" class="informative section" about="#introduction" typeof="bibo:Chapter"><!--OddPage--><h2><span class="secno">3. </span>Introduction</h2><em>This section is non-normative.</em>
+    
+    <p>
+      This specification provides an API to generate <em>simple notifications</em> to
+      alert users outside of the web page.  It does not specify exactly how a user
+      agent should display these notifications; the best presentation depends on the device
+      where the user agent is run.  When this specificiation refers to displaying
+      notifications on the "desktop", it generally refers to some static display
+      area outside the web page, but may take several forms, including:
+      </p><ul>
+        <li>a corner of the user's display,</li>
+        <li>an area within the chrome of the user agent,</li>
+        <li>the "home" screen of a mobile device,</li>
+        <li><em>et al.</em></li>
+      </ul>
+      This specification does not define exactly how the user agent should display
+      the notification, and the API is designed to be flexible with respect to
+      presentation options.
+    <p></p>
+    <p>
+      This specification is designed to be compatible with existing notification platforms
+      as much as possible, but also to be platform-independent.  Since the common platforms
+      do not provide the same functionality, this spec will indicate what events are guaranteed
+      and which are not.  In particular, notifications as specified here only can contain
+      text and icon content.  In the future, notifications generated from Web content may
+      wish to contain Web content themselves, but that is outside the scope of this document.
+    </p>    
+    <p>
+      In general, the event model for notifications is best-effort; while the Notification 
+      object offers an "onclick" event, applications may enhance their functionality by
+      listening for that event, but <em>must not depend on receiving it</em>,
+      in case the underlying notification platform does not provide that capability.
+    </p>
+   
+    <section id="security" about="#security" typeof="bibo:Chapter"><h3><span class="secno">3.1 </span>Security</h3><em>This section is non-normative.</em>
+      
+      <p>
+	Notifications should only be presented when the user has indicated they are desired;
+	without this they could create a negative experience for the user.
+      </p>     
+      </section>
+  </div>
+
+  <div id="permissions" about="#permissions" typeof="bibo:Chapter" class="section"><!--OddPage--><h2><span class="secno">4. </span>Permissions</h2>
+    
+    <p>
+      Permissions for notifications must be controlled using the Feature Permissions interface
+      where Notifications are a privileged feature with unique id 'notifications'. [<cite><a class="bibref" rel="biblioentry" href="#bib-PERMISSIONS">PERMISSIONS</a></cite>]
+    </p>
+
+    <p>
+      Throughout this document, "notification permission is allowed" shall mean that 
+      the permission level of the 'notifications' feature for the current
+      security origin is <code>USER_ALLOWED</code>  or <code>DEFAULT_ALLOWED</code>
+      in the meaning of [<cite><a class="bibref" rel="biblioentry" href="#bib-PERMISSIONS">PERMISSIONS</a></cite>], and "notification permission is denied" shall mean 
+      that the current permission level has some other value.
+    </p>
+  </div>
+
+  <div id="idl-if-Notification" about="#idl-if-Notification" typeof="bibo:Chapter" class="section"><!--OddPage--><h2><span class="secno">5. </span>The Notification interface</h2>
+    <p>
+      The Notification interface represents a single notification to be shown to the user. It extends the EventTarget interface defined in [<cite><a class="bibref" rel="biblioentry" href="#bib-DOM-LEVEL-3-EVENTS">DOM-LEVEL-3-EVENTS</a></cite>].
+    </p>
+    <pre class="idl"><span class="idlInterface" id="idl-def-Notification">[<span class="extAttr">Constructor</span>]
+interface <span class="idlInterfaceID">Notification</span> : <span class="idlSuperclass"><a>EventTarget</a></span> {
+<span class="idlMethod">    <span class="idlMethType"><span><a>void</a></span></span>         <span class="idlMethName"><a href="#widl-Notification-show">show</a></span> ();
+</span><span class="idlMethod">    <span class="idlMethType"><span><a>void</a></span></span>         <span class="idlMethName"><a href="#widl-Notification-cancel">cancel</a></span> ();
+</span><span class="idlMethod">    <span class="idlMethType"><span><a href="#idl-def-Notification" class="idlType"><code>Notification</code></a></span></span> <span class="idlMethName"><a href="#widl-Notification-Notification">Notification</a></span> (<span class="idlParam"> in <span class="idlParamType"><span><a>DOMString</a></span></span> <span class="idlParamName">iconUrl</span></span>, <span class="idlParam"> in <span class="idlParamType"><span><a>DOMString</a></span></span> <span class="idlParamName">title</span></span>, <span class="idlParam"> in <span class="idlParamType"><span><a>DOMString</a></span></span> <span class="idlParamName">body</span></span>);
+</span><span class="idlAttribute">    attribute <span class="idlAttrType"><span><a>Function</a></span></span> <span class="idlAttrName"><a href="#widl-Notification-onclick">onclick</a></span>;
+</span><span class="idlAttribute">    attribute <span class="idlAttrType"><span><a>Function</a></span></span> <span class="idlAttrName"><a href="#widl-Notification-onshow">onshow</a></span>;
+</span><span class="idlAttribute">    attribute <span class="idlAttrType"><span><a>Function</a></span></span> <span class="idlAttrName"><a href="#widl-Notification-onerror">onerror</a></span>;
+</span><span class="idlAttribute">    attribute <span class="idlAttrType"><span><a>Function</a></span></span> <span class="idlAttrName"><a href="#widl-Notification-onclose">onclose</a></span>;
+</span><span class="idlAttribute">    attribute <span class="idlAttrType"><span><a>Function</a></span></span> <span class="idlAttrName"><a href="#widl-Notification-replaceId">replaceId</a></span>;
+</span><span class="idlAttribute">    attribute <span class="idlAttrType"><span><a>Function</a></span></span> <span class="idlAttrName"><a href="#widl-Notification-dir">dir</a></span>;
+</span>};
+</span></pre><section id="methods" about="#methods" typeof="bibo:Chapter"><h3><span class="secno">5.1 </span>Methods</h3><dl><dt id="widl-Notification-Notification">
+  <code>Notification</code>
+</dt>
+<dd>
+  
+          <p>Returns a new simple notification object with the provided content.</p>
+          
+          <p>
+          When the <code>Notification()</code> constructor is invoked, the user agent must return a new Notification object.
+          </p>
+        
+  
+  <table class="parameters">
+    <tbody><tr><th>Parameter</th><th>Type</th><th>Nullable</th><th>Optional</th><th>Description</th>
+    
+    </tr><tr>
+      <td class="prmName">iconUrl</td>
+      <td class="prmType"><code>DOMString</code></td>
+      
+        <td class="prmNullFalse">✘</td>
+      
+      
+        <td class="prmOptFalse">✘</td>
+      
+      <td class="prmDesc">
+	             URL of the icon to be shown with this notification.
+	             The parameter must be resolved relative to the current document base URL or worker script URL.
+              </td>
+    </tr>
+    
+    <tr>
+      <td class="prmName">title</td>
+      <td class="prmType"><code>DOMString</code></td>
+      
+        <td class="prmNullFalse">✘</td>
+      
+      
+        <td class="prmOptFalse">✘</td>
+      
+      <td class="prmDesc">
+	            Primary text, or title, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
+              </td>
+    </tr>
+    
+    <tr>
+      <td class="prmName">body</td>
+      <td class="prmType"><code>DOMString</code></td>
+      
+        <td class="prmNullFalse">✘</td>
+      
+      
+        <td class="prmOptFalse">✘</td>
+      
+      <td class="prmDesc">
+	            Secondary text, or body, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
+              </td>
+    </tr>
+    
+  </tbody></table>
+  
+  
+  <div><em>No exceptions.</em></div>
+  
+  <div>
+    <em>Return type:</em> <code>Notification</code>
+  </div>
+</dd><dt id="widl-Notification-cancel">
+  <code>cancel</code>
+</dt>
+<dd>
+  
+	      <p>
+	        Requests the user agent to not show this notification. If the notification
+	        has already been displayed, the user agent must remove it from the display;
+	        if it has not yet be displayed, the user agent must prevent its being
+	        displayed.
+	      </p>
+        
+  
+  <div><em>No Parameters.</em></div>
+  
+  
+  <div><em>No exceptions.</em></div>
+  
+  <div>
+    <em>Return type:</em> <code>void</code>
+  </div>
+</dd><dt id="widl-Notification-show">
+  <code>show</code>
+</dt>
+<dd>
+  
+	      <p>
+	        Requests the user agent to show the notification to the user. Depending on 
+	        desktop space, user idleness, or other factors as determined by the user
+	        agent, this may happen immediately or be postponed, but must eventually
+	        be done, following the algorithm for queueing a notification below.
+	      </p>
+	      <p>
+	        A user agent must not show any notifications if notification permission is denied.
+	        If notification permission is denied when <code>show()</code> is invoked, 
+	        an <code>error</code> event must be fired on this notification object.
+	      </p>
+        
+  
+  <div><em>No Parameters.</em></div>
+  
+  
+  <div><em>No exceptions.</em></div>
+  
+  <div>
+    <em>Return type:</em> <code>void</code>
+  </div>
+</dd></dl></section><section id="attributes" about="#attributes" typeof="bibo:Chapter"><h3><span class="secno">5.2 </span>Attributes</h3><dl><dt id="widl-Notification-dir">
+  <code>dir</code>
+  of type
+  
+  <span class="idlAttrType">Function</span>
+</dt>
+<dd>
+  
+	      <p>
+	        The <code>dir</code> attribute specifies the directionality of the notification.
+	      </p>
+        
+  
+    <div><em>No exceptions.</em></div>
+  
+</dd><dt id="widl-Notification-onclick">
+  <code>onclick</code>
+  of type
+  
+  <span class="idlAttrType">Function</span>
+</dt>
+<dd>
+  
+	      <p>
+	        An event listener function corresponding to the event type "click".  This event
+	        listener is must be invoked when the user clicks on a notification.
+	      </p>
+	      <p>
+	        <em>
+	        This event is not guaranteed if the underlying notification platform does not support receiving
+	        click events.
+	        </em>
+	      </p>
+        
+  
+    <div><em>No exceptions.</em></div>
+  
+</dd><dt id="widl-Notification-onclose">
+  <code>onclose</code>
+  of type
+  
+  <span class="idlAttrType">Function</span>
+</dt>
+<dd>
+  
+	      <p>
+	        An event listener function corresponding to the event type "close".  This
+	        event listener must be invoked after the "show" event, at the point
+	        when the notification is dismissed by the user, closed by script, or closed by the notification
+	        platform.
+	      </p>
+        
+  
+    <div><em>No exceptions.</em></div>
+  
+</dd><dt id="widl-Notification-onerror">
+  <code>onerror</code>
+  of type
+  
+  <span class="idlAttrType">Function</span>
+</dt>
+<dd>
+  
+	      <p>
+	        An event listener function corresponding to the event type "error".  This
+	        event listener must be invoked after the <code>show()</code> method is called, if the
+	        notification cannot be displayed to the user because of an error.
+	      </p>
+        
+  
+    <div><em>No exceptions.</em></div>
+  
+</dd><dt id="widl-Notification-onshow">
+  <code>onshow</code>
+  of type
+  
+  <span class="idlAttrType">Function</span>
+</dt>
+<dd>
+  
+	      <p>
+	        An event listener function corresponding to the event type "show".  This
+	        event listener must be invoked after the <code>show()</code> method is called, at the
+	        point when the notification actually becomes visible to the user.
+	      </p>
+	      <p>
+	        <em>
+	        If the underlying notification platform does not show the notification immediately,
+	        this event may precede the notification becoming visible; however the notification
+	        will never become visible before this event is dispatched.
+	        </em>
+	      </p>
+        
+  
+    <div><em>No exceptions.</em></div>
+  
+</dd><dt id="widl-Notification-replaceId">
+  <code>replaceId</code>
+  of type
+  
+  <span class="idlAttrType">Function</span>
+</dt>
+<dd>
+  
+	      <p>
+	        A value which identifies this notification for replacement by another notification
+	        serving the same purpose.  The user agent should not allow two notifications created
+	        by the same security origin and having the same <code>replaceId</code> value to be 
+	        shown simultaneously.
+	      </p>
+        
+  
+    <div><em>No exceptions.</em></div>
+  
+</dd></dl></section>
+    
+    <section id="directionality" about="#directionality" typeof="bibo:Chapter"><h3><span class="secno">5.3 </span>Directionality</h3>
+      
+      <p>
+	The <code>dir</code> attribute of the <code>Notification</code> interface has
+	has all the properties of the <code>dir</code> attribute as defined in [<cite><a class="bibref" rel="biblioentry" href="#bib-HTML5">HTML5</a></cite>], however
+	since the notification does not have a parent element, it must receive a default
+	value elsewhere, as follows.
+      </p>
+      <p>
+        In environments where the global object is represented by the <code>Window</code>
+	object, if the notification's directionality state is not <em>ltr</em> or <em>rtl</em>,
+	the directionality must be the same as	the <code>Document</code> object associated
+	with the global <code>Window</code> object.
+
+	In other environments, if the notification's directionality state is not <em>ltr</em> or <em>rtl</em>,
+	the directionality should be <em>ltr</em>.
+      </p>
+    </section>
+
+    
+    <section id="event-handler-attributes" about="#event-handler-attributes" typeof="bibo:Chapter"><h3><span class="secno">5.4 </span>Event handler attributes</h3>
+      
+      <p>The following are event handler attributes (and their corresponding event handler event types, as defined by
+       [<cite><a class="bibref" rel="biblioentry" href="#bib-HTML5">HTML5</a></cite>]) that must be supported as DOM attributes by the Notification object.</p>
+      <table>
+	<thead style="border-bottom: medium solid;">
+	  <tr>
+	    <th>event handler attribute</th>
+	    <th>event handler event type</th>
+	  </tr>
+	</thead>
+	<tbody><tr>
+	  <td><code>onclick</code></td>
+	  <td><code>click</code></td>
+	</tr>
+	<tr>
+	  <td><code>onshow</code></td>
+	  <td><code>show</code></td>
+	</tr>
+	<tr>
+	  <td><code>onerror</code></td>
+	  <td><code>error</code></td>
+	</tr>
+	<tr>
+	  <td><code>onclose</code></td>
+	  <td><code>close</code></td>
+	</tr>
+      </tbody></table>
+    </section>
+    
+  </div>
+
+  <div id="algorithms" about="#algorithms" typeof="bibo:Chapter" class="section"><!--OddPage--><h2><span class="secno">6. </span>Queueing and displaying notifications</h2>
+    
+    <section id="queueing-notifications" about="#queueing-notifications" typeof="bibo:Chapter"><h3><span class="secno">6.1 </span>Queueing notifications</h3>
+      
+      <p>
+	If the device allows notifications to displayed immediately without limitations on
+	the number of concurrent notifications, it must display a notification immediately
+	whenever <code>show</code> is called and notification permission is allowed.
+      </p>
+
+      <p>
+	If the device does have limitations on the number of concurrent notifications,
+	when <code>show</code> is called and notification permission is allowed,
+	the user agent must either immediately call to a notifications platform which 
+	supports queueing, or use the following algorithm.
+      </p>
+      <p>
+	The user agent must keep a <em>queue of pending notifications</em> and a <em>list of active notifications</em>. 
+      </p>
+      <ol>
+	<li>Get the replacement id of the notification to be shown, and let it be replaceId.</li>
+	<li>
+	  If replaceId is defined, examine all the notifications in the <em>list of active notifications</em>.
+	  If any notification in the list has the same source origin and has replacement id equal to replaceId,
+	  do the following steps and then terminate this algorithm.  Let <em>existing</em> be the notification in the list
+	  which matches.
+	  <ol>
+	    <li>Replace <em>existing</em> with the new notification using the <a href="#replacing" class="sec-ref">replacing a notification</a> algorithm.</li>
+	    <li>If the replacement returned error information, stop.</li>
+	    <li>Remove <em>existing</em> from the <em>list of active notifications</em>.</li>
+	    <li>Add the new notification to the <em>list of active notifications</em>.</li>
+  </ol>
+	</li>
+	<li>Add the notification to the <em>queue of pending notifications</em>.</li>
+	<li>Wait until there is available space on the device.</li>
+	<li>Display the first notification in the <em>queue of pending notifications</em> using 
+	  the <a href="#displaying" class="sec-ref">displaying a notification</a> algorithm.</li>
+      </ol>
+      <p>
+	When the available display space changes on the device such that a new notification may be
+	displayed, for example due to a previous notification being dismissed, the user agent should
+	<a href="#displaying" class="sec-ref">display</a> the first notification in the queue using the procedure described above.
+      </p>
+    </section>
+
+    <section id="displaying" about="#displaying" typeof="bibo:Chapter"><h3><span class="secno">6.2 </span>Displaying notifications</h3>
+      
+      <p>
+	When a user agent is to <em>display a notification</em>, the user agent should perform the following steps:
+	</p><ol>
+	  <li>
+	    Fetch the resource given by <code>iconUrl</code> using the algorithm defined in [<cite><a class="bibref" rel="biblioentry" href="#bib-HTML5">HTML5</a></cite>].
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the notification
+	    object and stop executing this algorithm.
+	  </li>
+	  <li>Fire the <code>show</code> event on the notification object.</li>
+	  <li>Show the notification on the device, such as by calling the appropriate notification platform.</li>
+	</ol>
+      <p></p>
+    </section>
+
+    <section id="replacing" about="#replacing" typeof="bibo:Chapter"><h3><span class="secno">6.3 </span>Replacing a notification</h3>
+      
+      <p>
+	When a user agent is to <em>replace a notification</em>, the user agent should perform the following steps.
+	Let <em>old</em> be the notification to be replaced by <em>new</em>.
+	</p><ol>
+	  <li>
+	    Fetch the icon resource in <em>new</em> using the algorithm defined in [<cite><a class="bibref" rel="biblioentry" href="#bib-HTML5">HTML5</a></cite>].
+	  </li>
+	  <li>
+	    If the fetch algorithm returns error information, fire the <code>error</code> event on the <em>new</em> notification
+	    object and stop executing this algorithm, returning the error information.  The <em>old</em> notification is not affected.
+	  </li>
+	  <li>Fire the <code>close</code> event on the <em>old</em> notification object.</li>
+	  <li>Fire the <code>show</code> event on the <em>new</em> notification object.</li>
+	  <li>If the underlying notification platform supports replacement, replace <em>old</em> with <em>new</em> on the device.</li>
+	  <li>If the underlying notification platform does not support replacment, remove <em>old</em> from the device and show <em>new</em> on the device.</li>
+	</ol>
+      <p></p>
+    </section>
+  </div>
+  <div id="interactions" class="informative section" about="#interactions" typeof="bibo:Chapter"><!--OddPage--><h2><span class="secno">7. </span>Interacting with notifications</h2><em>This section is non-normative.</em>
+    
+    <section id="using-events" about="#using-events" typeof="bibo:Chapter"><h3><span class="secno">7.1 </span>Using events</h3><em>This section is non-normative.</em>
+      
+      <p>
+	Notification objects dispatch events during their lifecycle, which authors can use
+	to generate desired behaviors.
+      </p>
+      <p>
+	The <code>show</code> event occurs when the notification is shown to the user -- 
+	this may be at some time after the <code>show()</code> method is called in the case
+	of limited display space and a queue.
+      </p>
+
+      <p>
+	In the following example, this event is used to guarantee that regardless of when
+	the notification is shown, it is displayed for only 15 seconds.
+      </p>
+
+      <pre class="example" title="">var notification = new Notification("mail.png", "New Email Received");
+notification.onshow = function() { setTimeout(notification.cancel(), 15000); }
+notification.show();</pre>
+
+      <p>
+	The <code>close</code> events occurs when the notification is dismissed by the user.
+	Authors may use this event to perform actions when notifications are acknowledged.
+      </p>
+      <p>
+	In the following example, when a meeting reminder notification is acknowledged, the
+	application suppresses other forms of reminders.
+      </p>
+
+      <pre class="example" title="">var notification = new Notification("calendar.png", "Meeting about to begin", "Room 101");
+notification.onclose = function() { cancelReminders(event); }
+notification.show();</pre>
+    </section>
+  </div>
+
+
+<div id="references" class="appendix section" about="#references" typeof="bibo:Chapter"><!--OddPage--><h2><span class="secno">A. </span>References</h2><section id="normative-references" about="#normative-references" typeof="bibo:Chapter"><h3><span class="secno">A.1 </span>Normative references</h3><dl class="bibliography" about=""><dt id="bib-DOM-LEVEL-3-EVENTS">[DOM-LEVEL-3-EVENTS]</dt><dd rel="dc:requires">Doug Schepers; Björn Höhrmann; Tom Pixley; Philippe Le Hégaret. <a href="http://www.w3.org/TR/2010/WD-DOM-Level-3-Events-20100907"><cite>Document Object Model (DOM) Level 3 Events Specification.</cite></a> 07 September 2010. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2010/WD-DOM-Level-3-Events-20100907">http://www.w3.org/TR/2010/WD-DOM-Level-3-Events-20100907</a></dd><dt id="bib-HTML5">[HTML5]</dt><dd rel="dc:requires">Ian Hickson; David Hyatt. <a href="http://www.w3.org/TR/2010/WD-html5-20100304/"><cite>HTML 5.</cite></a> 4 March 2010. W3C Working Draft. (Work in progress.) URL: <a href="http://www.w3.org/TR/2010/WD-html5-20100304/">http://www.w3.org/TR/2010/WD-html5-20100304/</a> </dd><dt id="bib-PERMISSIONS">[PERMISSIONS]</dt><dd rel="dc:requires">John Gregg. <a href="http://dev.w3.org/2006/webapi/WebNotifications/publish/FeaturePermissions.html"><cite>Feature Permissions</cite></a> 12 October 2010. Editor’s Draft. (Work in progress.) URL: <a href="http://dev.w3.org/2006/webapi/WebNotifications/publish/FeaturePermissions.html">http://dev.w3.org/2006/webapi/WebNotifications/publish/FeaturePermissions.html</a></dd></dl></section></div></body></html>

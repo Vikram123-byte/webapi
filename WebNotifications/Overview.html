@@ -133,81 +133,122 @@
   </section>
 
   <section id="idl-if-Notification"><h2>The Notification interface</h2>
-    
     <p>
       The Notification interface represents a single notification to be shown to the user. It extends the EventTarget interface defined in [[!DOM-LEVEL-3-EVENTS]].
     </p>
-    <section class="boxed"><p><span class="idlTitle">the Notification interface</span></p><pre class="schema" title="the Notification interface">interface <a href="#idl-if-Notification">Notification</a> : EventTarget {
+    <dl title='[Constructor] interface Notification : EventTarget' class='idl'>
+      <dt>void show()</dt>
+        <dd>
+	      <p>
+	        Requests the user agent to show the notification to the user. Depending on 
+	        desktop space, user idleness, or other factors as determined by the user
+	        agent, this may happen immediately or be postponed, but must eventually
+	        be done, following the algorithm for queueing a notification below.
+	      </p>
+	      <p>
+	        A user agent must not show any notifications if notification permission is denied.
+	        If notification permission is denied when <code>show()</code> is invoked, 
+	        an <code>error</code> event must be fired on this notification object.
+	      </p>
+        </dd>
+      <dt>void cancel()</dt>
+        <dd>
+	      <p>
+	        Requests the user agent to not show this notification. If the notification
+	        has already been displayed, the user agent must remove it from the display;
+	        if it has not yet be displayed, the user agent must prevent its being
+	        displayed.
+	      </p>
+        </dd>
+      <dt>Notification Notification ()</dt>
+        <dd>
+          <p>Returns a new simple notification object with the provided content.</p>
+          <dl class='parameters'>
+            <dt>DOMString iconUrl</dt>
+              <dd>
+	             URL of the icon to be shown with this notification.
+	             The parameter must be resolved relative to the current document base URL or worker script URL.
+              </dd>
+            <dt>DOMString title</dt>
+              <dd>
+	            Primary text, or title, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
+              </dd>
+            <dt>DOMString body</dt>
+              <dd>
+	            Secondary text, or body, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
+              </dd>
+          </dl>
+          <p>
+          When the <code>Notification()</code> constructor is invoked, the user agent must return a new Notification object.
+          </p>
+        </dd>
 
-  void               <a href="#dfn-show">show</a>();
-  void               <a href="#dfn-cancel">cancel</a>();
-           attribute Function   <a href="#dfn-onclick">onclick</a>;
-           attribute Function   <a href="#dfn-onshow">onshow</a>;
-           attribute Function   <a href="#dfn-onerror">onerror</a>;
-           attribute Function   <a href="#dfn-onclose">onclose</a>;
-           attribute DOMString  <a href="#dfn-replaceid">replaceId</a>;
-           attribute DOMString  <a href="#dfn-dir">dir</a>;
-};</pre></section><section class="section" id="idl-if-Notification"><section class="section"><h4 class="idl-header" id="idl-meths-Notification">Attributes</h4><dl class="idl-attr"><dt id="dfn-dir"><code>dir</code>
-      of type
-      DOMString</dt><dd><p>
-	      The <code>dir</code> attribute specifies the directionality of the notification.
-	    </p></dd><dt id="dfn-onclick"><code>onclick</code>
-      of type
-      Function</dt><dd><p>
-	      An event listener function corresponding to the event type "click".  This event
-	      listener is must be invoked when the user clicks on a notification.
-	    </p><p>
-	      <em>
-		This event is not guaranteed if the underlying notification platform does not support receiving
-		click events.
-	      </em>
-	    </p></dd><dt id="dfn-onclose"><code>onclose</code>
-      of type
-      Function</dt><dd><p>
-	      An event listener function corresponding to the event type "close".  This
-	      event listener must be invoked after the "show" event, at the point
-	      when the notification is dismissed by the user, closed by script, or closed by the notification
-	      platform.
-	    </p></dd><dt id="dfn-onerror"><code>onerror</code>
-      of type
-      Function</dt><dd><p>
-	      An event listener function corresponding to the event type "error".  This
-	      event listener must be invoked after the <code>show()</code> method is called, if the
-	      notification cannot be displayed to the user because of an error.
-	    </p></dd><dt id="dfn-onshow"><code>onshow</code>
-      of type
-      Function</dt><dd><p>
-	      An event listener function corresponding to the event type "show".  This
-	      event listener must be invoked after the <code>show()</code> method is called, at the
-	      point when the notification actually becomes visible to the user.
-	    </p><p>
-	      <em>
-		If the underlying notification platform does not show the notification immediately,
-		this event may precede the notification becoming visible; however the notification
-		will never become visible before this event is dispatched.
-	      </em>
-	    </p></dd><dt id="dfn-replaceid"><code>replaceId</code>
-      of type
-      DOMString</dt><dd><p>
-	      A value which identifies this notification for replacement by another notification
-	      serving the same purpose.  The user agent should not allow two notifications created
-	      by the same security origin and having the same <code>replaceId</code> value to be 
-	      shown simultaneously.
-	    </p></dd></dl></section><section class="section"><h4 class="idl-header" id="idl-attrs-Notification">Methods</h4><dl class="idl-meth"><dt id="dfn-cancel"><code>cancel</code></dt><dd><p>
-	      Requests the user agent to not show this notification. If the notification
-	      has already been displayed, the user agent must remove it from the display;
-	      if it has not yet be displayed, the user agent must prevent its being
-	      displayed.
-	    </p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd><dt id="dfn-show"><code>show</code></dt><dd><p>
-	      Requests the user agent to show the notification to the user. Depending on 
-	      desktop space, user idleness, or other factors as determined by the user
-	      agent, this may happen immediately or be postponed, but must eventually
-	      be done, following the algorithm for queueing a notification below.
-	    </p><p>
-	      A user agent must not show any notifications if notification permission is denied.
-	      If notification permission is denied when <code>show()</code> is invoked, 
-	      an <code>error</code> event must be fired on this notification object.
-	    </p><dl><dt>No Parameters</dt><dt>No Return Value</dt><dt>No Exceptions</dt></dl></dd></dl></section></section>
+      <dt>attribute Function onclick</dt>
+        <dd>
+	      <p>
+	        An event listener function corresponding to the event type "click".  This event
+	        listener is must be invoked when the user clicks on a notification.
+	      </p>
+	      <p>
+	        <em>
+	        This event is not guaranteed if the underlying notification platform does not support receiving
+	        click events.
+	        </em>
+	      </p>
+        </dd>
+
+      <dt>attribute Function onshow</dt>
+        <dd>
+	      <p>
+	        An event listener function corresponding to the event type "show".  This
+	        event listener must be invoked after the <code>show()</code> method is called, at the
+	        point when the notification actually becomes visible to the user.
+	      </p>
+	      <p>
+	        <em>
+	        If the underlying notification platform does not show the notification immediately,
+	        this event may precede the notification becoming visible; however the notification
+	        will never become visible before this event is dispatched.
+	        </em>
+	      </p>
+        </dd>
+
+      <dt>attribute Function onerror</dt>
+        <dd>
+	      <p>
+	        An event listener function corresponding to the event type "error".  This
+	        event listener must be invoked after the <code>show()</code> method is called, if the
+	        notification cannot be displayed to the user because of an error.
+	      </p>
+        </dd>
+
+      <dt>attribute Function onclose</dt>
+        <dd>
+	      <p>
+	        An event listener function corresponding to the event type "close".  This
+	        event listener must be invoked after the "show" event, at the point
+	        when the notification is dismissed by the user, closed by script, or closed by the notification
+	        platform.
+	      </p>
+        </dd>
+
+      <dt>attribute Function replaceId</dt>
+        <dd>
+	      <p>
+	        A value which identifies this notification for replacement by another notification
+	        serving the same purpose.  The user agent should not allow two notifications created
+	        by the same security origin and having the same <code>replaceId</code> value to be 
+	        shown simultaneously.
+	      </p>
+        </dd>
+
+      <dt>attribute Function dir</dt>
+        <dd>
+	      <p>
+	        The <code>dir</code> attribute specifies the directionality of the notification.
+	      </p>
+        </dd>
+    </dl>
     
     <section id="directionality"><h3>Directionality</h3>
       
@@ -259,31 +300,6 @@
       </table>
     </section>
     
-    <section id="constructors"><h3>Constructors</h3>
-      
-      <section class="boxed"><p><span class="idlTitle">Constructing a notification</span></p><pre class="schema" title="Constructing a notification">  <a href="#idl-if-Notification">Notification</a> <a href="#dfn-notification">Notification</a>(in DOMString iconUrl, in DOMString title, in DOMString body);
-</pre></section><dt id="dfn-notification"><code>Notification</code></dt><dd><p>
-	      Returns a new simple notification object with the provided content.
-	    </p><dl><dt>Parameters</dt><dd class="idl-params"><dl><dt><code>iconUrl</code>
-          of type
-          DOMString</dt><dd>
-	      URL of the icon to be shown with this notification.
-	      The parameter must be resolved relative to the current document base URL or worker script URL.
-	    </dd><dt><code>title</code>
-          of type
-          DOMString</dt><dd>
-	      Primary text, or title, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
-	    </dd><dt><code>body</code>
-          of type
-          DOMString</dt><dd>
-	      Secondary text, or body, of the notification.  The user agent may ignore any markup in this string and treat it as plain text.
-	    </dd></dl></dd><dt>Return Value</dt><dd><table><tr><td><code></code></td><td>
-	      <p>A new notification object.</p>
-	    </td></tr></table></dd><dt>No Exceptions</dt></dl></dd>
-      <p>
-	When the <code>Notification()</code> constructor is invoked, the user agent must return a new Notification object.
-      </p>
-    </section>
   </section>
 
   <section id="algorithms"><h2>Queueing and displaying notifications</h2>

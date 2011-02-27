@@ -1,5 +1,5 @@
 define({
-   "html": "Ian Hickson; David Hyatt. <a href=\"http://www.w3.org/TR/2010/WD-html5-20100304/\"><cite>HTML 5.</cite></a> 4 March 2010. W3C Working Draft. (Work in progress.) URL: <a href=\"http://www.w3.org/TR/2010/WD-html5-20100304/\">http://www.w3.org/TR/2010/WD-html5-20100304/</a> ",
+   "html": "Ian Hickson. <a href=\"http://dev.w3.org/html5/spec/\"><cite>HTML5.</cite></a> Editor’s Draft. (Work in progress.) URL: <a href=\"http://dev.w3.org/html5/spec/\">http://dev.w3.org/html5/spec/</a> ",
    "id": "HTML5"
 }
 );
