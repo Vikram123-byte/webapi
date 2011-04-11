@@ -40,6 +40,11 @@
     <dd><a
      href="http://www.w3.org/TR/2010/ED-selectors-api2-20100119/">http://www.w3.org/TR/2010/ED-selectors-api2-20100119/</a>
 
+    <dt>Latest Editor's Draft:
+
+    <dd><a
+     href="http://dev.w3.org/2006/webapi/selectors-api2/">http://dev.w3.org/2006/webapi/selectors-api2/</a>
+
     <dt>Latest Version:
 
     <dd><a
@@ -47,7 +52,8 @@
 
     <dt>Previous Versions:
 
-    <dd>None.
+    <dd><a
+     href="http://www.w3.org/TR/2010/WD-selectors-api2-20100119/">http://www.w3.org/TR/2010/WD-selectors-api2-20100119/</a>
 
     <dt>Editors:
 
@@ -107,9 +113,9 @@
    archive</a>) with <kbd>[selectors-api]</kbd> in the subject.
 
   <p><span class=notetoeditor>The editor’s copy of this specification is <a
-   href="http://dev.w3.org/2006/webapi/selectors-api/">available in W3C
+   href="http://dev.w3.org/2006/webapi/selectors-api2/">available in W3C
    CVS</a>. A detailed list of changes is also available <a
-   href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/">from the CVS
+   href="http://dev.w3.org/cvsweb/2006/webapi/selectors-api/2">from the CVS
    server</a>.</span>
 
   <p>Implementors should be aware that this specification is not stable.
@@ -442,33 +448,15 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    specify one or more <a href="#contextual-reference-element">contextual
    reference element</a> nodes.
 
-  <p>When either method is invoked, the implementation must follow these
-   steps.
-
-  <p>Let <var>parsed selector</var> be the result of running the algorithm to
-   <a href="#parse-a-selector">parse a selector</a> with <var>selectors</var>
-   as the input.
-
-  <p>Let <var>reference nodes</var> be the result of running the algorithm to
-   <a href="#determine-contextual-reference-nodes">determine contextual
-   reference nodes</a> using <var>refElement</var> or <var>refNodes</var> as
-   the input, if provided.
-
-  <p>The implementation must then run the algorithm to <a
-   href="#evaluate-a-selector">evaluate a selector</a> against element nodes
-   in the specified <a href="#subtrees">subtrees</a> using <var>parsed
-   selector</var> as the selector and <var>reference nodes</var> as the <a
-   href="#contextual-reference-element">contextual reference element</a>
-   nodes, as needed to return the required result for the invoked method.
-
   <p>The <dfn id=queryselector
    title=queryselector><code>querySelector()</code></dfn> method on the <a
    href="#dom-node-selector"><code>NodeSelector</code></a> interface <em
    class=ct>must</em> return the <a href="#first">first</a> matching <a
    href="#dom-element"><code>Element</code></a> node within the <a
    href="#subtrees">subtrees</a> of the <a href="#context-node">context
-   node</a>. If there is no such node, the method <em class=ct>must</em>
-   return <code>null</code>.
+   node</a>. If there is no matching <a
+   href="#dom-element"><code>Element</code></a>, the method <em
+   class=ct>must</em> return <code>null</code>.
 
   <p>The <dfn id=queryselectorall
    title=queryselectorall><code>querySelectorAll()</code></dfn> method on the
@@ -477,8 +465,33 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    matching <a href="#dom-element"><code>Element</code></a> nodes within the
    <a href="#subtrees">subtrees</a> of the <a href="#context-node">context
    node</a>, in <a href="#document-order">document order</a>. If there are no
-   such nodes, the method <em class=ct>must</em> return an empty
+   matching nodes, the method <em class=ct>must</em> return an empty
    <code>NodeList</code>.
+
+  <p>When either method is invoked, the implementation must follow these
+   steps:
+
+  <ol>
+   <li>
+    <p>Let <var>parsed selector</var> be the result of running the algorithm
+     to <a href="#parse-a-selector">parse a selector</a> with
+     <var>selectors</var> as the input.
+
+   <li>
+    <p>Let <var>reference nodes</var> be the result of running the algorithm
+     to <a href="#determine-contextual-reference-nodes">determine contextual
+     reference nodes</a> using <var>refElement</var> or <var>refNodes</var>
+     as the input, if provided.
+
+   <li>
+    <p>The implementation must then run the algorithm to <a
+     href="#evaluate-a-selector">evaluate a selector</a> against element
+     nodes in the specified <a href="#subtrees">subtrees</a> using
+     <var>parsed selector</var> as the selector and <var>reference
+     nodes</var> as the <a href="#contextual-reference-element">contextual
+     reference element</a> nodes, as needed to return the required result for
+     the invoked method.
+  </ol>
 
   <p>The <code>NodeList</code> object returned by the <a
    href="#queryselectorall"><code>querySelectorAll()</code></a> method <em
@@ -509,30 +522,36 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    href="#contextual-reference-element">contextual reference element</a>
    nodes.
 
-  <p>When the method is invoked, the implementation must follow these steps.
-
-  <p>Let <var>parsed selector</var> be the result of running the algorithm to
-   <a href="#parse-a-selector">parse a selector</a> with <var>selectors</var>
-   as the input.
-
-  <p>Let <var>reference nodes</var> be the result of running the algorithm to
-   <a href="#determine-contextual-reference-nodes">determine contextual
-   reference nodes</a> using <var>refNodes</var> as the input, if provided.
-
-  <p>The implementation must then run the algorithm to <a
-   href="#evaluate-a-selector">evaluate a selector</a> against the <a
-   href="#context-node">context node</a> using <var>parsed selector</var> as
-   the selector and <var>reference nodes</var> as the <a
-   href="#contextual-reference-element">contextual reference element</a>
-   nodes.
-
   <p>The <dfn id=matchesselector
    title=matchesselector><code>matchesSelector()</code></dfn> method on the
    <a href="#dom-element"><code>Element</code></a> interface <em
-   class=ct>must</em>, when invoked, return true if the <a
-   href="#context-node">context node</a> is a <a
-   href="#matching-element-node">matching <code>Element</code> node</a>.
-   Otherwise, the method <em class=ct>must</em> return false.
+   class=ct>must</em> return true if the <a href="#context-node">context
+   node</a> is a <a href="#matching-element-node">matching
+   <code>Element</code> node</a>. Otherwise, the method <em
+   class=ct>must</em> return false.
+
+  <p>When the method is invoked, the implementation must follow these steps:
+
+  <ol>
+   <li>
+    <p>Let <var>parsed selector</var> be the result of running the algorithm
+     to <a href="#parse-a-selector">parse a selector</a> with
+     <var>selectors</var> as the input.
+
+   <li>
+    <p>Let <var>reference nodes</var> be the result of running the algorithm
+     to <a href="#determine-contextual-reference-nodes">determine contextual
+     reference nodes</a> using <var>refElement</var> or <var>refNodes</var>
+     as the input, if provided.
+
+   <li>
+    <p>The implementation must then run the algorithm to <a
+     href="#evaluate-a-selector">evaluate a selector</a> against the <a
+     href="#context-node">context node</a> using <var>parsed selector</var>
+     as the selector and <var>reference nodes</var> as the <a
+     href="#contextual-reference-element">contextual reference element</a>
+     nodes.
+  </ol>
 
   <h3 id=processing-selectors><span class=secno>6.3. </span>Processing
    Selectors</h3>
@@ -568,17 +587,21 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    follows:
 
   <ol>
-   <li>Let <var>input</var> be the input to this algorithm.
+   <li>
+    <p>Let <var>input</var> be the input to this algorithm.
 
-   <li>The implementation <em class=ct>must</em> first trim any leading
-    and/or trailing <a href="http://www.w3.org/TR/css3-selectors/#whitespace"
-    title=Selectors>whitespace</a> from <var>input</var>.
+   <li>
+    <p>The implementation <em class=ct>must</em> first trim any leading
+     and/or trailing <a
+     href="http://www.w3.org/TR/css3-selectors/#whitespace"
+     title=Selectors>whitespace</a> from <var>input</var>.
 
-   <li>Let <var>result</var> be the group of selectors returned as a result
-    of parsing the <var>input</var> according to <a
-    href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of
-    Selectors</a> (<a href="#SELECT"
-    rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 10).
+   <li>
+    <p>Let <var>result</var> be the group of selectors returned as a result
+     of parsing the <var>input</var> according to <a
+     href="http://www.w3.org/TR/css3-selectors/#w3cselgrammar">the grammar of
+     Selectors</a> (<a href="#SELECT"
+     rel=biblioentry>[SELECT]<!--{{!SELECT}}--></a>, section 10).
 
    <li>Return <var>result</var>.
   </ol>
@@ -587,20 +610,28 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    as follows:
 
   <ol>
-   <li>Let <var>selector group</var> be the selector input into this
-    algotihm.
+   <li>
+    <p>Let <var title="">element</var> be the element being evaluated.
 
-   <li>Let <var>reference nodes</var> be the reference nodes input into this
-    algorithm.
+   <li>
+    <p>Let <var>selector group</var> be the selector input into this
+     algotihm.
 
-   <li>Let <var title="">element</var> be the element being evaluated.
+   <li>
+    <p>Let <var>reference nodes</var> be the reference nodes input into this
+     algorithm.
 
-   <li>The <a href="#scope"><code>:scope</code></a> pseudo class, if used in
-    <var>selector group</var>, must match any node within the <var>reference
-    nodes</var> collection.
+   <li>
+    <p>If <var>reference nodes</var> is not empty, the <a
+     href="#contextual-reference-element">contextual reference element</a>
+     nodes are all the <a href="#dom-element"><code>Element</code></a> nodes
+     contained within. Otherwise, there are no specified <a
+     href="#contextual-reference-element">contextual reference element</a>
+     nodes.
 
-   <li>If any selector in <var>selector group</var> matches <var
-    title="">element</var>, return true. Otherwise, return false.
+   <li>
+    <p>If any selector in <var>selector group</var> matches <var
+     title="">element</var>, return true. Otherwise, return false.
   </ol>
 
   <p>Selectors are evaluated against a given element in the context of the
@@ -625,41 +656,43 @@ for (var i = 0; i &lt; vlinks.length; i++) {
    contextual reference nodes</dfn> are as follows:
 
   <ol>
-   <li>Let <var>input</var> be the value that is being processed, if any.
+   <li>
+    <p>Let <var>input</var> be the value that is being processed, if any.
 
-   <li>Let <var>result</var> be an intially empty collection of <a
-    href="#dom-element"><code>Element</code></a> nodes.
+   <li>
+    <p>Let <var>result</var> be an intially empty collection of <a
+     href="#dom-element"><code>Element</code></a> nodes.
 
-   <li>If the <var>input</var> is an <a
-    href="#dom-element"><code>Element</code></a> node, then that append that
-    element to the <var>result</var> collection.
+   <li>
+    <p>If the <var>input</var> is an <a
+     href="#dom-element"><code>Element</code></a> node, then that append that
+     <a href="#dom-element"><code>Element</code></a> to the <var>result</var>
+     collection.
 
-   <li>If <var>input</var> is a <code>NodeList</code> or
-    <code>HTMLCollection</code>, then append each <a
-    href="#dom-element"><code>Element</code></a> node contained within it to
-    the <var>result</var> collection.
+   <li>
+    <p>If <var>input</var> is a sequence of <code>Node</code> objects, then
+     iterate through the sequence and append each <a
+     href="#dom-element"><code>Element</code></a> node contained within it to
+     the <var>result</var> collection.
 
-   <li>If <var>input</var> is an <code>Array</code> or other object with
-    indexable properties, then iterate through <var>input</var> to find and
-    append each <a href="#dom-element"><code>Element</code></a> node
-    contained within it to the <var>result</var> collection.
+   <li>
+    <p>If <var>result</var> is still an empty collection and the <a
+     href="#context-node">context node</a> is an <a
+     href="#dom-element"><code>Element</code></a> node, append the <a
+     href="#context-node">context node</a> to the <var>result</var>
+     collection.
 
-   <li>If <var>results</var> is still an empty collection and the <a
-    href="#context-node">context node</a> is an <a
-    href="#dom-element"><code>Element</code></a> node, append the <a
-    href="#context-node">context node</a> to the <var>result</var>
-    collection.
-
-   <li>Otherwise, if <var>results</var> is still an empty collection and the
-    <a href="#context-node">context node</a> is a <code>Document</code> node,
-    then append the <code>documentElement</code> of the given document, if
-    any, to the <var>result</var> collection.
-
-   <li>Return <var>result</var>.
+   <li>
+    <p>Return <var>result</var>.
   </ol>
 
   <p class=note>The result may still be an empty collection at the end of
    that process.
+
+  <p class=note>If the refNodes parameter was passed a sequence containing
+   objects other than <code>Node</code> objects, then a
+   <code>TypeError</code> will be thrown (<a href="#WEBIDL"
+   rel=biblioentry>[WEBIDL]<!--{{!WEBIDL}}--></a>).
 
   <h3 id=resolving-namespaces><span class=secno>6.5. </span>Resolving
    Namespaces</h3>
